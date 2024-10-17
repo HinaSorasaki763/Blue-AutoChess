@@ -52,6 +52,8 @@ public class Character : ScriptableObject
         SetStatIfBelowThreshold(StatsType.AttackSpeedGrowth, 0, 0);
         SetStatIfBelowThreshold(StatsType.ResistenceGrowth, 0, 10);
         SetStatIfBelowThreshold(StatsType.CritChance, 0, 25);
+        SetStatIfBelowThreshold(StatsType.DodgeChance, 0, 5);
+        SetStatIfBelowThreshold(StatsType.Accuracy, 0, 15);
         SetStatIfBelowThreshold(StatsType.CritRatio, 0, 55);
     }
 }

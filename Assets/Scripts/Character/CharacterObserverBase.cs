@@ -1,5 +1,7 @@
 ﻿
 using GameEnum;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 using UnityEngine;
 
@@ -109,6 +111,77 @@ public class ArisObserver : CharacterObserverBase//1
         base.OnCastedSkill(character);
     }
 }
+public class AkoObserver : CharacterObserverBase
+{
+    public override void OnLogistic(CharacterCTRL character)
+    {
+        base.OnLogistic(character);
+        List<CharacterCTRL> characters = character.GetAllies();
+
+        CharacterCTRL highestAttackCharacter = characters
+            .OrderByDescending(item => item.GetStat(StatsType.Attack))
+            .FirstOrDefault();
+        if (highestAttackCharacter != null)
+        {
+            Effect critChance = EffectFactory.CreateAkoCritChanceBuff(20,2f);
+            highestAttackCharacter.effectCTRL.AddEffect(critChance);
+            Effect critRatio = EffectFactory.CreateAkoCritRatioBuff(20, 2f);
+            highestAttackCharacter.effectCTRL.AddEffect(critRatio);
+        }
+    }
+}
+public class AyaneObserver : CharacterObserverBase
+{
+    public override void OnLogistic(CharacterCTRL character)
+    {
+        base.OnLogistic(character);
+        List<CharacterCTRL> characters = character.GetAllies();
+        CharacterCTRL highestAttackCharacter = characters
+            .OrderByDescending(item => item.GetStat(StatsType.Attack))
+            .FirstOrDefault();
+        if (highestAttackCharacter != null)
+        {
+            Effect resistance = EffectFactory.CreateAyaneResistanceBuff(20, 2f);
+            highestAttackCharacter.effectCTRL.AddEffect(resistance);
+        }
+    }
+}
+public class FuukaObserver : CharacterObserverBase
+{
+    public override void OnLogistic(CharacterCTRL character)
+    {
+        base.OnLogistic(character);
+        HexNode targetHex = SpawnGrid.Instance.FindBestHexNode(character, 2, false, false, character.CurrentHex);
+        foreach (var item in targetHex.GetCharacterOnNeighborHex(2,true))
+        {
+            item.Heal(10, character);
+        }
+    }
+}
+public class SerinaObserver :CharacterObserverBase
+{
+    public override void OnLogistic(CharacterCTRL character)
+    {
+        base.OnLogistic(character);
+        List<CharacterCTRL> characters = character.GetAllies();
+        CharacterCTRL LowestHealthCharacter = characters
+            .OrderByDescending(item => item.GetStat(StatsType.currHealth))
+            .Last();
+        LowestHealthCharacter.Heal(10,character);
+    }
+}
+public class ShizukoObserver : CharacterObserverBase
+{
+    public override void OnLogistic(CharacterCTRL character)
+    {
+        base.OnLogistic(character);
+        List<CharacterCTRL> characters = character.GetAllies();
+        CharacterCTRL LowestHealthCharacter = characters
+            .OrderByDescending(item => item.GetStat(StatsType.currHealth))
+            .Last();
+        LowestHealthCharacter.AddShield(10,5.0f,character);
+    }
+}
 public class HinaObserver : CharacterObserverBase
 {
 
@@ -136,6 +209,25 @@ public class HoshinoObserver : CharacterObserverBase
     {
         base.OnDying(character);
         shield.gameObject.SetActive(false);
+    }
+}
+public class ShirokoObserver : CharacterObserverBase
+{
+    private ShirokoActiveSkill skillCTRL;
+    public override void CharacterStart(CharacterCTRL character)
+    {
+        skillCTRL = character.GetComponent<ShirokoActiveSkill>();
+        base.CharacterStart(character);
+    }
+    public override void OnAttacking(CharacterCTRL character)
+    {
+        base.OnAttacking(character);
+        if (skillCTRL.droneCTRL != null)
+        {
+            skillCTRL.droneCTRL.AssistAttack(character.Target.GetComponent<CharacterCTRL>(), character);
+        }
+
+        CustomLogger.Log(this, $"Character : {character.characterStats.name} OnAttacking.");
     }
 }
 public class Shiroko_Terror_Observer : CharacterObserverBase

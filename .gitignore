@@ -19,47 +19,13 @@ Assets/AddressableAssetsData/*.hash
 # =============== #
 .vscode/
 .vs/
-*.csproj
-*.pidb
 *.suo
 *.user
 *.userprefs
 *.unityproj
-*.dll
-*.exe
-*.pdf
-*.mid
-*.midi
-*.wav
-*.gif
-*.ico
-*.jpg
-*.jpeg
-*.png
-*.psd
-*.tga
-*.tif
-*.tiff
-*.mp3
-*.ogg
-*.aif
-*.aiff
-*.mod
-*.mov
-*.mp4
-*.aac
-*.mpg
-*.mpeg
-*.ai
-*.eps
-*.svg
-*.asset
-*.assets
-*.meta
-*.unity
-*.prefab
-*.controller
-*.overrideController
+
+# 需要保留以下專案文件
+# 保留 .csproj 和 .sln 文件，這些對 Visual Studio 和專案編譯是必要的
 
 # =============== #
 # OS generated files #

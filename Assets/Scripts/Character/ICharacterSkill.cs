@@ -116,10 +116,10 @@ public class AyaneSkill : CharacterSkillBase//找到一個範圍內最多友軍�
         bool IsFindingAlly = true;
         HexNode targetHex = FindMaxOccupiedEntityGrid(skillContext.Range, skillContext.hexMap, skillContext, IsFindingAlly);
         GameObject HealPack = ResourcePool.Instance.SpawnObject(SkillPrefab.HealPack, targetHex.Position + new Vector3(0, 3, 0), Quaternion.identity);
-        HealPack.GetComponent<HealPack>().InitStats(targetHex, skillContext.Range, 100);
+        HealPack.GetComponent<HealPack>().InitStats(targetHex, skillContext.Range, 100,skillContext.Parent);
     }
 }
-public class HarukaSkill : CharacterSkillBase//架起護盾，並向前攻擊數波，她前方的敵軍將會被減少攻擊
+public class HarukaSkill : CharacterSkillBase//架起護盾，並向前攻擊數波，她前方的敵軍將會被減少攻擊力
 {
     private Dictionary<int, StarLevelStats> statsByStarLevel;
     public int BaseDmg;
@@ -147,12 +147,13 @@ public class HarukaSkill : CharacterSkillBase//架起護盾，並向前攻擊數
                                .ToList();
         commonNeighbors.Add(hexNode);
         bool isAlly = skillContext.Parent.IsAlly;
-        Debug.Log($"hexNode = {hexNode.Position}, currentHex = {currentHex.Position},Count = {commonNeighbors.Count}");
         foreach (var neighbor in commonNeighbors)
         {
             if (neighbor.OccupyingCharacter != null && neighbor.OccupyingCharacter.IsAlly != isAlly)
             {
                 neighbor.OccupyingCharacter.GetHit(10,skillContext.Parent);
+                Effect effect = EffectFactory.CreateHarukaMinusAtkEffect(5,5);
+                neighbor.OccupyingCharacter.effectCTRL.AddEffect(effect);
             }
         }
     }
@@ -183,7 +184,6 @@ public class HarunaSkill : CharacterSkillBase
         base.ExecuteSkill(skillContext);
         int lowestHp = int.MaxValue;
         CharacterCTRL lowestEnemy = null;
-        Debug.Log($"skillContext.Enemies.count = {skillContext.Enemies.Count}");
         foreach (var item in skillContext.Enemies)
         {
             if (item.gameObject.activeInHierarchy&& item.GetStat(StatsType.currHealth) < lowestHp)
@@ -191,7 +191,6 @@ public class HarunaSkill : CharacterSkillBase
                 lowestEnemy = item;
             }
         }
-        Debug.Log($"lowestEnemy = {lowestEnemy.transform.position}");
         skillContext.Parent.transform.LookAt(lowestEnemy.GetHitPoint);
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
         bullet.GetComponent<NormalBullet>().Initialize(lowestEnemy.transform.position,dmg,layer,skillContext.Parent, 15f);
@@ -259,7 +258,8 @@ public class NatsuSkill : CharacterSkillBase//治癒自己一定血量，架起�
         immuneduraion = stats.Data3;
         base.ExecuteSkill(skillContext);
         skillContext.Parent.AddStat(StatsType.currHealth,BaseHeal);
-        //TODO:尚未實現控制，等到實現控制再回來補足免疫控制(natsu)
+        Effect effect = EffectFactory.ClarityEffect(5);
+        skillContext.Parent.effectCTRL.AddEffect(effect);
     }
 }
 public class NoaSkill : CharacterSkillBase//對生命值上限最低的敵軍施放"標記"，範圍內的友軍會設法攻擊他
@@ -279,6 +279,11 @@ public class NoaSkill : CharacterSkillBase//對生命值上限最低的敵軍施
         int level = skillContext.CharacterLevel;
         StarLevelStats stats = statsByStarLevel[level];
         base.ExecuteSkill(skillContext);
+        Effect effect = EffectFactory.CreateMarkedEffect(level);
+        CharacterCTRL StrongestEnemy = skillContext.Parent.GetEnemies()
+            .OrderByDescending(item => item.GetStat(StatsType.Attack))
+            .FirstOrDefault();
+        StrongestEnemy.effectCTRL.AddEffect(effect);
         //等到控制類一併實現(Noa)
     }
 }
@@ -299,6 +304,8 @@ public class SerikaSkill : CharacterSkillBase//增加自己一些攻擊力、攻
         int level = skillContext.CharacterLevel;
         StarLevelStats stats = statsByStarLevel[level];
         base.ExecuteSkill(skillContext);
+        Effect effect = EffectFactory.CreateSerikaRageEffect(10,5);
+        skillContext.Parent.effectCTRL.AddEffect(effect);
     }
 }
 public class SerinaSkill : CharacterSkillBase
@@ -344,7 +351,7 @@ public class SerinaSkill : CharacterSkillBase
             Vector3 pos = lowestHpAllies[i % actualBoxAmount].transform.position + new Vector3(0, 3, 0);
             GameObject HealPack = ResourcePool.Instance.SpawnObject(SkillPrefab.HealPack, pos, Quaternion.identity);
             HexNode hex = Utility.GetHexOnPos(pos);
-            HealPack.GetComponent<HealPack>().InitStats(hex, skillContext.Range, 100);
+            HealPack.GetComponent<HealPack>().InitStats(hex, skillContext.Range, 100, skillContext.Parent);
         }
     }
 }
@@ -354,9 +361,18 @@ public class ShizukoSkill : CharacterSkillBase//在角色(無論敵我)最多的
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
+        HexNode hex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent,3,false,true,skillContext.Parent.CurrentHex);
+        skillContext.Parent.GetComponent<ShizukoActiveSkill>().SpawnTruck(hex.Position);
+
+        foreach (var item in skillContext.Parent.CurrentHex.GetCharacterOnNeighborHex(3,true))
+        {
+            item.AddShield(100,5f,skillContext.Parent);
+            Effect effect = EffectFactory.CreateShizukoEffect(30, 10);
+            item.effectCTRL.AddEffect(effect);
+        }
     }
 }
-public class SumireSkill : CharacterSkillBase//翻滾到最好的位置，且射擊一次(記得檢查可不可以通行)。
+public class SumireSkill : CharacterSkillBase//TODO:翻滾到最好的位置，且射擊一次(記得檢查可不可以通行)。
 {
     public override void ExecuteSkill(SkillContext skillContext)
     {
@@ -365,7 +381,6 @@ public class SumireSkill : CharacterSkillBase//翻滾到最好的位置，且射
 }
 public class AkoSkill : CharacterSkillBase//增加某些人的命中率、爆擊率、爆擊數值
 {
-    //TODO:等到這些數值實裝
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
@@ -418,29 +433,23 @@ public class MineSkill : CharacterSkillBase//跳躍到敵人最多的位置，�
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
-
-        // Step 1: 尋找範圍內敵人最多的格子
         HexNode targetHex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent,3,true,true,skillContext.currHex);
 
         if (targetHex != null)
         {
-            // Step 2: 讓角色移動到目標格子
             skillContext.Parent.StartCoroutine(JumpToTarget(skillContext.Parent, targetHex,3, skillContext));//TODO:修改此處，改為傳入skill context的range
         }
     }
-    // Step 2: 執行跳躍
     private IEnumerator JumpToTarget(CharacterCTRL character, HexNode targetHex,int range, SkillContext skillContext)
     {
-        // 等待28幀，假設每秒30幀
         yield return new WaitForSeconds(31f / 30f);
+        HexNode hex = character.CurrentHex;
         character.CurrentHex.HardRelease();
         Vector3 startPosition = character.transform.position;
         Vector3 targetPosition = targetHex.Position;
         targetHex.HardReserve(character);
         float jumpDuration = 9f / 30f;
         float elapsedTime = 0f;
-
-        // 跳躍動畫
         while (elapsedTime < jumpDuration)
         {
             elapsedTime += Time.deltaTime;
@@ -452,7 +461,10 @@ public class MineSkill : CharacterSkillBase//跳躍到敵人最多的位置，�
         }
         character.transform.position = targetPosition;
         targetHex.HardReserve(character);
-
+        if (targetHex != hex)
+        {
+            hex.HardRelease();
+        }
         StunEnemiesAroundHex(targetHex, range, skillContext);
     }
 
@@ -480,7 +492,7 @@ public class MomoiSkill : CharacterSkillBase//對範圍內敵人進行一次掃�
         base.ExecuteSkill(skillContext);
     }
 }
-public class NonomiSkill : CharacterSkillBase//對範圍內敵人進行兩次掃射
+public class NonomiSkill : CharacterSkillBase
 {
     public override void ExecuteSkill(SkillContext skillContext)
     {
@@ -492,6 +504,21 @@ public class ShirokoSkill : CharacterSkillBase//一個無人機攻擊若干次
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
+        ShirokoActiveSkill s = skillContext.Parent.GetComponent<ShirokoActiveSkill>();
+        Shiroko_Terror_DroneCTRL d = s.droneCTRL;
+        if (d == null)
+        {
+            s.droneRef = s.GetDrone(skillContext);
+
+            s.droneRef.transform.SetParent(skillContext.Parent.transform, true);
+            d = s.droneCTRL = s.droneRef.GetComponent<Shiroko_Terror_DroneCTRL>();
+            d.Dmg = skillContext.DamageAmount;
+        }
+        else
+        {
+            s.droneRef.SetActive(true);
+            d.Dmg += skillContext.DamageAmount;
+        }
     }
 }
 public class TsubakiSkill : CharacterSkillBase//架起護盾。
@@ -510,17 +537,13 @@ public class YuukaSkill : CharacterSkillBase//跳到敵人最多的地方，同�
 
         if (targetHex != null)
         {
-            // Step 2: 讓角色移動到目標格子
             skillContext.Parent.StartCoroutine(JumpToTarget(skillContext.Parent, targetHex, 2, skillContext));//TODO:修改此處，改為傳入skill context的range
         }
     }
     private IEnumerator JumpToTarget(CharacterCTRL character, HexNode targetHex, int range, SkillContext skillContext)
     {
-        // 等待28幀，假設每秒30幀
         yield return new WaitForSeconds(31f / 30f);
-
-        // 釋放當前格子
-        Debug.Log($"[JumpToTarget] Releasing current hex: {character.CurrentHex.Position}");
+        HexNode hex = character.CurrentHex;
         character.CurrentHex.HardRelease();
 
         Vector3 startPosition = character.transform.position;
@@ -539,48 +562,25 @@ public class YuukaSkill : CharacterSkillBase//跳到敵人最多的地方，同�
 
         character.transform.position = targetPosition;
         targetHex.HardReserve(character);
-
-        // 打印跳躍後的狀態
-        StringBuilder sb = new StringBuilder();
-        sb.AppendLine($"[JumpToTarget] Finished jump to target hex: {targetHex.Position}, Reserving character: {character.name}");
-
-        foreach (HexNode neighbor in SpawnGrid.Instance.GetHexNodesWithinRange(targetHex, range))
+        if (targetHex != hex)
         {
-            sb.AppendLine($"[JumpToTarget] Neighbor Hex: {neighbor.Position}, OccupyingCharacter: {neighbor.OccupyingCharacter}");
+            hex.HardRelease();
         }
-        Debug.Log(sb.ToString());
 
-        // 為周圍友軍提供護盾
         ShieldAllyAroundHex(targetHex, range, skillContext);
     }
 
 
     private void ShieldAllyAroundHex(HexNode targetHex, int range, SkillContext skillContext)
     {
-        bool isAlly = skillContext.Parent.IsAlly;
-
-        StringBuilder sb = new StringBuilder();
-        // Log skill context info
-        sb.AppendLine($"[ShieldAllyAroundHex]ShieldAllyAroundHex called. Parent: {skillContext.Parent.name}, IsAlly: {isAlly}");
-
         foreach (HexNode neighbor in SpawnGrid.Instance.GetHexNodesWithinRange(targetHex, range))
         {
-            // Log each neighbor's information
-            sb.AppendLine($"[ShieldAllyAroundHex]Checking neighbor: {neighbor.Position}, IsBattlefield: {neighbor.IsBattlefield}, OccupyingCharacter: {neighbor.OccupyingCharacter}");
-
-            if (neighbor.OccupyingCharacter != null)
+            if (neighbor.OccupyingCharacter != null&& neighbor.OccupyingCharacter.IsAlly == skillContext.Parent.IsAlly)
             {
-                sb.AppendLine($"[ShieldAllyAroundHex]Neighbor OccupyingCharacter: {neighbor.OccupyingCharacter.name}, IsAlly: {neighbor.OccupyingCharacter.IsAlly}");
-
-                if (neighbor.OccupyingCharacter.IsAlly == isAlly)
-                {
-                    // 如果符合條件，增加護盾
-                    neighbor.OccupyingCharacter.AddShield(50, 5.0f);
-                    sb.AppendLine($"[ShieldAllyAroundHex]Shielded Ally: {neighbor.OccupyingCharacter.name} at Hex: {neighbor.Position}");
-                }
+                neighbor.OccupyingCharacter.AddShield(50, 5.0f, skillContext.Parent);
             }
         }
-        Debug.Log( sb.ToString() );
+        skillContext.Parent.AddShield(50, 5.0f, skillContext.Parent);
     }
 
 }

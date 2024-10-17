@@ -8,11 +8,13 @@ public class HealPack : MonoBehaviour
     public HexNode TargetHex;
     private int Range;
     private int HealAmount;
-    public void InitStats(HexNode targetHex, int range, int healAmount)
+    private CharacterCTRL characterCTRL;
+    public void InitStats(HexNode targetHex, int range, int healAmount,CharacterCTRL character)
     {
         TargetHex = targetHex;
         Range = range;
         HealAmount = healAmount;
+        characterCTRL = character;
     }
     public void Start()
     {
@@ -34,10 +36,16 @@ public class HealPack : MonoBehaviour
         {
             if (item.OccupyingCharacter!= null)
             {
-                item.OccupyingCharacter.Heal(HealAmount);
-                Debug.Log($"{item.OccupyingCharacter.name} heal {HealAmount}");
+                item.OccupyingCharacter.Heal(HealAmount,characterCTRL);
             }
         }
+
+    }
+    public void Return()
+    {
+        characterCTRL = null;
+        HealAmount = 0;
+        Range = 0;
         gameObject.SetActive(false);
     }
 }

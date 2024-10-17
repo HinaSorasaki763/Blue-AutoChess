@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fbf78efefd98864dbfe4d767cd25431, type: 3}
+  m_Name: RoundProbabilityData
+  m_EditorClassIdentifier: 
+  roundProbabilities:
+  - OneCostProbability: 100
+    TwoCostProbability: 0
+    ThreeCostProbability: 0
+  - OneCostProbability: 90
+    TwoCostProbability: 10
+    ThreeCostProbability: 0
+  - OneCostProbability: 80
+    TwoCostProbability: 19
+    ThreeCostProbability: 1
+  - OneCostProbability: 70
+    TwoCostProbability: 28
+    ThreeCostProbability: 2
+  - OneCostProbability: 60
+    TwoCostProbability: 35
+    ThreeCostProbability: 5
+  - OneCostProbability: 60
+    TwoCostProbability: 30
+    ThreeCostProbability: 10
+  - OneCostProbability: 55
+    TwoCostProbability: 35
+    ThreeCostProbability: 10
+  - OneCostProbability: 55
+    TwoCostProbability: 30
+    ThreeCostProbability: 15
+  - OneCostProbability: 0
+    TwoCostProbability: 0
+    ThreeCostProbability: 0
+  - OneCostProbability: 0
+    TwoCostProbability: 0
+    ThreeCostProbability: 0

@@ -19,7 +19,7 @@ public class CharacterParent : MonoBehaviour
         foreach (var character in childCharacters)
         {
             CharacterCTRL c = character.GetComponent<CharacterCTRL>();
-            if (c.CurrentHex.IsBattlefield)
+            if (c.CurrentHex.IsBattlefield||c.CurrentHex.IsLogistics)
             {
                 c.EnterBattle();
             }

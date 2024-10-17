@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.TextCore.Text;
 public class HexNode : MonoBehaviour
 {
     public Vector3 Position;
@@ -205,6 +206,39 @@ public class HexNode : MonoBehaviour
     public void AddNeighbor(HexNode neighbor)
     {
         Neighbors.Add(neighbor);
+    }
+    public List<CharacterCTRL> GetCharacterOnNeighborHex(int radius, bool withItSelf)
+    {
+        HashSet<HexNode> visited = new HashSet<HexNode> { this };
+        List<HexNode> currentLayer = new List<HexNode> { this };
+        List<CharacterCTRL> characters = new List<CharacterCTRL>();
+        for (int i = 0; i < radius; i++)
+        {
+            List<HexNode> nextLayer = new List<HexNode>();
+            foreach (HexNode node in currentLayer)
+            {
+                foreach (HexNode neighbor in node.Neighbors)
+                {
+                    if (visited.Add(neighbor))
+                    {
+                        nextLayer.Add(neighbor);
+                    }
+                }
+            }
+            currentLayer = nextLayer;
+        }
+        if (withItSelf)
+        {
+            currentLayer.Add(this);
+        }
+        foreach (HexNode node in currentLayer)
+        {
+            if (node.OccupyingCharacter != null && !node.OccupyingCharacter.characterStats.logistics)
+            {
+                characters.Add(node.OccupyingCharacter);
+            }
+        }
+        return characters;
     }
 
     public void SetOccupyingCharacter(CharacterCTRL character)

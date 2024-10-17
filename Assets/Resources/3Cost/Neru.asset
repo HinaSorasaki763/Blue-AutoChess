@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c1404071b3438543b297a251187c120, type: 3}
+  m_Name: Neru
+  m_EditorClassIdentifier: 
+  CharacterName: Neru
+  CharacterId: 28
+  Level: 3
+  Sprite: {fileID: 21300000, guid: 0e70f925a3fcc5d4eb140ad6a461dc13, type: 3}
+  Model: {fileID: 8927820391285616049, guid: 3ca301856084caa47b588e82e5f5a224, type: 3}
+  logistics: 0
+  Stats:
+    stats:
+    - statType: 0
+      value: 100
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 50
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 10
+    - statType: 5
+      value: 1
+    - statType: 6
+      value: 5
+    - statType: 7
+      value: 5
+    - statType: 8
+      value: 10
+    - statType: 9
+      value: 5
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 1
+  Traits: 03000000050000000b000000
+  skillTooltip: 

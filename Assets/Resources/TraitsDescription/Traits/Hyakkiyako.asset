@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ead49aeef8c59df4f8ca6dd50b8bceb2, type: 3}
+  m_Name: Hyakkiyako
+  m_EditorClassIdentifier: 
+  trait: 2
+  description: Hyakkiyako
+  descrtipns:
+  - "\u7576\u767E\u9B3C\u591C\u884C\u7684\u5B78\u751F\u8840\u91CF\u9AD8\u65BC\u67D0\u500B\u95BE\u503C\u6642\uFF0C\u653B\u64CA\u529B\u6703\u63D0\u5347\u3002\u7576\u8840\u91CF\u5373\u5C07\u4F4E\u65BC\u8A72\u95BE\u503C\u6642\uFF0C\u751F\u547D\u503C\u6703\u88AB\u8A2D\u7F6E\u70BA\u8A72\u95BE\u503C\uFF0C\u4E26\u4E14\u8A98\u5C0E\u6240\u6709\u539F\u672C\u9396\u5B9A\u8A72\u5B78\u751F\u7684\u5176\u4ED6\u5B78\u751F\u8F49\u79FB\u76EE\u6A19\uFF0C\u77ED\u6642\u9593\u5167\u7121\u6CD5\u88AB\u653B\u64CA\u3002"
+  - Hyakkiyako students gain an attack power boost when their health is above a certain
+    threshold. If their health is about to fall below that threshold, it is set to
+    the threshold value, and all enemies targeting them will be redirected to other
+    students. For a short time, the student cannot be harmed.

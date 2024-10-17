@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ead49aeef8c59df4f8ca6dd50b8bceb2, type: 3}
+  m_Name: Trinity
+  m_EditorClassIdentifier: 
+  trait: 4
+  description: Trinity
+  descrtipns:
+  - " \u8056\u4E09\u4E00\u5B78\u9662\u7684\u5B78\u751F\u5206\u70BA\u4E09\u6D3E\uFF1A\u8056\u7236\u3001\u8056\u9748\u3001\u8056\u5B50\u3002\u53EF\u4EE5\u4F7F\u7528\u300C\u9818\u8896\u9078\u64C7\u5668\u300D\u9078\u64C7\u67D0\u500B\u5B78\u751F\u4F5C\u70BA\u9818\u8896\uFF0C\u6240\u6709\u8056\u4E09\u4E00\u5B78\u751F\u6703\u61C9\u7528\u8A72\u9818\u8896\u6D3E\u7CFB\u7684\u6548\u679C\u3002\n\n\u8056\u7236:
+    \u9020\u6210\u984D\u5916\u50B7\u5BB3\uFF0C\u5C0D\u683C\u9ED1\u5A1C\u5B78\u751F\u6709\u984D\u5916\u50B7\u5BB3\u3002\n\u8056\u9748:
+    \u88AB\u9078\u70BA\u8056\u9748\u7684\u55AE\u4F4D\u6B7B\u5F8C\u6703\u4EE5\u90E8\u5206\u6700\u5927\u751F\u547D\u5FA9\u6D3B\uFF0C\u9664\u975E\u5834\u4E0A\u6C92\u6709\u5176\u4ED6\u8056\u4E09\u4E00\u5B78\u751F\u3002\n\u8056\u5B50:
+    \u5C0D\u975E\u9818\u8896\u55AE\u4F4D\u6C92\u6709\u52A0\u6210\uFF0C\u4F46\u6BCF\u79D2\u5B58\u6D3B\u7684\u8056\u4E09\u4E00\u5B78\u751F\u6703\u66AB\u6642\u589E\u5F37\u8056\u5B50\u55AE\u4F4D\u3002"
+  - " Trinity students are divided into three factions: Father, Spirit, and Son.
+    You can use the \"Leader Selector\" to choose a student as the leader, and all
+    Trinity students will apply the effects of the leader\u2019s faction.\n\nFather:
+    Deals extra damage, with bonus damage against Gehenna students.\nSpirit: A Spirit
+    unit will revive with part of their max health after dying, unless there are
+    no other Trinity students on the field.\nSon: Does not provide any bonus to non-leader
+    units, but every second a Trinity student survives, the Son unit is temporarily
+    strengthened for the duration of the battle."

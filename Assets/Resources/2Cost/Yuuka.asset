@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c1404071b3438543b297a251187c120, type: 3}
+  m_Name: Yuuka
+  m_EditorClassIdentifier: 
+  CharacterName: Yuuka
+  CharacterId: 24
+  Level: 2
+  Sprite: {fileID: 21300000, guid: 3b14e2b8cdd9f0e4bb625281b05e7a5c, type: 3}
+  Model: {fileID: 3648469996316156733, guid: 540282ad3e31d534a87c8a4db03ec78e, type: 3}
+  logistics: 0
+  Stats:
+    stats:
+    - statType: 0
+      value: 100
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 50
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 10
+    - statType: 5
+      value: 1
+    - statType: 6
+      value: 5
+    - statType: 7
+      value: 5
+    - statType: 8
+      value: 10
+    - statType: 9
+      value: 5
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 1
+  Traits: 0300000008000000
+  skillTooltip: Yuuka searches for the tile with the most allied units within a one-tile
+    radius and jumps to that tile, granting a shield to allies for five seconds based
+    on her own health.

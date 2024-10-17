@@ -214,7 +214,7 @@ public class SpawnGrid : MonoBehaviour
         Debug.LogError($"No position found for GridIndex {index}");
         return Vector3.zero;
     }
-    public HexNode FindBestHexNode(CharacterCTRL character, int radius, bool findEnemies, bool requireEmpty, HexNode currHex)
+    public HexNode FindBestHexNode(CharacterCTRL character, int radius, bool findEnemies, bool requireEmpty, HexNode currHex,bool isLogistic = false)
     {
         HexNode bestHexNode = null;
         int maxCount = int.MinValue;
@@ -242,11 +242,11 @@ public class SpawnGrid : MonoBehaviour
                 bestHexNode = node;
             }
         }
+        if (isLogistic) return bestHexNode;
 
         // 比較當前格子和找到的最佳格子的鄰近角色數
         int currentNeighborsCount = CountCharactersWithinRadius(currHex, character.IsAlly, radius, findEnemies,character);
         int bestNodeNeighborsCount = CountCharactersWithinRadius(bestHexNode, character.IsAlly, radius, findEnemies, character);
-
         Debug.Log($"Comparing current hex {currHex.name} with {currentNeighborsCount} neighbors to best node {bestHexNode.name} with {bestNodeNeighborsCount} neighbors");
 
         if (currentNeighborsCount == bestNodeNeighborsCount)

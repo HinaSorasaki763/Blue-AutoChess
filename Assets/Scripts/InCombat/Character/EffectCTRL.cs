@@ -1,8 +1,8 @@
+using GameEnum;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
-using GameEnum;
+using UnityEngine;
 
 public class EffectCTRL : MonoBehaviour
 {
@@ -38,23 +38,21 @@ public class EffectCTRL : MonoBehaviour
             }
             else
             {
-                // 如果效果不是永久的，則延長持續時間
-                existingEffect.Duration += effect.Duration;
-                CustomLogger.Log(this, $"Extended duration of {effect.Source} by {effect.Duration:F2} seconds.");
+                // 如果效果不是永久的，則選擇較長的持續時間
+                float newDuration = Mathf.Max(existingEffect.Duration, effect.Duration);
+                CustomLogger.Log(this, $"Updated duration of {effect.Source} to {newDuration:F2} seconds.");
+                existingEffect.Duration = newDuration;
                 UpdateEffectNames(); // 更新效果名稱列表
                 return;
             }
+
         }
-
-        // 如果沒有相同來源的效果，則添加新效果
         activeEffects.Add(effect);
-        UpdateEffectNames(); // 更新效果名稱列表
-
+        UpdateEffectNames(); 
         if (effect.SpecialType == SpecialEffectType.None)
         {
             modifierCTRL.AddStatModifier(effect.ModifierType, effect.Value, effect.Source, effect.IsPermanent, effect.Duration);
         }
-
         effect.OnApply.Invoke(characterCTRL);
     }
 
@@ -73,7 +71,7 @@ public class EffectCTRL : MonoBehaviour
     }
     private void UpdateEffectNames()
     {
-        effectNames = activeEffects.Select(e => $" {e.Source} : {e.SpecialType}  ({e.Duration:F2}s)").ToList();
+        effectNames = activeEffects.OrderByDescending(e => e.Source.Length).Select(e => $" {e.Source} : {e.SpecialType}  ({e.Duration:F2}s)").ToList();
     }
     public void ClearEffectWithSource(String source)
     {
@@ -157,7 +155,21 @@ public static class EffectFactory
 
         );
     }
+    public static Effect ClarityEffect(float duration)
+    {
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            "ClarityEffect",
+            false,
+            (character) => character.Clarity(),
+            (character) => character.SetCCImmune(false),
+            duration,
+            SpecialEffectType.CCImmune
 
+        );
+    }
     public static Effect CreateCCImmunityEffect(float duration)
     {
         return new Effect(
@@ -217,5 +229,90 @@ public static class EffectFactory
             SpecialEffectType.Invincible
 
         );
+    }
+    public static Effect CreateAkoCritChanceBuff(int critChance, float duration)
+    {
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.DamageDealt,
+            critChance,
+            "AkoCritChanceBuff",
+            false,
+            (character) => character.ModifyStats(StatsType.CritChance, critChance),
+            (character) => character.ModifyStats(StatsType.CritChance, -critChance),
+            duration,
+            SpecialEffectType.None
+            );
+    }
+    public static Effect CreateAkoCritRatioBuff(int critRatio, float duration)
+    {
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.DamageDealt,
+            critRatio,
+            "AkoCritRatioBuff",
+            false,
+            (character) => character.ModifyStats(StatsType.CritRatio, critRatio),
+            (character) => character.ModifyStats(StatsType.CritRatio, -critRatio),
+            duration,
+            SpecialEffectType.None
+            );
+    }
+    public static Effect CreateAyaneResistanceBuff(int Resistence, float duration)
+    {
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.DamageDealt,
+            Resistence,
+            "AyaneResistanceBuff",
+            false,
+            (character) => character.ModifyStats(StatsType.Resistence, Resistence),
+            (character) => character.ModifyStats(StatsType.Resistence, -Resistence),
+            duration,
+            SpecialEffectType.None
+            );
+    }
+    public static Effect CreateHarukaMinusAtkEffect(int amount,float duration)
+    {
+        return new Effect(
+            EffectType.Negative,
+            ModifierType.DamageDealt,
+            amount,
+            "HarukaMinusAtkEffect",
+            false,
+            (character) => character.ModifyStats(StatsType.Attack,-amount),
+            (character) => character.ModifyStats(StatsType.Attack, amount),
+            duration,
+            SpecialEffectType.None
+            );
+    }
+    public static Effect CreateSerikaRageEffect(int amount, float duration)
+    {
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.DamageDealt,
+            amount,
+            "SerikaRageEffect",
+            false,
+            (character) => character.ModifyStats(StatsType.Attack, amount),
+            (character) => character.ModifyStats(StatsType.Attack, -amount),
+            duration,
+            SpecialEffectType.None
+
+            );
+    }
+    public static Effect CreateShizukoEffect(int amount, float duration)
+    {
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.DamageDealt,
+            amount,
+            "ShizukoEffect",
+            false,
+            (character) => character.ModifyStats(StatsType.Accuracy, amount),
+            (character) => character.ModifyStats(StatsType.Accuracy, -amount),
+            duration,
+            SpecialEffectType.None
+            );
     }
 }

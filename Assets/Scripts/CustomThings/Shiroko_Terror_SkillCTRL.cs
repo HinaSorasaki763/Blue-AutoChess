@@ -34,8 +34,7 @@ public class Shiroko_Terror_SkillCTRL : MonoBehaviour
     public int ChooseSkill(SkillContext skillContext)
     {
         Debug.Log($"[Shiroko_Terror_SkillCTRL] 開始選擇技能, forcepick: {forcepick}");
-        return GetRandomNumber();
-       /* int chosenSkillId = GetForcedSkillId() ?? Choose(skillContext);
+        int chosenSkillId = GetForcedSkillId() ?? Choose(skillContext);
         if (skillDictionary.TryGetValue(chosenSkillId, out I_Shiroko_Terror_Skill skill))
         {
             Debug.Log($"[Shiroko_Terror_SkillCTRL] 執行技能 ID: {chosenSkillId}");
@@ -46,7 +45,7 @@ public class Shiroko_Terror_SkillCTRL : MonoBehaviour
             Debug.LogWarning($"[Shiroko_Terror_SkillCTRL] 未找到技能 ID: {chosenSkillId}");
         }
 
-        return chosenSkillId;*/
+        return chosenSkillId;
     }
 
     private int? GetForcedSkillId()
@@ -65,11 +64,6 @@ public class Shiroko_Terror_SkillCTRL : MonoBehaviour
                 Debug.Log("[Shiroko_Terror_SkillCTRL] 無強制選擇");
                 return null;
         }
-    }
-    public int GetRandomNumber()
-    {
-        System.Random random = new System.Random();
-        return random.Next(2, 10);
     }
 
     public int Choose(SkillContext skillContext)

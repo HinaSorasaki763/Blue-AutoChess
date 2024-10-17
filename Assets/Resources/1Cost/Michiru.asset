@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c1404071b3438543b297a251187c120, type: 3}
+  m_Name: Michiru
+  m_EditorClassIdentifier: 
+  CharacterName: Michiru
+  CharacterId: 5
+  Level: 1
+  Sprite: {fileID: 21300000, guid: 94386edaafc13744186cbce3fcdd396f, type: 3}
+  Model: {fileID: 6061705180606338684, guid: db220fab00564d64b863fcbc9801a931, type: 3}
+  logistics: 0
+  Stats:
+    stats:
+    - statType: 0
+      value: 100
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 50
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 10
+    - statType: 5
+      value: 1
+    - statType: 6
+      value: 5
+    - statType: 7
+      value: 5
+    - statType: 8
+      value: 10
+    - statType: 9
+      value: 5
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 1
+  Traits: 02000000060000000d000000
+  skillTooltip: Fires a firework at her current target, scorching the tile within
+    a one-tile radius around the target, dealing low damage over time. If the current
+    target's tile is already affected by the firework's burning effect, she will
+    prefer to aim at an enemy not yet influenced by this skill.

@@ -3,9 +3,12 @@ using GameEnum;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.UIElements;
 
 public class CharacterCTRL : MonoBehaviour
 {
@@ -68,7 +71,7 @@ public class CharacterCTRL : MonoBehaviour
 
     private readonly Vector3 offset = new Vector3(0, 0.14f, 0);
     public bool isShirokoTerror;
-
+    public Shiroko_Terror_DroneCTRL droneCTRL;
 
     #endregion
     #region Unity Lifecycle Methods
@@ -85,7 +88,7 @@ public class CharacterCTRL : MonoBehaviour
         traitController = GetComponent<TraitController>();
         customAnimator = null;
         IsDying = false;
-        if (characterBars!= null)
+        if (characterBars != null)
         {
             characterBars.gameObject.SetActive(true);
         }
@@ -132,7 +135,7 @@ public class CharacterCTRL : MonoBehaviour
             transform.rotation = Quaternion.Euler(0, 180, 0);
         }
         characterBars.UpdateText(customAnimator.GetState().Item1.ToString());
-        if (Target!= null&& !Target.activeInHierarchy)
+        if (Target != null && !Target.activeInHierarchy)
         {
             Target = null;
         }
@@ -177,7 +180,7 @@ public class CharacterCTRL : MonoBehaviour
 
     private void HandleAttack(bool canAttack)
     {
-        if (!canAttack || IsCastingAbility ||  Target == null || !Target.activeInHierarchy)
+        if (!canAttack || IsCastingAbility || Target == null || !Target.activeInHierarchy)
         {
             if (Target == null && !isFindingTarget && !isWalking && !isFindingPath)
             {
@@ -231,7 +234,7 @@ public class CharacterCTRL : MonoBehaviour
         int i = 0;
         if (isShirokoTerror)
         {
-            Shiroko_Terror_SkillCTRL shiroko_Terror_SkillCTRL =  GetComponent<Shiroko_Terror_SkillCTRL>();
+            Shiroko_Terror_SkillCTRL shiroko_Terror_SkillCTRL = GetComponent<Shiroko_Terror_SkillCTRL>();
             skillContext.shirokoTerror_SkillID = shiroko_Terror_SkillCTRL.ChooseSkill(skillContext);
             i = skillContext.shirokoTerror_SkillID;
         }
@@ -243,20 +246,12 @@ public class CharacterCTRL : MonoBehaviour
             item.OnCastedSkill(this);
         }
         return i;
-        
+
     }
 
     public void Attack()
     {
         if (IsDying) return;
-
-        if (!customAnimator.GetState().Item2 || Target == null)
-        {
-
-            customAnimator.ChangeState(CharacterState.Idling);
-            return;
-        }
-
         if (characterStats.logistics)
         {
             logistics();
@@ -273,8 +268,8 @@ public class CharacterCTRL : MonoBehaviour
         int damage = (int)(GetStat(StatsType.Attack) * (1 + modifierCTRL.GetTotalStatModifierValue(ModifierType.DamageDealt) * 0.01f));
         if (Utility.Iscrit(GetStat(StatsType.CritChance)))
         {
-            damage = (int)(damage*(1 + GetStat(StatsType.CritRatio)*0.01f));
-            CustomLogger.Log(this,$"character {name} crit");
+            damage = (int)(damage * (1 + GetStat(StatsType.CritRatio) * 0.01f));
+            CustomLogger.Log(this, $"character {name} crit");
         }
         bulletComponent.SetDmg(damage);
         transform.LookAt(Target.transform);
@@ -304,7 +299,12 @@ public class CharacterCTRL : MonoBehaviour
     }
 
 
-    public void Heal(int amount) => AddStat(StatsType.currHealth, amount);
+    public void Heal(int amount,CharacterCTRL source)
+    {
+        CustomLogger.Log(this,$"{source} heal {name} of {amount}");
+        AddStat(StatsType.currHealth, amount);
+    }
+
 
     public void OnKillEnemy(CharacterCTRL enemy) => traitController.NotifyOnKilledEnemy();
 
@@ -335,6 +335,7 @@ public class CharacterCTRL : MonoBehaviour
         {
             item.OnLogistic(this);
         }
+        AddStat(StatsType.Mana, 10);
     }
 
 
@@ -385,13 +386,13 @@ public class CharacterCTRL : MonoBehaviour
         customAnimator.ChangeState(CharacterState.CastSkill);
         int i = ExecuteActiveSkill();
         int animationIndex = 7;
-        if(isShirokoTerror)
+        if (isShirokoTerror)
         {
-            animationIndex = i+8;
+            animationIndex = i + 8;
         }
         else
         {
-            
+
         }
         float sec = customAnimator.GetAnimationClipInfo(animationIndex).Item2 / 3f;
         Debug.Log($"[CharacterCTRL] index = {animationIndex} name = {customAnimator.GetAnimationClipInfo(animationIndex).Item1}  length = {customAnimator.GetAnimationClipInfo(animationIndex).Item2}");
@@ -420,7 +421,7 @@ public class CharacterCTRL : MonoBehaviour
     #region Targeting and Pathfinding
     public bool FindTarget()
     {
-        if (isFindingTarget||IsCastingAbility)
+        if (isFindingTarget || IsCastingAbility)
         {
             return false;
         }
@@ -431,7 +432,7 @@ public class CharacterCTRL : MonoBehaviour
         float closestDistance = Mathf.Infinity;
         foreach (var hitCollider in hitColliders)
         {
-            if (!hitCollider.gameObject.TryGetComponent(out CharacterCTRL C)|| !C.CurrentHex.IsBattlefield) continue;
+            if (!hitCollider.gameObject.TryGetComponent(out CharacterCTRL C) || !C.CurrentHex.IsBattlefield) continue;
             float distance = Vector3.Distance(transform.position, hitCollider.transform.position);
 
             if (C.isTargetable && distance < closestDistance)
@@ -448,12 +449,10 @@ public class CharacterCTRL : MonoBehaviour
     {
         if (closestTarget != null)
         {
-            if (closestDistance <= GetStat(StatsType.Range))
+            if (closestDistance <= GetStat(StatsType.Range)+0.1f)
             {
                 PreTarget = null;
                 Target = closestTarget;
-                Debug.Log($"{characterStats.CharacterName} 更新目標: {Target.name}");
-             //   Attack();
             }
             else
             {
@@ -461,7 +460,7 @@ public class CharacterCTRL : MonoBehaviour
                 PreTarget = closestTarget;
                 if (!isWalking && !isFindingPath)
                 {
-                    CustomLogger.Log(this,$"{characterStats.CharacterName} 目標超出範圍，呼叫 TargetFinder");
+                    CustomLogger.Log(this, $"{characterStats.CharacterName} 目標超出範圍，呼叫 TargetFinder");
                     TargetFinder();
                 }
             }
@@ -499,7 +498,7 @@ public class CharacterCTRL : MonoBehaviour
 
         Debug.Log($"StartNode Position: {startNode.Position}, Cube Coordinates: {startNode.X},{startNode.Y},{startNode.Z}");
         Debug.Log($"TargetNode Position: {targetNode.Position}, Cube Coordinates: {targetNode.X},{targetNode.Y},{targetNode.Z}");
-        PathRequestManager.Instance.RequestPath(this, startNode, targetNode, OnPathFound,stats.GetStat(StatsType.Range));
+        PathRequestManager.Instance.RequestPath(this, startNode, targetNode, OnPathFound, stats.GetStat(StatsType.Range));
     }
 
     private void OnPathFound(List<HexNode> path)
@@ -536,7 +535,7 @@ public class CharacterCTRL : MonoBehaviour
         for (int i = 0; i < path.Count; i++)
         {
             var node = path[i];
-            Vector3 targetPos = node.Position+ offset;
+            Vector3 targetPos = node.Position + offset;
             yield return MoveTowardsPosition(targetPos);
 
             if (previousNode != null)
@@ -576,7 +575,7 @@ public class CharacterCTRL : MonoBehaviour
             transform.position = Vector3.MoveTowards(transform.position, targetPos, 1f * Time.deltaTime);
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(targetPos - transform.position), Time.deltaTime * 5);
 
-            HexNode newGrid = SpawnGrid.Instance.GetHexNodeByPosition(targetPos -offset);
+            HexNode newGrid = SpawnGrid.Instance.GetHexNodeByPosition(targetPos - offset);
             if (newGrid != null)
             {
                 MoveToNewGrid(newGrid);
@@ -603,8 +602,8 @@ public class CharacterCTRL : MonoBehaviour
     private bool IsTargetInRange()
     {
         float closestDistance = Mathf.Min(GetEnemies().Min(e => Vector3.Distance(transform.position, e.transform.position)), int.MaxValue);
-        bool inRange = closestDistance <= GetStat(StatsType.Range) ||
-                       (PreTarget != null && Vector3.Distance(transform.position, PreTarget.transform.position) <= GetStat(StatsType.Range));
+        bool inRange = closestDistance <= GetStat(StatsType.Range)+0.1f ||
+                       (PreTarget != null && Vector3.Distance(transform.position, PreTarget.transform.position) <= GetStat(StatsType.Range) + 0.1f);
         return inRange;
     }
 
@@ -656,14 +655,14 @@ public class CharacterCTRL : MonoBehaviour
 
         }
     }
-    public void AddShield(int amount, float duration)
+    public void AddShield(int amount, float duration, CharacterCTRL source)
     {
         Shield newShield = new Shield(amount, duration);
         shields.Add(newShield);
         shields.Sort((a, b) => a.remainingTime.CompareTo(b.remainingTime));
+        CustomLogger.Log(this, $"{source} heal {name} of {amount}");
         AddStat(StatsType.Shield, amount);
     }
-
     public void Stun(bool s)
     {
         stunned = s;
@@ -679,15 +678,35 @@ public class CharacterCTRL : MonoBehaviour
             Debug.Log($"{name} is no longer stunned.");
         }
     }
+    public void Clarity()
+    {
+        effectCTRL.ClearEffects(EffectType.Negative);
+        isCCImmune = true;
+    }
     public void SetCCImmune(bool immune)
     {
         isCCImmune = immune;
-        Debug.Log($"{name} is {(isCCImmune ? "immune to CC" : "no longer immune to CC")}.");
     }
     public void SetMarked(bool marked)
     {
         isMarked = marked;
         Debug.Log($"{name} is {(isMarked ? "marked" : "no longer marked")}.");
+        if (marked)
+        {
+            foreach (var item in GetEnemies())
+            {
+                if ((item.transform.position-transform.position).magnitude <= item.GetStat(StatsType.Range) && item.characterStats.logistics)
+                {
+                    item.PreTarget = null;
+                    item.Target = gameObject;
+                }
+            }
+        }
+
+    }
+    public void ModifyStats(StatsType statsType, int amount)
+    {
+        AddStat(statsType, amount);
     }
     private bool CheckDeath()
     {
@@ -714,7 +733,7 @@ public class CharacterCTRL : MonoBehaviour
         isTargetable = false;
         CurrentHex.HardRelease();
         yield return new WaitForSeconds(0.5f);
-        yield return new WaitForSeconds(customAnimator.animator.GetCurrentAnimatorClipInfo(0)[0].clip.length-0.6f);
+        yield return new WaitForSeconds(customAnimator.animator.GetCurrentAnimatorClipInfo(0)[0].clip.length - 0.6f);
         gameObject.SetActive(false);
     }
     #endregion
@@ -732,7 +751,7 @@ public class CharacterCTRL : MonoBehaviour
         {
             CharacterCTRL characterCtrl = character.GetComponent<CharacterCTRL>();
 
-            if (characterCtrl.CurrentHex.IsBattlefield&&characterCtrl.gameObject.activeInHierarchy)
+            if (characterCtrl.CurrentHex.IsBattlefield && characterCtrl.gameObject.activeInHierarchy)
             {
                 enemies.Add(characterCtrl);
             }
@@ -749,7 +768,7 @@ public class CharacterCTRL : MonoBehaviour
         {
             CharacterCTRL characterCtrl = character.GetComponent<CharacterCTRL>();
 
-            if (characterCtrl.CurrentHex.IsBattlefield)
+            if (characterCtrl.CurrentHex.IsBattlefield && characterCtrl.gameObject.activeInHierarchy)
             {
                 allies.Add(characterCtrl);
             }
@@ -763,7 +782,11 @@ public class CharacterCTRL : MonoBehaviour
     #region Behavior and Skill Management
     public Dictionary<int, Func<CharacterObserverBase>> characterBehaviors = new()
     {
-        { 25, () => new HinaObserver() },
+        {  2, () => new AyaneObserver()},
+        { 12, () => new AkoObserver()},
+        { 15, () => new AyaneObserver()},
+        { 22, () => new ShirokoObserver()},
+        { 25, () => new HinaObserver()},
         { 26, () => new HoshinoObserver()},
         { 31, () => new Shiroko_Terror_Observer()}
     };
@@ -805,14 +828,4 @@ public class CharacterCTRL : MonoBehaviour
     #endregion
 
 }
-public class Shield
-{
-    public int amount; // 護盾數值
-    public float remainingTime; // 剩餘持續時間
 
-    public Shield(int amount, float remainingTime)
-    {
-        this.amount = amount;
-        this.remainingTime = remainingTime;
-    }
-}

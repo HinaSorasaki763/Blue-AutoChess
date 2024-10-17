@@ -54,6 +54,8 @@ namespace GameEnum
         ResistenceGrowth,
         CritChance,
         CritRatio,
+        DodgeChance,
+        Accuracy,
         Shield
     }
     public enum ColorState
@@ -315,6 +317,17 @@ namespace GameEnum
             OnApply = onApply;
             OnRemove = onRemove;
         }
+    }
+}
+public class Shield
+{
+    public int amount; // 護盾數值
+    public float remainingTime; // 剩餘持續時間
+
+    public Shield(int amount, float remainingTime)
+    {
+        this.amount = amount;
+        this.remainingTime = remainingTime;
     }
 }
 public class CustomLogger

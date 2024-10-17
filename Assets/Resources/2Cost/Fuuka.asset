@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c1404071b3438543b297a251187c120, type: 3}
+  m_Name: Fuuka
+  m_EditorClassIdentifier: 
+  CharacterName: Fuuka
+  CharacterId: 15
+  Level: 2
+  Sprite: {fileID: 21300000, guid: fe041d3c901e6c24c8240eab02b2ceb9, type: 3}
+  Model: {fileID: 4833737241992786655, guid: 1584dd26800a36047b8c62816e4463f0, type: 3}
+  logistics: 1
+  Stats:
+    stats:
+    - statType: 0
+      value: 100
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 50
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 10
+    - statType: 5
+      value: 1
+    - statType: 6
+      value: 5
+    - statType: 7
+      value: 5
+    - statType: 8
+      value: 10
+    - statType: 9
+      value: 5
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 1
+  Traits: 010000000c00000009000000
+  skillTooltip: 

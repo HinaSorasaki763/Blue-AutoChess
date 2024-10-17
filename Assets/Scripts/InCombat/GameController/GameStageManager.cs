@@ -59,19 +59,7 @@ public class GameStageManager : MonoBehaviour
 
         // 根據選擇的對手波次生成敵人
         EnemySpawner.Instance.PlayerSelectWave(selectedIndex);
-
-        // 隱藏選擇對手的 UI
         opponentSelectionUI.Hide();
-
-        // 恢復原來的 StartBattle 流程
-        foreach (var item in SpawnGrid.Instance.hexNodes.Values)
-        {
-            item.gameObject.SetActive(true);
-            if (item.OccupyingCharacter != null)
-            {
-                item.OccupyingCharacter.gameObject.SetActive(true);
-            }
-        }
         StartCoroutine(StartBattleCorutine());
         EndBattleModal.Instance.lastPressure = PressureManager.Instance.GetPressure();
         EndBattleModal.Instance.lastData = DataStackManager.Instance.GetData();
@@ -132,7 +120,6 @@ public class GameStageManager : MonoBehaviour
             if (item.activeInHierarchy)
             {
                 item.GetComponent<CharacterCTRL>().traitController.Win();
-                item.GetComponent<CharacterCTRL>().customAnimator.ChangeState(CharacterState.Idling);
                 item.transform.rotation = Quaternion.identity;
             }
         }
