@@ -787,7 +787,7 @@ GameObject:
   - component: {fileID: -7365256963291125752}
   - component: {fileID: 5077059587178076090}
   - component: {fileID: 5522670409239544846}
-  - component: {fileID: 6107123983810600938}
+  - component: {fileID: 2385441624816858642}
   m_Layer: 0
   m_Name: Tsurugi_Original
   m_TagString: Untagged
@@ -891,7 +891,9 @@ MonoBehaviour:
   DetectedPos: {x: 0, y: 0, z: 0}
   traitController: {fileID: 0}
   customAnimator: {fileID: 0}
+  isTargetable: 1
   isShirokoTerror: 0
+  droneCTRL: {fileID: 0}
 --- !u!95 &6646912501731203270
 Animator:
   serializedVersion: 5
@@ -902,7 +904,7 @@ Animator:
   m_GameObject: {fileID: 1222335441274468059}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 22100000, guid: 0ffbbfb3f3cdccb488bcc54245551042, type: 2}
+  m_Controller: {fileID: 9100000, guid: a37a18a17076ea142980e278cb5e90a1, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -996,6 +998,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0b9e6f9b8c00674ea2a7b7867d4fa82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effectNames: []
+  characterCTRL: {fileID: 0}
 --- !u!114 &5522670409239544846
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1008,7 +1012,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d166ca0c523f59641ab22e288092a104, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &6107123983810600938
+--- !u!114 &2385441624816858642
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1017,9 +1021,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1222335441274468059}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d166ca0c523f59641ab22e288092a104, type: 3}
+  m_Script: {fileID: 11500000, guid: 020df2db1a4733f46892c7a66bd30ee7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Animator: {fileID: 6646912501731203270}
 --- !u!1 &1246052554150024011
 GameObject:
   m_ObjectHideFlags: 0

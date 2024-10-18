@@ -230,6 +230,30 @@ public class ShirokoObserver : CharacterObserverBase
         CustomLogger.Log(this, $"Character : {character.characterStats.name} OnAttacking.");
     }
 }
+public class TsurugiObserver : CharacterObserverBase
+{
+    private TsurugiActiveSkill skill;
+    public override void CharacterStart(CharacterCTRL character)
+    {
+        skill = character.GetComponent<TsurugiActiveSkill>();
+        skill.Parent = character;
+        base.CharacterStart(character);
+    }
+    public override void OnAttacking(CharacterCTRL character)
+    {
+        base.OnAttacking(character);
+        CustomLogger.Log(this,$"Attacking");
+        if (skill.Enhancing)
+        {
+            skill.SpecialAttackCount--;
+            if (skill.SpecialAttackCount <= 0)
+            {
+                skill.ResetAttackType();
+            }
+        }
+
+    }
+}
 public class Shiroko_Terror_Observer : CharacterObserverBase
 {
     private float healthThreshold70 = 0.7f; // 70%

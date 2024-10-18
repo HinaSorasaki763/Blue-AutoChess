@@ -35,6 +35,7 @@ public class CharacterCTRL : MonoBehaviour
     public EffectCTRL effectCTRL;
     private List<Shield> shields = new List<Shield>(); // 存儲所有護盾
     // Combat-related Fields
+    public bool ManaLock = false;
     public bool enterBattle;
     public bool isAlive = true;
     public bool IsCastingAbility = false;
@@ -272,6 +273,7 @@ public class CharacterCTRL : MonoBehaviour
             CustomLogger.Log(this, $"character {name} crit");
         }
         bulletComponent.SetDmg(damage);
+
         transform.LookAt(Target.transform);
     }
 
@@ -291,11 +293,15 @@ public class CharacterCTRL : MonoBehaviour
 
     private void HandleAttacking()
     {
+        if (!ManaLock)
+        {
+            AddStat(StatsType.Mana, 10);
+        }
+
         foreach (var item in observers)
         {
             item.OnAttacking(this);
         }
-        AddStat(StatsType.Mana, 10);
     }
 
 
@@ -788,6 +794,7 @@ public class CharacterCTRL : MonoBehaviour
         { 22, () => new ShirokoObserver()},
         { 25, () => new HinaObserver()},
         { 26, () => new HoshinoObserver()},
+        { 29, () => new TsurugiObserver()},
         { 31, () => new Shiroko_Terror_Observer()}
     };
 

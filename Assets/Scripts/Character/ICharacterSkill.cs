@@ -655,7 +655,9 @@ public class TsurugiSkill : CharacterSkillBase//彈藥數量變少，但一次�
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
-
+        TsurugiActiveSkill T = skillContext.Parent.GetComponent<TsurugiActiveSkill>();
+        T.ChangeToSpecialAttack();
+        T.SpecialAttackCount = 5;
     }
 }
 public class WakamoSkill : CharacterSkillBase//對同一目標開槍若干次，每一次會暈眩若干秒，最後一次暈眩最久
