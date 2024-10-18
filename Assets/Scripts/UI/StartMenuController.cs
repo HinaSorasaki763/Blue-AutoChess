@@ -9,6 +9,11 @@ public class StartMenuController : MonoBehaviour
         SceneManager.LoadScene("SampleScene");
     }
 
+    public void Multiplayer()
+    {
+        SceneManager.LoadScene("MultiplayerPort");
+    }
+
     public void QuitGame()
     {
         // 退出游戏
