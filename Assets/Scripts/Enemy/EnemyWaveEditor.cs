@@ -1,6 +1,9 @@
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
+#if UNITY_EDITOR
 [CustomEditor(typeof(EnemyWave))]
 public class EnemyWaveEditor : Editor
 {
@@ -9,8 +12,6 @@ public class EnemyWaveEditor : Editor
         DrawDefaultInspector();
 
         EnemyWave enemyWave = (EnemyWave)target;
-
-
 
         // 顯示 Grid Slots 的專區
         EditorGUILayout.LabelField("Grid Slots", EditorStyles.boldLabel);
@@ -47,3 +48,4 @@ public class EnemyWaveEditor : Editor
         }
     }
 }
+#endif
