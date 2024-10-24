@@ -4,7 +4,7 @@ using TMPro;
 using System.Collections.Generic;
 using Unity.Netcode.Transports.UTP;
 
-public class NetworkUIManager : MonoBehaviour
+public class NetworkUIManager : NetworkBehaviour
 {
     public TextMeshProUGUI playerListDisplay;  // 用於顯示玩家列表
     public TMP_InputField roomCodeInputField;  // 客戶端輸入房間號碼的輸入框
@@ -22,7 +22,7 @@ public class NetworkUIManager : MonoBehaviour
         NetworkManager.Singleton.ConnectionApprovalCallback += ConnectionApprovalCallback;
     }
 
-    void OnDestroy()
+    public override void OnDestroy()
     {
         if (NetworkManager.Singleton != null)
         {
@@ -37,19 +37,15 @@ public class NetworkUIManager : MonoBehaviour
     {
         if (!NetworkManager.Singleton.IsServer)
         {
-            GenerateRoomCode();  // 生成房間號碼
-            NetworkManager.Singleton.StartHost();  // 啟動主機
+            GenerateRoomCode();
+            NetworkManager.Singleton.StartHost();
             CustomLogger.Log(this, "Local server started by host.");
-
-            // 添加主机自己到 playerNames 列表
             string hostName = $"Host_{NetworkManager.Singleton.LocalClientId}";
             if (!playerNames.ContainsKey(NetworkManager.Singleton.LocalClientId))
             {
                 playerNames.Add(NetworkManager.Singleton.LocalClientId, hostName);
                 CustomLogger.Log(this, $"Added host {hostName} with ID {NetworkManager.Singleton.LocalClientId} to playerNames.");
             }
-
-            // 更新所有客户端的玩家列表
             UpdateClientPlayerList();
         }
     }
@@ -61,9 +57,7 @@ public class NetworkUIManager : MonoBehaviour
             CustomLogger.Log(this, $"Removing player with ID {clientId} from playerNames.");
             playerNames.Remove(clientId);
         }
-
-        // 更新所有客戶端的玩家列表
-        UpdateClientPlayerList();
+       // UpdateClientPlayerList();
     }
     public void OnJoinServerButtonClicked()
     {
@@ -107,7 +101,6 @@ public class NetworkUIManager : MonoBehaviour
         }
         else
         {
-            // 客戶端請求伺服器發送最新的玩家列表
             RequestPlayerListServerRpc();
         }
     }
@@ -116,8 +109,6 @@ public class NetworkUIManager : MonoBehaviour
     void RequestPlayerListServerRpc()
     {
         CustomLogger.Log(this, $"Client {NetworkManager.Singleton.LocalClientId} requested player list from server.");
-
-        // 主機更新玩家列表並發送給客戶端
         UpdateClientPlayerList();
     }
 
@@ -133,12 +124,8 @@ public class NetworkUIManager : MonoBehaviour
         }
 
         CustomLogger.Log(this, $"Server is updating player list: {playerList}");
-
-        // 通知所有客戶端更新 UI
         UpdatePlayerListClientRpc(playerList);
     }
-
-    // ClientRpc: 將伺服器端的玩家列表發送給所有客戶端
     [ClientRpc]
     private void UpdatePlayerListClientRpc(string playerList)
     {
@@ -174,8 +161,6 @@ public class NetworkUIManager : MonoBehaviour
             {
                 CustomLogger.Log(this, $"Player in server: {player.Value} (ID: {player.Key})");
             }
-
-            // 更新所有客戶端的玩家列表
             UpdateClientPlayerList();
         }
         else
