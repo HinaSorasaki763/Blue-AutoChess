@@ -11,6 +11,9 @@ GameObject:
   - component: {fileID: 1759026902552867509}
   - component: {fileID: 5491934581618060326}
   - component: {fileID: 6463123523872911427}
+  - component: {fileID: -6701284225084400918}
+  - component: {fileID: 7572091158710221031}
+  - component: {fileID: 4057808316048864516}
   m_Layer: 0
   m_Name: Shizuko_Original_Teahouse_Idle
   m_TagString: Untagged
@@ -27,9 +30,9 @@ Transform:
   m_GameObject: {fileID: 2508619662423299920}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0, y: -0, z: -0.01876}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: -0, y: -0, z: 0}
+  m_LocalScale: {x: 100, y: 100, z: 100}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -84,3 +87,118 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &-6701284225084400918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2508619662423299920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fef6d334bf091434da8289a33306b9c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CurrentHex: {fileID: 0}
+  Target: {fileID: 0}
+  PreTarget: {fileID: 0}
+  IsAlly: 0
+  allyLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  GridLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  characterStats: {fileID: 11400000, guid: 21b17ea7e6beb61408f500b6a048e284, type: 2}
+  characterBars: {fileID: 0}
+  allyParent: {fileID: 0}
+  enemyParent: {fileID: 0}
+  stats:
+    stats:
+    - statType: 0
+      value: 0
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 0
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 0
+    - statType: 5
+      value: 0
+    - statType: 6
+      value: 0
+    - statType: 7
+      value: 0
+    - statType: 8
+      value: 0
+    - statType: 9
+      value: 0
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 0
+    - statType: 12
+      value: 0
+    - statType: 13
+      value: 0
+    - statType: 14
+      value: 0
+    - statType: 15
+      value: 0
+    - statType: 16
+      value: 0
+  star: 0
+  modifierCTRL: {fileID: 0}
+  effectCTRL: {fileID: 0}
+  ManaLock: 0
+  enterBattle: 0
+  isAlive: 1
+  IsCastingAbility: 0
+  isWalking: 0
+  IsDying: 0
+  isMarked: 0
+  isCCImmune: 0
+  Invincible: 0
+  attackRate: 5
+  stunned: 0
+  bulletPrefab: {fileID: 0}
+  FirePoint: {fileID: 0}
+  GetHitPoint: {fileID: 0}
+  DetectedPos: {x: 0, y: 0, z: 0}
+  traitController: {fileID: 0}
+  customAnimator: {fileID: 0}
+  isTargetable: 1
+  isShirokoTerror: 0
+  droneCTRL: {fileID: 0}
+  isObj: 0
+--- !u!114 &7572091158710221031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2508619662423299920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b9e6f9b8c00674ea2a7b7867d4fa82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectNames: []
+  characterCTRL: {fileID: 0}
+--- !u!114 &4057808316048864516
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2508619662423299920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22d938ec778301c46b13e376ebadaab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

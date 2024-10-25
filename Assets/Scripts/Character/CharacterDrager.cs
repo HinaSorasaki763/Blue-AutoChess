@@ -19,7 +19,11 @@ public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         {
             return;
         }
-        GetComponent<CustomAnimatorController>().ChangeState(CharacterState.PickedUp);
+        if (!characterCTRL.isObj)
+        {
+            GetComponent<CustomAnimatorController>().ChangeState(CharacterState.PickedUp);
+
+        }
 
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100f, LayerMask.GetMask("Grid")))
         {
@@ -39,7 +43,11 @@ public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         {
             return;
         }
-        GetComponent<CustomAnimatorController>().ChangeState(CharacterState.Idling);
+        if (!characterCTRL.isObj)
+        {
+            GetComponent<CustomAnimatorController>().ChangeState(CharacterState.Idling);
+        }
+
         (bool, bool) tuple = GameController.Instance.TryMoveCharacter(characterCTRL, PreSelectedGrid);
         if (PreSelectedGrid != null && PreSelectedGrid.CompareTag("SellGrid"))
         {

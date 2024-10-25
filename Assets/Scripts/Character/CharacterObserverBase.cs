@@ -179,7 +179,7 @@ public class ShizukoObserver : CharacterObserverBase
         CharacterCTRL LowestHealthCharacter = characters
             .OrderByDescending(item => item.GetStat(StatsType.currHealth))
             .Last();
-        LowestHealthCharacter.AddShield(10,5.0f,character);
+        LowestHealthCharacter.AddShield(100,5.0f,character);
     }
 }
 public class HinaObserver : CharacterObserverBase

@@ -342,4 +342,9 @@ public class CustomLogger
         string callerType = caller.GetType().Name;
         Debug.LogError($"[{callerType}] {message}");
     }
+    public static void LogWarning(object caller, string message)
+    {
+        string callerType = caller.GetType().Name;
+        Debug.LogWarning($"[{callerType}] {message}");
+    }
 }

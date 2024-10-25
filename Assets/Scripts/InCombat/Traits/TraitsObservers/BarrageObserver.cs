@@ -61,12 +61,11 @@ public class BarrageObserver : CharacterObserverBase
     {
         Vector3 origin = Character.transform.position;
         CustomLogger.Log(this,$"Character position: {origin}");
-
         List<HexNode> bestSector = new List<HexNode>();
         int maxEnemiesCount = 0;
+        Vector3 v = Character.transform.position - Character.Target.transform.position;
         float startAngle = Character.transform.rotation.eulerAngles.y;
         CustomLogger.Log(this, $"Character start rotation angle: {startAngle}");
-
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < numSteps; i++)
         {
@@ -88,6 +87,14 @@ public class BarrageObserver : CharacterObserverBase
                 sb.AppendLine($"New best sector found at step {i} with {maxEnemiesCount} enemies. BestAngle = {BestAngle}");
             }
         }
+        List<HexNode> currentSectorNode = GetNodesInSector(origin, startAngle-GetAngle()/2, startAngle+GetAngle()/2);
+        int EnemiesCount = CountEnemiesInNodes(currentSectorNode);
+        if (EnemiesCount>= maxEnemiesCount)
+        {
+            bestSector = currentSectorNode;
+            BestAngle = startAngle;
+            sb.AppendLine($"New best sector found at step ORIGIN with {maxEnemiesCount} enemies. BestAngle = {BestAngle}");
+        }
         sb.AppendLine($"Final best sector found with {maxEnemiesCount} enemies.");
         CustomLogger.Log(this, sb.ToString());
         return bestSector;
@@ -104,7 +111,6 @@ public class BarrageObserver : CharacterObserverBase
                 && node.OccupyingCharacter.IsAlly != Character.IsAlly
                 && node.OccupyingCharacter.gameObject.activeInHierarchy)
             {
-                CustomLogger.Log(this,$"Enemy found: {node.OccupyingCharacter.name}");
                 count++;
             }
         }
@@ -123,8 +129,6 @@ public class BarrageObserver : CharacterObserverBase
                 continue;
 
             float angleToNode = Vector3.SignedAngle(Character.transform.forward, directionToNode, Vector3.up);
-
-            // 調整角度範圍處理，支援跨過 0 度的情況
             angleToNode = (angleToNode + 360) % 360;
             float adjustedStart = (angleStart + 360) % 360;
             float adjustedEnd = (angleEnd + 360) % 360;

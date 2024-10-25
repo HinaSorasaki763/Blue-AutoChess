@@ -191,6 +191,7 @@ public class HexNode : MonoBehaviour
 
     public void SetColorState(ColorState state, float duration = 0f)
     {
+        if (IsLogistics) return;
         currentColorState = state;
 
         // 如果是暫時顏色，記錄其持續時間

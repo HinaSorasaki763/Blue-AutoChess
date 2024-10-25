@@ -65,7 +65,7 @@ public class GameController : MonoBehaviour
         if (character.CurrentHex != null)
         {
             Vector3 originalPosition = new Vector3(character.CurrentHex.transform.position.x, 0.14f, character.CurrentHex.transform.position.z);
-            character.transform.position = originalPosition; // 返回原位
+            character.transform.position = originalPosition;
         }
         else
         {
@@ -87,9 +87,13 @@ public class GameController : MonoBehaviour
         {
             MoveCharacterToSlot(character, targetSlot);
         }
-        else
+        else if(!targetSlot.OccupyingCharacter.isObj||(character.CurrentHex.IsBattlefield&&targetSlot.IsBattlefield))
         {
             SwapCharacters(character, targetSlot.OccupyingCharacter);
+        }
+        else
+        {
+            ReturnToOriginalSlot(character);
         }
         CharacterParent.UpdateTraitEffects();
     }

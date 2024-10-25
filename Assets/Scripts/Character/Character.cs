@@ -18,6 +18,7 @@ public class Character : ScriptableObject
     public int BarrageInitAngle;
     [TextArea(3, 10)]
     public string skillTooltip;
+    public bool isObj;
     public void ApplyLevelUp(int newLevel)
     {
         Level = newLevel;
@@ -26,10 +27,14 @@ public class Character : ScriptableObject
     // OnValidate 用來檢查和設置初始值
     private void SetStatIfBelowThreshold(StatsType statType, float threshold, int value)
     {
-        if (Stats.GetStat(statType) <= threshold)
+        if (!isObj)
         {
-            Stats.SetStat(statType, value);
+            if (Stats.GetStat(statType) <= threshold)
+            {
+                Stats.SetStat(statType, value);
+            }
         }
+
     }
 
     private void OnValidate()

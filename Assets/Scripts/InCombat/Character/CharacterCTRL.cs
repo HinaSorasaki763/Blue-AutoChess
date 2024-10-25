@@ -73,10 +73,11 @@ public class CharacterCTRL : MonoBehaviour
     private readonly Vector3 offset = new Vector3(0, 0.14f, 0);
     public bool isShirokoTerror;
     public Shiroko_Terror_DroneCTRL droneCTRL;
-
+    public bool isObj;
+    public GameObject Logistic_dummy;
     #endregion
     #region Unity Lifecycle Methods
-    private void OnEnable()
+    public virtual void OnEnable()
     {
         stats = characterStats.Stats.Clone();
         ResetStats();
@@ -84,7 +85,7 @@ public class CharacterCTRL : MonoBehaviour
         enemyParent = ResourcePool.Instance.enemy;
         modifierCTRL = GetComponent<ModifierCTRL>();
         effectCTRL = GetComponent<EffectCTRL>();
-        effectCTRL.characterCTRL = this;
+        effectCTRL.characterCTRL = GetComponent<CharacterCTRL>();
         CustomLogger.Log(this, $"gifting effectCTRL {gameObject.name} ctrl");
         traitController = GetComponent<TraitController>();
         customAnimator = null;
@@ -109,7 +110,10 @@ public class CharacterCTRL : MonoBehaviour
         {
             ActiveSkill = characterSkillFunc();
         }
-
+        if (characterStats.logistics)
+        {
+            SetStat(StatsType.Range, 20);
+        }
     }
     public void ResetStats()
     {
@@ -129,7 +133,7 @@ public class CharacterCTRL : MonoBehaviour
 
     }
 
-    public void Update()
+    public virtual void Update()
     {
         if (isShirokoTerror)
         {
@@ -260,19 +264,20 @@ public class CharacterCTRL : MonoBehaviour
         }
         HandleAttacking();
         customAnimator.ChangeState(CharacterState.Attacking);
-        var bullet = ResourcePool.Instance.GetBullet(FirePoint.position);
-        var bulletComponent = bullet.GetComponent<Bullet>();
+        var bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet,FirePoint.position, Quaternion.identity);
+        var bulletComponent = bullet.GetComponent<NormalBullet>();
         var targetCtrl = Target.GetComponent<CharacterCTRL>();
-        bulletComponent.SetTarget(targetCtrl.GetHitPoint.position + GetRandomDeviation(0.2f), targetCtrl);
-        bulletComponent.SetParent(this);
-
+        if (bulletComponent == null) 
+        {
+            CustomLogger.LogWarning(this,$"Target {Target} dont have ctrl");
+        }
         int damage = (int)(GetStat(StatsType.Attack) * (1 + modifierCTRL.GetTotalStatModifierValue(ModifierType.DamageDealt) * 0.01f));
         if (Utility.Iscrit(GetStat(StatsType.CritChance)))
         {
             damage = (int)(damage * (1 + GetStat(StatsType.CritRatio) * 0.01f));
             CustomLogger.Log(this, $"character {name} crit");
         }
-        bulletComponent.SetDmg(damage);
+        bulletComponent.Initialize(targetCtrl.GetHitPoint.position, damage, GetTargetLayer(), this, 20);
 
         transform.LookAt(Target.transform);
     }
@@ -308,6 +313,11 @@ public class CharacterCTRL : MonoBehaviour
     public void Heal(int amount,CharacterCTRL source)
     {
         CustomLogger.Log(this,$"{source} heal {name} of {amount}");
+        if (GetStat(StatsType.currHealth) + amount >= GetStat(StatsType.Health))
+        {
+            SetStat(StatsType.currHealth, GetStat(StatsType.Health));
+            return;
+        }
         AddStat(StatsType.currHealth, amount);
     }
 
@@ -370,9 +380,10 @@ public class CharacterCTRL : MonoBehaviour
             return;
         }
 
-        if (GetStat(StatsType.Mana) >= GetStat(StatsType.MaxMana) && !IsCasting() && !isWalking)
+        if (GetStat(StatsType.Mana) >= GetStat(StatsType.MaxMana) && !IsCasting() && !isWalking&&!isObj)
         {
             SetStat(StatsType.Mana, 0);
+            CustomLogger.Log(this,$"{gameObject.name} casting");
             StartCoroutine(CastSkill());
         }
     }
@@ -387,7 +398,7 @@ public class CharacterCTRL : MonoBehaviour
 
     public IEnumerator CastSkill()
     {
-        Debug.Log($"{characterStats.CharacterName}CastSkill()");
+        CustomLogger.Log(this,$"{characterStats.CharacterName}CastSkill()");
         IsCastingAbility = true;
         customAnimator.ChangeState(CharacterState.CastSkill);
         int i = ExecuteActiveSkill();
@@ -395,10 +406,6 @@ public class CharacterCTRL : MonoBehaviour
         if (isShirokoTerror)
         {
             animationIndex = i + 8;
-        }
-        else
-        {
-
         }
         float sec = customAnimator.GetAnimationClipInfo(animationIndex).Item2 / 3f;
         Debug.Log($"[CharacterCTRL] index = {animationIndex} name = {customAnimator.GetAnimationClipInfo(animationIndex).Item1}  length = {customAnimator.GetAnimationClipInfo(animationIndex).Item2}");
@@ -616,7 +623,7 @@ public class CharacterCTRL : MonoBehaviour
     #endregion
 
     #region Damage and Death
-    public void GetHit(int amount, CharacterCTRL sourceCharacter)
+    public virtual void GetHit(int amount, CharacterCTRL sourceCharacter)
     {
         if (IsDying) return;
 
@@ -666,11 +673,12 @@ public class CharacterCTRL : MonoBehaviour
         Shield newShield = new Shield(amount, duration);
         shields.Add(newShield);
         shields.Sort((a, b) => a.remainingTime.CompareTo(b.remainingTime));
-        CustomLogger.Log(this, $"{source} heal {name} of {amount}");
+        CustomLogger.Log(this, $"{source} Shield {name} of {amount}");
         AddStat(StatsType.Shield, amount);
     }
     public void Stun(bool s)
     {
+        if (isObj) return;
         stunned = s;
         if (stunned)
         {
@@ -724,7 +732,7 @@ public class CharacterCTRL : MonoBehaviour
         return false;
     }
 
-    private IEnumerator Die()
+    public virtual IEnumerator Die()
     {
         Debug.Log($"{gameObject.name} Die()");
         SpawnGrid.Instance.RemoveCenterPoint(CurrentHex);
@@ -734,7 +742,6 @@ public class CharacterCTRL : MonoBehaviour
         }
         IsDying = true;
         customAnimator.ChangeState(CharacterState.Dying);
-
         CurrentHex.OccupyingCharacter = null;
         isTargetable = false;
         CurrentHex.HardRelease();
@@ -774,7 +781,7 @@ public class CharacterCTRL : MonoBehaviour
         {
             CharacterCTRL characterCtrl = character.GetComponent<CharacterCTRL>();
 
-            if (characterCtrl.CurrentHex.IsBattlefield && characterCtrl.gameObject.activeInHierarchy)
+            if (characterCtrl.CurrentHex.IsBattlefield && characterCtrl.gameObject.activeInHierarchy&&!characterCtrl.characterStats.logistics)
             {
                 allies.Add(characterCtrl);
             }
@@ -789,9 +796,12 @@ public class CharacterCTRL : MonoBehaviour
     public Dictionary<int, Func<CharacterObserverBase>> characterBehaviors = new()
     {
         {  2, () => new AyaneObserver()},
+        {  9, () => new SerinaObserver()},
+        { 10, () => new ShizukoObserver()},
         { 12, () => new AkoObserver()},
         { 15, () => new AyaneObserver()},
         { 22, () => new ShirokoObserver()},
+
         { 25, () => new HinaObserver()},
         { 26, () => new HoshinoObserver()},
         { 29, () => new TsurugiObserver()},

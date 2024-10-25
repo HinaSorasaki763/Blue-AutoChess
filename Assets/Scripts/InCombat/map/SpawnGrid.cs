@@ -187,7 +187,22 @@ public class SpawnGrid : MonoBehaviour
             item.SetColorState(GameEnum.ColorState.Default);
         }
     }
+    public HexNode GetEmptyHex()
+    {
+        foreach (var item in hexNodes.Values)
+        {
 
+        }
+        for (int i = 31; i > 1; i--)
+        {
+            if (hexNodes[indexToCubeKey[i]].OccupyingCharacter == null)
+            {
+                return hexNodes[indexToCubeKey[i]];
+            }
+        }
+        CustomLogger.Log(this, "No empty hex found.");
+        return null;
+    }
     private string CubeCoordinatesToKey(int x, int y, int z) => $"{x},{y},{z}";
 
     public HexNode GetHexNodeByPosition(Vector3 position)
@@ -235,7 +250,7 @@ public class SpawnGrid : MonoBehaviour
             }
 
             // 計算當前格子鄰近的角色數量
-            int count = CountCharactersWithinRadius(node, character.IsAlly, radius, findEnemies, character);
+            int count = GetCharactersWithinRadius(node, character.IsAlly, radius, findEnemies, character).Count;
             if (count > maxCount)
             {
                 maxCount = count;
@@ -245,8 +260,8 @@ public class SpawnGrid : MonoBehaviour
         if (isLogistic) return bestHexNode;
 
         // 比較當前格子和找到的最佳格子的鄰近角色數
-        int currentNeighborsCount = CountCharactersWithinRadius(currHex, character.IsAlly, radius, findEnemies,character);
-        int bestNodeNeighborsCount = CountCharactersWithinRadius(bestHexNode, character.IsAlly, radius, findEnemies, character);
+        int currentNeighborsCount =     GetCharactersWithinRadius(currHex, character.IsAlly, radius, findEnemies, character).Count;
+        int bestNodeNeighborsCount = GetCharactersWithinRadius(bestHexNode, character.IsAlly, radius, findEnemies, character).Count;
         Debug.Log($"Comparing current hex {currHex.name} with {currentNeighborsCount} neighbors to best node {bestHexNode.name} with {bestNodeNeighborsCount} neighbors");
 
         if (currentNeighborsCount == bestNodeNeighborsCount)
@@ -260,13 +275,12 @@ public class SpawnGrid : MonoBehaviour
     }
 
 
-
-    public int CountCharactersWithinRadius(HexNode centerNode, bool isAlly, int radius, bool findEnemies,CharacterCTRL character)
+    public List<CharacterCTRL> GetCharactersWithinRadius(HexNode centerNode, bool isAlly, int radius, bool findEnemies, CharacterCTRL character)
     {
         int count = 0;
         HashSet<HexNode> visited = new HashSet<HexNode> { centerNode };
         List<HexNode> currentLayer = new List<HexNode> { centerNode };
-
+        List<CharacterCTRL> c = new List<CharacterCTRL> { character };
         for (int i = 0; i < radius; i++)
         {
             List<HexNode> nextLayer = new List<HexNode>();
@@ -276,9 +290,10 @@ public class SpawnGrid : MonoBehaviour
                 if (node.OccupyingCharacter != null)
                 {
                     bool isEnemy = node.OccupyingCharacter.IsAlly != isAlly;
-                    if (findEnemies == isEnemy&&node.OccupyingCharacter != character&&node.OccupyingCharacter.gameObject.activeInHierarchy)
+                    if (findEnemies == isEnemy && node.OccupyingCharacter != character && node.OccupyingCharacter.gameObject.activeInHierarchy)
                     {
                         count++;
+                        c.Add(node.OccupyingCharacter);
                     }
                 }
 
@@ -294,7 +309,7 @@ public class SpawnGrid : MonoBehaviour
             }
             currentLayer = nextLayer;
         }
-        return count;
+        return c;
     }
 
     public List<HexNode> GetHexNodesWithinRange(HexNode centerNode, int range)

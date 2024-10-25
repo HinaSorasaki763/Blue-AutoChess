@@ -37,6 +37,7 @@ public class Bullet : MonoBehaviour
     }
     void HitTarget()
     {
+        if (!Target.gameObject.activeInHierarchy) return;
         Debug.Log($"Target {Target.characterStats.name} get hit {Dmg}");
         Target.GetHit((int)Dmg,Parent);
         gameObject.SetActive(false);

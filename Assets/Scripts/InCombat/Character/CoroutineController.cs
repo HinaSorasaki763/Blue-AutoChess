@@ -39,11 +39,10 @@ public class CoroutineController : MonoBehaviour
     // 透過動畫事件觸發的公開方法
     public void TriggerSkillShooting()
     {
+        CustomLogger.Log(this,$"TriggerSkillShooting()");
         if (currentObserver != null)
         {
-            // 在射擊之前將角色轉向最佳角度
             currentObserver.Character.transform.rotation = Quaternion.Euler(0, bestAngle, 0);
-
             StartShootingCoroutine(currentObserver, skillDuration, skillInterval, bestAngle,currentObserver.IntervalAngle);
         }
         else

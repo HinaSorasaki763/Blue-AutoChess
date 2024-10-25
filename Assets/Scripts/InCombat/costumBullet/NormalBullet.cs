@@ -19,7 +19,7 @@ public class NormalBullet : MonoBehaviour
 
     void OnEnable()
     {
-        targetPosition = Vector3.zero;
+       // targetPosition = Vector3.zero;
     }
 
     public void Initialize(Vector3 targetPosition, float damage, LayerMask hitLayer, CharacterCTRL parent, float maxDistance)
@@ -29,7 +29,7 @@ public class NormalBullet : MonoBehaviour
         this.parent = parent;
         this.hitLayer = hitLayer;
         this.maxDistance = maxDistance;
-        startPosition = transform.position; // 記錄子彈的起始位置
+        startPosition = transform.position;
     }
 
     void OnTriggerEnter(Collider other)
@@ -58,6 +58,10 @@ public class NormalBullet : MonoBehaviour
 
     private void MoveTowardsTarget()
     {
+        if (true)
+        {
+
+        }
         Vector3 targetPosWithFixedY = new Vector3(targetPosition.x, transform.position.y, targetPosition.z);
         transform.position += speed * Time.deltaTime * (targetPosWithFixedY - transform.position).normalized;
         transform.LookAt(targetPosWithFixedY);

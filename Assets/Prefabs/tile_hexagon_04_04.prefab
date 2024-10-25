@@ -129,7 +129,7 @@ MeshCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -211,6 +211,7 @@ MonoBehaviour:
   IsBattlefield: 1
   IsLogistics: 0
   isDesertified: 0
+  isAllyHex: 0
   isBurning: 0
   currentColorState: 0
   temporaryColorDuration: 0

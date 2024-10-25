@@ -30,7 +30,7 @@ public class ResourcePool : MonoBehaviour
     public HexNode EnemylogisticSlotNode1;
     public HexNode EnemylogisticSlotNode2;
 
-
+    public GameObject LogisticDummy;
 
     private Dictionary<int, Character> characterDictionary = new Dictionary<int, Character>();
 

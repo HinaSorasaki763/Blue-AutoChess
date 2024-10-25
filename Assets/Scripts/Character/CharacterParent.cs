@@ -10,8 +10,12 @@ public class CharacterParent : MonoBehaviour
     public bool isEnemy;
     public Dictionary<Traits, int> currTraits = new Dictionary<Traits, int>();
     public bool IsBattling = false;
+    private List<GameObject> totems = new List<GameObject>();
+    private Dictionary<CharacterCTRL, GameObject> logisticsDummies = new Dictionary<CharacterCTRL, GameObject>();
+
     public void Start()
     {
+
     }
     public void OnStartBattle()
     {
@@ -23,7 +27,6 @@ public class CharacterParent : MonoBehaviour
             {
                 c.EnterBattle();
             }
-
         }
         GameStageManager.Instance.CurrGamePhase = GamePhase.Battling;
     }
@@ -31,29 +34,21 @@ public class CharacterParent : MonoBehaviour
     public void CheckAndCombineCharacters()
     {
         Dictionary<int, Dictionary<int, List<CharacterCTRL>>> characterGroups = new();
-
-        // 將角色按 CharacterId 和 star 分組
         foreach (var character in childCharacters)
         {
             CharacterCTRL ctrl = character.GetComponent<CharacterCTRL>();
             int characterId = ctrl.characterStats.CharacterId;
             int star = ctrl.star;
-
             if (!characterGroups.ContainsKey(characterId))
             {
                 characterGroups[characterId] = new Dictionary<int, List<CharacterCTRL>>();
             }
-
             if (!characterGroups[characterId].ContainsKey(star))
             {
                 characterGroups[characterId][star] = new List<CharacterCTRL>();
             }
-
-            // 將角色加入到對應星級的列表中
             characterGroups[characterId][star].Add(ctrl);
         }
-
-        // 檢測是否有三個相同星級的角色進行合成
         foreach (var group in characterGroups)
         {
             foreach (var starGroup in group.Value)
@@ -64,35 +59,27 @@ public class CharacterParent : MonoBehaviour
                 }
             }
         }
-
-        // 查找每個角色ID中的 "最強" 角色並設置標誌
         UpdateStrongestMarks(characterGroups);
-
-        // 更新羈絆效果
         UpdateTraitEffects();
     }
     private void CombineCharacters(List<CharacterCTRL> charactersToCombine)
     {
         if (charactersToCombine.Count < 3) return;
-
         CharacterCTRL mainCharacter = charactersToCombine[0];
         mainCharacter.star++;
-
         for (int i = 1; i < 3; i++)
         {
             GameObject character = charactersToCombine[i].gameObject;
             childCharacters.Remove(character);
             Destroy(character);
         }
-
         if (mainCharacter.star > 3)
         {
             mainCharacter.star = 3;
         }
-
         mainCharacter.characterStats.ApplyLevelUp(mainCharacter.characterStats.Level + 1);
         mainCharacter.characterBars.UpdateStarLevel();  // 更新星級顯示
-        Debug.Log($"{mainCharacter.name} 已升級至 {mainCharacter.star} 星");
+        CustomLogger.Log(this,$"{mainCharacter.name} 已升級至 {mainCharacter.star} 星");
     }
 
     // 查找 "最強" 的角色並設置標誌
@@ -186,21 +173,62 @@ public class CharacterParent : MonoBehaviour
             int traitLevel = traitCounts[trait];
             sb.AppendLine($"{trait} 拥有 {traitLevel} 名角色激活");
             totalActivatedTraits += traitLevel;
-
-            // 应用羁绊效果并添加观察者
             ApplyTraitEffect(trait, traitLevel, battlefieldCharacters, isEnemy);
         }
-
         sb.AppendLine($"激活的羁绊数量总和：{totalActivatedTraits}");
-        CustomLogger.Log(this,sb.ToString());
+        CustomLogger.Log(this, sb.ToString());
         currTraits = traitCounts;
         if (!isEnemy)
         {
             TraitUIManager.Instance.UpdateTraitUI(traitCounts);
         }
-        if (!currTraits.TryGetValue(Traits.Abydos,out int count)||count <= 0)
+        if (!currTraits.TryGetValue(Traits.Abydos, out int count) || count <= 0)
         {
             SpawnGrid.Instance.ResetDesertifiedTiles();
+        }
+        foreach (var item in totems)
+        {
+            item.SetActive(false);
+        }
+        UpdateLogisticsDummies(battlefieldCharacters);
+    }
+    private void UpdateLogisticsDummies(List<CharacterCTRL> battlefieldCharacters)
+    {
+        foreach (var dummy in logisticsDummies.Values)
+        {
+            //dummy.GetComponent<CharacterCTRL>().CurrentHex.HardRelease();
+            dummy.SetActive(false);
+        }
+        foreach (var item in battlefieldCharacters)
+        {
+            CharacterCTRL character = item.GetComponent<CharacterCTRL>();
+            if (character.characterStats.logistics)
+            {
+                if (logisticsDummies.ContainsKey(character))
+                {
+                    logisticsDummies[character].GetComponent<CharacterCTRL>().CurrentHex.HardReserve(logisticsDummies[character].GetComponent<CharacterCTRL>());
+                    logisticsDummies[character].SetActive(true);
+                }
+                else
+                {
+                    HexNode h = SpawnGrid.Instance.GetEmptyHex();
+                    GameObject obj = Instantiate(ResourcePool.Instance.LogisticDummy, h.Position + new Vector3(0, 0.14f, 0), Quaternion.Euler(new Vector3(-90, 0, 0)));
+                    logisticsDummies[character] = obj;
+
+                    CharacterCTRL c = obj.GetComponent<CharacterCTRL>();
+                    c.CurrentHex = h;
+                    h.OccupyingCharacter = c;
+                    h.Reserve(c);
+                }
+
+            }
+        }
+        foreach (var item in SpawnGrid.Instance.hexNodes.Values)
+        {
+            if (item.OccupyingCharacter!=null&& !item.OccupyingCharacter.gameObject.activeInHierarchy)
+            {
+                item.HardRelease();
+            }
         }
     }
 

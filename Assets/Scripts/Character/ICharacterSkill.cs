@@ -4,14 +4,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 public abstract class CharacterSkillBase
 {
     public virtual void ExecuteSkill(SkillContext skillContext)
     {
-        Debug.Log($"{skillContext.Parent.gameObject.name} castSkill");
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} castSkill");
     }
     public HexNode FindMaxOccupiedEntityGrid(int range, List<HexNode> hexNodes, SkillContext skillContext, bool FindingAlly)
     {
@@ -116,7 +114,7 @@ public class AyaneSkill : CharacterSkillBase//找到一個範圍內最多友軍�
         bool IsFindingAlly = true;
         HexNode targetHex = FindMaxOccupiedEntityGrid(skillContext.Range, skillContext.hexMap, skillContext, IsFindingAlly);
         GameObject HealPack = ResourcePool.Instance.SpawnObject(SkillPrefab.HealPack, targetHex.Position + new Vector3(0, 3, 0), Quaternion.identity);
-        HealPack.GetComponent<HealPack>().InitStats(targetHex, skillContext.Range, 100,skillContext.Parent);
+        HealPack.GetComponent<HealPack>().InitStats(targetHex, skillContext.Range, 100, skillContext.Parent, skillContext.Parent.IsAlly);
     }
 }
 public class HarukaSkill : CharacterSkillBase//架起護盾，並向前攻擊數波，她前方的敵軍將會被減少攻擊力
@@ -151,8 +149,8 @@ public class HarukaSkill : CharacterSkillBase//架起護盾，並向前攻擊數
         {
             if (neighbor.OccupyingCharacter != null && neighbor.OccupyingCharacter.IsAlly != isAlly)
             {
-                neighbor.OccupyingCharacter.GetHit(10,skillContext.Parent);
-                Effect effect = EffectFactory.CreateHarukaMinusAtkEffect(5,5);
+                neighbor.OccupyingCharacter.GetHit(10, skillContext.Parent);
+                Effect effect = EffectFactory.CreateHarukaMinusAtkEffect(5, 5);
                 neighbor.OccupyingCharacter.effectCTRL.AddEffect(effect);
             }
         }
@@ -186,14 +184,14 @@ public class HarunaSkill : CharacterSkillBase
         CharacterCTRL lowestEnemy = null;
         foreach (var item in skillContext.Enemies)
         {
-            if (item.gameObject.activeInHierarchy&& item.GetStat(StatsType.currHealth) < lowestHp)
+            if (item.gameObject.activeInHierarchy && item.GetStat(StatsType.currHealth) < lowestHp)
             {
                 lowestEnemy = item;
             }
         }
         skillContext.Parent.transform.LookAt(lowestEnemy.GetHitPoint);
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
-        bullet.GetComponent<NormalBullet>().Initialize(lowestEnemy.transform.position,dmg,layer,skillContext.Parent, 15f);
+        bullet.GetComponent<NormalBullet>().Initialize(lowestEnemy.transform.position, dmg, layer, skillContext.Parent, 15f);
     }
 }
 public class MichiruSkill : CharacterSkillBase//TODO: 若目標已經被灼燒，轉向一名尚未被灼燒的敵軍施放。
@@ -222,7 +220,7 @@ public class MichiruSkill : CharacterSkillBase//TODO: 若目標已經被灼燒�
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
         bullet.GetComponent<NormalBullet>().Initialize(target.transform.position, BaseDmg, layer, skillContext.Parent, 20f);
         HexNode targetHex = target.CurrentHex;
-        float burningDuration = 5f; 
+        float burningDuration = 5f;
         int damagePerTick = 10;
         float tickInterval = 1f;
         bool appliedByAlly = skillContext.Parent.IsAlly;
@@ -257,7 +255,7 @@ public class NatsuSkill : CharacterSkillBase//治癒自己一定血量，架起�
         healRatio = stats.Data2;
         immuneduraion = stats.Data3;
         base.ExecuteSkill(skillContext);
-        skillContext.Parent.AddStat(StatsType.currHealth,BaseHeal);
+        skillContext.Parent.AddStat(StatsType.currHealth, BaseHeal);
         Effect effect = EffectFactory.ClarityEffect(5);
         skillContext.Parent.effectCTRL.AddEffect(effect);
     }
@@ -304,7 +302,7 @@ public class SerikaSkill : CharacterSkillBase//增加自己一些攻擊力、攻
         int level = skillContext.CharacterLevel;
         StarLevelStats stats = statsByStarLevel[level];
         base.ExecuteSkill(skillContext);
-        Effect effect = EffectFactory.CreateSerikaRageEffect(10,5);
+        Effect effect = EffectFactory.CreateSerikaRageEffect(10, 5);
         skillContext.Parent.effectCTRL.AddEffect(effect);
     }
 }
@@ -319,7 +317,7 @@ public class SerinaSkill : CharacterSkillBase
     {
         statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(10,1,1)},
+            {1, new StarLevelStats(1000,1,1)},
             {2, new StarLevelStats(20,2,1)},
             {3, new StarLevelStats(30,3,2)}
         };
@@ -334,6 +332,7 @@ public class SerinaSkill : CharacterSkillBase
         boxAmount = stats.Data3;
         base.ExecuteSkill(skillContext);
 
+        CustomLogger.Log(this, $"character {skillContext.Parent}(serina) cast");
         List<CharacterCTRL> allies = new List<CharacterCTRL>(skillContext.Allies);
         allies.Sort((a, b) => a.GetStat(StatsType.currHealth).CompareTo(b.GetStat(StatsType.currHealth)));
 
@@ -345,13 +344,13 @@ public class SerinaSkill : CharacterSkillBase
             lowestHpAllies.Add(allies[i]);
         }
 
-        int remainingBoxes = boxAmount - actualBoxAmount;
+        int remainingBoxes = boxAmount - actualBoxAmount + 1;
         for (int i = 0; i < remainingBoxes; i++)
         {
-            Vector3 pos = lowestHpAllies[i % actualBoxAmount].transform.position + new Vector3(0, 3, 0);
-            GameObject HealPack = ResourcePool.Instance.SpawnObject(SkillPrefab.HealPack, pos, Quaternion.identity);
+            Vector3 pos = lowestHpAllies[i % actualBoxAmount].transform.position + new Vector3(0, 10, 0);
+            GameObject HealPack = ResourcePool.Instance.SpawnObject(SkillPrefab.HealPack, pos, Quaternion.Euler(-90, 0, 0));
             HexNode hex = Utility.GetHexOnPos(pos);
-            HealPack.GetComponent<HealPack>().InitStats(hex, skillContext.Range, 100, skillContext.Parent);
+            HealPack.GetComponent<HealPack>().InitStats(hex, skillContext.Range, baseHeal, skillContext.Parent, skillContext.Parent.IsAlly);
         }
     }
 }
@@ -361,12 +360,12 @@ public class ShizukoSkill : CharacterSkillBase//在角色(無論敵我)最多的
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
-        HexNode hex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent,3,false,true,skillContext.Parent.CurrentHex);
-        skillContext.Parent.GetComponent<ShizukoActiveSkill>().SpawnTruck(hex.Position);
+        HexNode hex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent, 3, false, true, skillContext.Parent.CurrentHex);
+        skillContext.Parent.GetComponent<ShizukoActiveSkill>().SpawnTruck(hex, skillContext.Parent);
 
-        foreach (var item in skillContext.Parent.CurrentHex.GetCharacterOnNeighborHex(3,true))
+        foreach (var item in skillContext.Parent.CurrentHex.GetCharacterOnNeighborHex(3, true))
         {
-            item.AddShield(100,5f,skillContext.Parent);
+            item.AddShield(100, 5f, skillContext.Parent);
             Effect effect = EffectFactory.CreateShizukoEffect(30, 10);
             item.effectCTRL.AddEffect(effect);
         }
@@ -433,14 +432,14 @@ public class MineSkill : CharacterSkillBase//跳躍到敵人最多的位置，�
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
-        HexNode targetHex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent,3,true,true,skillContext.currHex);
+        HexNode targetHex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent, 3, true, true, skillContext.currHex);
 
         if (targetHex != null)
         {
-            skillContext.Parent.StartCoroutine(JumpToTarget(skillContext.Parent, targetHex,3, skillContext));//TODO:修改此處，改為傳入skill context的range
+            skillContext.Parent.StartCoroutine(JumpToTarget(skillContext.Parent, targetHex, 3, skillContext));//TODO:修改此處，改為傳入skill context的range
         }
     }
-    private IEnumerator JumpToTarget(CharacterCTRL character, HexNode targetHex,int range, SkillContext skillContext)
+    private IEnumerator JumpToTarget(CharacterCTRL character, HexNode targetHex, int range, SkillContext skillContext)
     {
         yield return new WaitForSeconds(31f / 30f);
         HexNode hex = character.CurrentHex;
@@ -477,8 +476,9 @@ public class MineSkill : CharacterSkillBase//跳躍到敵人最多的位置，�
             if (neighbor.OccupyingCharacter != null && neighbor.OccupyingCharacter.IsAlly != isAlly)
             {
                 Effect stunEffect = EffectFactory.CreateStunEffect(skillContext.duration);
+                CustomLogger.Log(this, $"try Stun enemy: {neighbor.OccupyingCharacter.name} at Hex: {neighbor.Position}");
                 neighbor.OccupyingCharacter.effectCTRL.AddEffect(stunEffect);
-                Debug.Log($"Stunned enemy: {neighbor.OccupyingCharacter.name} at Hex: {neighbor.Position}");
+                CustomLogger.Log(this,$"Stunned enemy: {neighbor.OccupyingCharacter.name} at Hex: {neighbor.Position}");
             }
             neighbor.SetColorState(ColorState.TemporaryYellow, .5f);
         }
@@ -575,7 +575,7 @@ public class YuukaSkill : CharacterSkillBase//跳到敵人最多的地方，同�
     {
         foreach (HexNode neighbor in SpawnGrid.Instance.GetHexNodesWithinRange(targetHex, range))
         {
-            if (neighbor.OccupyingCharacter != null&& neighbor.OccupyingCharacter.IsAlly == skillContext.Parent.IsAlly)
+            if (neighbor.OccupyingCharacter != null && neighbor.OccupyingCharacter.IsAlly == skillContext.Parent.IsAlly)
             {
                 neighbor.OccupyingCharacter.AddShield(50, 5.0f, skillContext.Parent);
             }
@@ -623,7 +623,7 @@ public class HoshinoSkill : CharacterSkillBase
             directionEnemyCount[neighbor] = enemyCount;
         }
         var bestDirection = directionEnemyCount.OrderByDescending(kv => kv.Value).First().Key;
-        if (bestDirection.OccupyingCharacter!= null)
+        if (bestDirection.OccupyingCharacter != null)
         {
             skillContext.Parent.ForceChangeTarget(bestDirection.OccupyingCharacter);
         }
@@ -632,7 +632,7 @@ public class HoshinoSkill : CharacterSkillBase
         var currentHexNeighbors = new HashSet<HexNode>(skillContext.Parent.CurrentHex.Neighbors);
         bestDirectionNeighbors.Add(bestDirection);
         skillContext.SelectedHex = bestDirectionNeighbors.Intersect(currentHexNeighbors).ToList();
-        CustomLogger.Log(this,$"Hoshino skillContext.SelectedHex = {skillContext.SelectedHex.Count}");
+        CustomLogger.Log(this, $"Hoshino skillContext.SelectedHex = {skillContext.SelectedHex.Count}");
         skillContext.Parent.GetComponent<HoshinoShotgunSkill>().skillContext = skillContext;
     }
 }
@@ -673,7 +673,7 @@ public class Shiroko_TerrorSkill : CharacterSkillBase
     {
         base.ExecuteSkill(skillContext);
         skillContext.Parent.transform.rotation = Quaternion.Euler(0, 180, 0);
-        skillContext.Parent.customAnimator.animator.SetInteger("SkillID",skillContext.shirokoTerror_SkillID);
+        skillContext.Parent.customAnimator.animator.SetInteger("SkillID", skillContext.shirokoTerror_SkillID);
     }
 }
 public class StarLevelStats
@@ -708,7 +708,7 @@ public class SkillContext
     public float duration;
     public int shirokoTerror_SkillID;
 
-    public List<HexNode> SelectedHex = new ();
+    public List<HexNode> SelectedHex = new();
     //散彈
     public int Angle;
     public int CastTimes;
