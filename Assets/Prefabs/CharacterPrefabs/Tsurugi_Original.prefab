@@ -788,9 +788,10 @@ GameObject:
   - component: {fileID: 5077059587178076090}
   - component: {fileID: 5522670409239544846}
   - component: {fileID: 2385441624816858642}
+  - component: {fileID: 431190880793143666}
   m_Layer: 0
   m_Name: Tsurugi_Original
-  m_TagString: Untagged
+  m_TagString: Character
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -875,6 +876,7 @@ MonoBehaviour:
   star: 0
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
+  ManaLock: 0
   enterBattle: 0
   isAlive: 1
   IsCastingAbility: 0
@@ -894,6 +896,9 @@ MonoBehaviour:
   isTargetable: 1
   isShirokoTerror: 0
   droneCTRL: {fileID: 0}
+  isObj: 0
+  Logistic_dummy: {fileID: 0}
+  equipmentManager: {fileID: 0}
 --- !u!95 &6646912501731203270
 Animator:
   serializedVersion: 5
@@ -1025,6 +1030,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Animator: {fileID: 6646912501731203270}
+  SpecialAttackCount: 0
+  Enhancing: 0
+  Parent: {fileID: 0}
+--- !u!114 &431190880793143666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1222335441274468059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1f0e333457e9f7448f7a6f0ff11015b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1246052554150024011
 GameObject:
   m_ObjectHideFlags: 0

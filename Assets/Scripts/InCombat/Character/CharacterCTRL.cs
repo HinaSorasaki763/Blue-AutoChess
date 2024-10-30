@@ -3,12 +3,9 @@ using GameEnum;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
-using UnityEngine.UIElements;
 
 public class CharacterCTRL : MonoBehaviour
 {
@@ -75,6 +72,7 @@ public class CharacterCTRL : MonoBehaviour
     public Shiroko_Terror_DroneCTRL droneCTRL;
     public bool isObj;
     public GameObject Logistic_dummy;
+    public CharacterEquipmentManager equipmentManager;
     #endregion
     #region Unity Lifecycle Methods
     public virtual void OnEnable()
@@ -114,6 +112,9 @@ public class CharacterCTRL : MonoBehaviour
         {
             SetStat(StatsType.Range, 20);
         }
+        equipmentManager = GetComponent<CharacterEquipmentManager>();
+        equipmentManager.SetParent(this);
+
     }
     public void ResetStats()
     {
@@ -135,10 +136,6 @@ public class CharacterCTRL : MonoBehaviour
 
     public virtual void Update()
     {
-        if (isShirokoTerror)
-        {
-            transform.rotation = Quaternion.Euler(0, 180, 0);
-        }
         characterBars.UpdateText(customAnimator.GetState().Item1.ToString());
         if (Target != null && !Target.activeInHierarchy)
         {
@@ -429,6 +426,21 @@ public class CharacterCTRL : MonoBehaviour
         customAnimator.AfterCastSkill();
     }
     public bool IsCasting() => customAnimator.animator.GetBool("CastSkill");
+    public bool EquipItem(IEquipment equipment)
+    {
+        bool result = equipmentManager.EquipItem(equipment);
+
+        if (result)
+        {
+            // 更新装备显示
+            if (characterBars != null)
+            {
+                characterBars.UpdateEquipmentDisplay(equipmentManager.GetEquippedItems());
+            }
+        }
+        return result;
+    }
+
     #endregion
 
     #region Targeting and Pathfinding

@@ -2682,9 +2682,10 @@ GameObject:
   - component: {fileID: -6702320876905468607}
   - component: {fileID: -2807606138621691708}
   - component: {fileID: 6568942007101396442}
+  - component: {fileID: 8861898794224215140}
   m_Layer: 0
   m_Name: Shiroko_Original
-  m_TagString: Untagged
+  m_TagString: Character
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2770,6 +2771,7 @@ MonoBehaviour:
   star: 0
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
+  ManaLock: 0
   enterBattle: 0
   isAlive: 1
   IsCastingAbility: 0
@@ -2789,6 +2791,9 @@ MonoBehaviour:
   isTargetable: 1
   isShirokoTerror: 0
   droneCTRL: {fileID: 0}
+  isObj: 0
+  Logistic_dummy: {fileID: 0}
+  equipmentManager: {fileID: 0}
 --- !u!95 &6287075285387017520
 Animator:
   serializedVersion: 5
@@ -2934,6 +2939,18 @@ MonoBehaviour:
   droneRef: {fileID: 0}
   droneCTRL: {fileID: 0}
   Drone: {fileID: 0}
+--- !u!114 &8861898794224215140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4247883918085999096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1f0e333457e9f7448f7a6f0ff11015b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4367975775114666945
 GameObject:
   m_ObjectHideFlags: 0

@@ -437,9 +437,10 @@ GameObject:
   - component: {fileID: -5354156885242966070}
   - component: {fileID: 9086890685046775915}
   - component: {fileID: -6299489466941750865}
+  - component: {fileID: -7647206458220540709}
   m_Layer: 0
   m_Name: Tsubaki_Original
-  m_TagString: Untagged
+  m_TagString: Character
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -522,6 +523,7 @@ MonoBehaviour:
   star: 0
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
+  ManaLock: 0
   enterBattle: 0
   isAlive: 1
   IsCastingAbility: 0
@@ -538,7 +540,12 @@ MonoBehaviour:
   DetectedPos: {x: 0, y: 0, z: 0}
   traitController: {fileID: 0}
   customAnimator: {fileID: 0}
+  isTargetable: 1
   isShirokoTerror: 0
+  droneCTRL: {fileID: 0}
+  isObj: 0
+  Logistic_dummy: {fileID: 0}
+  equipmentManager: {fileID: 0}
 --- !u!95 &5623003653030709106
 Animator:
   serializedVersion: 5
@@ -643,6 +650,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0b9e6f9b8c00674ea2a7b7867d4fa82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effectNames: []
+  characterCTRL: {fileID: 0}
 --- !u!114 &9086890685046775915
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -665,6 +674,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d166ca0c523f59641ab22e288092a104, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-7647206458220540709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 663542643789885379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1f0e333457e9f7448f7a6f0ff11015b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &885380161223930834

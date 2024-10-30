@@ -56,7 +56,8 @@ namespace GameEnum
         CritRatio,
         DodgeChance,
         Accuracy,
-        Shield
+        Shield,
+        Null
     }
     public enum ColorState
     {
@@ -78,6 +79,72 @@ namespace GameEnum
         CCImmune,
         UnTargetable,
         Invincible
+    }
+    public enum EquipmentType
+    {
+        Mana,
+        Attack,
+        AttackSpeed,
+        Defense,
+        CriticalRate,
+        Health
+    }
+    public interface IEquipment
+    {
+        public string EquipmentName { get; }
+        public Sprite Icon { get; }
+        Dictionary<EquipmentType, int> GetStats();
+    }
+    [System.Serializable]
+    public class BasicEquipment : IEquipment
+    {
+        public EquipmentType equipmentType;
+        public Sprite icon;
+        public string equipmentName;
+        public int value;
+        public List<EquipmentType> combinableWith;
+
+        // 實現IEquipment接口
+        public string EquipmentName => equipmentName;
+        public Sprite Icon => icon;
+
+        public Dictionary<EquipmentType, int> GetStats()
+        {
+            return new Dictionary<EquipmentType, int> { { equipmentType, value } };
+        }
+    }
+
+    [System.Serializable]
+    public class CombinedEquipment : IEquipment
+    {
+        public BasicEquipment equipment1;
+        public BasicEquipment equipment2;
+        public string equipmentName;
+        public Sprite icon;
+        public Dictionary<EquipmentType, int> combinedStats;
+
+        public CombinedEquipment(BasicEquipment eq1, BasicEquipment eq2)
+        {
+            equipment1 = eq1;
+            equipment2 = eq2;
+            equipmentName = $"{eq1.equipmentName} + {eq2.equipmentName}";
+            combinedStats = new Dictionary<EquipmentType, int>
+        {
+            { eq1.equipmentType, eq1.value },
+            { eq2.equipmentType, eq2.value }
+        };
+            // 設定icon為合成裝備的圖示
+            // icon = ...; // 需要您設置合成裝備的圖示
+        }
+
+        // 實現IEquipment接口
+        public string EquipmentName => equipmentName;
+        public Sprite Icon => icon;
+
+        public Dictionary<EquipmentType, int> GetStats()
+        {
+            return combinedStats;
+        }
     }
 
     [Serializable]

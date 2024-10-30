@@ -4,39 +4,22 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 using System.Collections;
+using GameEnum;
 
 public class DeveloperTool : MonoBehaviour
 {
-    public GameObject buttonPrefab;
-    public Transform contentParent;
+    public GameObject characterButtonPrefab;
+    public GameObject equipmentButtonPrefab;
+    public Transform characterContentParent;
+    public Transform equipmentContentParent;
     public BenchManager benchManager;
-    public GameEvent startBattle;
+    public EquipmentManager equipmentManager; // 引用装备管理器
+
     private List<GameObject> characterButtons = new List<GameObject>();
-    public void Update()
+    private List<GameObject> equipmentButtons = new List<GameObject>();
+    public void OnEnable()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            if (SpawnGrid.Instance.indexToCubeKey.TryGetValue(43, out string cubeKey))
-            {
-                if (SpawnGrid.Instance.hexNodes.TryGetValue(cubeKey, out HexNode hexNode))
-                {
-                    Vector3 position = hexNode.Position;
-                    Character characterData = ResourcePool.Instance.GetCharacterByID(31);
-                    GameObject characterPrefab = characterData.Model;
-                    GameObject go = ResourcePool.Instance.SpawnCharacterAtPosition(characterPrefab, position, hexNode, ResourcePool.Instance.enemy, isAlly: false);
-                    StartCoroutine(StartBattleCorutine());
-                }
-                else
-                {
-                    CustomLogger.LogError(this, $"No HexNode found for cube key {cubeKey}");
-                }
-            }
-        }
-    }
-    public IEnumerator StartBattleCorutine()
-    {
-        yield return new WaitForSeconds(3.5f);
-        startBattle.Raise();
+
     }
     public void GenerateCharacterButtons()
     {
@@ -45,8 +28,8 @@ public class DeveloperTool : MonoBehaviour
 
         foreach (var character in allCharacters)
         {
-            // 创建按钮实例
-            GameObject buttonObj = Instantiate(buttonPrefab, contentParent);
+            // 创建角色按钮实例
+            GameObject buttonObj = Instantiate(characterButtonPrefab, characterContentParent);
             Button button = buttonObj.GetComponent<Button>();
             Image image = buttonObj.GetComponent<Image>();
 
@@ -54,22 +37,59 @@ public class DeveloperTool : MonoBehaviour
             if (character.Sprite != null)
             {
                 image.sprite = character.Sprite;
-                image.color = Color.white; // 确保图片不被透明化
+                image.color = Color.white;
             }
             else
             {
                 Debug.LogWarning($"角色 {character.CharacterName} 缺少头像 Sprite。");
-                image.color = new Color(1, 1, 1, 0); // 设置为透明
+                image.color = new Color(1, 1, 1, 0);
             }
 
             // 添加点击事件
-            Character capturedCharacter = character; // 闭包问题，捕获当前角色
+            Character capturedCharacter = character;
             button.onClick.AddListener(() => SpawnCharacter(capturedCharacter));
 
-            // 将按钮添加到列表（可选）
+            // 将按钮添加到列表
             characterButtons.Add(buttonObj);
         }
     }
+
+    public void GenerateEquipmentButtons()
+    {
+        // 檢查 equipmentManager 和 availableEquipments 是否初始化
+        if (equipmentManager == null || equipmentManager.availableEquipments == null)
+        {
+            Debug.LogError("EquipmentManager 或 availableEquipments 未初始化！");
+            return;
+        }
+
+        // 獲取所有裝備
+        List<EquipmentSO> allEquipments = equipmentManager.availableEquipments;
+
+        foreach (var equipment in allEquipments)
+        {
+            // 創建裝備按鈕實例
+            GameObject buttonObj = Instantiate(equipmentButtonPrefab, equipmentContentParent);
+            Button button = buttonObj.GetComponent<Button>();
+            Image image = buttonObj.GetComponentInChildren<Image>();
+            if (equipment.Icon != null)
+            {
+                image.sprite = equipment.Icon;
+                image.color = Color.white;
+            }
+            else
+            {
+                Debug.LogWarning($"裝備 {equipment.EquipmentName} 缺少圖標 Sprite。");
+                image.color = new Color(1, 1, 1, 0);
+            }
+            EquipmentSO capturedEquipment = equipment;
+            button.onClick.AddListener(() => SpawnEquipment(capturedEquipment));
+
+            // 將按鈕加入列表
+            equipmentButtons.Add(buttonObj);
+        }
+    }
+
 
     private void SpawnCharacter(Character character)
     {
@@ -79,8 +99,13 @@ public class DeveloperTool : MonoBehaviour
         }
         else
         {
-            // 处理备战席已满的情况
             Debug.Log("备战席已满，无法添加新角色。");
         }
+    }
+
+    private void SpawnEquipment(IEquipment equipment)
+    {
+        // 调用 EquipmentManager 的方法，将装备添加到装备区域
+        equipmentManager.AddEquipmentItem(equipment);
     }
 }

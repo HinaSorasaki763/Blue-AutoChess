@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class CharacterParent : MonoBehaviour
 {
@@ -47,7 +48,11 @@ public class CharacterParent : MonoBehaviour
             {
                 characterGroups[characterId][star] = new List<CharacterCTRL>();
             }
-            characterGroups[characterId][star].Add(ctrl);
+            if (!ctrl.isObj)
+            {
+                characterGroups[characterId][star].Add(ctrl);
+            }
+
         }
         foreach (var group in characterGroups)
         {
@@ -55,6 +60,7 @@ public class CharacterParent : MonoBehaviour
             {
                 if (starGroup.Value.Count >= 3)
                 {
+                    if (starGroup.Value[0].isObj) continue;
                     CombineCharacters(starGroup.Value);
                 }
             }
@@ -196,7 +202,6 @@ public class CharacterParent : MonoBehaviour
     {
         foreach (var dummy in logisticsDummies.Values)
         {
-            //dummy.GetComponent<CharacterCTRL>().CurrentHex.HardRelease();
             dummy.SetActive(false);
         }
         foreach (var item in battlefieldCharacters)
@@ -213,12 +218,18 @@ public class CharacterParent : MonoBehaviour
                 {
                     HexNode h = SpawnGrid.Instance.GetEmptyHex();
                     GameObject obj = Instantiate(ResourcePool.Instance.LogisticDummy, h.Position + new Vector3(0, 0.14f, 0), Quaternion.Euler(new Vector3(-90, 0, 0)));
+                    CustomLogger.Log(this,"spawned dummy");
+                    CharacterBars bar = ResourcePool.Instance.GetBar(h.Position).GetComponent<CharacterBars>();
+                    childCharacters.Add(obj);
+                    CharacterCTRL ctrl = obj.GetComponent<CharacterCTRL>();
+                    ctrl.SetBarChild(bar);
+                    ctrl.characterBars = bar;
+                    CustomLogger.Log(this, $"get bar to {obj.name},bar parent = {ctrl},child = {ctrl.characterBars}");
+                    bar.SetBarsParent(obj.transform);
                     logisticsDummies[character] = obj;
-
-                    CharacterCTRL c = obj.GetComponent<CharacterCTRL>();
-                    c.CurrentHex = h;
-                    h.OccupyingCharacter = c;
-                    h.Reserve(c);
+                    ctrl.CurrentHex = h;
+                    h.OccupyingCharacter = ctrl;
+                    h.Reserve(ctrl);
                 }
 
             }

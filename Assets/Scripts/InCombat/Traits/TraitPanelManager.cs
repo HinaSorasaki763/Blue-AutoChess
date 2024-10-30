@@ -25,7 +25,6 @@ public class TraitPanelManager : MonoBehaviour
         }
     }
 
-    // 打開指定的面板，並關閉其他所有面板
     public void OpenPanel(GameObject panelToOpen)
     {
         foreach (var panel in traitPanels)

@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &954476011115279921
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3781199236721641404}
+  m_Layer: 8
+  m_Name: GetHitPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3781199236721641404
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 954476011115279921}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0, z: 0.855}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4488454020445764111}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2254578881858061344
 GameObject:
   m_ObjectHideFlags: 0
@@ -14,9 +45,11 @@ GameObject:
   - component: {fileID: 6044703480681648879}
   - component: {fileID: 6490532611047215094}
   - component: {fileID: 8823207437843596959}
-  m_Layer: 0
+  - component: {fileID: -723575416566256196}
+  - component: {fileID: 7350124531225570687}
+  m_Layer: 8
   m_Name: _Logistic_dummy
-  m_TagString: Untagged
+  m_TagString: Character
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -35,6 +68,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7512112681154738731}
+  - {fileID: 3781199236721641404}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: -180}
 --- !u!114 &1845308265307684697
@@ -118,7 +152,7 @@ MonoBehaviour:
   stunned: 0
   bulletPrefab: {fileID: 0}
   FirePoint: {fileID: 0}
-  GetHitPoint: {fileID: 0}
+  GetHitPoint: {fileID: 3781199236721641404}
   DetectedPos: {x: 0, y: 0, z: 0}
   traitController: {fileID: 0}
   customAnimator: {fileID: 0}
@@ -127,6 +161,7 @@ MonoBehaviour:
   droneCTRL: {fileID: 0}
   isObj: 1
   Logistic_dummy: {fileID: 0}
+  equipmentManager: {fileID: 0}
 --- !u!114 &6817569935606067784
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -187,6 +222,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PreSelectedGrid: {fileID: 0}
+--- !u!114 &-723575416566256196
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2254578881858061344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 461b299f846491145b8c3660fb8bb268, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7350124531225570687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2254578881858061344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1f0e333457e9f7448f7a6f0ff11015b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5094665012361601124
 GameObject:
   m_ObjectHideFlags: 0
@@ -199,7 +258,7 @@ GameObject:
   - component: {fileID: 1806952471455492468}
   - component: {fileID: 1198012114261061558}
   - component: {fileID: 5657921198391395550}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Logistic_dummy
   m_TagString: Untagged
   m_Icon: {fileID: 0}

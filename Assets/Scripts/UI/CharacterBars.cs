@@ -1,5 +1,7 @@
-using GameEnum;
+﻿using GameEnum;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CharacterBars : MonoBehaviour
 {
@@ -11,9 +13,12 @@ public class CharacterBars : MonoBehaviour
     public SliderCTRL ManaSlider;
     public TMPro.TextMeshProUGUI CurrentState;
 
-    // �s�W�� UI ����
-    public GameObject strongestMark;  // "�̱j"�лx
-    public TMPro.TextMeshProUGUI starLevelText;  // ��ܬP�Ū��e���
+    // 新增的 UI 元素
+    public GameObject strongestMark;  // "最強"標誌
+    public TMPro.TextMeshProUGUI starLevelText;  // 顯示星級的占位符
+
+    public Transform equipmentDisplayArea; // 用于显示装备图标的区域
+    public GameObject equipmentIconPrefab; // 装备图标的预制体
 
     private void OnEnable()
     {
@@ -22,7 +27,7 @@ public class CharacterBars : MonoBehaviour
 
     private void OnDisable()
     {
-       // ResetBars();
+
     }
 
     public void UpdateText( string currentState)
@@ -42,7 +47,23 @@ public class CharacterBars : MonoBehaviour
         transform.position = screenPos + new Vector3(0, 120, 0);
         UpdateUIs();
     }
+    public void UpdateEquipmentDisplay(List<IEquipment> equippedItems)
+    {
+        // 清除现有的装备显示
+        foreach (Transform child in equipmentDisplayArea)
+        {
+            Destroy(child.gameObject);
+        }
 
+        // 添加当前装备的图标
+        foreach (var equipment in equippedItems)
+        {
+            GameObject icon = Instantiate(equipmentIconPrefab, equipmentDisplayArea);
+            Image iconImage = icon.GetComponent<EquipmentItemUI>().icon;
+            iconImage.sprite = equipment.Icon;
+            // 如果需要，可以添加 tooltip 或点击事件，显示装备详情
+        }
+    }
     public void SetBarsParent(Transform parent)
     {
         CustomLogger.Log(this, $"set bar to {parent.name}");
@@ -58,7 +79,7 @@ public class CharacterBars : MonoBehaviour
         HealthSlider.SetMinValue(0);
         ManaSlider.SetMaxValue(1);
         ManaSlider.SetMinValue(0);
-        strongestMark.SetActive(false);  // ���m������"�̱j"�лx
+        strongestMark.SetActive(false);  // 重置時隱藏"最強"標誌
     }
 
     void InitBars()
@@ -70,7 +91,7 @@ public class CharacterBars : MonoBehaviour
         ManaSlider.SetMinValue(0);
 
         UpdateStarLevel();
-        strongestMark.SetActive(false);  // �q�{���p�U����
+        strongestMark.SetActive(false);  // 默認情況下隱藏
     }
 
     void UpdateUIs()
@@ -79,13 +100,13 @@ public class CharacterBars : MonoBehaviour
         ManaSlider.UpdateValue(CharacterCTRL.GetStat(StatsType.Mana));
     }
 
-    // ��s�P�żлx
+    // 更新星級標誌
     public void UpdateStarLevel()
     {
-        starLevelText.text = $"star: {CharacterCTRL.star}";  // ��ܬP��
+        starLevelText.text = $"star: {CharacterCTRL.star}";  // 顯示星級
     }
 
-    // ��s"�̱j"�лx
+    // 更新"最強"標誌
     public void SetStrongestMark(bool isStrongest)
     {
         strongestMark.SetActive(isStrongest);

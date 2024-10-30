@@ -5670,9 +5670,10 @@ GameObject:
   - component: {fileID: 2469551171038934915}
   - component: {fileID: -4394793540247073711}
   - component: {fileID: -5449477911965287784}
+  - component: {fileID: 5080474695208450311}
   m_Layer: 0
   m_Name: Shiroko_Terror
-  m_TagString: Untagged
+  m_TagString: Character
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5747,6 +5748,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0b9e6f9b8c00674ea2a7b7867d4fa82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effectNames: []
+  characterCTRL: {fileID: 0}
 --- !u!114 &2929500634103077034
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5852,6 +5855,7 @@ MonoBehaviour:
   star: 0
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
+  ManaLock: 0
   enterBattle: 0
   isAlive: 1
   IsCastingAbility: 0
@@ -5868,7 +5872,12 @@ MonoBehaviour:
   DetectedPos: {x: 0, y: 0, z: 0}
   traitController: {fileID: 0}
   customAnimator: {fileID: 0}
+  isTargetable: 1
   isShirokoTerror: 0
+  droneCTRL: {fileID: 0}
+  isObj: 0
+  Logistic_dummy: {fileID: 0}
+  equipmentManager: {fileID: 0}
 --- !u!114 &5342661329701524180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5934,6 +5943,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d166ca0c523f59641ab22e288092a104, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5080474695208450311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8199883607337634985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1f0e333457e9f7448f7a6f0ff11015b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &8234859896267721778

@@ -42,7 +42,7 @@ public class TraitsEffectManager : MonoBehaviour
         foreach (var character in characters)
         {
             int characterId = character.characterStats.CharacterId;
-            if (countedCharacterIds.Contains(characterId))
+            if (countedCharacterIds.Contains(characterId)||character.isObj)
             {
                 continue;
             }

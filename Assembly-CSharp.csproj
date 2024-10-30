@@ -85,6 +85,7 @@
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\HyakkiyakoObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitUIManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\map\Wall.cs" />
+    <Compile Include="Assets\Scripts\UI\EquipmentUIManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\costumBullet\TrailedBullet.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\AbydosObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\PathFinding\PathFinder.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Assets\Scripts\Player\Player.cs" />
     <Compile Include="Assets\Scripts\InCombat\Hexagon\IHexagon.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\TsurugiActiveSkill.cs" />
+    <Compile Include="Assets\Scripts\InCombat\Character\Equipment\EquipmentManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\Bullet.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitUI.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitController.cs" />
@@ -132,8 +134,10 @@
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitEffectApplier.cs" />
     <Compile Include="Assets\Scripts\UI\CharacterBars.cs" />
     <Compile Include="Assets\Scripts\UI\SliderCTRL.cs" />
+    <Compile Include="Assets\Scripts\InCombat\Character\Equipment\CharacterEquipmentManager.cs" />
+    <Compile Include="Assets\Scripts\InCombat\Character\Equipment\EquipmentSO.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\BarrageObserver.cs" />
-    <Compile Include="Assets\Scripts\Character\HaloMovement.cs" />
+    <Compile Include="Assets\Scripts\InCombat\Character\Equipment\EquipmentItemUI.cs" />
     <Compile Include="Assets\Scripts\UI\TraitsText.cs" />
     <Compile Include="Assets\Scripts\CustomThings\Shiroko_Terror_DroneCTRL.cs" />
   </ItemGroup>

@@ -4216,9 +4216,10 @@ GameObject:
   - component: {fileID: -6491108629315721724}
   - component: {fileID: -1206393572998017059}
   - component: {fileID: 3399039182932901711}
+  - component: {fileID: -8467875108549856867}
   m_Layer: 0
   m_Name: Shizuko_Original
-  m_TagString: Untagged
+  m_TagString: Character
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4302,6 +4303,7 @@ MonoBehaviour:
   star: 0
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
+  ManaLock: 0
   enterBattle: 0
   isAlive: 1
   IsCastingAbility: 0
@@ -4320,6 +4322,10 @@ MonoBehaviour:
   customAnimator: {fileID: 0}
   isTargetable: 1
   isShirokoTerror: 0
+  droneCTRL: {fileID: 0}
+  isObj: 0
+  Logistic_dummy: {fileID: 0}
+  equipmentManager: {fileID: 0}
 --- !u!95 &6461546238859873253
 Animator:
   serializedVersion: 5
@@ -4465,6 +4471,19 @@ MonoBehaviour:
   TruckPrefab: {fileID: 2508619662423299920, guid: 8e8ebbde663f89c43bb42d92489759b8,
     type: 3}
   Reference: {fileID: 0}
+  Parent: {fileID: 0}
+--- !u!114 &-8467875108549856867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8504599828489107960}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1f0e333457e9f7448f7a6f0ff11015b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8686072742187206826
 GameObject:
   m_ObjectHideFlags: 0
