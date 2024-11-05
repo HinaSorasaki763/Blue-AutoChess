@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62d5344dd8e99c4468813418945db595, type: 3}
+  m_Name: CombinationRoute
+  m_EditorClassIdentifier: 
+  combinationEntries:
+  - equipmentA: {fileID: 11400000, guid: 2b1a82c3c0d2a5741a0d22889357a3db, type: 2}
+    equipmentB: {fileID: 11400000, guid: 87db7211ccb8c0243a6b06bae74318b9, type: 2}
+    resultEquipment: {fileID: 11400000, guid: 172f42b519a3ea846be556e859dbed62, type: 2}
+  - equipmentA: {fileID: 11400000, guid: 2b1a82c3c0d2a5741a0d22889357a3db, type: 2}
+    equipmentB: {fileID: 11400000, guid: c8020867a36214643ad60246b62a7897, type: 2}
+    resultEquipment: {fileID: 11400000, guid: 1e64e66f7d6ff7440878b234c103a790, type: 2}
+  - equipmentA: {fileID: 11400000, guid: 2b1a82c3c0d2a5741a0d22889357a3db, type: 2}
+    equipmentB: {fileID: 11400000, guid: 8a35b2c6daf03864ea23406b84270f8d, type: 2}
+    resultEquipment: {fileID: 11400000, guid: 1e64e66f7d6ff7440878b234c103a790, type: 2}
+  - equipmentA: {fileID: 11400000, guid: 2b1a82c3c0d2a5741a0d22889357a3db, type: 2}
+    equipmentB: {fileID: 11400000, guid: 04b9a7d706e4f7243bbb8870d9072249, type: 2}
+    resultEquipment: {fileID: 11400000, guid: f903ca7219eaaa143a9e050838f52b47, type: 2}
+  - equipmentA: {fileID: 11400000, guid: 2b1a82c3c0d2a5741a0d22889357a3db, type: 2}
+    equipmentB: {fileID: 11400000, guid: ad5b16e38ab5cb140a7aa8df385bf410, type: 2}
+    resultEquipment: {fileID: 11400000, guid: e2ae317661cab1347a57464a2bc9ec43, type: 2}

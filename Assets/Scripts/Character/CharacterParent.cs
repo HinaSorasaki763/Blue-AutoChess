@@ -85,6 +85,7 @@ public class CharacterParent : MonoBehaviour
         }
         mainCharacter.characterStats.ApplyLevelUp(mainCharacter.characterStats.Level + 1);
         mainCharacter.characterBars.UpdateStarLevel();  // 更新星級顯示
+        mainCharacter.AudioManager.PlayOnStarUp();
         CustomLogger.Log(this,$"{mainCharacter.name} 已升級至 {mainCharacter.star} 星");
     }
 

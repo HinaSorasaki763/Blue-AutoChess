@@ -35,6 +35,7 @@ public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     public void OnPointerDown(PointerEventData eventData)
     {
         UIManager.Instance.ShowCharacterStats(characterCTRL);
+        characterCTRL.AudioManager.PlayPickedUpSound();
     }
 
     public void OnPointerUp(PointerEventData eventData)

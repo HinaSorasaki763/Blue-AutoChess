@@ -19,7 +19,7 @@ public class CharacterBars : MonoBehaviour
 
     public Transform equipmentDisplayArea; // 用于显示装备图标的区域
     public GameObject equipmentIconPrefab; // 装备图标的预制体
-
+    public List<Image> equipmentImages = new List<Image>(); 
     private void OnEnable()
     {
         cam = Camera.main;
@@ -49,19 +49,10 @@ public class CharacterBars : MonoBehaviour
     }
     public void UpdateEquipmentDisplay(List<IEquipment> equippedItems)
     {
-        // 清除现有的装备显示
-        foreach (Transform child in equipmentDisplayArea)
+        for (int i = 0; i < equippedItems.Count; i++)
         {
-            Destroy(child.gameObject);
-        }
-
-        // 添加当前装备的图标
-        foreach (var equipment in equippedItems)
-        {
-            GameObject icon = Instantiate(equipmentIconPrefab, equipmentDisplayArea);
-            Image iconImage = icon.GetComponent<EquipmentItemUI>().icon;
-            iconImage.sprite = equipment.Icon;
-            // 如果需要，可以添加 tooltip 或点击事件，显示装备详情
+            Image iconImage = equipmentImages[i];
+            iconImage.sprite = equippedItems[i].Icon;
         }
     }
     public void SetBarsParent(Transform parent)

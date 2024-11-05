@@ -5,10 +5,13 @@ using UnityEngine;
 
 public class EquipmentManager : MonoBehaviour
 {
+    public CombinationRouteSO combinationRoute;
     public List<EquipmentSO> availableEquipments = new List<EquipmentSO>(); // 使用 ScriptableObject 型別
     public GameObject equipmentItemPrefab;
     public Transform equipmentArea;
     public List<IEquipment> ownedEquipments = new List<IEquipment>();
+    public GameObject parent;
+    public Transform UIParent;
     public void Start()
     {
         // 載入所有裝備 ScriptableObject
@@ -26,7 +29,7 @@ public class EquipmentManager : MonoBehaviour
         LogItems();
         GameObject item = Instantiate(equipmentItemPrefab, equipmentArea);
         EquipmentItemUI itemUI = item.GetComponent<EquipmentItemUI>();
-        itemUI.Setup(equipment, this);
+        itemUI.Setup(equipment, this, UIParent);
     }
     public void LogItems()
     {
@@ -41,24 +44,18 @@ public class EquipmentManager : MonoBehaviour
         }
         CustomLogger.Log(this, sb.ToString());
     }
-    // 移除裝備方法
-    public void RemoveEquipmentItem(IEquipment equipment)
+    public void RemoveEquipmentItem(IEquipment equipment,GameObject obj)
     {
-        // 若找到對應裝備，從列表中移除
-        if (ownedEquipments.Contains(equipment as EquipmentSO))
+        if (ownedEquipments.Contains(equipment))
         {
-            ownedEquipments.Remove(equipment as EquipmentSO);
+            ownedEquipments.Remove(equipment);
+            LogItems();
         }
-        LogItems();
-        // 在這裡可能還需要摧毀對應的 UI 元素
-        /*foreach (Transform child in equipmentArea)
+        else
         {
-            EquipmentItemUI itemUI = child.GetComponent<EquipmentItemUI>();
-            if (itemUI != null && itemUI.GetEquipment() == equipment)
-            {
-                Destroy(child.gameObject);
-                break;
-            }
-        }*/
+            Debug.LogWarning($"嘗試移除未找到的裝備: {equipment.EquipmentName}");
+        }
+        obj.SetActive(false);
     }
+
 }

@@ -56,16 +56,7 @@ public class DeveloperTool : MonoBehaviour
 
     public void GenerateEquipmentButtons()
     {
-        // 檢查 equipmentManager 和 availableEquipments 是否初始化
-        if (equipmentManager == null || equipmentManager.availableEquipments == null)
-        {
-            Debug.LogError("EquipmentManager 或 availableEquipments 未初始化！");
-            return;
-        }
-
-        // 獲取所有裝備
         List<EquipmentSO> allEquipments = equipmentManager.availableEquipments;
-
         foreach (var equipment in allEquipments)
         {
             // 創建裝備按鈕實例
@@ -96,6 +87,7 @@ public class DeveloperTool : MonoBehaviour
         if (!benchManager.IsBenchFull())
         {
             benchManager.AddToBench(character.Model);
+
         }
         else
         {

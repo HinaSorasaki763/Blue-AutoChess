@@ -70,12 +70,14 @@
     <Compile Include="Assets\Scripts\Enemy\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\CustomThings\ShirokoTerror_animCTRL.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\ShirokoActiveSkill.cs" />
+    <Compile Include="Assets\Scripts\Character\CharacterAudioManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\GehennaObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitData\TraitDescriptionData.cs" />
     <Compile Include="Assets\Scripts\Character\CustomAnimtorController.cs" />
     <Compile Include="Assets\Scripts\Character\CharacterObserverBase.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsEffectManager.cs" />
     <Compile Include="Assets\Resources\RoundProbabilityData\RoundProbabilityData.cs" />
+    <Compile Include="Assets\Scripts\InCombat\Character\Equipment\CombinationRouteSO.cs" />
     <Compile Include="Assets\Scripts\UI\FloatingText.cs" />
     <Compile Include="Assets\Scripts\Network\DedicatedServerManager.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
@@ -88,6 +90,7 @@
     <Compile Include="Assets\Scripts\UI\EquipmentUIManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\costumBullet\TrailedBullet.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\AbydosObserver.cs" />
+    <Compile Include="Assets\Scripts\Character\AudiosSO.cs" />
     <Compile Include="Assets\Scripts\InCombat\PathFinding\PathFinder.cs" />
     <Compile Include="Assets\Scripts\InCombat\PathFinding\PathRequestManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\MineSkillExplosion.cs" />

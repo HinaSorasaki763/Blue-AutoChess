@@ -33,7 +33,7 @@ public class ResourcePool : MonoBehaviour
     public GameObject LogisticDummy;
 
     private Dictionary<int, Character> characterDictionary = new Dictionary<int, Character>();
-
+    public CombinationRouteSO combinationRoute;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -203,6 +203,7 @@ public class ResourcePool : MonoBehaviour
 
         ctrl.SetBarChild(bar);
         ctrl.characterBars = bar;
+        ctrl.AudioManager.PlaySummonedSound();
         CustomLogger.Log(this, $"get bar to {obj.name},bar parent = {ctrl},child = {ctrl.characterBars}");
         bar.SetBarsParent(obj.transform);
 

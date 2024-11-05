@@ -478,6 +478,7 @@ public class MineSkill : CharacterSkillBase//跳躍到敵人最多的位置，�
                 Effect stunEffect = EffectFactory.CreateStunEffect(skillContext.duration);
                 CustomLogger.Log(this, $"try Stun enemy: {neighbor.OccupyingCharacter.name} at Hex: {neighbor.Position}");
                 neighbor.OccupyingCharacter.effectCTRL.AddEffect(stunEffect);
+                neighbor.OccupyingCharacter.AudioManager.PlayCrowdControlledSound();
                 CustomLogger.Log(this,$"Stunned enemy: {neighbor.OccupyingCharacter.name} at Hex: {neighbor.Position}");
             }
             neighbor.SetColorState(ColorState.TemporaryYellow, .5f);
@@ -641,6 +642,10 @@ public class MikaSkill : CharacterSkillBase//對一個人狙擊。此次攻擊�
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
+        CharacterCTRL StrongestEnemy = skillContext.Parent.GetEnemies()
+            .OrderByDescending(item => item.GetStat(StatsType.Health))
+            .FirstOrDefault();
+
     }
 }
 public class NeruSkill : CharacterSkillBase//以超多段傷害攻擊一名敵人

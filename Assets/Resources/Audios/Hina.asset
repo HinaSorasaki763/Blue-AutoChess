@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 626d8488f036d31499b69206c2c9ddf4, type: 3}
+  m_Name: Hina
+  m_EditorClassIdentifier: 
+  ExSkillAudios:
+  - {fileID: 8300000, guid: ccaede668fb5b2d4eb40991e08c38d68, type: 3}
+  - {fileID: 8300000, guid: bca49e1a213d2fa429d6a1a23ce5640f, type: 3}
+  - {fileID: 8300000, guid: ced7b405f8d00f74ba64288b9ea92359, type: 3}
+  CrowdControlled:
+  - {fileID: 8300000, guid: 8a05e4fa2e469fb4b9ed4fc07ba70725, type: 3}
+  - {fileID: 8300000, guid: 5ff70db012987be4293e4d7f9dd0ded6, type: 3}
+  OnDefeated:
+  - {fileID: 8300000, guid: 532bd6ff7a7fcb5499b5b45794948f33, type: 3}
+  - {fileID: 8300000, guid: 8533a43617f1881419f0d3b089173576, type: 3}
+  OnVictory:
+  - {fileID: 8300000, guid: 8b2922a9eb444cd4aa0066fe9e5ef647, type: 3}
+  - {fileID: 8300000, guid: f8667fe865e4b854ead5d7aeba7aee75, type: 3}
+  StarUp:
+  - {fileID: 8300000, guid: ac96d79b67b0dab42a8bc651b8e3a0fd, type: 3}
+  - {fileID: 8300000, guid: 3bba7d4003a13294e8185f8f775fe0e8, type: 3}
+  - {fileID: 8300000, guid: 1c8acd00ef79c2b42af316806c2fcb3a, type: 3}
+  - {fileID: 8300000, guid: 58ceecc0d57f1a2439fcc4fa333059ad, type: 3}
+  PickedUp: {fileID: 8300000, guid: efcea41bc94876047bf575b4182d1f74, type: 3}
+  Buffed: {fileID: 8300000, guid: 07cfd66b14ddca5468328fb4167b3934, type: 3}
+  Dodged: {fileID: 8300000, guid: 42f56a3e486051e4184356ebbc30140b, type: 3}
+  HpRestored: {fileID: 8300000, guid: 856eccd9b66a27a47b5f98acd22e55ca, type: 3}
+  Summoned: {fileID: 8300000, guid: b01939325bbd86e4eafe733c1a2f3c49, type: 3}

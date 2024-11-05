@@ -6,7 +6,7 @@ using GameEnum;
 public class CharacterEquipmentManager : MonoBehaviour
 {
     private const int MaxEquipmentSlots = 3;
-    private List<IEquipment> equippedItems = new List<IEquipment>();
+    public List<IEquipment> equippedItems = new List<IEquipment>();
     private CharacterCTRL Parent;
     public void SetParent(CharacterCTRL parent)
     {
@@ -18,50 +18,19 @@ public class CharacterEquipmentManager : MonoBehaviour
         {
             return false;
         }
-
-        // 检查是否有可以与之合成的基础装备
-        BasicEquipment combinableEquipment = null;
         foreach (var item in equippedItems)
         {
-            if (item is BasicEquipment basicItem)
+            if (CanCombine(item, equipment, out IEquipment result))
             {
-                if (CanCombine(basicItem, equipment))
-                {
-                    combinableEquipment = basicItem;
-                    break;
-                }
-            }
-        }
-
-        if (combinableEquipment != null)
-        {
-            if (equipment is BasicEquipment basic)
-            {
-                CombinedEquipment combinedEquipment = new CombinedEquipment(combinableEquipment, basic);
-
-                // 移除原有的基础装备
-                RemoveEquipment(combinableEquipment);
-
-                // 添加合成装备
-                AddEquipment(combinedEquipment);
-
-                // 更新属性
-                UpdateStatsForEquipment(combinedEquipment);
-
+                RemoveEquipment(item);
+                AddEquipment(result);
+                UpdateStatsForEquipment(result);
                 return true;
             }
-            return false;
         }
-        else
-        {
-            // 直接装备基础装备
-            AddEquipment(equipment);
-
-            // 更新属性
-            UpdateStatsForEquipment(equipment);
-
-            return true;
-        }
+        AddEquipment(equipment);
+        UpdateStatsForEquipment(equipment);
+        return true;
     }
 
     // 移除装备
@@ -82,20 +51,10 @@ public class CharacterEquipmentManager : MonoBehaviour
     }
 
     // 检查是否可以合成
-    public bool CanCombine(IEquipment eq1, IEquipment eq2)
+    public bool CanCombine(IEquipment eq1, IEquipment eq2, out IEquipment result)
     {
-        // 检查 eq1 和 eq2 是否都是 BasicEquipment 类型
-        if (eq1 is BasicEquipment basicEq1 && eq2 is BasicEquipment basicEq2)
-        {
-            // 现在可以访问 basicEq1 和 basicEq2 的 combinableWith 属性
-            return basicEq1.combinableWith.Contains(basicEq2.equipmentType) &&
-                   basicEq2.combinableWith.Contains(basicEq1.equipmentType);
-        }
-        else
-        {
-            // 如果其中一个不是 BasicEquipment，则无法合成
-            return false;
-        }
+        result = ResourcePool.Instance.combinationRoute.GetCombinationResult(eq1, eq2);
+        return result != null;
     }
 
 

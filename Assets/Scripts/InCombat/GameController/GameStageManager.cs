@@ -123,6 +123,17 @@ public class GameStageManager : MonoBehaviour
                 item.transform.rotation = Quaternion.identity;
             }
         }
+        GameObject randomItem;
+        do
+        {
+            int randomIndex = Random.Range(0, winningTeam.childCharacters.Count);
+            randomItem = winningTeam.childCharacters[randomIndex];
+        } while (!randomItem.activeInHierarchy);
+        CharacterCTRL characterCtrl = randomItem.GetComponent<CharacterCTRL>();
+        if (characterCtrl != null)
+        {
+            characterCtrl.AudioManager.PlayOnVictory();
+        }
     }
 
     private int CalculateDamageTaken(int stage)

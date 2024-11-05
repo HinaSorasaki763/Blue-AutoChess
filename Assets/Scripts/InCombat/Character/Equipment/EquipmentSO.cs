@@ -5,16 +5,16 @@ using GameEnum;
 [CreateAssetMenu(fileName = "Equipment", menuName = "Equipment")]
 public class EquipmentSO : ScriptableObject, IEquipment
 {
+    [TextArea(3, 10)]
+    public string equipmentDescription;
     public string equipmentName;
     public Sprite icon;
-    public EquipmentSO equipment1;
-    public EquipmentSO equipment2;
 
     public List<EquipmentType> Attributes;
     public List<int> Value;
     public Dictionary<EquipmentType, int> combinedStats;
-    [TextArea(3,10)]
-    public string Description;
+
+    public string EquipmentDetail => equipmentDescription;
     public string EquipmentName => equipmentName;
     public Sprite Icon => icon;
 

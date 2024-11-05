@@ -92,6 +92,7 @@ namespace GameEnum
     public interface IEquipment
     {
         public string EquipmentName { get; }
+        public string EquipmentDetail { get; }
         public Sprite Icon { get; }
         Dictionary<EquipmentType, int> GetStats();
     }
@@ -101,11 +102,13 @@ namespace GameEnum
         public EquipmentType equipmentType;
         public Sprite icon;
         public string equipmentName;
+        public string equipmentDetail;
         public int value;
         public List<EquipmentType> combinableWith;
 
         // 實現IEquipment接口
         public string EquipmentName => equipmentName;
+        public string EquipmentDetail => equipmentDetail;
         public Sprite Icon => icon;
 
         public Dictionary<EquipmentType, int> GetStats()
@@ -120,6 +123,7 @@ namespace GameEnum
         public BasicEquipment equipment1;
         public BasicEquipment equipment2;
         public string equipmentName;
+        public string equipmentDetail;
         public Sprite icon;
         public Dictionary<EquipmentType, int> combinedStats;
 
@@ -136,8 +140,7 @@ namespace GameEnum
             // 設定icon為合成裝備的圖示
             // icon = ...; // 需要您設置合成裝備的圖示
         }
-
-        // 實現IEquipment接口
+        public string EquipmentDetail => equipmentDetail;
         public string EquipmentName => equipmentName;
         public Sprite Icon => icon;
 

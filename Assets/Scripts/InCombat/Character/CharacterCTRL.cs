@@ -54,6 +54,7 @@ public class CharacterCTRL : MonoBehaviour
     public CharacterSkillBase ActiveSkill;
     public Vector3 DetectedPos = Vector3.zero;
     public SkillContext SkillContext;
+    public CharacterAudioManager AudioManager;
     // Traits and Effects-related Fields
     public TraitController traitController;
     private TraitEffectApplier traitEffectApplier = new TraitEffectApplier();
@@ -114,7 +115,7 @@ public class CharacterCTRL : MonoBehaviour
         }
         equipmentManager = GetComponent<CharacterEquipmentManager>();
         equipmentManager.SetParent(this);
-
+        AudioManager = GetComponent<CharacterAudioManager>();
     }
     public void ResetStats()
     {
@@ -315,6 +316,7 @@ public class CharacterCTRL : MonoBehaviour
             SetStat(StatsType.currHealth, GetStat(StatsType.Health));
             return;
         }
+        AudioManager.PlayHpRestoredSound();
         AddStat(StatsType.currHealth, amount);
     }
 
@@ -395,6 +397,7 @@ public class CharacterCTRL : MonoBehaviour
 
     public IEnumerator CastSkill()
     {
+        AudioManager.PlayCastExSkillSound();
         CustomLogger.Log(this,$"{characterStats.CharacterName}CastSkill()");
         IsCastingAbility = true;
         customAnimator.ChangeState(CharacterState.CastSkill);
@@ -638,7 +641,12 @@ public class CharacterCTRL : MonoBehaviour
     public virtual void GetHit(int amount, CharacterCTRL sourceCharacter)
     {
         if (IsDying) return;
-
+        int rand = UnityEngine.Random.Range(0, 100);
+        if (GetStat(StatsType.DodgeChance) < rand)
+        {
+            AudioManager.PlayDodgedSound();
+            return;
+        }
         int finalAmount = traitController?.ModifyDamageTaken(amount, sourceCharacter) ?? amount;
         while (finalAmount > 0 && shields.Count > 0)
         {
@@ -746,6 +754,8 @@ public class CharacterCTRL : MonoBehaviour
 
     public virtual IEnumerator Die()
     {
+        float soundLength = AudioManager.PlayOnDefeatedSound();
+        float animationLength = customAnimator.animator.GetCurrentAnimatorClipInfo(0)[0].clip.length;
         Debug.Log($"{gameObject.name} Die()");
         SpawnGrid.Instance.RemoveCenterPoint(CurrentHex);
         foreach (var item in observers)
@@ -757,8 +767,15 @@ public class CharacterCTRL : MonoBehaviour
         CurrentHex.OccupyingCharacter = null;
         isTargetable = false;
         CurrentHex.HardRelease();
-        yield return new WaitForSeconds(0.5f);
-        yield return new WaitForSeconds(customAnimator.animator.GetCurrentAnimatorClipInfo(0)[0].clip.length - 0.6f);
+        if (soundLength >= animationLength)
+        {
+            yield return new WaitForSeconds(soundLength);
+        }
+        else
+        {
+            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(animationLength - 0.6f);
+        }
         gameObject.SetActive(false);
     }
     #endregion

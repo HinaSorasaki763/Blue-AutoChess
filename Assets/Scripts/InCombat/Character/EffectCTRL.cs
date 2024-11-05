@@ -38,7 +38,11 @@ public class EffectCTRL : MonoBehaviour
             }
             else
             {
-                // 如果效果不是永久的，則選擇較長的持續時間
+                if (effect.EffectType == EffectType.Positive)
+                {
+                    characterCTRL.AudioManager.PlayBuffedSound();
+                }
+
                 float newDuration = Mathf.Max(existingEffect.Duration, effect.Duration);
                 CustomLogger.Log(this, $"Updated duration of {effect.Source} to {newDuration:F2} seconds.");
                 existingEffect.Duration = newDuration;
@@ -46,6 +50,10 @@ public class EffectCTRL : MonoBehaviour
                 return;
             }
 
+        }
+        if (effect.EffectType == EffectType.Positive)
+        {
+            characterCTRL.AudioManager.PlayBuffedSound();
         }
         activeEffects.Add(effect);
         UpdateEffectNames(); 

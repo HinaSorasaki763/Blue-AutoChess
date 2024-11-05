@@ -2,6 +2,7 @@ using GameEnum;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 
 public class UIManager : MonoBehaviour
 {
@@ -15,9 +16,13 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI skillContext;
     public SliderCTRL healthBar, shieldBar, manaBar;
     public Button closeButton;
-
+    public List<Image> equipments = new List<Image>();
+    public List<Button> equipmentButttons = new List<Button>();
     private CharacterCTRL currentCharacter;
-
+    public TextMeshProUGUI EquipmentName;
+    public TextMeshProUGUI EquipmentDetail;
+    public Image equipmentIcon;
+    public GameObject EquipmntModal;
     private void Awake()
     {
         if (Instance == null)
@@ -34,7 +39,23 @@ public class UIManager : MonoBehaviour
     {
         closeButton.onClick.AddListener(CloseCharacterStats);
         characterStatsPopup.SetActive(false);
+
+        for (int i = 0; i < equipmentButttons.Count; i++)
+        {
+            int index = i; // 建立一個本地變數來保存當前的索引值
+            equipmentButttons[index].onClick.AddListener(() => ShowEquipmentDetail(index));
+        }
     }
+
+    public void ShowEquipmentDetail(int i)
+    {
+        EquipmntModal.SetActive(true);
+        IEquipment equipment = currentCharacter.equipmentManager.equippedItems[i];
+        equipmentIcon.sprite = equipment.Icon;
+        EquipmentName.text = equipment.EquipmentName;
+        EquipmentDetail.text = equipment.EquipmentDetail;
+    }
+
 
     public void ShowCharacterStats(CharacterCTRL character)
     {
@@ -66,6 +87,14 @@ public class UIManager : MonoBehaviour
         healthText.text = $"Health: {currentCharacter.GetStat(StatsType.currHealth)} / {currentCharacter.GetStat(StatsType.Health)}";
         shieldText.text = $"Shield: {currentCharacter.GetStat(StatsType.Shield)}";
         manaText.text = $"Mana: {currentCharacter.GetStat(StatsType.Mana)}";
+        for (int i = 0; i < currentCharacter.equipmentManager.equippedItems.Count; i++)
+        {
+            equipments[i].sprite = currentCharacter.equipmentManager.equippedItems[i].Icon;
+        }
+        for (int i = currentCharacter.equipmentManager.equippedItems.Count; i < 3; i++)
+        {
+            equipments[i].sprite = null;
+        }
         healthBar.UpdateValue(currentCharacter.GetStat(StatsType.currHealth));
         shieldBar.UpdateValue(currentCharacter.GetStat(StatsType.Shield));
         manaBar.UpdateValue(currentCharacter.GetStat(StatsType.Mana));
@@ -73,7 +102,7 @@ public class UIManager : MonoBehaviour
 
     private void CloseCharacterStats()
     {
-        // 關閉彈窗
+        EquipmntModal.SetActive(false);
         characterStatsPopup.SetActive(false);
         currentCharacter = null;
     }
