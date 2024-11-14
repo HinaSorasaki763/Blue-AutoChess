@@ -49,7 +49,7 @@ public class ArisActiveSkill : MonoBehaviour
                 CharacterCTRL hitEnemy = hit.collider.GetComponent<CharacterCTRL>();
                 enemies.Add(hitEnemy);
             }
-            bullet.GetComponent<TrailedBullet>().Initialized(skillContext.Parent.GetCollidPos() + maxDirection * 50, skillContext.DamageAmount, decayfactor, layer, skillContext.Parent);
+            bullet.GetComponent<TrailedBullet>().Initialized(skillContext.Parent.GetCollidPos() + maxDirection * 50, skillContext.DamageAmount, decayfactor, layer, skillContext.Parent,false);//TODO: 修改為正確的報擊率
         }
         transform.LookAt(maxDirection);
     }

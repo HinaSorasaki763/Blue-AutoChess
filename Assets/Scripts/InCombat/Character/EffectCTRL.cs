@@ -132,8 +132,43 @@ public class EffectCTRL : MonoBehaviour
 
 public static class EffectFactory
 {
+    public static Effect StatckableIncreaseStatsEffct(float duration , string source,int amount,StatsType statsType)
+    {
+
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            $"{source}Increase{statsType}",
+            false,
+            (character) => character.ModifyStats(statsType, amount),
+            (character) => character.ModifyStats(statsType, -amount),
+            duration,
+            SpecialEffectType.None
+
+        );
+
+    }
+    public static Effect UnStatckableIncreaseStatsEffct(float duration, int amount, StatsType statsType)
+    {
+
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            $"Increase{statsType}",
+            false,
+            (character) => character.ModifyStats(statsType, amount),
+            (character) => character.ModifyStats(statsType, -amount),
+            duration,
+            SpecialEffectType.None
+
+        );
+
+    }
     public static Effect CreateStunEffect(float duration)
     {
+
         return new Effect(
             EffectType.Negative,
             ModifierType.None,
@@ -146,6 +181,7 @@ public static class EffectFactory
             SpecialEffectType.Stun
 
         );
+
     }
 
     public static Effect CreateMarkedEffect(float duration)
@@ -323,4 +359,53 @@ public static class EffectFactory
             SpecialEffectType.None
             );
     }
+    public static Effect CreateWakamoEffect(int amount, float duration,CharacterCTRL parent)
+    {
+
+        return new Effect(
+            EffectType.Negative,
+            ModifierType.None,
+            amount,
+            "WakamoEffect",
+            false,
+            (character) => character.SetWakamoMark(50,parent),//TODO: 用真實數據代替
+            (character) => character.WakamoMarkEnd(),
+            duration,
+            SpecialEffectType.None
+            );
+
+    }
+    public static Effect CreateKayokoFearEffct(int amount, float duration)
+    {
+
+        return new Effect(
+            EffectType.Negative,
+            ModifierType.None,
+            amount,
+            "KayokoFearEffect",
+            false,
+            (character) => character.Stun(true),//TODO: 記得新增"恐懼"效果!
+            (character) => character.Stun(false),//TODO: 記得新增"恐懼"效果!
+            duration,
+            SpecialEffectType.Fear
+            );
+
+    }
+    public static Effect CreateTsubakiFearEffct(int amount, float duration)
+    {
+
+        return new Effect(
+            EffectType.Negative,
+            ModifierType.None,
+            amount,
+            "TsubakiTauntEffect",
+            false,
+            (character) => character.SetTaunt(true),
+            (character) => character.SetTaunt(false),
+            duration,
+            SpecialEffectType.Taunt
+            );
+
+    }
+
 }

@@ -47,18 +47,6 @@ public class ResourcePool : MonoBehaviour
 
     void Start()
     {
-        LoadResources<Character>("1Cost", ref OneCostCharacter);
-        LoadResources<Character>("2Cost", ref TwoCostCharacter);
-        LoadResources<Character>("3Cost", ref ThreeCostCharacter);
-        LoadResources<Character>("Special", ref SpecialCharacter);
-
-        Lists.Add(OneCostCharacter);
-        Lists.Add(TwoCostCharacter);
-        Lists.Add(ThreeCostCharacter);
-        Lists.Add(SpecialCharacter);
-
-        PopulateCharacterDictionary();
-
         StartCoroutine(InitializeAll());
     }
     void LoadResources<T>(string path, ref List<T> list) where T : Object
@@ -107,12 +95,47 @@ public class ResourcePool : MonoBehaviour
 
     IEnumerator InitializeAll()
     {
+        // 資源載入
+        LoadResources<Character>("1Cost", ref OneCostCharacter);
+        LoadResources<Character>("2Cost", ref TwoCostCharacter);
+        LoadResources<Character>("3Cost", ref ThreeCostCharacter);
+        LoadResources<Character>("Special", ref SpecialCharacter);
+
+        Lists.Add(OneCostCharacter);
+        Lists.Add(TwoCostCharacter);
+        Lists.Add(ThreeCostCharacter);
+        Lists.Add(SpecialCharacter);
+
+        PopulateCharacterDictionary();
+
+        // 初始化物件池
         yield return StartCoroutine(InitPool(floorPrefab, floorParent, floorPool, floorCount));
         yield return StartCoroutine(InitPool(bulletPrefab, bulletParent, bulletPool, bulletCount));
         yield return StartCoroutine(InitPool(characterBarPrefab, characterBarParent, barPool, barCount));
         yield return StartCoroutine(InitPool(FloatingTextPrefab, FloatingTextParent, textPool, TextCount));
         yield return StartCoroutine(InitPool(wallPrefab, wallParent, wallPool, wallCount));
+        yield return StartCoroutine(InitializeBulletPool(500));
+
+        // 確保所有資源載入並等待短時間
+        yield return new WaitForSeconds(0.1f);
+
+        // 發送所有資源載入完成的通知
         AllResoucesLoaded.Raise();
+    }
+    IEnumerator InitializeBulletPool(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            // 使用 SpawnObject 方法生成子彈，並且位置設置為 (0, 0, 0)
+            GameObject bullet = SpawnObject(SkillPrefab.NormalTrailedBullet, Vector3.zero, Quaternion.identity);
+
+            if (bullet != null)
+            {
+                bullet.SetActive(false); // 預設禁用以便重新使用
+                bulletPool.Add(bullet); // 將子彈加入到池子中
+            }
+        }
+        yield return null;
     }
 
     IEnumerator InitPool(GameObject prefab, Transform parent, List<GameObject> pool, int count)
@@ -203,7 +226,7 @@ public class ResourcePool : MonoBehaviour
 
         ctrl.SetBarChild(bar);
         ctrl.characterBars = bar;
-        ctrl.AudioManager.PlaySummonedSound();
+        if (isAlly) ctrl.AudioManager.PlaySummonedSound();
         CustomLogger.Log(this, $"get bar to {obj.name},bar parent = {ctrl},child = {ctrl.characterBars}");
         bar.SetBarsParent(obj.transform);
 

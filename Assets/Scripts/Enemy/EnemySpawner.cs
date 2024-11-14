@@ -114,8 +114,6 @@ public class EnemySpawner : MonoBehaviour
                 }
             }
         }
-
-        // Handle logistic slots
         SpawnLogisticCharacter(chosenWave.logisticSlot1, ResourcePool.Instance.EnemylogisticSlotNode1);
         SpawnLogisticCharacter(chosenWave.logisticSlot2, ResourcePool.Instance.EnemylogisticSlotNode2);
         ResourcePool.Instance.enemy.UpdateTraitEffects();

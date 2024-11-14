@@ -42,10 +42,10 @@ public abstract class CharacterObserverBase
         // 默认实现，不修改伤害值
         return amount;
     }
-    public virtual void GetHit(CharacterCTRL character,CharacterCTRL source,float amount)
+    public virtual void GetHit(CharacterCTRL character,CharacterCTRL source,float amount,bool isCrit)
     {
         CustomLogger.Log(this, $"{character.characterStats.name} get hit by {source.characterStats.name} for {amount}");
-        character.GetHit((int)amount,source);
+        character.GetHit((int)amount,source,isCrit);
     }
     public virtual void OnKilledEnemy(CharacterCTRL character)
     {
@@ -63,6 +63,7 @@ public abstract class CharacterObserverBase
     }
     public virtual void OnSkillFinished(CharacterCTRL character)
     {
+        character.ManaLock = false;
         CustomLogger.Log(this, $"{character.characterStats.name} skill finished.");
     }
 

@@ -44,8 +44,19 @@ MonoBehaviour:
       value: 0
     - statType: 11
       value: 1
-  Traits: 02000000060000000d000000
+    - statType: 12
+      value: 25
+    - statType: 14
+      value: 5
+    - statType: 15
+      value: 15
+    - statType: 13
+      value: 55
+  Traits: 020000000d000000
+  BarrageIntervalAngle: 0
+  BarrageInitAngle: 0
   skillTooltip: Fires a firework at her current target, scorching the tile within
     a one-tile radius around the target, dealing low damage over time. If the current
     target's tile is already affected by the firework's burning effect, she will
     prefer to aim at an enemy not yet influenced by this skill.
+  isObj: 0

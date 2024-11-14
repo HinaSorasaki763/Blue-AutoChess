@@ -17,15 +17,47 @@ MonoBehaviour:
   Level: 2
   Sprite: {fileID: 21300000, guid: b00c6c836aa51434283d2be0d759ba10, type: 3}
   Model: {fileID: 3532183096576915177, guid: 559bb47fd5f1a4a438d57b249218521e, type: 3}
-  maxHealth: 100
-  MaxMana: 50
-  StartMana: 40
-  Range: 5
-  BulletCount: 5
-  Dmg: 5
   logistics: 0
-  HealthGrowthPerLevel: 0
-  ManaGrowthPerLevel: 0
-  DmgGrowthPerLevel: 0
+  Stats:
+    stats:
+    - statType: 0
+      value: 100
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 50
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 10
+    - statType: 5
+      value: 1
+    - statType: 6
+      value: 5
+    - statType: 7
+      value: 5
+    - statType: 8
+      value: 10
+    - statType: 9
+      value: 5
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 10
+    - statType: 12
+      value: 25
+    - statType: 13
+      value: 55
+    - statType: 14
+      value: 5
+    - statType: 15
+      value: 15
+    - statType: 16
+      value: 0
+    - statType: 17
+      value: 0
   Traits: 0400000006000000
+  BarrageIntervalAngle: 0
+  BarrageInitAngle: 0
   skillTooltip: 
+  isObj: 0

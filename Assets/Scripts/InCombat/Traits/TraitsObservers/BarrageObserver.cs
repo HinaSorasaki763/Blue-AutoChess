@@ -151,7 +151,14 @@ public class BarrageObserver : CharacterObserverBase
         Vector3 direction = Quaternion.Euler(0, bulletAngle, 0) * Vector3.forward;
         Vector3 targetPosition = Character.transform.position + direction * maxDistance;
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, Character.FirePoint.position, Quaternion.identity);
-        bullet.GetComponent<NormalBullet>().Initialize(targetPosition, dmg, Character.GetTargetLayer(), Character, 15f);
+        bool iscrit = false;
+        if (Utility.Iscrit(Character.GetStat(StatsType.CritChance)))
+        {
+            dmg = (int)(dmg * (1 + Character.GetStat(StatsType.CritRatio) * 0.01f));
+            CustomLogger.Log(this, $"character {Character.name} crit");
+            iscrit = true;
+        }
+        bullet.GetComponent<NormalBullet>().Initialize(targetPosition, dmg, Character.GetTargetLayer(), Character, 15f, Character.Target, iscrit);
     }
 
 }

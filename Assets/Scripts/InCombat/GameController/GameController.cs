@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class GameController : MonoBehaviour
 {
@@ -9,6 +11,27 @@ public class GameController : MonoBehaviour
     private int currentBattlefieldCharacterCount = 0;
     private int gold;
     public CharacterParent CharacterParent;
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            if (SpawnGrid.Instance.indexToCubeKey.TryGetValue(43, out string cubeKey))
+            {
+                if (SpawnGrid.Instance.hexNodes.TryGetValue(cubeKey, out HexNode hexNode))
+                {
+                    Vector3 position = hexNode.Position;    
+                    Character characterData = ResourcePool.Instance.GetCharacterByID(32);
+                    GameObject characterPrefab = characterData.Model;
+                    GameObject go = ResourcePool.Instance.SpawnCharacterAtPosition(characterPrefab, position, hexNode, ResourcePool.Instance.enemy, isAlly: false);
+                    CustomLogger.Log(this, $"Character {characterData.name} spawned at {position}");
+                }
+                else
+                {
+                    CustomLogger.LogError(this, $"No HexNode found for cube key {cubeKey}");
+                }
+            }
+        }
+    }
     private void Awake()
     {
         if (Instance == null)

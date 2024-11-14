@@ -1,7 +1,6 @@
 ﻿using GameEnum;
-using System.Collections;
-using System.Text;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 public class CustomAnimatorController : MonoBehaviour
@@ -13,7 +12,7 @@ public class CustomAnimatorController : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
-        character =GetComponent<CharacterCTRL>();
+        character = GetComponent<CharacterCTRL>();
         RuntimeAnimatorController controller = animator.runtimeAnimatorController;
         int i = 0;
         StringBuilder stringBuilder = new StringBuilder();
@@ -64,7 +63,7 @@ public class CustomAnimatorController : MonoBehaviour
     }
     public void ExitBattle()
     {
-        animator.SetBool("HaveTarget",false);
+        animator.SetBool("HaveTarget", false);
     }
     public void HaveTarget(bool havetarget)
     {
@@ -91,8 +90,10 @@ public class CustomAnimatorController : MonoBehaviour
     }
     public void ChangeState(CharacterState newState)
     {
+
         CharacterState oldState = currentState;
         if (oldState == newState) return;
+        animator.speed = 1;
         animator.SetBool("Idling", false);
         animator.SetBool("Moving", false);
         animator.SetBool("Attacking", false);
@@ -107,6 +108,7 @@ public class CustomAnimatorController : MonoBehaviour
                 animator.SetBool("Moving", true);
                 break;
             case CharacterState.Attacking:
+                animator.speed = character.GetStat(StatsType.AttackSpeed);
                 animator.SetBool("Attacking", true);
                 animator.SetBool("HaveTarget", true);
                 break;
@@ -128,13 +130,13 @@ public class CustomAnimatorController : MonoBehaviour
         }
         currentState = newState; // 更新當前狀態
     }
-    public (CharacterState,bool) GetState()
+    public (CharacterState, bool) GetState()
     {
         bool canAttack = false;
         if (currentState == CharacterState.Attacking)
         {
             canAttack = true;
         }
-        return (currentState,canAttack);
+        return (currentState, canAttack);
     }
 }

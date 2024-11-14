@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
+using static UnityEditor.PlayerSettings;
 public abstract class CharacterSkillBase
 {
     public virtual void ExecuteSkill(SkillContext skillContext)
@@ -180,18 +182,10 @@ public class HarunaSkill : CharacterSkillBase
         DmgRatio = stats.Data2;
         LayerMask layer = skillContext.Parent.GetTargetLayer();
         base.ExecuteSkill(skillContext);
-        int lowestHp = int.MaxValue;
-        CharacterCTRL lowestEnemy = null;
-        foreach (var item in skillContext.Enemies)
-        {
-            if (item.gameObject.activeInHierarchy && item.GetStat(StatsType.currHealth) < lowestHp)
-            {
-                lowestEnemy = item;
-            }
-        }
+        CharacterCTRL lowestEnemy = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1)[0];
         skillContext.Parent.transform.LookAt(lowestEnemy.GetHitPoint);
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
-        bullet.GetComponent<NormalBullet>().Initialize(lowestEnemy.transform.position, dmg, layer, skillContext.Parent, 15f);
+        bullet.GetComponent<NormalBullet>().Initialize(lowestEnemy.transform.position, dmg, layer, skillContext.Parent, 15f, lowestEnemy.gameObject);
     }
 }
 public class MichiruSkill : CharacterSkillBase//TODO: 若目標已經被灼燒，轉向一名尚未被灼燒的敵軍施放。
@@ -218,7 +212,7 @@ public class MichiruSkill : CharacterSkillBase//TODO: 若目標已經被灼燒�
         base.ExecuteSkill(skillContext);
         CharacterCTRL target = skillContext.CurrentTarget;
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
-        bullet.GetComponent<NormalBullet>().Initialize(target.transform.position, BaseDmg, layer, skillContext.Parent, 20f);
+        bullet.GetComponent<NormalBullet>().Initialize(target.transform.position, BaseDmg, layer, skillContext.Parent, 20f,target.gameObject);
         HexNode targetHex = target.CurrentHex;
         float burningDuration = 5f;
         int damagePerTick = 10;
@@ -278,14 +272,19 @@ public class NoaSkill : CharacterSkillBase//對生命值上限最低的敵軍施
         StarLevelStats stats = statsByStarLevel[level];
         base.ExecuteSkill(skillContext);
         Effect effect = EffectFactory.CreateMarkedEffect(level);
-        CharacterCTRL StrongestEnemy = skillContext.Parent.GetEnemies()
-            .OrderByDescending(item => item.GetStat(StatsType.Attack))
-            .FirstOrDefault();
+
+        CharacterCTRL StrongestEnemy = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.Attack, false, 1)[0];
         StrongestEnemy.effectCTRL.AddEffect(effect);
-        //等到控制類一併實現(Noa)
+        foreach (var item in skillContext.Parent.GetAllies())
+        {
+            if (item.CheckEnemyIsInrange(StrongestEnemy))
+            {
+                item.ForceChangeTarget(StrongestEnemy);
+            }
+        }
     }
 }
-public class SerikaSkill : CharacterSkillBase//增加自己一些攻擊力、攻擊速度
+public class SerikaSkill : CharacterSkillBase
 {
     private Dictionary<int, StarLevelStats> statsByStarLevel;
     public SerikaSkill()
@@ -331,21 +330,9 @@ public class SerinaSkill : CharacterSkillBase
         healRatio = stats.Data2;
         boxAmount = stats.Data3;
         base.ExecuteSkill(skillContext);
-
-        CustomLogger.Log(this, $"character {skillContext.Parent}(serina) cast");
-        List<CharacterCTRL> allies = new List<CharacterCTRL>(skillContext.Allies);
-        allies.Sort((a, b) => a.GetStat(StatsType.currHealth).CompareTo(b.GetStat(StatsType.currHealth)));
-
-        List<CharacterCTRL> lowestHpAllies = new List<CharacterCTRL>();
-        int actualBoxAmount = Math.Min(boxAmount, allies.Count);
-
-        for (int i = 0; i < actualBoxAmount; i++)
-        {
-            lowestHpAllies.Add(allies[i]);
-        }
-
-        int remainingBoxes = boxAmount - actualBoxAmount + 1;
-        for (int i = 0; i < remainingBoxes; i++)
+        int actualBoxAmount = Math.Min(boxAmount, skillContext.Parent.GetAllies().Count);
+        List<CharacterCTRL> lowestHpAllies = Utility.GetSpecificCharacters(skillContext.Parent.GetAllies(), StatsType.currHealth, false, actualBoxAmount);
+        for (int i = 0; i < boxAmount; i++)
         {
             Vector3 pos = lowestHpAllies[i % actualBoxAmount].transform.position + new Vector3(0, 10, 0);
             GameObject HealPack = ResourcePool.Instance.SpawnObject(SkillPrefab.HealPack, pos, Quaternion.Euler(-90, 0, 0));
@@ -362,7 +349,6 @@ public class ShizukoSkill : CharacterSkillBase//在角色(無論敵我)最多的
         base.ExecuteSkill(skillContext);
         HexNode hex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent, 3, false, true, skillContext.Parent.CurrentHex);
         skillContext.Parent.GetComponent<ShizukoActiveSkill>().SpawnTruck(hex, skillContext.Parent);
-
         foreach (var item in skillContext.Parent.CurrentHex.GetCharacterOnNeighborHex(3, true))
         {
             item.AddShield(100, 5f, skillContext.Parent);
@@ -375,27 +361,36 @@ public class SumireSkill : CharacterSkillBase//TODO:翻滾到最好的位置，�
 {
     public override void ExecuteSkill(SkillContext skillContext)
     {
+        //TODO: 尚未完成
         base.ExecuteSkill(skillContext);
     }
 }
-public class AkoSkill : CharacterSkillBase//增加某些人的命中率、爆擊率、爆擊數值
+public class AkoSkill : CharacterSkillBase
 {
     public override void ExecuteSkill(SkillContext skillContext)
     {
+        //TODO: 尚未完成
         base.ExecuteSkill(skillContext);
+        
     }
 }
-public class AzusaSkill : CharacterSkillBase//對某個生命絕對值最低的人狙擊，若擊殺之則...?
+public class AzusaSkill : CharacterSkillBase//對當前目標狙擊，若擊殺之則...?
 {
+    //TODO: 尚未完成
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
+        CharacterCTRL c = skillContext.Parent.Target.GetComponent<CharacterCTRL>();
+        GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
+        bullet.GetComponent<NormalBullet>().Initialize(c.transform.position, skillContext.Parent.GetStat(StatsType.Attack), skillContext.Parent.GetTargetLayer(), skillContext.Parent, 15f, c.gameObject);
+
     }
 }
 public class ChiseSkill : CharacterSkillBase//對範圍內的格子灑毒，對站在上面的敵人造成dot傷害
 {
     public override void ExecuteSkill(SkillContext skillContext)
     {
+        //TODO: 尚未完成
         base.ExecuteSkill(skillContext);
     }
 }
@@ -404,13 +399,18 @@ public class FuukaSkill : CharacterSkillBase//找到一個範圍內最多友軍�
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
+        HexNode targetHex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent, 3, false, false, skillContext.currHex,true);
+        GameObject HealPack = ResourcePool.Instance.SpawnObject(SkillPrefab.HealPack, targetHex.Position, Quaternion.Euler(-90, 0, 0));
+        HealPack.GetComponent<HealPack>().InitStats(targetHex, 3, 100, skillContext.Parent, skillContext.Parent.IsAlly);
     }
 }
 public class IzunaSkill : CharacterSkillBase//???
 {
     public override void ExecuteSkill(SkillContext skillContext)
     {
+        //TODO: 尚未完成
         base.ExecuteSkill(skillContext);
+
     }
 }
 public class KayokoSkill : CharacterSkillBase//對大範圍敵人造成少量傷害及恐懼
@@ -418,6 +418,12 @@ public class KayokoSkill : CharacterSkillBase//對大範圍敵人造成少量傷
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
+        List<CharacterCTRL> characters = SpawnGrid.Instance.GetCharactersWithinRadius(skillContext.currHex, true, 6, true, skillContext.Parent);
+        foreach (var item in characters)
+        {
+            Effect kayokoFearEffect = EffectFactory.CreateKayokoFearEffct(1, 5);
+            item.effectCTRL.AddEffect(kayokoFearEffect);
+        }
     }
 }
 public class KazusaSkill : CharacterSkillBase//增加一定攻擊力之後，狙擊絕對生命值最低的敵人
@@ -425,6 +431,11 @@ public class KazusaSkill : CharacterSkillBase//增加一定攻擊力之後，狙
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
+        Effect kazusaAttackEffect = EffectFactory.StatckableIncreaseStatsEffct(5,"Kazusa",50,StatsType.Attack);
+        skillContext.Parent.effectCTRL.AddEffect(kazusaAttackEffect);
+        CharacterCTRL lowestHpenemy = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1)[0];
+        GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
+        bullet.GetComponent<NormalBullet>().Initialize(lowestHpenemy.transform.position, skillContext.Parent.GetStat(StatsType.Attack),skillContext.Parent.GetTargetLayer(), skillContext.Parent, 15f, lowestHpenemy.gameObject);
     }
 }
 public class MineSkill : CharacterSkillBase//跳躍到敵人最多的位置，擊暈他們
@@ -498,6 +509,7 @@ public class NonomiSkill : CharacterSkillBase
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
+        //Finished in Barrage observer 
     }
 }
 public class ShirokoSkill : CharacterSkillBase//一個無人機攻擊若干次
@@ -522,11 +534,24 @@ public class ShirokoSkill : CharacterSkillBase//一個無人機攻擊若干次
         }
     }
 }
-public class TsubakiSkill : CharacterSkillBase//架起護盾。
+public class TsubakiSkill : CharacterSkillBase
 {
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
+        int level = skillContext.CharacterLevel;
+        base.ExecuteSkill(skillContext);
+
+        foreach (var item in skillContext.Parent.GetEnemies())
+        {
+            if (item.CheckEnemyIsInrange(skillContext.Parent))
+            {
+                Effect effect = EffectFactory.CreateTsubakiFearEffct(0,5);
+
+                item.ForceChangeTarget(skillContext.Parent);
+                item.effectCTRL.AddEffect(effect);
+            }
+        }
     }
 }
 public class YuukaSkill : CharacterSkillBase//跳到敵人最多的地方，同時找到某個相鄰友軍最多的空格子，插旗子。賦予旗子旁的友軍護盾。
@@ -590,6 +615,7 @@ public class HinaSkill : CharacterSkillBase
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
+        //在barrage之中完成了。
     }
 }
 public class HoshinoSkill : CharacterSkillBase
@@ -642,10 +668,10 @@ public class MikaSkill : CharacterSkillBase//對一個人狙擊。此次攻擊�
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
-        CharacterCTRL StrongestEnemy = skillContext.Parent.GetEnemies()
-            .OrderByDescending(item => item.GetStat(StatsType.Health))
-            .FirstOrDefault();
-
+        CharacterCTRL C = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.Health, false, 1)[0];
+        //TODO: 尚未完成。
+        GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
+        bullet.GetComponent<NormalBullet>().Initialize(C.transform.position, skillContext.Parent.GetStat(StatsType.Attack), skillContext.Parent.GetTargetLayer(), skillContext.Parent, 15f, C.gameObject);
     }
 }
 public class NeruSkill : CharacterSkillBase//以超多段傷害攻擊一名敵人
@@ -653,9 +679,11 @@ public class NeruSkill : CharacterSkillBase//以超多段傷害攻擊一名敵�
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
+        skillContext.Parent.ManaLock = true;
+        //在動畫事件內完成了
     }
 }
-public class TsurugiSkill : CharacterSkillBase//彈藥數量變少，但一次以更多傷害攻擊扇形範圍內多個目標。後續施放會逐漸增加傷害，每n次施放多1距離
+public class TsurugiSkill : CharacterSkillBase
 {
     public override void ExecuteSkill(SkillContext skillContext)
     {
@@ -663,13 +691,23 @@ public class TsurugiSkill : CharacterSkillBase//彈藥數量變少，但一次�
         TsurugiActiveSkill T = skillContext.Parent.GetComponent<TsurugiActiveSkill>();
         T.ChangeToSpecialAttack();
         T.SpecialAttackCount = 5;
+        //在專屬代碼內完成了。
     }
 }
-public class WakamoSkill : CharacterSkillBase//對同一目標開槍若干次，每一次會暈眩若干秒，最後一次暈眩最久
+public class WakamoSkill : CharacterSkillBase
 {
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
+        CharacterCTRL c = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, true, 1)[0];
+        if (c!= null)
+        {
+            Effect effect = EffectFactory.CreateWakamoEffect(0, 5, skillContext.Parent);
+            c.effectCTRL.AddEffect(effect);
+            GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
+            bullet.GetComponent<NormalBullet>().Initialize(c.transform.position, skillContext.Parent.GetStat(StatsType.Attack), skillContext.Parent.GetTargetLayer(), skillContext.Parent, 15f, c.gameObject);
+
+        }
     }
 }
 public class Shiroko_TerrorSkill : CharacterSkillBase

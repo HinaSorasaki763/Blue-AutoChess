@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 626d8488f036d31499b69206c2c9ddf4, type: 3}
+  m_Name: Natsu
+  m_EditorClassIdentifier: 
+  ExSkillAudios:
+  - {fileID: 8300000, guid: a61c443898303914691fe5a3dfe6e90f, type: 3}
+  - {fileID: 8300000, guid: 1397eb5af4ec8fc409c6838f75642eac, type: 3}
+  - {fileID: 8300000, guid: fa478de2ace1b264b8b5bd34571ef239, type: 3}
+  CrowdControlled:
+  - {fileID: 8300000, guid: 351d5544f18009f488650036eba84d74, type: 3}
+  - {fileID: 8300000, guid: 9aa754534752c594f9a0cd5676e200ed, type: 3}
+  OnDefeated:
+  - {fileID: 8300000, guid: 348cd5f048c9350449f537b8a61c67bf, type: 3}
+  - {fileID: 8300000, guid: 82aa470f055661d449430785ed6426cb, type: 3}
+  - {fileID: 8300000, guid: 9526e9d9f154994409511e52977baadd, type: 3}
+  OnVictory:
+  - {fileID: 8300000, guid: a0f74f7016c48fe4fa00362573785d2c, type: 3}
+  - {fileID: 8300000, guid: b37e15f30f2c8d3488e55c20f2c34ad3, type: 3}
+  StarUp:
+  - {fileID: 8300000, guid: 6d3ffc02e0ab39544953bbe84c194a03, type: 3}
+  - {fileID: 8300000, guid: 6bdfe0b8348f71447a1c49ee71bbd3b7, type: 3}
+  - {fileID: 8300000, guid: 6fa49b25ef473cb458aa6cd1a6be2635, type: 3}
+  PickedUp: {fileID: 8300000, guid: 49de438076e2348499f72c143b69a28b, type: 3}
+  Buffed: {fileID: 8300000, guid: 9495bc22dd51ec548867c43420f5dc12, type: 3}
+  Dodged: {fileID: 0}
+  HpRestored: {fileID: 8300000, guid: b9f77067ad5602545ba741a0b0d63c6e, type: 3}
+  Summoned: {fileID: 8300000, guid: b655e12c93ad33546a2cc3374097d30e, type: 3}

@@ -52,26 +52,8 @@ public class TraitUIManager : MonoBehaviour
             // 設置圖標和文字
             Image icon = traitUI.transform.Find("Icon").GetComponent<Image>(); // 假設圖標是命名為 "Icon" 的子物件
             TextMeshProUGUI text = traitUI.transform.Find("Text").GetComponent<TextMeshProUGUI>(); // 假設文字是命名為 "Text" 的子物件
-            icon.sprite = GetTraitIcon(trait.Key); // 根據羈絆類型設置圖標
+            icon.sprite = TraitDescriptions.Instance.GetTraitImage(trait.Key);
             text.text = $"{trait.Key} ({trait.Value})"; // 顯示羈絆名稱和角色數量
         }
-    }
-
-
-    // 根據 trait 獲取對應的圖標
-    private Sprite GetTraitIcon(Traits trait)
-    {
-        /*
-        switch (trait)
-        {
-            case Traits.Abydos:
-                return Resources.Load<Sprite>("Icons/AbydosIcon"); // 假設你有一個資源文件夾裡的圖標
-            case Traits.Gehenna:
-                return Resources.Load<Sprite>("Icons/GehennaIcon");
-            // 其他羈絆圖標...
-            default:
-                return null;
-        }*/
-        return null;
     }
 }

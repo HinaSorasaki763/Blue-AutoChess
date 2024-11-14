@@ -233,13 +233,9 @@ public class SpawnGrid : MonoBehaviour
     {
         HexNode bestHexNode = null;
         int maxCount = int.MinValue;
-
         Debug.Log($"Starting FindBestHexNode for character {character.name}, radius: {radius}, findEnemies: {findEnemies}, requireEmpty: {requireEmpty}");
-
-        // 遍歷所有戰場上的格子
         foreach (var node in hexNodes.Values)
         {
-            // 只檢查戰場上的格子
             if (!node.IsBattlefield)
             {
                 continue;
@@ -248,8 +244,6 @@ public class SpawnGrid : MonoBehaviour
             {
                 continue;
             }
-
-            // 計算當前格子鄰近的角色數量
             int count = GetCharactersWithinRadius(node, character.IsAlly, radius, findEnemies, character).Count;
             if (count > maxCount)
             {
@@ -258,18 +252,14 @@ public class SpawnGrid : MonoBehaviour
             }
         }
         if (isLogistic) return bestHexNode;
-
-        // 比較當前格子和找到的最佳格子的鄰近角色數
         int currentNeighborsCount =     GetCharactersWithinRadius(currHex, character.IsAlly, radius, findEnemies, character).Count;
         int bestNodeNeighborsCount = GetCharactersWithinRadius(bestHexNode, character.IsAlly, radius, findEnemies, character).Count;
         Debug.Log($"Comparing current hex {currHex.name} with {currentNeighborsCount} neighbors to best node {bestHexNode.name} with {bestNodeNeighborsCount} neighbors");
-
         if (currentNeighborsCount == bestNodeNeighborsCount)
         {
             Debug.Log($"Current hex {currHex.name} has same neighbor count as best node {bestHexNode.name}. Keeping current hex as best.");
             bestHexNode = currHex;
         }
-
         Debug.Log($"Best node selected: {bestHexNode.name}");
         return bestHexNode;
     }
@@ -280,7 +270,7 @@ public class SpawnGrid : MonoBehaviour
         int count = 0;
         HashSet<HexNode> visited = new HashSet<HexNode> { centerNode };
         List<HexNode> currentLayer = new List<HexNode> { centerNode };
-        List<CharacterCTRL> c = new List<CharacterCTRL> { character };
+        List<CharacterCTRL> c = new List<CharacterCTRL> {  };
         for (int i = 0; i < radius; i++)
         {
             List<HexNode> nextLayer = new List<HexNode>();

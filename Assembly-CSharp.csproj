@@ -71,6 +71,7 @@
     <Compile Include="Assets\Scripts\CustomThings\ShirokoTerror_animCTRL.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\ShirokoActiveSkill.cs" />
     <Compile Include="Assets\Scripts\Character\CharacterAudioManager.cs" />
+    <Compile Include="Assets\Scripts\UI\Battle_Number\TextEffectPool.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\GehennaObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitData\TraitDescriptionData.cs" />
     <Compile Include="Assets\Scripts\Character\CustomAnimtorController.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Assets\Scripts\InCombat\PathFinding\PathRequestManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\MineSkillExplosion.cs" />
     <Compile Include="Assets\Scripts\GameEvent\GameEventListener.cs" />
+    <Compile Include="Assets\Scripts\UI\Battle_Number\TextEffect.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitPanelManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\CharacterCTRL.cs" />
     <Compile Include="Assets\Scripts\CustomThings\Shiroko_Terror_SkillCTRL.cs" />
@@ -122,6 +124,7 @@
     <Compile Include="Assets\Scripts\Player\Player.cs" />
     <Compile Include="Assets\Scripts\InCombat\Hexagon\IHexagon.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\TsurugiActiveSkill.cs" />
+    <Compile Include="Assets\Scripts\InCombat\Shop\ShopButton.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Equipment\EquipmentManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\Bullet.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitUI.cs" />
@@ -129,6 +132,7 @@
     <Compile Include="Assets\Scripts\InCombat\Bench\BenchManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\map\SpawnGrid.cs" />
     <Compile Include="Assets\Scripts\InCombat\GameController\GameController.cs" />
+    <Compile Include="Assets\Scripts\GlobalAudioManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\PathFinding\HexNode.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\CoroutineController.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\HoshinoShotgunSkill.cs" />

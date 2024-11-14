@@ -94,7 +94,10 @@ public class GameStageManager : MonoBehaviour
     }
     public void Update()
     {
-
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            StartCoroutine(StartBattleCorutine());
+        }
     }
     private void OnVictory(CharacterParent winningTeam, CharacterParent defeatedTeam)
     {

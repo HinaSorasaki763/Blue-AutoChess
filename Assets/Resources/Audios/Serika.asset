@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 626d8488f036d31499b69206c2c9ddf4, type: 3}
+  m_Name: Serika
+  m_EditorClassIdentifier: 
+  ExSkillAudios:
+  - {fileID: 8300000, guid: c927b3485b5fd594194df2aba70437e2, type: 3}
+  - {fileID: 8300000, guid: 55a45815b0eee46458fe4e92ac966b85, type: 3}
+  - {fileID: 8300000, guid: 72bc5c7ba2e752e43ae1766da8e6da42, type: 3}
+  CrowdControlled:
+  - {fileID: 8300000, guid: 800da6223dcea0e49bbfb27dcddbb65d, type: 3}
+  - {fileID: 8300000, guid: 8d0b04bf2fd01bd44a3fb779cac3ea85, type: 3}
+  - {fileID: 8300000, guid: b7486ad8276633d4e9d2b1f4127a7eff, type: 3}
+  OnDefeated:
+  - {fileID: 8300000, guid: fb5ae098d348eb84697b2378282c34ed, type: 3}
+  - {fileID: 8300000, guid: ad51b862dd52554438542765fc08cee8, type: 3}
+  OnVictory:
+  - {fileID: 8300000, guid: 81713c707787dc5409cbbf3a13c0cec3, type: 3}
+  - {fileID: 8300000, guid: a44e7d7cb603ee645a1f801582375fab, type: 3}
+  StarUp:
+  - {fileID: 8300000, guid: f9dffeb54006b0b48836faa1364dc8ae, type: 3}
+  - {fileID: 8300000, guid: 2a70305ff0484324cb9cdcc10b5e20cc, type: 3}
+  - {fileID: 8300000, guid: 5d0cca1ab9222704ab8d617dca94f4d3, type: 3}
+  PickedUp: {fileID: 8300000, guid: fa92dd3b64f944645bd25f7856b47259, type: 3}
+  Buffed: {fileID: 8300000, guid: ecbca6d80b37b6d429a5b47802041ac8, type: 3}
+  Dodged: {fileID: 8300000, guid: 507c6b91b7eb9d74ba68910aa19548cb, type: 3}
+  HpRestored: {fileID: 8300000, guid: c60e18234b99629478c921c743fe92cb, type: 3}
+  Summoned: {fileID: 8300000, guid: 05c4b95e62b308d47965e6315a5fce51, type: 3}

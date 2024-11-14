@@ -1,7 +1,4 @@
-using GameEnum;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class StaticObject : CharacterCTRL
@@ -18,6 +15,8 @@ public class StaticObject : CharacterCTRL
         effectCTRL = GetComponent<EffectCTRL>();
         modifierCTRL = GetComponent<ModifierCTRL>();
         traitController = GetComponent<TraitController>();
+        equipmentManager = GetComponent<CharacterEquipmentManager>();
+        AudioManager = GetComponent<CharacterAudioManager>();
         ResetStats();
         originalRotation = transform.rotation;
     }
@@ -25,9 +24,9 @@ public class StaticObject : CharacterCTRL
     {
 
     }
-    public override void GetHit(int amount, CharacterCTRL sourceCharacter)
+    public override void GetHit(int amount, CharacterCTRL sourceCharacter,bool isCrit)
     {
-        base.GetHit(amount, sourceCharacter);
+        base.GetHit(amount, sourceCharacter,isCrit);
         if (Time.time - lastShakeTime >= shakeCooldown)
         {
             lastShakeTime = Time.time; // 更新上次旋轉的時間

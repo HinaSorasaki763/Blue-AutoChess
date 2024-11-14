@@ -44,8 +44,19 @@ MonoBehaviour:
       value: 0
     - statType: 11
       value: 1
-  Traits: 04000000080000000a000000
+    - statType: 12
+      value: 25
+    - statType: 14
+      value: 5
+    - statType: 15
+      value: 15
+    - statType: 13
+      value: 55
+  Traits: 040000000a00000008000000
+  BarrageIntervalAngle: 0
+  BarrageInitAngle: 0
   skillTooltip: Mine leaps into the air, searching for the tile with the most enemy
     units within a two-tile radius. She then forcefully lands on the target area,
     stunning enemies for one second and causing them to re-target their surroundings.
     After the stun ends, their attack power is reduced for a short duration.
+  isObj: 0

@@ -661,6 +661,7 @@ MonoBehaviour:
   FirePoint: {fileID: 6079500010960970370}
   GetHitPoint: {fileID: 1327681728967642427}
   DetectedPos: {x: 0, y: 0, z: 0}
+  AudioManager: {fileID: 0}
   traitController: {fileID: 0}
   customAnimator: {fileID: 0}
   isTargetable: 1
@@ -823,7 +824,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 642bc75772efce143adab14c975c5a9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Audio: {fileID: 0}
+  Audio: {fileID: 11400000, guid: fd1dc0f5df9dae74398b74a95b6989ce, type: 2}
 --- !u!82 &8968316963905071438
 AudioSource:
   m_ObjectHideFlags: 0

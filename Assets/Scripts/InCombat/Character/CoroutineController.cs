@@ -56,7 +56,7 @@ public class CoroutineController : MonoBehaviour
         float elapsedTime = 0f;
         float scatterAngle = observer.GetAngle();
         int numBullets = (int)scatterAngle/ angle;
-        while (elapsedTime < duration)
+        while (elapsedTime < duration*2)
         {
             // 從最佳角度開始，逐步射出一整波子彈
             for (int i = 0; i < numBullets; i++)

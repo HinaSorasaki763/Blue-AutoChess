@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 626d8488f036d31499b69206c2c9ddf4, type: 3}
+  m_Name: Aris
+  m_EditorClassIdentifier: 
+  ExSkillAudios:
+  - {fileID: 8300000, guid: a27660a01e3cbcc46aa89eb9c8f3df23, type: 3}
+  - {fileID: 8300000, guid: 499132f29c12e094c8d21b9ddff89aa3, type: 3}
+  - {fileID: 8300000, guid: 05c6c7a4a8a1c5043b31c94079ce6f89, type: 3}
+  CrowdControlled:
+  - {fileID: 8300000, guid: 2d5ec10cf2d059b46b349f955f1f832a, type: 3}
+  OnDefeated:
+  - {fileID: 8300000, guid: 51f212ef99a0bae468d9da2baa15effd, type: 3}
+  - {fileID: 8300000, guid: 440aa9120c4b63148abedea47a2213ac, type: 3}
+  OnVictory:
+  - {fileID: 8300000, guid: 9ef601c9b4727d24894d89ead9b1b11a, type: 3}
+  - {fileID: 8300000, guid: 6adc44324b082054f82c87d3e94818d7, type: 3}
+  StarUp:
+  - {fileID: 8300000, guid: 1742127f164da7c4d8b22299b10053f2, type: 3}
+  - {fileID: 8300000, guid: e389a649d719eb34caa73c6d298c5335, type: 3}
+  - {fileID: 8300000, guid: 2a571116d961c8d42bd25282bf5ba622, type: 3}
+  - {fileID: 8300000, guid: b377b2f34b5f0c7439c3d61b6030604b, type: 3}
+  PickedUp: {fileID: 8300000, guid: 581f4ae1ab06a5441a6dd69f47f5234d, type: 3}
+  Buffed: {fileID: 8300000, guid: 2c79c77b7dd21c540bd1006c2fa209b3, type: 3}
+  Dodged: {fileID: 8300000, guid: 735598e269fa1384eb88c8c150308d7d, type: 3}
+  HpRestored: {fileID: 8300000, guid: 01f30b316c5ffd24db9d7b5522b11a06, type: 3}
+  Summoned: {fileID: 8300000, guid: 694ee685c38743640acefa427008a7fe, type: 3}

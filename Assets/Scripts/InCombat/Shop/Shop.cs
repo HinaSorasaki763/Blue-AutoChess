@@ -1,6 +1,5 @@
 using GameEnum;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,15 +11,12 @@ public class Shop : MonoBehaviour
     public BenchManager benchManager;
     public RoundProbabilityData roundProbabilityData;
 
-    private List<TextMeshProUGUI> buttonTexts = new List<TextMeshProUGUI>();
-
     public void Start()
     {
         for (int i = 0; i < ShopButtons.Count; i++)
         {
             images.Add(ShopButtons[i].GetComponent<Image>());
             Characters.Add(null);
-            buttonTexts.Add(ShopButtons[i].GetComponentInChildren<TextMeshProUGUI>());
             int indx = i;
             ShopButtons[indx].onClick.AddListener(() => SpawnCharacter(indx));
         }
@@ -40,7 +36,6 @@ public class Shop : MonoBehaviour
             {
                 images[index].sprite = null;
                 images[index].color = new Color(1, 1, 1, 0);
-                buttonTexts[index].text = "";
                 ShopButtons[index].interactable = false;
                 UpdateShopUI();
             }
@@ -73,15 +68,48 @@ public class Shop : MonoBehaviour
             }
 
             Character character = ResourcePool.Instance.GetCharacterByID(selectedCharacterId);
+
             if (character != null)
             {
-                images[i].sprite = character.Sprite;
-                images[i].color = new Color(1, 1, 1, 1);
+                // 複製 Traits 列表，避免直接操作 character.Traits
+                List<Traits> temp = new List<Traits>(character.Traits);
+                var shopButton = ShopButtons[i].gameObject.GetComponent<ShopButton>();
+                for (int k = 0; k < temp.Count; k++)
+                {
+                    if (TraitDescriptions.Instance.GetTraitIsAcademy(temp[k]))
+                    {
+                        shopButton.AcademyIcon.sprite = TraitDescriptions.Instance.GetTraitImage(temp[k]);
+                        temp.RemoveAt(k);
+                    }
+                }
+                List<Traits> _temp = new List<Traits>(temp);
+                for (int j = 0; j < 2; j++)
+                {
+                    if (j < _temp.Count)
+                    {
+                        shopButton.traitIcon[j].sprite = TraitDescriptions.Instance.GetTraitImage(_temp[j]);
+                        shopButton.traitIcon[j].color = new Color(1, 1, 1, 1);
+                    }
+                    else
+                    {
+                        shopButton.traitIcon[j].sprite = null;
+                        shopButton.traitIcon[j].color = new Color(1, 1, 1, 0);
+                    }
+                }
+                if (images[i] != null)
+                {
+                    images[i].sprite = character.Sprite;
+                    images[i].color = new Color(1, 1, 1, 1);
+                }
+
                 Characters[i] = character.Model;
-                string traitsText = GetCharacterTraitsText(character);
-                buttonTexts[i].text = $"Cost: {character.Level}\n{traitsText}";
-                ShopButtons[i].interactable = true;
+
+                if (ShopButtons[i] != null)
+                {
+                    ShopButtons[i].interactable = true;
+                }
             }
+
         }
 
         UpdateShopUI();
@@ -100,11 +128,11 @@ public class Shop : MonoBehaviour
                 int owned1StarCount = CountOwnedCharactersWithSameStar(characterId, 1);  // 只計算一星角色
                 int owned2StarCount = CountOwnedCharactersWithSameStar(characterId, 2);
                 // 根據擁有數量調整高亮顏色
-                if (owned1StarCount == 0 &&owned2StarCount == 0)
+                if (owned1StarCount == 0 && owned2StarCount == 0)
                 {
                     images[i].color = new Color(1, 1, 1, 1); // 重設為默認顏色
                 }
-                else if (owned1StarCount == 2)  
+                else if (owned1StarCount == 2)
                 {
                     images[i].color = new Color(1f, 0.84f, 0f, 1); // 金黃色高亮，僅在有兩個一星角色時
                 }
@@ -139,10 +167,5 @@ public class Shop : MonoBehaviour
             return characterList[randIndex].CharacterId;
         }
         return -1;
-    }
-
-    private string GetCharacterTraitsText(Character character)
-    {
-        return string.Join("\n", character.Traits);
     }
 }

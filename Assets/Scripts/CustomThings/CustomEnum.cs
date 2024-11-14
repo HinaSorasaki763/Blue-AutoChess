@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GameEnum
 {
@@ -78,7 +80,9 @@ namespace GameEnum
         Marked,
         CCImmune,
         UnTargetable,
-        Invincible
+        Invincible,
+        Fear,
+        Taunt
     }
     public enum EquipmentType
     {
@@ -96,6 +100,7 @@ namespace GameEnum
         public Sprite Icon { get; }
         Dictionary<EquipmentType, int> GetStats();
     }
+
     [System.Serializable]
     public class BasicEquipment : IEquipment
     {
@@ -216,6 +221,15 @@ namespace GameEnum
             };
         }
     }
+    public enum BattleDisplayEffect
+    {
+        Weak,
+        Resist,
+        Immune,
+        Block,
+        Miss,
+        None
+    }
     public enum SkillPrefab
     {
         PenetrateTrailedBullet,
@@ -247,6 +261,7 @@ namespace GameEnum
         }
     }
 
+
     [System.Serializable]
     public class RoundProbability
     {
@@ -256,6 +271,30 @@ namespace GameEnum
     }
     public static class Utility
     {
+        public static void ChangeImageAlpha(Image image , float alpha)
+        {
+            Color color = image.color;
+            color.a = alpha;
+            image.color = color;
+        }
+        public static List<CharacterCTRL> GetSpecificCharacters(List<CharacterCTRL> characters, StatsType statsType, bool descending, int count)
+        {
+            if (descending)
+            {
+                return characters
+                    .OrderByDescending(item => item.GetStat(statsType))
+                    .Take(count)
+                    .ToList();
+            }
+            else
+            {
+                return characters
+                    .OrderBy(item => item.GetStat(statsType))
+                    .Take(count)
+                    .ToList();
+            }
+        }
+
         public static HexNode GetHexOnPos(Vector3 pos)
         {
             Vector3Int cubeCoords = PositionToCubeCoordinates(pos);

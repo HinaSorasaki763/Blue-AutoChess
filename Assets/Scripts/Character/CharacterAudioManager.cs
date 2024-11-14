@@ -28,20 +28,13 @@ public class CharacterAudioManager : MonoBehaviour
     public float PlayClip(AudioClip clip)
     {
         if (clip == null) return 0;
-
-        audioSource.clip = clip;
-        audioSource.volume = 0.5f;
-        audioSource.loop = false;
-        audioSource.Play();
+        bool approved = GlobalAudioManager.Instance.RequestAudioPlay(audioSource, clip, 0.5f);
+        if (!approved) Debug.Log("播放請求被拒絕：音效數量已達上限");
         return audioSource.clip.length;
     }
-
-    // 以下是各個情境的播放方法
     public void PlayDodgedSound()
     {
         if (Audio == null || Audio.Dodged == null) return;
-
-        // 只有當 Dodged 音效的冷卻時間已過，才會播放
         if (CanPlayDodged())
         {
             PlayClip(Audio.Dodged);

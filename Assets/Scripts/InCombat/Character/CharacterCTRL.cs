@@ -41,12 +41,17 @@ public class CharacterCTRL : MonoBehaviour
     public bool isMarked;
     public bool isCCImmune;
     public bool Invincible;
+    public bool Taunted;
     private bool isFindingTarget = false;
     private bool isFindingPath = false;
     private bool ManaAdded;
     public float attackRate = 5.0f;
     private float attackTimer = 0f;
     private float attackSpeed = 1.0f;
+    public bool WakamoMark;
+    private float wakamoMarkRatio;
+    private int dmgRecivedOnWakamoMarked;
+    private CharacterCTRL WakamoMarkParent;
     public bool stunned;
     public GameObject bulletPrefab;
     public Transform FirePoint;
@@ -270,12 +275,14 @@ public class CharacterCTRL : MonoBehaviour
             CustomLogger.LogWarning(this,$"Target {Target} dont have ctrl");
         }
         int damage = (int)(GetStat(StatsType.Attack) * (1 + modifierCTRL.GetTotalStatModifierValue(ModifierType.DamageDealt) * 0.01f));
+        bool iscrit = false;
         if (Utility.Iscrit(GetStat(StatsType.CritChance)))
         {
             damage = (int)(damage * (1 + GetStat(StatsType.CritRatio) * 0.01f));
             CustomLogger.Log(this, $"character {name} crit");
+            iscrit = true;
         }
-        bulletComponent.Initialize(targetCtrl.GetHitPoint.position, damage, GetTargetLayer(), this, 20);
+        bulletComponent.Initialize(targetCtrl.GetHitPoint.position, damage, GetTargetLayer(), this, 20,targetCtrl.gameObject,iscrit);
 
         transform.LookAt(Target.transform);
     }
@@ -339,6 +346,10 @@ public class CharacterCTRL : MonoBehaviour
     {
         Invincible = b;
     }
+    public void SetTaunt(bool b)
+    {
+        Taunted = b;
+    }
     public void EmptyEffectFunction()
     {
 
@@ -379,7 +390,7 @@ public class CharacterCTRL : MonoBehaviour
             return;
         }
 
-        if (GetStat(StatsType.Mana) >= GetStat(StatsType.MaxMana) && !IsCasting() && !isWalking&&!isObj)
+        if (GetStat(StatsType.Mana) >= GetStat(StatsType.MaxMana) && !IsCasting() && !isWalking&&!isObj&&!Taunted)
         {
             SetStat(StatsType.Mana, 0);
             CustomLogger.Log(this,$"{gameObject.name} casting");
@@ -472,6 +483,16 @@ public class CharacterCTRL : MonoBehaviour
         bool found = UpdateTarget(closestTarget, closestDistance);
         isFindingTarget = false;
         return found;
+    }
+    public bool CheckEnemyIsInrange(CharacterCTRL enemy)
+    {
+        if (!enemy.gameObject.TryGetComponent(out CharacterCTRL C) || !C.CurrentHex.IsBattlefield) return false;
+        float distance = Vector3.Distance(transform.position, enemy.transform.position);
+        if (distance < GetStat(StatsType.Range) + 0.1f)
+        {
+            return true;
+        }
+        return false;
     }
     private bool UpdateTarget(GameObject closestTarget, float closestDistance)
     {
@@ -616,6 +637,7 @@ public class CharacterCTRL : MonoBehaviour
 
     public void ForceChangeTarget(CharacterCTRL newTarget)
     {
+        if (Taunted) return;
         Target = newTarget.gameObject;
         PreTarget = null;
         transform.LookAt(Target.transform.position);
@@ -638,39 +660,45 @@ public class CharacterCTRL : MonoBehaviour
     #endregion
 
     #region Damage and Death
-    public virtual void GetHit(int amount, CharacterCTRL sourceCharacter)
+    public virtual void GetHit(int amount, CharacterCTRL sourceCharacter,bool isCrit = false)
     {
         if (IsDying) return;
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
         int rand = UnityEngine.Random.Range(0, 100);
-        if (GetStat(StatsType.DodgeChance) < rand)
+        if (GetStat(StatsType.DodgeChance) >= rand)
         {
             AudioManager.PlayDodgedSound();
+            TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Miss, 0, screenPos,false);
             return;
         }
         int finalAmount = traitController?.ModifyDamageTaken(amount, sourceCharacter) ?? amount;
+        if (isCrit)
+        {
+            TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Weak, finalAmount, screenPos,false);
+        }
+        dmgRecivedOnWakamoMarked += (int)(finalAmount * wakamoMarkRatio); 
         while (finalAmount > 0 && shields.Count > 0)
         {
-            Shield shield = shields[0]; // 取得剩餘時間最少的護盾
-
+            Shield shield = shields[0];
             if (shield.amount >= finalAmount)
             {
-                // 護盾足夠承受傷害
+                TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Resist, finalAmount, screenPos, false);
                 shield.amount -= finalAmount;
                 AddStat(StatsType.Shield, -finalAmount);
                 finalAmount = 0;
             }
             else
             {
-                // 護盾不足，扣除護盾並移除
+                TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Resist, shield.amount, screenPos, false);
                 finalAmount -= shield.amount;
                 AddStat(StatsType.Shield, -shield.amount);
                 shields.RemoveAt(0);
             }
         }
 
-        // 如果護盾不足以承受所有傷害，扣血量
         if (finalAmount > 0)
         {
+            TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.None, finalAmount, screenPos,true);
             AddStat(StatsType.currHealth, -finalAmount);
         }
 
@@ -685,9 +713,10 @@ public class CharacterCTRL : MonoBehaviour
             {
                 Debug.LogWarning("sourceCharacter or its traitController is null, unable to notify observer.");
             }
-
         }
     }
+
+
     public void AddShield(int amount, float duration, CharacterCTRL source)
     {
         Shield newShield = new Shield(amount, duration);
@@ -709,8 +738,22 @@ public class CharacterCTRL : MonoBehaviour
         {
             customAnimator.ChangeState(CharacterState.Attacking);
             customAnimator.animator.SetBool("StunFinished", true);
-            Debug.Log($"{name} is no longer stunned.");
         }
+    }
+    public void SetWakamoMark(float ratio,CharacterCTRL wakamo)
+    {
+        WakamoMark = true;
+        wakamoMarkRatio = ratio;
+        WakamoMarkParent = wakamo;
+    }
+    public void OnWakamoMarkCountedDown()
+    {
+        WakamoMark = false;
+        wakamoMarkRatio = 0;
+        GetHit(dmgRecivedOnWakamoMarked, WakamoMarkParent,false);
+        WakamoMarkParent = null;
+        dmgRecivedOnWakamoMarked = 0;
+
     }
     public void Clarity()
     {
@@ -777,6 +820,14 @@ public class CharacterCTRL : MonoBehaviour
             yield return new WaitForSeconds(animationLength - 0.6f);
         }
         gameObject.SetActive(false);
+    }
+    public void MarkedByWakamoStart()
+    {
+
+    }
+    public void WakamoMarkEnd()
+    {
+
     }
     #endregion
 

@@ -14,6 +14,7 @@ public class TrailedBullet : MonoBehaviour
     public LayerMask HitLayer;
     public CharacterCTRL Parent;
     private Vector3 startPosition;
+    private bool IsCrit;
     void Awake()
     {
         attackId = nextId++;
@@ -22,11 +23,12 @@ public class TrailedBullet : MonoBehaviour
     {
         targetPosition = Vector3.zero;
     }
-    public void Initialized(Vector3 targetPosition, float damage, float decayFactor, LayerMask hitLayer, CharacterCTRL parent)
+    public void Initialized(Vector3 targetPosition, float damage, float decayFactor, LayerMask hitLayer, CharacterCTRL parent,bool isCrit)
     {
         this.targetPosition = targetPosition;
         this.damage = damage;
         this.decayFactor = decayFactor;
+        this.IsCrit = isCrit;
         HitLayer = hitLayer;
         Parent = parent;
         startPosition = transform.position;
@@ -54,7 +56,7 @@ public class TrailedBullet : MonoBehaviour
     }
     void HitTarget(CharacterCTRL enemy)
     {
-        enemy.GetHit((int)damage, Parent);
+        enemy.GetHit((int)damage, Parent,IsCrit);
         damage *= decayFactor;
     }
     public void OnDisable()

@@ -9,15 +9,20 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 {
     public Image icon;
     public IEquipment equipmentData;
-
     private Transform originalParent;
     private Canvas canvas;
     private EquipmentManager equipmentManager;
     public GameObject Detail;
     public Button Btn;
     public LayerMask characterLayerMask;
-    // 用來判斷是否在拖動中
     private bool isDragging;
+
+    // 新增 GridLayoutGroup 和原始索引變數
+    private GridLayoutGroup gridLayoutGroup;
+    private int originalIndex;
+
+    // 虛影用變數
+    private GameObject ghostItem;
 
     public void Setup(IEquipment equipment, EquipmentManager manager, Transform parent)
     {
@@ -32,80 +37,89 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     void Start()
     {
         canvas = FindObjectOfType<Canvas>();
+
+        // 獲取 GridLayoutGroup
+        gridLayoutGroup = GetComponentInParent<GridLayoutGroup>();
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        transform.SetParent(canvas.transform);
         isDragging = true;
+
+        // 禁用 GridLayoutGroup
+        if (gridLayoutGroup != null)
+        {
+            gridLayoutGroup.enabled = false;
+        }
+
+        // 記錄當前物品的原始索引
+        originalIndex = transform.GetSiblingIndex();
+        Utility.ChangeImageAlpha(gameObject.GetComponentInChildren<Image>(),0.5f);
+        ghostItem = new GameObject("GhostItem", typeof(RectTransform), typeof(CanvasGroup));
+        ghostItem.transform.SetParent(canvas.transform);
+        Image ghostImage = ghostItem.AddComponent<Image>();
+        ghostImage.sprite = icon.sprite;
+        CanvasGroup canvasGroup = ghostItem.GetComponent<CanvasGroup>();
+        canvasGroup.alpha = 1f; // 設置虛影透明度
+        canvasGroup.blocksRaycasts = false; // 避免阻擋鼠標事件
+
+        transform.SetParent(canvas.transform);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        transform.position = Input.mousePosition;
-        List<RaycastResult> raycastResults = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(eventData, raycastResults);
-        foreach (var result in raycastResults)
-        {
-            if (result.gameObject.CompareTag("Character"))
-            {
-                CharacterCTRL character = result.gameObject.GetComponent<CharacterCTRL>();
-                if (character != null)
-                {
-                    BasicEquipment combinableEquipment = null;
-                    foreach (var item in character.equipmentManager.GetEquippedItems())
-                    {
-                        if (item is BasicEquipment basicItem)
-                        {
-                            if (character.equipmentManager.CanCombine(basicItem, equipmentData,out IEquipment resultEquipment))
-                            {
-                                combinableEquipment = basicItem;
-                                break;
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
-        }
+        // 虛影跟隨鼠標移動
+        ghostItem.transform.position = Input.mousePosition;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        Utility.ChangeImageAlpha(gameObject.GetComponentInChildren<Image>(), 1);
         List<RaycastResult> raycastResults = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, raycastResults);
 
-        // 遍歷Raycast結果，只選擇指定圖層的物件
+        bool successfulEquip = false;
+
         foreach (var result in raycastResults)
         {
-            if (((1 << result.gameObject.layer) & characterLayerMask) != 0) // 確認物件在指定的圖層上
+            if (((1 << result.gameObject.layer) & characterLayerMask) != 0)
             {
                 CharacterCTRL character = result.gameObject.GetComponent<CharacterCTRL>();
                 if (character != null)
                 {
-                    bool equipped = character.EquipItem(equipmentData);
-                    CustomLogger.Log(this, $"try equip {equipmentData.EquipmentName} on {character.name} success = {equipped}");
-                    if (equipped)
+                    successfulEquip = character.EquipItem(equipmentData);
+                    CustomLogger.Log(this, $"try equip {equipmentData.EquipmentName} on {character.name} success = {successfulEquip}");
+                    if (successfulEquip)
                     {
-                        equipmentManager.RemoveEquipmentItem(equipmentData,gameObject);
+                        equipmentManager.RemoveEquipmentItem(equipmentData, gameObject);
+                        break;
                     }
-                    else
-                    {
-                        transform.SetParent(originalParent);
-                        transform.localPosition = Vector3.zero;
-                    }
-                    return;
                 }
             }
         }
-        transform.SetParent(originalParent);
-        transform.localPosition = Vector3.zero;
+
+        // 刪除虛影
+        Destroy(ghostItem);
+
+        if (!successfulEquip)
+        {
+            // 如果未成功裝備，將原物品恢復到其原來的父級位置
+            transform.SetParent(originalParent);
+            transform.SetSiblingIndex(originalIndex); // 將物品放回原來的索引位置
+            transform.localPosition = Vector3.zero;
+        }
+
+        // 恢復 GridLayoutGroup 排列功能
+        if (gridLayoutGroup != null)
+        {
+            gridLayoutGroup.enabled = true;
+        }
+
         isDragging = false;
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        // 只有在非拖動模式下才觸發點擊事件
         if (!isDragging)
         {
             EquipmentUIManager.Instance.ToggleUI(Detail);

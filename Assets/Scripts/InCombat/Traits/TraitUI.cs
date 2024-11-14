@@ -11,6 +11,7 @@ public class TraitUI : MonoBehaviour
     public GameObject descriptionPanel;
     public Button button;
     public float fixedWidth = 500f;     // ©T©wªº¼e«×
+    public Image Sprite;
     void Start()
     {
         TraitPanelManager.Instance.RegisterPanel(descriptionPanel);

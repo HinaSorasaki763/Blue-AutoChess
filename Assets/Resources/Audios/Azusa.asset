@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 626d8488f036d31499b69206c2c9ddf4, type: 3}
+  m_Name: Azusa
+  m_EditorClassIdentifier: 
+  ExSkillAudios:
+  - {fileID: 8300000, guid: 445a686efbcfc064a907b14b46fcf5cb, type: 3}
+  - {fileID: 8300000, guid: 8a54f98871072c64cb5614b951cb9c92, type: 3}
+  - {fileID: 8300000, guid: c5a83d7d84921b8489bc6771f9c126b5, type: 3}
+  CrowdControlled:
+  - {fileID: 8300000, guid: 9f29284ffe6eb06408df956b9b5b18d7, type: 3}
+  - {fileID: 8300000, guid: 74a1e03bd5cc46f498728addbdef5053, type: 3}
+  OnDefeated:
+  - {fileID: 8300000, guid: 13e5da8c2da68b245a06652136882969, type: 3}
+  - {fileID: 8300000, guid: 3f568611119e66444ad0c9f5602d7aee, type: 3}
+  OnVictory:
+  - {fileID: 8300000, guid: cee539ae3164f88499b3296aac3f7b01, type: 3}
+  - {fileID: 8300000, guid: 9d0ff94d402fb6f45a65a50dca044cf5, type: 3}
+  StarUp:
+  - {fileID: 8300000, guid: 27e55d18d79528d47a23675dcbb877d1, type: 3}
+  - {fileID: 8300000, guid: 3a2c79ec282babc44bef73d2e5e67731, type: 3}
+  - {fileID: 8300000, guid: 0edc40a8734930146876511ad195ed32, type: 3}
+  - {fileID: 8300000, guid: d77be10df418d254eb49a2c7005a8002, type: 3}
+  PickedUp: {fileID: 8300000, guid: 5e8e7f99bd8541145aa6e60a9c7615b1, type: 3}
+  Buffed: {fileID: 8300000, guid: 11e61bf6623a41845937c15e15603c83, type: 3}
+  Dodged: {fileID: 8300000, guid: b24b079751258f24a8386b7b9395e732, type: 3}
+  HpRestored: {fileID: 8300000, guid: cba33bde4088a684c98a6e4eda7cb792, type: 3}
+  Summoned: {fileID: 8300000, guid: 308544824ce763546bf4a5c3b1e75d09, type: 3}
