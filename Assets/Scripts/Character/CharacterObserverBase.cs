@@ -124,9 +124,9 @@ public class AkoObserver : CharacterObserverBase
             .FirstOrDefault();
         if (highestAttackCharacter != null)
         {
-            Effect critChance = EffectFactory.CreateAkoCritChanceBuff(20,2f);
+            Effect critChance = EffectFactory.CreateAkoCritChanceBuff(20,2f,character);
             highestAttackCharacter.effectCTRL.AddEffect(critChance);
-            Effect critRatio = EffectFactory.CreateAkoCritRatioBuff(20, 2f);
+            Effect critRatio = EffectFactory.CreateAkoCritRatioBuff(20, 2f, character);
             highestAttackCharacter.effectCTRL.AddEffect(critRatio);
         }
     }
@@ -142,7 +142,7 @@ public class AyaneObserver : CharacterObserverBase
             .FirstOrDefault();
         if (highestAttackCharacter != null)
         {
-            Effect resistance = EffectFactory.CreateAyaneResistanceBuff(20, 2f);
+            Effect resistance = EffectFactory.CreateAyaneResistanceBuff(20, 2f, character);
             highestAttackCharacter.effectCTRL.AddEffect(resistance);
         }
     }
@@ -296,7 +296,7 @@ public class Shiroko_Terror_Observer : CharacterObserverBase
         float newPercentage = newHealth / maxHealth;
         if (!hasTriggered70 && newPercentage <= healthThreshold70)
         {
-            Effect effect = EffectFactory.CreateInvincibleEffect(0);
+            Effect effect = EffectFactory.CreateInvincibleEffect(0,character);
             character.effectCTRL.AddEffect(effect);
             hasTriggered70 = true;
             newHealth = maxHealth * healthThreshold70;
@@ -307,7 +307,7 @@ public class Shiroko_Terror_Observer : CharacterObserverBase
         }
         if (!hasTriggered30 && newPercentage <= healthThreshold30)
         {
-            Effect effect = EffectFactory.CreateInvincibleEffect(0);
+            Effect effect = EffectFactory.CreateInvincibleEffect(0, character);
             character.effectCTRL.AddEffect(effect);
             hasTriggered30 = true;
             newHealth = maxHealth * healthThreshold30;

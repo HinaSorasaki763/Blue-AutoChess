@@ -32,8 +32,17 @@ public class EffectCTRL : MonoBehaviour
         {
             if (existingEffect.IsPermanent)
             {
-                // 如果效果是永久的，則不再添加
                 CustomLogger.Log(this, $"Effect from {effect.Source} is already permanent. Ignored.");
+                if (effect.Value > existingEffect.Value)
+                {
+                    CustomLogger.Log(this, $"Effect from {effect.Source} is permanent, but new value {effect.Value} is higher than existing value {existingEffect.Value}. Overwriting.");
+                    existingEffect.UpdateValue(effect.Value);
+                    UpdateEffectNames();
+                }
+                else
+                {
+                    CustomLogger.Log(this, $"Effect from {effect.Source} is permanent, and new value {effect.Value} is not higher. Ignored.");
+                }
                 return;
             }
             else
@@ -106,6 +115,10 @@ public class EffectCTRL : MonoBehaviour
             RemoveEffect(effect);
         }
     }
+    public Effect GetEffect(string source)
+    {
+        return activeEffects.FirstOrDefault(e => e.Source == source);
+    }
 
     private void Update()
     {
@@ -132,26 +145,26 @@ public class EffectCTRL : MonoBehaviour
 
 public static class EffectFactory
 {
-    public static Effect StatckableIncreaseStatsEffct(float duration , string source,int amount,StatsType statsType)
+    public static Effect StatckableIncreaseStatsEffct(float duration, string source, float amount, StatsType statsType, CharacterCTRL parent, bool isPermanent)
     {
-
         return new Effect(
             EffectType.Positive,
             ModifierType.None,
-            0,
+            amount,
             $"{source}Increase{statsType}",
-            false,
-            (character) => character.ModifyStats(statsType, amount),
-            (character) => character.ModifyStats(statsType, -amount),
+            isPermanent,
+            null, // 暫不設置委派
+            null,
             duration,
-            SpecialEffectType.None
-
+            SpecialEffectType.None,
+            parent
         );
-
     }
-    public static Effect UnStatckableIncreaseStatsEffct(float duration, int amount, StatsType statsType)
-    {
 
+
+
+    public static Effect UnStatckableIncreaseStatsEffct(float duration, int amount, StatsType statsType, CharacterCTRL parent)
+    {
         return new Effect(
             EffectType.Positive,
             ModifierType.None,
@@ -161,14 +174,13 @@ public static class EffectFactory
             (character) => character.ModifyStats(statsType, amount),
             (character) => character.ModifyStats(statsType, -amount),
             duration,
-            SpecialEffectType.None
-
+            SpecialEffectType.None,
+            parent
         );
-
     }
-    public static Effect CreateStunEffect(float duration)
-    {
 
+    public static Effect CreateStunEffect(float duration, CharacterCTRL parent)
+    {
         return new Effect(
             EffectType.Negative,
             ModifierType.None,
@@ -178,13 +190,12 @@ public static class EffectFactory
             (character) => character.Stun(true),
             (character) => character.Stun(false),
             duration,
-            SpecialEffectType.Stun
-
+            SpecialEffectType.Stun,
+            parent
         );
-
     }
 
-    public static Effect CreateMarkedEffect(float duration)
+    public static Effect CreateMarkedEffect(float duration, CharacterCTRL parent)
     {
         return new Effect(
             EffectType.Negative,
@@ -195,11 +206,12 @@ public static class EffectFactory
             (character) => character.SetMarked(true),
             (character) => character.SetMarked(false),
             duration,
-            SpecialEffectType.Marked
-
+            SpecialEffectType.Marked,
+            parent
         );
     }
-    public static Effect ClarityEffect(float duration)
+
+    public static Effect ClarityEffect(float duration, CharacterCTRL parent)
     {
         return new Effect(
             EffectType.Positive,
@@ -210,11 +222,12 @@ public static class EffectFactory
             (character) => character.Clarity(),
             (character) => character.SetCCImmune(false),
             duration,
-            SpecialEffectType.CCImmune
-
+            SpecialEffectType.CCImmune,
+            parent
         );
     }
-    public static Effect CreateCCImmunityEffect(float duration)
+
+    public static Effect CreateCCImmunityEffect(float duration, CharacterCTRL parent)
     {
         return new Effect(
             EffectType.Positive,
@@ -225,11 +238,12 @@ public static class EffectFactory
             (character) => character.SetCCImmune(true),
             (character) => character.SetCCImmune(false),
             duration,
-            SpecialEffectType.CCImmune
-
+            SpecialEffectType.CCImmune,
+            parent
         );
     }
-    public static Effect CreateUnTargetableEffect(float duration)
+
+    public static Effect CreateUnTargetableEffect(float duration, CharacterCTRL parent)
     {
         return new Effect(
             EffectType.Positive,
@@ -240,11 +254,12 @@ public static class EffectFactory
             (character) => character.SetUnTargetable(false),
             (character) => character.SetUnTargetable(true),
             duration,
-            SpecialEffectType.UnTargetable
-
+            SpecialEffectType.UnTargetable,
+            parent
         );
     }
-    public static Effect CreateInvincibleEffect(float duration)
+
+    public static Effect CreateInvincibleEffect(float duration, CharacterCTRL parent)
     {
         return new Effect(
             EffectType.Positive,
@@ -255,11 +270,12 @@ public static class EffectFactory
             (character) => character.SetInvincible(true),
             (character) => character.SetInvincible(false),
             duration,
-            SpecialEffectType.Invincible
-
+            SpecialEffectType.Invincible,
+            parent
         );
     }
-    public static Effect CreateHyakkiyakoObserverEffct(int attackPowerIncrease, float duration)
+
+    public static Effect CreateHyakkiyakoObserverEffct(int attackPowerIncrease, float duration, CharacterCTRL parent)
     {
         return new Effect(
             EffectType.Positive,
@@ -270,11 +286,12 @@ public static class EffectFactory
             (character) => character.EmptyEffectFunction(),
             (character) => character.EmptyEffectFunction(),
             duration,
-            SpecialEffectType.Invincible
-
+            SpecialEffectType.Invincible,
+            parent
         );
     }
-    public static Effect CreateAkoCritChanceBuff(int critChance, float duration)
+
+    public static Effect CreateAkoCritChanceBuff(int critChance, float duration, CharacterCTRL parent)
     {
         return new Effect(
             EffectType.Positive,
@@ -285,10 +302,12 @@ public static class EffectFactory
             (character) => character.ModifyStats(StatsType.CritChance, critChance),
             (character) => character.ModifyStats(StatsType.CritChance, -critChance),
             duration,
-            SpecialEffectType.None
-            );
+            SpecialEffectType.None,
+            parent
+        );
     }
-    public static Effect CreateAkoCritRatioBuff(int critRatio, float duration)
+
+    public static Effect CreateAkoCritRatioBuff(int critRatio, float duration, CharacterCTRL parent)
     {
         return new Effect(
             EffectType.Positive,
@@ -299,24 +318,28 @@ public static class EffectFactory
             (character) => character.ModifyStats(StatsType.CritRatio, critRatio),
             (character) => character.ModifyStats(StatsType.CritRatio, -critRatio),
             duration,
-            SpecialEffectType.None
-            );
+            SpecialEffectType.None,
+            parent
+        );
     }
-    public static Effect CreateAyaneResistanceBuff(int Resistence, float duration)
+
+    public static Effect CreateAyaneResistanceBuff(int resistance, float duration, CharacterCTRL parent)
     {
         return new Effect(
             EffectType.Positive,
             ModifierType.DamageDealt,
-            Resistence,
+            resistance,
             "AyaneResistanceBuff",
             false,
-            (character) => character.ModifyStats(StatsType.Resistence, Resistence),
-            (character) => character.ModifyStats(StatsType.Resistence, -Resistence),
+            (character) => character.ModifyStats(StatsType.Resistence, resistance),
+            (character) => character.ModifyStats(StatsType.Resistence, -resistance),
             duration,
-            SpecialEffectType.None
-            );
+            SpecialEffectType.None,
+            parent
+        );
     }
-    public static Effect CreateHarukaMinusAtkEffect(int amount,float duration)
+
+    public static Effect CreateHarukaMinusAtkEffect(int amount, float duration, CharacterCTRL parent)
     {
         return new Effect(
             EffectType.Negative,
@@ -324,13 +347,15 @@ public static class EffectFactory
             amount,
             "HarukaMinusAtkEffect",
             false,
-            (character) => character.ModifyStats(StatsType.Attack,-amount),
+            (character) => character.ModifyStats(StatsType.Attack, -amount),
             (character) => character.ModifyStats(StatsType.Attack, amount),
             duration,
-            SpecialEffectType.None
-            );
+            SpecialEffectType.None,
+            parent
+        );
     }
-    public static Effect CreateSerikaRageEffect(int amount, float duration)
+
+    public static Effect CreateSerikaRageEffect(int amount, float duration, CharacterCTRL parent)
     {
         return new Effect(
             EffectType.Positive,
@@ -341,11 +366,12 @@ public static class EffectFactory
             (character) => character.ModifyStats(StatsType.Attack, amount),
             (character) => character.ModifyStats(StatsType.Attack, -amount),
             duration,
-            SpecialEffectType.None
-
-            );
+            SpecialEffectType.None,
+            parent
+        );
     }
-    public static Effect CreateShizukoEffect(int amount, float duration)
+
+    public static Effect CreateShizukoEffect(int amount, float duration, CharacterCTRL parent)
     {
         return new Effect(
             EffectType.Positive,
@@ -356,44 +382,45 @@ public static class EffectFactory
             (character) => character.ModifyStats(StatsType.Accuracy, amount),
             (character) => character.ModifyStats(StatsType.Accuracy, -amount),
             duration,
-            SpecialEffectType.None
-            );
+            SpecialEffectType.None,
+            parent
+        );
     }
-    public static Effect CreateWakamoEffect(int amount, float duration,CharacterCTRL parent)
-    {
 
+    public static Effect CreateWakamoEffect(int amount, float duration, CharacterCTRL parent)
+    {
         return new Effect(
             EffectType.Negative,
             ModifierType.None,
             amount,
             "WakamoEffect",
             false,
-            (character) => character.SetWakamoMark(50,parent),//TODO: 用真實數據代替
+            (character) => character.SetWakamoMark(50, parent), // TODO: 用真實數據代替
             (character) => character.WakamoMarkEnd(),
             duration,
-            SpecialEffectType.None
-            );
-
+            SpecialEffectType.None,
+            parent
+        );
     }
-    public static Effect CreateKayokoFearEffct(int amount, float duration)
-    {
 
+    public static Effect CreateKayokoFearEffct(int amount, float duration, CharacterCTRL parent)
+    {
         return new Effect(
             EffectType.Negative,
             ModifierType.None,
             amount,
             "KayokoFearEffect",
             false,
-            (character) => character.Stun(true),//TODO: 記得新增"恐懼"效果!
-            (character) => character.Stun(false),//TODO: 記得新增"恐懼"效果!
+            (character) => character.Stun(true), // TODO: 記得新增"恐懼"效果!
+            (character) => character.Stun(false), // TODO: 記得新增"恐懼"效果!
             duration,
-            SpecialEffectType.Fear
-            );
-
+            SpecialEffectType.Fear,
+            parent
+        );
     }
-    public static Effect CreateTsubakiFearEffct(int amount, float duration)
-    {
 
+    public static Effect CreateTsubakiFearEffct(int amount, float duration, CharacterCTRL parent)
+    {
         return new Effect(
             EffectType.Negative,
             ModifierType.None,
@@ -403,9 +430,9 @@ public static class EffectFactory
             (character) => character.SetTaunt(true),
             (character) => character.SetTaunt(false),
             duration,
-            SpecialEffectType.Taunt
-            );
-
+            SpecialEffectType.Taunt,
+            parent
+        );
     }
-
 }
+

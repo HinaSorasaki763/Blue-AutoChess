@@ -90,7 +90,14 @@ public class CustomAnimatorController : MonoBehaviour
     }
     public void ChangeState(CharacterState newState)
     {
-
+        if (newState == CharacterState.Attacking)
+        {
+            animator.speed = character.GetStat(StatsType.AttackSpeed);
+        }
+        else
+        {
+            animator.speed = 1;
+        }
         CharacterState oldState = currentState;
         if (oldState == newState) return;
         animator.speed = 1;

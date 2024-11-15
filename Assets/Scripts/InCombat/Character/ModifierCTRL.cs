@@ -9,7 +9,7 @@ public class ModifierCTRL : MonoBehaviour
     private List<StatModifier> statModifiers = new List<StatModifier>();
 
     // 添加修正器的方法
-    public void AddStatModifier(ModifierType modifierType, int value, string source, bool isPermanent, float duration = 0f)
+    public void AddStatModifier(ModifierType modifierType, float value, string source, bool isPermanent, float duration = 0f)
     {
         // 查找是否已有相同来源和属性类型的修正器
         StatModifier existingModifier = statModifiers.FirstOrDefault(mod => mod.ModifierType == modifierType && mod.Source == source);

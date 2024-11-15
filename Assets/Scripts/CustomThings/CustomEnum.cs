@@ -182,7 +182,7 @@ namespace GameEnum
             return newContainer;
         }
 
-        public void SetStat(StatsType type, int value)
+        public void SetStat(StatsType type, float value)
         {
             Stat stat = stats.Find(s => s.statType == type);
             if (stat != null)
@@ -196,7 +196,7 @@ namespace GameEnum
         }
 
         // 取得 Stat 的值
-        public int GetStat(StatsType type)
+        public float GetStat(StatsType type)
         {
             Stat stat = stats.Find(s => s.statType == type);
             if (stat != null)
@@ -211,7 +211,7 @@ namespace GameEnum
     public class Stat
     {
         public StatsType statType;
-        public int value;
+        public float value;
         public Stat Clone()
         {
             return new Stat
@@ -381,7 +381,7 @@ namespace GameEnum
 
             return visited;
         }
-        public static bool Iscrit(int critChance)
+        public static bool Iscrit(float critChance)
         {
             int rand = UnityEngine.Random.Range(0, 101);
             if (rand >critChance)
@@ -397,22 +397,24 @@ namespace GameEnum
         public string Source { get; private set; }
         public float Duration { get; set; }
         public ModifierType ModifierType { get; private set; }
-        public int Value { get; private set; }
+        public float Value { get; private set; }
         public bool IsPermanent { get; private set; }
         public SpecialEffectType SpecialType { get; private set; }
+        public CharacterCTRL Parent { get; private set; }
         public Action<CharacterCTRL> OnApply { get; private set; } // 當效果被應用時
         public Action<CharacterCTRL> OnRemove { get; private set; } // 當效果被移除時
 
         public Effect(
             EffectType effectType,
             ModifierType modifierType,
-            int value,
+            float value,
             string source,
             bool isPermanent,
             Action<CharacterCTRL> onApply,
             Action<CharacterCTRL> onRemove,
             float duration = 0f,
-            SpecialEffectType specialType = SpecialEffectType.None
+            SpecialEffectType specialType = SpecialEffectType.None,
+            CharacterCTRL parent = null
 
         )
         {
@@ -425,7 +427,26 @@ namespace GameEnum
             SpecialType = specialType;
             OnApply = onApply;
             OnRemove = onRemove;
+            Parent = parent;
         }
+        public void UpdateValue(float newValue)
+        {
+            Value = newValue;
+            OnApply.Invoke(Parent);
+        }
+        public void AddValue(float valAdded)
+        {
+            OnRemove.Invoke(Parent);
+            Value += valAdded;
+            OnApply.Invoke(Parent);
+            CustomLogger.Log(this,$"source {Parent} added {valAdded} , value = {Value}");
+        }
+        public void SetActions(Action<CharacterCTRL> onApply, Action<CharacterCTRL> onRemove)
+        {
+            OnApply = onApply;
+            OnRemove = onRemove;
+        }
+
     }
 }
 public class Shield

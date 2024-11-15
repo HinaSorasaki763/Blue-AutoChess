@@ -43,7 +43,7 @@ public class PathRequestManager : MonoBehaviour
         List<PathRequest> optimalOrder = GetOptimalPathOrder(pathRequestBuffer);
         foreach (var request in optimalOrder)
         {
-            List<HexNode> path = PathFinder.FindPath(request.character.characterStats.CharacterName, request.startNode, request.targetNode, request.character.IsAlly, request.character.stats.GetStat(GameEnum.StatsType.Range), false);
+            List<HexNode> path = PathFinder.FindPath(request.character.characterStats.CharacterName, request.startNode, request.targetNode, request.character.IsAlly, (int)request.character.stats.GetStat(GameEnum.StatsType.Range), false);
             ReserveNodes(path, request.character);
             request.callback(path);
         }
@@ -97,7 +97,7 @@ public class PathRequestManager : MonoBehaviour
         List<HexNode> temporaryReservations = new List<HexNode>();
         foreach (var request in requests)
         {
-            List<HexNode> estimatedPath = PathFinder.FindPath(request.character.characterStats.CharacterName, request.startNode, request.targetNode, request.character.IsAlly, request.character.stats.GetStat(GameEnum.StatsType.Range), true);
+            List<HexNode> estimatedPath = PathFinder.FindPath(request.character.characterStats.CharacterName, request.startNode, request.targetNode, request.character.IsAlly, (int)request.character.stats.GetStat(GameEnum.StatsType.Range), true);
             totalSteps += estimatedPath.Count;
             foreach (var node in estimatedPath)
             {

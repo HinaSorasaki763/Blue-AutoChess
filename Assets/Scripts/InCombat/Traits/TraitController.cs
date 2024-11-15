@@ -60,7 +60,7 @@ public class TraitController : MonoBehaviour
                 break;
             case Traits.Barrage:
                 observer = new BarrageObserver(traitLevel,character);
-                CustomLogger.Log(this,$"observer {observer} barrage observer on {character.name}");
+
                 break;
             case Traits.Gehenna:
                 observer = new GehennaObserver(traitLevel, character);
@@ -70,6 +70,10 @@ public class TraitController : MonoBehaviour
                 break;
             case Traits.Aegis:
                 observer = new AegisObserver(traitLevel, character);
+                break;
+            case Traits.RapidFire:
+                observer = new RapidfireObserver(traitLevel, character);
+                CustomLogger.Log(this, $"observer {observer} RapidfireObserver observer on {character.name}");
                 break;
             default:
                 break;
@@ -123,8 +127,13 @@ public class TraitController : MonoBehaviour
             traitObservers.Remove(trait);
         }
     }
-
-    // 通知观察者事件发生
+    public void Attacking()
+    {
+        foreach (var observer in traitObservers.Values)
+        {
+            observer.OnAttacking(character);
+        }
+    }
     public void NotifyOnDying()
     {
         foreach (var observer in traitObservers.Values)

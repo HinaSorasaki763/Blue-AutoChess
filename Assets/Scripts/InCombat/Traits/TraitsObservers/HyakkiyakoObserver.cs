@@ -47,7 +47,7 @@ public class HyakkiyakoObserver : CharacterObserverBase
 
     private void ApplyAttackPowerIncrease()
     {
-        var effect = EffectFactory.CreateHyakkiyakoObserverEffct(attackPowerIncrease,0);
+        var effect = EffectFactory.CreateHyakkiyakoObserverEffct(attackPowerIncrease,0, character);
         character.effectCTRL.AddEffect(effect);
         Debug.Log($"[HyakkiyakoObserver] {character.characterStats.name} 生命值高于 {healthThreshold * 100}%，攻击力提升。");
     }
@@ -62,7 +62,7 @@ public class HyakkiyakoObserver : CharacterObserverBase
     private void ForceAttackerToSwitchTarget(CharacterCTRL source)
     {
         Debug.Log($"[HyakkiyakoObserver] 试图将 {source.characterStats.name} 转移目标");
-        Effect unTargetableEffect = EffectFactory.CreateUnTargetableEffect(3f);
+        Effect unTargetableEffect = EffectFactory.CreateUnTargetableEffect(3f, character);
         character.effectCTRL.AddEffect(unTargetableEffect);
         source.Target = null;
     }

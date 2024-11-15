@@ -75,6 +75,7 @@ public class SpawnGrid : MonoBehaviour
             {
                 neighbor.TargetedEnemyzone = false;
             }
+            node.TargetedEnemyzone = false;
         }
         if (node.AllyBlockingZonecenter)
         {
@@ -82,6 +83,7 @@ public class SpawnGrid : MonoBehaviour
             {
                 neighbor.TargetedAllyZone = false;
             }
+            node.TargetedAllyZone = false ;
         }
         node.AllyBlockingZonecenter = false;
         node.EnemyBlockingZonecenter = false;
@@ -157,6 +159,7 @@ public class SpawnGrid : MonoBehaviour
             Vector3 pos = new Vector3(xPos, 0, zPos);
 
             GameObject obj = ResourcePool.Instance.GetFloor(pos);
+            obj.name = $"HexNode [{i}]";
             HexNode node = obj.GetComponent<HexNode>();
             node.Position = pos;
             node.Index = i;
@@ -255,7 +258,7 @@ public class SpawnGrid : MonoBehaviour
         int currentNeighborsCount =     GetCharactersWithinRadius(currHex, character.IsAlly, radius, findEnemies, character).Count;
         int bestNodeNeighborsCount = GetCharactersWithinRadius(bestHexNode, character.IsAlly, radius, findEnemies, character).Count;
         Debug.Log($"Comparing current hex {currHex.name} with {currentNeighborsCount} neighbors to best node {bestHexNode.name} with {bestNodeNeighborsCount} neighbors");
-        if (currentNeighborsCount == bestNodeNeighborsCount)
+        if (currentNeighborsCount >= bestNodeNeighborsCount)
         {
             Debug.Log($"Current hex {currHex.name} has same neighbor count as best node {bestHexNode.name}. Keeping current hex as best.");
             bestHexNode = currHex;

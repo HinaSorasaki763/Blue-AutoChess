@@ -152,7 +152,7 @@ public class HarukaSkill : CharacterSkillBase//架起護盾，並向前攻擊數
             if (neighbor.OccupyingCharacter != null && neighbor.OccupyingCharacter.IsAlly != isAlly)
             {
                 neighbor.OccupyingCharacter.GetHit(10, skillContext.Parent);
-                Effect effect = EffectFactory.CreateHarukaMinusAtkEffect(5, 5);
+                Effect effect = EffectFactory.CreateHarukaMinusAtkEffect(5, 5, neighbor.OccupyingCharacter);
                 neighbor.OccupyingCharacter.effectCTRL.AddEffect(effect);
             }
         }
@@ -250,7 +250,7 @@ public class NatsuSkill : CharacterSkillBase//治癒自己一定血量，架起�
         immuneduraion = stats.Data3;
         base.ExecuteSkill(skillContext);
         skillContext.Parent.AddStat(StatsType.currHealth, BaseHeal);
-        Effect effect = EffectFactory.ClarityEffect(5);
+        Effect effect = EffectFactory.ClarityEffect(5,skillContext.Parent);
         skillContext.Parent.effectCTRL.AddEffect(effect);
     }
 }
@@ -271,9 +271,10 @@ public class NoaSkill : CharacterSkillBase//對生命值上限最低的敵軍施
         int level = skillContext.CharacterLevel;
         StarLevelStats stats = statsByStarLevel[level];
         base.ExecuteSkill(skillContext);
-        Effect effect = EffectFactory.CreateMarkedEffect(level);
+
 
         CharacterCTRL StrongestEnemy = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.Attack, false, 1)[0];
+        Effect effect = EffectFactory.CreateMarkedEffect(level,StrongestEnemy);
         StrongestEnemy.effectCTRL.AddEffect(effect);
         foreach (var item in skillContext.Parent.GetAllies())
         {
@@ -301,7 +302,7 @@ public class SerikaSkill : CharacterSkillBase
         int level = skillContext.CharacterLevel;
         StarLevelStats stats = statsByStarLevel[level];
         base.ExecuteSkill(skillContext);
-        Effect effect = EffectFactory.CreateSerikaRageEffect(10, 5);
+        Effect effect = EffectFactory.CreateSerikaRageEffect(10, 5,skillContext.Parent);
         skillContext.Parent.effectCTRL.AddEffect(effect);
     }
 }
@@ -352,7 +353,7 @@ public class ShizukoSkill : CharacterSkillBase//在角色(無論敵我)最多的
         foreach (var item in skillContext.Parent.CurrentHex.GetCharacterOnNeighborHex(3, true))
         {
             item.AddShield(100, 5f, skillContext.Parent);
-            Effect effect = EffectFactory.CreateShizukoEffect(30, 10);
+            Effect effect = EffectFactory.CreateShizukoEffect(30, 10,skillContext.Parent);
             item.effectCTRL.AddEffect(effect);
         }
     }
@@ -421,7 +422,7 @@ public class KayokoSkill : CharacterSkillBase//對大範圍敵人造成少量傷
         List<CharacterCTRL> characters = SpawnGrid.Instance.GetCharactersWithinRadius(skillContext.currHex, true, 6, true, skillContext.Parent);
         foreach (var item in characters)
         {
-            Effect kayokoFearEffect = EffectFactory.CreateKayokoFearEffct(1, 5);
+            Effect kayokoFearEffect = EffectFactory.CreateKayokoFearEffct(1, 5,item);
             item.effectCTRL.AddEffect(kayokoFearEffect);
         }
     }
@@ -431,7 +432,7 @@ public class KazusaSkill : CharacterSkillBase//增加一定攻擊力之後，狙
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
-        Effect kazusaAttackEffect = EffectFactory.StatckableIncreaseStatsEffct(5,"Kazusa",50,StatsType.Attack);
+        Effect kazusaAttackEffect = EffectFactory.StatckableIncreaseStatsEffct(5,"Kazusa",50,StatsType.Attack,skillContext.Parent,false);
         skillContext.Parent.effectCTRL.AddEffect(kazusaAttackEffect);
         CharacterCTRL lowestHpenemy = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1)[0];
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
@@ -486,7 +487,7 @@ public class MineSkill : CharacterSkillBase//跳躍到敵人最多的位置，�
         {
             if (neighbor.OccupyingCharacter != null && neighbor.OccupyingCharacter.IsAlly != isAlly)
             {
-                Effect stunEffect = EffectFactory.CreateStunEffect(skillContext.duration);
+                Effect stunEffect = EffectFactory.CreateStunEffect(skillContext.duration, neighbor.OccupyingCharacter);
                 CustomLogger.Log(this, $"try Stun enemy: {neighbor.OccupyingCharacter.name} at Hex: {neighbor.Position}");
                 neighbor.OccupyingCharacter.effectCTRL.AddEffect(stunEffect);
                 neighbor.OccupyingCharacter.AudioManager.PlayCrowdControlledSound();
@@ -546,7 +547,7 @@ public class TsubakiSkill : CharacterSkillBase
         {
             if (item.CheckEnemyIsInrange(skillContext.Parent))
             {
-                Effect effect = EffectFactory.CreateTsubakiFearEffct(0,5);
+                Effect effect = EffectFactory.CreateTsubakiFearEffct(0,5,item);
 
                 item.ForceChangeTarget(skillContext.Parent);
                 item.effectCTRL.AddEffect(effect);

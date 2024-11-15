@@ -42,7 +42,6 @@ public class CharacterCTRL : MonoBehaviour
     public bool isCCImmune;
     public bool Invincible;
     public bool Taunted;
-    private bool isFindingTarget = false;
     private bool isFindingPath = false;
     private bool ManaAdded;
     public float attackRate = 5.0f;
@@ -143,7 +142,7 @@ public class CharacterCTRL : MonoBehaviour
     public virtual void Update()
     {
         characterBars.UpdateText(customAnimator.GetState().Item1.ToString());
-        if (Target != null && !Target.activeInHierarchy)
+        if (Target != null && Target.GetComponent<CharacterCTRL>().IsDying)
         {
             Target = null;
         }
@@ -190,7 +189,7 @@ public class CharacterCTRL : MonoBehaviour
     {
         if (!canAttack || IsCastingAbility || Target == null || !Target.activeInHierarchy)
         {
-            if (Target == null && !isFindingTarget && !isWalking && !isFindingPath)
+            if (Target == null && !isWalking && !isFindingPath)
             {
                 bool foundTarget = FindTarget();
 
@@ -263,12 +262,14 @@ public class CharacterCTRL : MonoBehaviour
         if (characterStats.logistics)
         {
             logistics();
+            HandleAttacking();
             return;
         }
         HandleAttacking();
         customAnimator.ChangeState(CharacterState.Attacking);
         var bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet,FirePoint.position, Quaternion.identity);
         var bulletComponent = bullet.GetComponent<NormalBullet>();
+        if (!Target) return;
         var targetCtrl = Target.GetComponent<CharacterCTRL>();
         if (bulletComponent == null) 
         {
@@ -289,7 +290,7 @@ public class CharacterCTRL : MonoBehaviour
 
     private void HandleTargetFinding()
     {
-        if (Target == null && PreTarget == null && !FindTarget())
+        if (Target == null && !FindTarget())
         {
             Debug.Log($"{characterStats.CharacterName} 未找到有效目標，狀態變更為 Idling");
             customAnimator.ChangeState(CharacterState.Idling);
@@ -307,11 +308,11 @@ public class CharacterCTRL : MonoBehaviour
         {
             AddStat(StatsType.Mana, 10);
         }
-
         foreach (var item in observers)
         {
             item.OnAttacking(this);
         }
+        traitController.Attacking();
     }
 
 
@@ -361,7 +362,6 @@ public class CharacterCTRL : MonoBehaviour
         {
             item.OnLogistic(this);
         }
-        AddStat(StatsType.Mana, 10);
     }
 
 
@@ -400,11 +400,11 @@ public class CharacterCTRL : MonoBehaviour
 
     public float GetHealthPercentage() => GetStat(StatsType.currHealth) / (float)GetStat(StatsType.Health);
 
-    public int GetStat(StatsType statsType) => stats.GetStat(statsType);
+    public float GetStat(StatsType statsType) => stats.GetStat(statsType);
 
-    public void AddStat(StatsType statsType, int amount) => SetStat(statsType, GetStat(statsType) + amount);
+    public void AddStat(StatsType statsType, float amount) => SetStat(statsType, GetStat(statsType) + amount);
 
-    public void SetStat(StatsType statsType, int amount) => stats.SetStat(statsType, amount);
+    public void SetStat(StatsType statsType, float amount) => stats.SetStat(statsType, amount);
 
     public IEnumerator CastSkill()
     {
@@ -437,6 +437,7 @@ public class CharacterCTRL : MonoBehaviour
         {
             item.OnSkillFinished(this);
         }
+        ManaLock = false;
         customAnimator.AfterCastSkill();
     }
     public bool IsCasting() => customAnimator.animator.GetBool("CastSkill");
@@ -460,12 +461,6 @@ public class CharacterCTRL : MonoBehaviour
     #region Targeting and Pathfinding
     public bool FindTarget()
     {
-        if (isFindingTarget || IsCastingAbility)
-        {
-            return false;
-        }
-        isFindingTarget = true;
-
         var hitColliders = Physics.OverlapSphere(transform.position, 50, GetTargetLayer());
         GameObject closestTarget = null;
         float closestDistance = Mathf.Infinity;
@@ -481,7 +476,6 @@ public class CharacterCTRL : MonoBehaviour
             }
         }
         bool found = UpdateTarget(closestTarget, closestDistance);
-        isFindingTarget = false;
         return found;
     }
     public bool CheckEnemyIsInrange(CharacterCTRL enemy)
@@ -547,7 +541,7 @@ public class CharacterCTRL : MonoBehaviour
 
         Debug.Log($"StartNode Position: {startNode.Position}, Cube Coordinates: {startNode.X},{startNode.Y},{startNode.Z}");
         Debug.Log($"TargetNode Position: {targetNode.Position}, Cube Coordinates: {targetNode.X},{targetNode.Y},{targetNode.Z}");
-        PathRequestManager.Instance.RequestPath(this, startNode, targetNode, OnPathFound, stats.GetStat(StatsType.Range));
+        PathRequestManager.Instance.RequestPath(this, startNode, targetNode, OnPathFound, (int)stats.GetStat(StatsType.Range));
     }
 
     private void OnPathFound(List<HexNode> path)
@@ -781,9 +775,13 @@ public class CharacterCTRL : MonoBehaviour
         }
 
     }
-    public void ModifyStats(StatsType statsType, int amount)
+    public void ModifyStats(StatsType statsType, float amount,string source = null)
     {
         AddStat(statsType, amount);
+        if (source!= null)
+        {
+            CustomLogger.Log(this,$"source = {source} , modifing {statsType} to {GetStat(statsType)} by added {amount}");
+        }
     }
     private bool CheckDeath()
     {
@@ -844,9 +842,10 @@ public class CharacterCTRL : MonoBehaviour
         {
             CharacterCTRL characterCtrl = character.GetComponent<CharacterCTRL>();
 
-            if (characterCtrl.CurrentHex.IsBattlefield && characterCtrl.gameObject.activeInHierarchy)
+            if (characterCtrl.CurrentHex.IsBattlefield && characterCtrl.gameObject.activeInHierarchy && !characterCtrl.IsDying)
             {
                 enemies.Add(characterCtrl);
+
             }
         }
         return enemies;
