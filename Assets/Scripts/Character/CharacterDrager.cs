@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
+public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler,IPointerClickHandler
 {
     public HexNode PreSelectedGrid;
     private CharacterCTRL characterCTRL;
@@ -31,10 +31,17 @@ public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHan
             PreSelectedGrid = hit.collider.GetComponent<HexNode>();
         }
     }
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (!UIManager.Instance.TryClose(characterCTRL))
+        {
+            UIManager.Instance.ShowCharacterStats(characterCTRL);
+        }
+    }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        UIManager.Instance.ShowCharacterStats(characterCTRL);
+
         characterCTRL.AudioManager.PlayPickedUpSound();
     }
 

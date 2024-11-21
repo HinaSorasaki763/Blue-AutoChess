@@ -56,7 +56,15 @@ public class UIManager : MonoBehaviour
         EquipmentDetail.text = equipment.EquipmentDetail;
     }
 
-
+    public bool TryClose(CharacterCTRL character)
+    {
+        if (character == currentCharacter)
+        {
+            CloseCharacterStats();
+            return true;
+        }
+        return false;
+    }
     public void ShowCharacterStats(CharacterCTRL character)
     {
         currentCharacter = character;

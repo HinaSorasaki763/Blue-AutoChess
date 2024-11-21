@@ -29,6 +29,8 @@ public class Shop : MonoBehaviour
 
     public void SpawnCharacter(int index)
     {
+        var shopButton = ShopButtons[index].gameObject.GetComponent<ShopButton>();
+        shopButton.SetImagesNull();
         if (!benchManager.IsBenchFull())
         {
             bool added = benchManager.AddToBench(Characters[index]);
@@ -79,12 +81,14 @@ public class Shop : MonoBehaviour
                     if (TraitDescriptions.Instance.GetTraitIsAcademy(temp[k]))
                     {
                         shopButton.AcademyIcon.sprite = TraitDescriptions.Instance.GetTraitImage(temp[k]);
+                        shopButton.AcademyIcon.color = new Color(1, 1, 1, 1);
                         temp.RemoveAt(k);
                     }
                 }
                 List<Traits> _temp = new List<Traits>(temp);
                 for (int j = 0; j < 2; j++)
                 {
+
                     if (j < _temp.Count)
                     {
                         shopButton.traitIcon[j].sprite = TraitDescriptions.Instance.GetTraitImage(_temp[j]);

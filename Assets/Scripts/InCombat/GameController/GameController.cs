@@ -1,36 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Net.NetworkInformation;
+﻿using TMPro;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class GameController : MonoBehaviour
 {
     public static GameController Instance { get; private set; }
-
-    private int battlefieldCharacterLimit = 10;
-    private int currentBattlefieldCharacterCount = 0;
     private int gold;
     public CharacterParent CharacterParent;
+    public TextMeshProUGUI GoldText;
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            if (SpawnGrid.Instance.indexToCubeKey.TryGetValue(43, out string cubeKey))
-            {
-                if (SpawnGrid.Instance.hexNodes.TryGetValue(cubeKey, out HexNode hexNode))
-                {
-                    Vector3 position = hexNode.Position;    
-                    Character characterData = ResourcePool.Instance.GetCharacterByID(32);
-                    GameObject characterPrefab = characterData.Model;
-                    GameObject go = ResourcePool.Instance.SpawnCharacterAtPosition(characterPrefab, position, hexNode, ResourcePool.Instance.enemy, isAlly: false);
-                    CustomLogger.Log(this, $"Character {characterData.name} spawned at {position}");
-                }
-                else
-                {
-                    CustomLogger.LogError(this, $"No HexNode found for cube key {cubeKey}");
-                }
-            }
-        }
+        GoldText.text = $"gold : {gold}";
     }
     private void Awake()
     {
@@ -67,18 +46,15 @@ public class GameController : MonoBehaviour
             ReturnToOriginalSlot(character);
             return (false, isBattlefield);
         }
-        if (currentBattlefieldCharacterCount >= battlefieldCharacterLimit)
+        CustomLogger.Log(this, $"GameStageManager.Instance.GetCharacterLimit() = {GameStageManager.Instance.GetCharacterLimit()}");
+        if (ResourcePool.Instance.ally.GetBattleFieldCharacter().Count >= GameStageManager.Instance.GetCharacterLimit() && !character.CurrentHex.IsBattlefield && targetSlot.OccupyingCharacter == null)
         {
-            Debug.Log("戰場角色已達上限");
+            PopupManager.Instance.CreatePopup("On Limit", 2);
             ReturnToOriginalSlot(character);
             return (false, isBattlefield);
         }
         MoveOrSwapCharacter(character, targetSlot);
         Debug.Log("other situation");
-        if (character.CurrentHex == null || !character.CurrentHex.IsBattlefield)
-        {
-            currentBattlefieldCharacterCount++;
-        }
         return (true, isBattlefield);
     }
 
@@ -101,7 +77,7 @@ public class GameController : MonoBehaviour
         if (character.CurrentHex == targetSlot)
         {
             Vector3 v = character.CurrentHex.transform.position;
-            character.transform.position = new Vector3(v.x,0.14f,v.z);
+            character.transform.position = new Vector3(v.x, 0.14f, v.z);
             targetSlot.GetComponent<HexNode>().Reserve(character);
             return;
         }
@@ -110,7 +86,7 @@ public class GameController : MonoBehaviour
         {
             MoveCharacterToSlot(character, targetSlot);
         }
-        else if(!targetSlot.OccupyingCharacter.isObj||(character.CurrentHex.IsBattlefield&&targetSlot.IsBattlefield))
+        else if (!targetSlot.OccupyingCharacter.isObj || (character.CurrentHex.IsBattlefield && targetSlot.IsBattlefield))
         {
             SwapCharacters(character, targetSlot.OccupyingCharacter);
         }
@@ -126,12 +102,12 @@ public class GameController : MonoBehaviour
         foreach (var item in CharacterParent.childCharacters)
         {
             CharacterCTRL ctrl = item.GetComponent<CharacterCTRL>();
-            if (ctrl.enterBattle &&ctrl.isAlive)
+            if (ctrl.enterBattle && ctrl.isAlive)
             {
                 count++;
             }
         }
-        return count;   
+        return count;
     }
     private void MoveCharacterToSlot(CharacterCTRL character, HexNode targetSlot)
     {
@@ -174,5 +150,9 @@ public class GameController : MonoBehaviour
     {
         gold += amount;
         Debug.Log($"gold = {gold}");
+    }
+    public int GetGoldAmount()
+    {
+        return gold;
     }
 }

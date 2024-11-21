@@ -11,4 +11,14 @@ public class ShopButton : MonoBehaviour
     {
         
     }
+    public void SetImagesNull()
+    {
+        foreach (Image image in traitIcon)
+        {
+            image.sprite = null;
+            image.color = new Color(1, 1, 1, 0);
+        }
+        AcademyIcon.sprite = null;
+        AcademyIcon.color = new Color(1, 1, 1, 0);
+    }
 }

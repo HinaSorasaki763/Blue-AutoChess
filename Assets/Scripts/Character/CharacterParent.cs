@@ -29,7 +29,7 @@ public class CharacterParent : MonoBehaviour
                 c.EnterBattle();
             }
         }
-        GameStageManager.Instance.CurrGamePhase = GamePhase.Battling;
+        GameStageManager.Instance.ChangeGamePhase(GamePhase.Battling);
     }
 
     public void CheckAndCombineCharacters()
@@ -165,12 +165,13 @@ public class CharacterParent : MonoBehaviour
         if (allDisabled&& GameStageManager.Instance.CurrGamePhase == GamePhase.Battling)
         {
             GameStageManager.Instance.NotifyTeamDefeated(this);
+            
         }
     }
 
     public void UpdateTraitEffects()
     {
-        List<CharacterCTRL> battlefieldCharacters = getBattleFieldCharacter();
+        List<CharacterCTRL> battlefieldCharacters = GetBattleFieldCharacter();
         Dictionary<Traits, int> traitCounts = TraitsEffectManager.Instance.CalculateTraitCounts(battlefieldCharacters);
         StringBuilder sb = new StringBuilder();
         int totalActivatedTraits = 0; // 激活的羁绊数量总和
@@ -267,7 +268,7 @@ public class CharacterParent : MonoBehaviour
         }
         return i;
     }
-    public List<CharacterCTRL> getBattleFieldCharacter()
+    public List<CharacterCTRL> GetBattleFieldCharacter()
     {
         List < CharacterCTRL > L = new List<CharacterCTRL >();
         foreach (var item in childCharacters)

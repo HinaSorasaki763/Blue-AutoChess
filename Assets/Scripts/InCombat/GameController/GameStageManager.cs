@@ -1,5 +1,6 @@
 using GameEnum;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI; // 假設您使用 Unity 的 UI 系統
 
@@ -8,10 +9,12 @@ public class GameStageManager : MonoBehaviour
     public static GameStageManager Instance { get; private set; }
     public CharacterParent allyParent;
     public CharacterParent enemyParent;
-    public GameObject endGamePopup; // 彈窗 UI
-    public Button continueButton; // 彈窗上的“繼續”按鈕
+    public GameObject endGamePopup;
+    public Button continueButton;
     public int CurrentStage;
-    public int PlayerHealth = 20; // 玩家初始血量
+    public int PlayerHealth = 20;
+    private int currentRound = 0;
+    private int baseLimit = 3;
     private int netWin = 0;
     public GameEvent startBattle;
     public delegate void GameStageChanged(int newStage);
@@ -19,6 +22,11 @@ public class GameStageManager : MonoBehaviour
     public GamePhase CurrGamePhase = GamePhase.Preparing;
     public EnemySpawner Spawner;
     public OpponentSelectionUI opponentSelectionUI;
+    public TextMeshProUGUI currGamePhase;
+    public int WinStreak { get; private set; } = 0; // 連勝次數
+    public int LoseStreak { get; private set; } = 0; // 連敗次數
+    public int MaxInterest = 5; // 利息上限
+
     private void Awake()
     {
         if (Instance == null)
@@ -36,9 +44,10 @@ public class GameStageManager : MonoBehaviour
     private IEnumerator ShowEndGamePopup()
     {
         yield return new WaitForSeconds(2f);
+        CalculateGold();
         EndBattleModal.Instance.UpdateText();
         endGamePopup.SetActive(true);
-        CurrGamePhase = GamePhase.Preparing;
+        ChangeGamePhase(GamePhase.Preparing);
     }
     public void StartBattle()
     {
@@ -79,29 +88,37 @@ public class GameStageManager : MonoBehaviour
 
     public void NotifyTeamDefeated(CharacterParent defeatedTeam)
     {
+        currentRound++;
         if (defeatedTeam.isEnemy)
         {
             netWin++;
+            WinStreak++;
+            LoseStreak = 0; // 重置連敗
             OnVictory(allyParent, defeatedTeam);
         }
         else
         {
             netWin--;
+            LoseStreak++;
+            WinStreak = 0; // 重置連勝
             OnVictory(enemyParent, defeatedTeam);
         }
 
         StartCoroutine(ShowEndGamePopup());
     }
+
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            StartCoroutine(StartBattleCorutine());
-        }
+        currGamePhase.text = CurrGamePhase.ToString();
+    }
+    public void ChangeGamePhase(GamePhase gamePhase)
+    {
+        CurrGamePhase = gamePhase;
+        CustomLogger.Log(this, $"change phase to {gamePhase}");
     }
     private void OnVictory(CharacterParent winningTeam, CharacterParent defeatedTeam)
     {
-        CurrGamePhase = GamePhase.Preparing;
+        ChangeGamePhase(GamePhase.Preparing);
         Debug.Log(winningTeam.isEnemy ? "敵方勝利！" : "友方勝利！");
         EndBattleModal.Instance.currData = DataStackManager.Instance.GetData();
         // 判斷玩家是否陣亡
@@ -141,19 +158,42 @@ public class GameStageManager : MonoBehaviour
 
     private int CalculateDamageTaken(int stage)
     {
-        // 根據階段計算扣血量
-        int[] damageArray = { 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 10, 10, 10, 10 , 10, 10};
+        int[] damageArray = { 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 10, 10, 10, 10, 10, 10 };
         return damageArray[Mathf.Min(stage, damageArray.Length - 1)];
     }
 
     public void AdvanceStage()
     {
+
         CurrentStage++;
         allyParent.childCharacters.Clear();
         enemyParent.childCharacters.Clear();
         OnGameStageChanged?.Invoke(CurrentStage);
         SpawnGrid.Instance.ResetAll();
-        //Spawner.SpawnEnemiesNextStage();
         SpawnGrid.Instance.RestorePreparationPositions();
+    }
+    private void CalculateGold()
+    {
+        int gold = GameController.Instance.GetGoldAmount();
+        int interest = Mathf.Min(gold / 10, MaxInterest);
+        int streakBonus = CalculateStreakBonus();
+        int amount = interest + streakBonus + CurrentStage + 3;
+        GameController.Instance.AddGold(amount);
+        CustomLogger.Log(this, $"Gold: {gold}, Interest: {interest}, Streak Bonus: {streakBonus},stagebouns = {CurrentStage + 3}, Total: {amount}");
+    }
+    private int CalculateStreakBonus()
+    {
+        int streakCount = Mathf.Max(WinStreak, LoseStreak);
+
+        if (streakCount == 0) return 0;
+
+        if (streakCount == 1 || streakCount == 2) return 1;
+        if (streakCount == 3 || streakCount == 4) return 2;
+        return 3;
+    }
+    public int GetCharacterLimit()
+    {
+        int additionalLimit = (currentRound - 1) / 2;
+        return baseLimit + additionalLimit;
     }
 }
