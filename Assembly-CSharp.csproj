@@ -76,6 +76,7 @@
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\GehennaObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitData\TraitDescriptionData.cs" />
     <Compile Include="Assets\Scripts\Character\CustomAnimtorController.cs" />
+    <Compile Include="Assets\Scripts\Augments\AugmentManager.cs" />
     <Compile Include="Assets\Scripts\Character\CharacterObserverBase.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsEffectManager.cs" />
     <Compile Include="Assets\Resources\RoundProbabilityData\RoundProbabilityData.cs" />
@@ -125,6 +126,7 @@
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitDescriptions.cs" />
     <Compile Include="Assets\Scripts\UI\HandleObject.cs" />
     <Compile Include="Assets\Scripts\Player\Player.cs" />
+    <Compile Include="Assets\Scripts\Augments\AugmentEventHandler.cs" />
     <Compile Include="Assets\Scripts\InCombat\Hexagon\IHexagon.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\TsurugiActiveSkill.cs" />
     <Compile Include="Assets\Scripts\InCombat\Shop\ShopButton.cs" />
@@ -137,16 +139,19 @@
     <Compile Include="Assets\Scripts\InCombat\GameController\GameController.cs" />
     <Compile Include="Assets\Scripts\GlobalAudioManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\PathFinding\HexNode.cs" />
+    <Compile Include="Assets\Scripts\Augments\AugmentFactory.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\CoroutineController.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\HoshinoShotgunSkill.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\ObserverRelated\PressureManager.cs" />
     <Compile Include="Assets\Scripts\UI\UIManager.cs" />
+    <Compile Include="Assets\Scripts\Augments\AugmentConfig.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitEffectApplier.cs" />
     <Compile Include="Assets\Scripts\UI\CharacterBars.cs" />
     <Compile Include="Assets\Scripts\UI\SliderCTRL.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Equipment\CharacterEquipmentManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Equipment\EquipmentSO.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\BarrageObserver.cs" />
+    <Compile Include="Assets\Scripts\Augments\Augment.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Equipment\EquipmentItemUI.cs" />
     <Compile Include="Assets\Scripts\UI\TraitsText.cs" />
     <Compile Include="Assets\Scripts\CustomThings\Shiroko_Terror_DroneCTRL.cs" />

@@ -34,10 +34,16 @@ public class GameController : MonoBehaviour
         bool isBattlefield = targetSlot.IsBattlefield;
         bool isLogisticsSlot = targetSlot.IsLogistics;
         bool isLogisticsCharacter = character.characterStats.logistics;
+        if (targetSlot.Index >= 32)
+        {
+            PopupManager.Instance.CreatePopup("!isBattlefield", 2);
+            ReturnToOriginalSlot(character);
+            return (false, isBattlefield);
+        }
         if (!isBattlefield)
         {
             MoveOrSwapCharacter(character, targetSlot);
-            Debug.Log("!isBattlefield");
+
             return (true, isBattlefield);
         }
         if (isLogisticsCharacter != isLogisticsSlot)

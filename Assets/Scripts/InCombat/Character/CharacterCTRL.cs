@@ -313,6 +313,7 @@ public class CharacterCTRL : MonoBehaviour
             item.OnAttacking(this);
         }
         traitController.Attacking();
+        AugmentEventHandler.Instance.Attacking(this);
     }
 
 
@@ -389,10 +390,9 @@ public class CharacterCTRL : MonoBehaviour
             StartCoroutine(Die());
             return;
         }
-
         if (GetStat(StatsType.Mana) >= GetStat(StatsType.MaxMana) && !IsCasting() && !isWalking&&!isObj&&!Taunted)
         {
-            SetStat(StatsType.Mana, 0);
+            AddStat(StatsType.Mana, -GetStat(StatsType.MaxMana));
             CustomLogger.Log(this,$"{gameObject.name} casting");
             StartCoroutine(CastSkill());
         }
