@@ -49,10 +49,16 @@ public class CharacterBars : MonoBehaviour
     }
     public void UpdateEquipmentDisplay(List<IEquipment> equippedItems)
     {
+
         for (int i = 0; i < equippedItems.Count; i++)
         {
             Image iconImage = equipmentImages[i];
             iconImage.sprite = equippedItems[i].Icon;
+        }
+        for (int i = equippedItems.Count; i < 3; i++)
+        {
+            Image iconImage = equipmentImages[i];
+            iconImage.sprite = null;
         }
     }
     public void SetBarsParent(Transform parent)

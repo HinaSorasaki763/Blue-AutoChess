@@ -37,7 +37,8 @@ namespace GameEnum
         Disruptor,
         RapidFire,
         logistic,
-        Mystic
+        Mystic,
+        None
     }
     [SerializeField]
     public enum StatsType
@@ -98,7 +99,13 @@ namespace GameEnum
         public string EquipmentName { get; }
         public string EquipmentDetail { get; }
         public Sprite Icon { get; }
+        public bool IsConsumable {  get; }
         Dictionary<EquipmentType, int> GetStats();
+
+        void OnRemove(CharacterCTRL character)
+        {
+            
+        }
     }
 
     [System.Serializable]
@@ -109,16 +116,21 @@ namespace GameEnum
         public string equipmentName;
         public string equipmentDetail;
         public int value;
+        public bool isConsumable;
         public List<EquipmentType> combinableWith;
 
         // 實現IEquipment接口
         public string EquipmentName => equipmentName;
         public string EquipmentDetail => equipmentDetail;
         public Sprite Icon => icon;
-
+        public bool IsConsumable => isConsumable;
         public Dictionary<EquipmentType, int> GetStats()
         {
             return new Dictionary<EquipmentType, int> { { equipmentType, value } };
+        }
+        public void OnRemove(CharacterCTRL character)
+        {
+            CustomLogger.Log(this, $"{EquipmentName} on remove");
         }
     }
 
@@ -130,6 +142,7 @@ namespace GameEnum
         public string equipmentName;
         public string equipmentDetail;
         public Sprite icon;
+        public bool isConsumable;
         public Dictionary<EquipmentType, int> combinedStats;
 
         public CombinedEquipment(BasicEquipment eq1, BasicEquipment eq2)
@@ -142,16 +155,97 @@ namespace GameEnum
             { eq1.equipmentType, eq1.value },
             { eq2.equipmentType, eq2.value }
         };
-            // 設定icon為合成裝備的圖示
-            // icon = ...; // 需要您設置合成裝備的圖示
         }
         public string EquipmentDetail => equipmentDetail;
         public string EquipmentName => equipmentName;
         public Sprite Icon => icon;
 
+        public bool IsConsumable => isConsumable;
         public Dictionary<EquipmentType, int> GetStats()
         {
             return combinedStats;
+        }
+        public void OnRemove(CharacterCTRL character)
+        {
+            CustomLogger.Log(this, $"{EquipmentName} on remove");
+        }
+    }
+
+    public class SpecialEquipment : IEquipment
+    {
+        public EquipmentType equipmentType;
+        public Sprite icon;
+        public string equipmentName;
+        public string equipmentDetail;
+        public int value;
+        public bool isSpecial;
+        public bool isConsumable;
+        public Traits trait;
+        public Traits OriginalstudentTrait;
+        public List<EquipmentType> combinableWith;
+        public string EquipmentName => equipmentName;
+        public string EquipmentDetail => equipmentDetail;
+        public Sprite Icon => icon;
+        public bool IsConsumable => isConsumable;
+        public SpecialEquipment(EquipmentSO equipmentSO)
+        {
+            equipmentType = equipmentSO.Attributes[0]; // 假設只有一個屬性
+            icon = equipmentSO.icon;
+            equipmentName = equipmentSO.equipmentName;
+            equipmentDetail = equipmentSO.equipmentDescription;
+            value = equipmentSO.Value[0]; // 假設只有一個值
+            trait = equipmentSO.Traits;
+            isSpecial = equipmentSO.isSpecial;
+            combinableWith = new List<EquipmentType>(equipmentSO.Attributes);
+        }
+        public Dictionary<EquipmentType, int> GetStats()
+        {
+            return new Dictionary<EquipmentType, int> { { equipmentType, value } };
+        }
+        public void OnRemove(CharacterCTRL character)
+        {
+            CustomLogger.Log(this, $"{EquipmentName} on remove");
+            character.traitController.RemoveTrait(trait);
+            character.traitController.AddTrait(OriginalstudentTrait);
+            OriginalstudentTrait = Traits.None;
+        }
+    }
+    public class ConsumableItem : IEquipment
+    {
+        public EquipmentType equipmentType;
+        public Sprite icon;
+        public string equipmentName;
+        public string equipmentDetail;
+        public int value;
+        public bool isSpecial;
+        public bool isConsumable;
+        public Traits trait;
+        public Traits OriginalstudentTrait;
+        public List<EquipmentType> combinableWith;
+        public string EquipmentName => equipmentName;
+        public string EquipmentDetail => equipmentDetail;
+        public Sprite Icon => icon;
+        public bool IsSpecial => isSpecial;
+        public bool IsConsumable => isConsumable;
+        public ConsumableItem(EquipmentSO equipmentSO)
+        {
+            icon = equipmentSO.icon;
+            equipmentName = equipmentSO.equipmentName;
+            equipmentDetail = equipmentSO.equipmentDescription;
+            isSpecial = equipmentSO.isSpecial;
+            isConsumable = equipmentSO.IsConsumable;
+        }
+        public Dictionary<EquipmentType, int> GetStats()
+        {
+            return new Dictionary<EquipmentType, int> { { equipmentType, value } };
+        }
+        public void OnActivated()
+        {
+            CustomLogger.Log(this,$"{equipmentName} activated");
+        }
+        public void OnRemove(CharacterCTRL character)
+        {
+            CustomLogger.Log(this, $"{EquipmentName} on remove");
         }
     }
 
@@ -271,7 +365,20 @@ namespace GameEnum
     }
     public static class Utility
     {
-        public static void ChangeImageAlpha(Image image , float alpha)
+        public static Traits IsAcademy(List<Traits> traits)
+        {
+            foreach (var item in traits)
+            {
+                if (item == Traits.Abydos || 
+                    item == Traits.Gehenna || 
+                    item == Traits.Hyakkiyako || 
+                    item == Traits.Millennium || 
+                    item == Traits.Trinity) return item;
+            }
+            return Traits.None;
+        }
+
+        public static void ChangeImageAlpha(Image image, float alpha)
         {
             Color color = image.color;
             color.a = alpha;
@@ -384,7 +491,7 @@ namespace GameEnum
         public static bool Iscrit(float critChance)
         {
             int rand = UnityEngine.Random.Range(0, 101);
-            if (rand >critChance)
+            if (rand > critChance)
             {
                 return true;
             }
@@ -439,7 +546,7 @@ namespace GameEnum
             OnRemove.Invoke(Parent);
             Value += valAdded;
             OnApply.Invoke(Parent);
-            CustomLogger.Log(this,$"source {Parent} added {valAdded} , value = {Value}");
+            CustomLogger.Log(this, $"source {Parent} added {valAdded} , value = {Value}");
         }
         public void SetActions(Action<CharacterCTRL> onApply, Action<CharacterCTRL> onRemove)
         {

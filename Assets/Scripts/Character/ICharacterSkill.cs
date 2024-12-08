@@ -5,14 +5,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
-using static UnityEditor.PlayerSettings;
 public abstract class CharacterSkillBase
 {
     public virtual void ExecuteSkill(SkillContext skillContext)
     {
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} castSkill");
     }
+    public virtual CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return this;
+    }
+
     public HexNode FindMaxOccupiedEntityGrid(int range, List<HexNode> hexNodes, SkillContext skillContext, bool FindingAlly)
     {
         float maxCount = 0;
@@ -36,7 +39,6 @@ public abstract class CharacterSkillBase
         float count = 0;
         if (startNode.OccupyingCharacter != null)
         {
-            // 检查起始节点上的角色是否满足条件
             if (startNode.OccupyingCharacter.IsAlly == isAlly == GetAlly)
             {
                 count = 1.1f;
@@ -90,7 +92,25 @@ public class ArisSkill : CharacterSkillBase//愛麗絲找到一個可以貫穿�
         base.ExecuteSkill(skillContext);
         skillContext.Parent.GetComponent<ArisActiveSkill>().skillContext = skillContext;
     }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        // 回傳Aris的強化版技能實例
+        return new ArisEnhancedSkill(this);
+    }
+}
+public class ArisEnhancedSkill : CharacterSkillBase
+{
+    private ArisSkill originalSkill;
+    public ArisEnhancedSkill(ArisSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
 
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        // 強化後的Aris技能邏輯
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Aris Skill");
+    }
 }
 public class AyaneSkill : CharacterSkillBase//找到一個範圍內最多友軍的空格，在該格投放治療，範圍內的友軍會被一次性的治癒
 {
@@ -117,6 +137,23 @@ public class AyaneSkill : CharacterSkillBase//找到一個範圍內最多友軍�
         HexNode targetHex = FindMaxOccupiedEntityGrid(skillContext.Range, skillContext.hexMap, skillContext, IsFindingAlly);
         GameObject HealPack = ResourcePool.Instance.SpawnObject(SkillPrefab.HealPack, targetHex.Position + new Vector3(0, 3, 0), Quaternion.identity);
         HealPack.GetComponent<HealPack>().InitStats(targetHex, skillContext.Range, 100, skillContext.Parent, skillContext.Parent.IsAlly);
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new AyaneEnhancedSkill(this);
+    }
+}
+public class AyaneEnhancedSkill : CharacterSkillBase
+{
+    private AyaneSkill originalSkill;
+    public AyaneEnhancedSkill(AyaneSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Ayane Skill");
     }
 }
 public class HarukaSkill : CharacterSkillBase//架起護盾，並向前攻擊數波，她前方的敵軍將會被減少攻擊力
@@ -157,7 +194,24 @@ public class HarukaSkill : CharacterSkillBase//架起護盾，並向前攻擊數
             }
         }
     }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new HarukaEnhancedSkill(this);
+    }
 
+}
+public class HarukaEnhancedSkill : CharacterSkillBase
+{
+    private HarukaSkill originalSkill;
+    public HarukaEnhancedSkill(HarukaSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Haruka Skill");
+    }
 }
 public class HarunaSkill : CharacterSkillBase
 {
@@ -186,6 +240,23 @@ public class HarunaSkill : CharacterSkillBase
         skillContext.Parent.transform.LookAt(lowestEnemy.GetHitPoint);
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
         bullet.GetComponent<NormalBullet>().Initialize(lowestEnemy.transform.position, dmg, layer, skillContext.Parent, 15f, lowestEnemy.gameObject);
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new HarunaEnhancedSkill(this);
+    }
+}
+public class HarunaEnhancedSkill : CharacterSkillBase
+{
+    private HarunaSkill originalSkill;
+    public HarunaEnhancedSkill(HarunaSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Haruna Skill");
     }
 }
 public class MichiruSkill : CharacterSkillBase//TODO: 若目標已經被灼燒，轉向一名尚未被灼燒的敵軍施放。
@@ -224,7 +295,23 @@ public class MichiruSkill : CharacterSkillBase//TODO: 若目標已經被灼燒�
             neighbor.ApplyBurningEffect(burningDuration, damagePerTick, tickInterval, appliedByAlly);
         }
     }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new MichiruEnhancedSkill(this);
+    }
+}
+public class MichiruEnhancedSkill : CharacterSkillBase
+{
+    private MichiruSkill originalSkill;
+    public MichiruEnhancedSkill(MichiruSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
 
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Michiru Skill");
+    }
 }
 public class NatsuSkill : CharacterSkillBase//治癒自己一定血量，架起護盾，一定時間內免疫負面狀態
 {
@@ -252,6 +339,23 @@ public class NatsuSkill : CharacterSkillBase//治癒自己一定血量，架起�
         skillContext.Parent.AddStat(StatsType.currHealth, BaseHeal);
         Effect effect = EffectFactory.ClarityEffect(5,skillContext.Parent);
         skillContext.Parent.effectCTRL.AddEffect(effect);
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new NatsuEnhancedSkill(this);
+    }
+}
+public class NatsuEnhancedSkill : CharacterSkillBase
+{
+    private NatsuSkill originalSkill;
+    public NatsuEnhancedSkill(NatsuSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Natsu Skill");
     }
 }
 public class NoaSkill : CharacterSkillBase//對生命值上限最低的敵軍施放"標記"，範圍內的友軍會設法攻擊他
@@ -284,6 +388,23 @@ public class NoaSkill : CharacterSkillBase//對生命值上限最低的敵軍施
             }
         }
     }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new NoaEnhancedSkill(this);
+    }
+}
+public class NoaEnhancedSkill : CharacterSkillBase
+{
+    private NoaSkill originalSkill;
+    public NoaEnhancedSkill(NoaSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Noa Skill");
+    }
 }
 public class SerikaSkill : CharacterSkillBase
 {
@@ -304,6 +425,23 @@ public class SerikaSkill : CharacterSkillBase
         base.ExecuteSkill(skillContext);
         Effect effect = EffectFactory.CreateSerikaRageEffect(10, 5,skillContext.Parent);
         skillContext.Parent.effectCTRL.AddEffect(effect);
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new SerikaEnhancedSkill(this);
+    }
+}
+public class SerikaEnhancedSkill : CharacterSkillBase
+{
+    private SerikaSkill originalSkill;
+    public SerikaEnhancedSkill(SerikaSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Serika Skill");
     }
 }
 public class SerinaSkill : CharacterSkillBase
@@ -341,8 +479,24 @@ public class SerinaSkill : CharacterSkillBase
             HealPack.GetComponent<HealPack>().InitStats(hex, skillContext.Range, baseHeal, skillContext.Parent, skillContext.Parent.IsAlly);
         }
     }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new SerinaEnhancedSkill(this);
+    }
 }
+public class SerinaEnhancedSkill : CharacterSkillBase
+{
+    private SerinaSkill originalSkill;
+    public SerinaEnhancedSkill(SerinaSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
 
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Serina Skill");
+    }
+}
 public class ShizukoSkill : CharacterSkillBase//在角色(無論敵我)最多的空格子放置一台餐車，該餐車"架起護盾"，且護盾範圍+2的範圍內的友軍增加命中率
 {
     public override void ExecuteSkill(SkillContext skillContext)
@@ -357,6 +511,23 @@ public class ShizukoSkill : CharacterSkillBase//在角色(無論敵我)最多的
             item.effectCTRL.AddEffect(effect);
         }
     }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new ShizukoEnhancedSkill(this);
+    }
+}
+public class ShizukoEnhancedSkill : CharacterSkillBase
+{
+    private ShizukoSkill originalSkill;
+    public ShizukoEnhancedSkill(ShizukoSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Shizuko Skill");
+    }
 }
 public class SumireSkill : CharacterSkillBase//TODO:翻滾到最好的位置，且射擊一次(記得檢查可不可以通行)。
 {
@@ -364,6 +535,23 @@ public class SumireSkill : CharacterSkillBase//TODO:翻滾到最好的位置，�
     {
         //TODO: 尚未完成
         base.ExecuteSkill(skillContext);
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new SumireEnhancedSkill(this);
+    }
+}
+public class SumireEnhancedSkill : CharacterSkillBase
+{
+    private SumireSkill originalSkill;
+    public SumireEnhancedSkill(SumireSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Sumire Skill");
     }
 }
 public class AkoSkill : CharacterSkillBase
@@ -373,6 +561,23 @@ public class AkoSkill : CharacterSkillBase
         //TODO: 尚未完成
         base.ExecuteSkill(skillContext);
         
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new AkoEnhancedSkill(this);
+    }
+}
+public class AkoEnhancedSkill : CharacterSkillBase
+{
+    private AkoSkill originalSkill;
+    public AkoEnhancedSkill(AkoSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Ako Skill");
     }
 }
 public class AzusaSkill : CharacterSkillBase//對當前目標狙擊，若擊殺之則...?
@@ -386,6 +591,23 @@ public class AzusaSkill : CharacterSkillBase//對當前目標狙擊，若擊殺�
         bullet.GetComponent<NormalBullet>().Initialize(c.transform.position, skillContext.Parent.GetStat(StatsType.Attack), skillContext.Parent.GetTargetLayer(), skillContext.Parent, 15f, c.gameObject);
 
     }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new AzusaEnhancedSkill(this);
+    }
+}
+public class AzusaEnhancedSkill : CharacterSkillBase
+{
+    private AzusaSkill originalSkill;
+    public AzusaEnhancedSkill(AzusaSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Azusa Skill");
+    }
 }
 public class ChiseSkill : CharacterSkillBase//對範圍內的格子灑毒，對站在上面的敵人造成dot傷害
 {
@@ -393,6 +615,23 @@ public class ChiseSkill : CharacterSkillBase//對範圍內的格子灑毒，對�
     {
         //TODO: 尚未完成
         base.ExecuteSkill(skillContext);
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new ChiseEnhancedSkill(this);
+    }
+}
+public class ChiseEnhancedSkill : CharacterSkillBase
+{
+    private ChiseSkill originalSkill;
+    public ChiseEnhancedSkill(ChiseSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Chise Skill");
     }
 }
 public class FuukaSkill : CharacterSkillBase//找到一個範圍內最多友軍的空格，在該格投放治療，範圍內的友軍會被一次性的治癒
@@ -404,6 +643,24 @@ public class FuukaSkill : CharacterSkillBase//找到一個範圍內最多友軍�
         GameObject HealPack = ResourcePool.Instance.SpawnObject(SkillPrefab.HealPack, targetHex.Position, Quaternion.Euler(-90, 0, 0));
         HealPack.GetComponent<HealPack>().InitStats(targetHex, 3, 100, skillContext.Parent, skillContext.Parent.IsAlly);
     }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new FuukaEnhancedSkill(this);
+    }
+}
+public class FuukaEnhancedSkill : CharacterSkillBase
+{
+    private FuukaSkill originalSkill;
+    public FuukaEnhancedSkill(FuukaSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        // 強化後的Aris技能邏輯
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Fukka Skill");
+    }
 }
 public class IzunaSkill : CharacterSkillBase//???
 {
@@ -412,6 +669,23 @@ public class IzunaSkill : CharacterSkillBase//???
         //TODO: 尚未完成
         base.ExecuteSkill(skillContext);
 
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new IzunaEnhancedSkill(this);
+    }
+}
+public class IzunaEnhancedSkill : CharacterSkillBase
+{
+    private IzunaSkill originalSkill;
+    public IzunaEnhancedSkill(IzunaSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Izuna Skill");
     }
 }
 public class KayokoSkill : CharacterSkillBase//對大範圍敵人造成少量傷害及恐懼
@@ -426,6 +700,23 @@ public class KayokoSkill : CharacterSkillBase//對大範圍敵人造成少量傷
             item.effectCTRL.AddEffect(kayokoFearEffect);
         }
     }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new KayokoEnhancedSkill(this);
+    }
+}
+public class KayokoEnhancedSkill : CharacterSkillBase
+{
+    private KayokoSkill originalSkill;
+    public KayokoEnhancedSkill(KayokoSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Kayoko Skill");
+    }
 }
 public class KazusaSkill : CharacterSkillBase//增加一定攻擊力之後，狙擊絕對生命值最低的敵人
 {
@@ -437,6 +728,23 @@ public class KazusaSkill : CharacterSkillBase//增加一定攻擊力之後，狙
         CharacterCTRL lowestHpenemy = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1)[0];
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
         bullet.GetComponent<NormalBullet>().Initialize(lowestHpenemy.transform.position, skillContext.Parent.GetStat(StatsType.Attack),skillContext.Parent.GetTargetLayer(), skillContext.Parent, 15f, lowestHpenemy.gameObject);
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new KazusaEnhancedSkill(this);
+    }
+}
+public class KazusaEnhancedSkill : CharacterSkillBase
+{
+    private KazusaSkill originalSkill;
+    public KazusaEnhancedSkill(KazusaSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Kazusa Skill");
     }
 }
 public class MineSkill : CharacterSkillBase//跳躍到敵人最多的位置，擊暈他們
@@ -496,13 +804,46 @@ public class MineSkill : CharacterSkillBase//跳躍到敵人最多的位置，�
             neighbor.SetColorState(ColorState.TemporaryYellow, .5f);
         }
     }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new MineEnhancedSkill(this);
+    }
+}
+public class MineEnhancedSkill : CharacterSkillBase
+{
+    private MineSkill originalSkill;
+    public MineEnhancedSkill(MineSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
 
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Mine Skill");
+    }
 }
 public class MomoiSkill : CharacterSkillBase//對範圍內敵人進行一次掃射
 {
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new MomoiEnhancedSkill(this);
+    }
+}
+public class MomoiEnhancedSkill : CharacterSkillBase
+{
+    private MomoiSkill originalSkill;
+    public MomoiEnhancedSkill(MomoiSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Momoi Skill");
     }
 }
 public class NonomiSkill : CharacterSkillBase
@@ -511,6 +852,23 @@ public class NonomiSkill : CharacterSkillBase
     {
         base.ExecuteSkill(skillContext);
         //Finished in Barrage observer 
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new NonomiEnhancedSkill(this);
+    }
+}
+public class NonomiEnhancedSkill : CharacterSkillBase
+{
+    private NonomiSkill originalSkill;
+    public NonomiEnhancedSkill(NonomiSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Nonomi Skill");
     }
 }
 public class ShirokoSkill : CharacterSkillBase//一個無人機攻擊若干次
@@ -534,6 +892,23 @@ public class ShirokoSkill : CharacterSkillBase//一個無人機攻擊若干次
             d.Dmg += skillContext.DamageAmount;
         }
     }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new ShirokoEnhancedSkill(this);
+    }
+}
+public class ShirokoEnhancedSkill : CharacterSkillBase
+{
+    private ShirokoSkill originalSkill;
+    public ShirokoEnhancedSkill(ShirokoSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Shiroko Skill");
+    }
 }
 public class TsubakiSkill : CharacterSkillBase
 {
@@ -553,6 +928,23 @@ public class TsubakiSkill : CharacterSkillBase
                 item.effectCTRL.AddEffect(effect);
             }
         }
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new TsubakiEnhancedSkill(this);
+    }
+}
+public class TsubakiEnhancedSkill : CharacterSkillBase
+{
+    private TsubakiSkill originalSkill;
+    public TsubakiEnhancedSkill(TsubakiSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Tsubaki Skill");
     }
 }
 public class YuukaSkill : CharacterSkillBase//跳到敵人最多的地方，同時找到某個相鄰友軍最多的空格子，插旗子。賦予旗子旁的友軍護盾。
@@ -609,7 +1001,23 @@ public class YuukaSkill : CharacterSkillBase//跳到敵人最多的地方，同�
         }
         skillContext.Parent.AddShield(50, 5.0f, skillContext.Parent);
     }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new YuukaEnhancedSkill(this);
+    }
+}
+public class YuukaEnhancedSkill : CharacterSkillBase
+{
+    private YuukaSkill originalSkill;
+    public YuukaEnhancedSkill(YuukaSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
 
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Yuuka Skill");
+    }
 }
 public class HinaSkill : CharacterSkillBase
 {
@@ -617,6 +1025,23 @@ public class HinaSkill : CharacterSkillBase
     {
         base.ExecuteSkill(skillContext);
         //在barrage之中完成了。
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new HinaEnhancedSkill(this);
+    }
+}
+public class HinaEnhancedSkill : CharacterSkillBase
+{
+    private HinaSkill originalSkill;
+    public HinaEnhancedSkill(HinaSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Hina Skill");
     }
 }
 public class HoshinoSkill : CharacterSkillBase
@@ -663,6 +1088,23 @@ public class HoshinoSkill : CharacterSkillBase
         CustomLogger.Log(this, $"Hoshino skillContext.SelectedHex = {skillContext.SelectedHex.Count}");
         skillContext.Parent.GetComponent<HoshinoShotgunSkill>().skillContext = skillContext;
     }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new HoshinoEnhancedSkill(this);
+    }
+}
+public class HoshinoEnhancedSkill : CharacterSkillBase
+{
+    private HoshinoSkill originalSkill;
+    public HoshinoEnhancedSkill(HoshinoSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Hoshino Skill");
+    }
 }
 public class MikaSkill : CharacterSkillBase//對一個人狙擊。此次攻擊必定爆擊，且所有爆擊率轉為爆擊數值，若此技能擊殺了敵人，會以相同傷害在一格之內爆炸。
 {
@@ -674,6 +1116,23 @@ public class MikaSkill : CharacterSkillBase//對一個人狙擊。此次攻擊�
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
         bullet.GetComponent<NormalBullet>().Initialize(C.transform.position, skillContext.Parent.GetStat(StatsType.Attack), skillContext.Parent.GetTargetLayer(), skillContext.Parent, 15f, C.gameObject);
     }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new MikaEnhancedSkill(this);
+    }
+}
+public class MikaEnhancedSkill : CharacterSkillBase
+{
+    private MikaSkill originalSkill;
+    public MikaEnhancedSkill(MikaSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Mika Skill");
+    }
 }
 public class NeruSkill : CharacterSkillBase//以超多段傷害攻擊一名敵人
 {
@@ -682,6 +1141,24 @@ public class NeruSkill : CharacterSkillBase//以超多段傷害攻擊一名敵�
         base.ExecuteSkill(skillContext);
         skillContext.Parent.ManaLock = true;
         //在動畫事件內完成了
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new NeruEnhancedSkill(this);
+    }
+}
+public class NeruEnhancedSkill : CharacterSkillBase
+{
+    private NeruSkill originalSkill;
+    public NeruEnhancedSkill(NeruSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        // 強化後的Aris技能邏輯
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Neru Skill");
     }
 }
 public class TsurugiSkill : CharacterSkillBase
@@ -693,6 +1170,24 @@ public class TsurugiSkill : CharacterSkillBase
         T.ChangeToSpecialAttack();
         T.SpecialAttackCount = 5;
         //在專屬代碼內完成了。
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new TsurugiEnhancedSkill(this);
+    }
+}
+public class TsurugiEnhancedSkill : CharacterSkillBase
+{
+    private TsurugiSkill originalSkill;
+    public TsurugiEnhancedSkill(TsurugiSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        // 強化後的Aris技能邏輯
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Tsurugi Skill");
     }
 }
 public class WakamoSkill : CharacterSkillBase
@@ -710,6 +1205,24 @@ public class WakamoSkill : CharacterSkillBase
 
         }
     }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new WakamoEnhancedSkill(this);
+    }
+}
+public class WakamoEnhancedSkill : CharacterSkillBase
+{
+    private WakamoSkill originalSkill;
+    public WakamoEnhancedSkill(WakamoSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        // 強化後的Aris技能邏輯
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Aris Skill");
+    }
 }
 public class Shiroko_TerrorSkill : CharacterSkillBase
 {
@@ -718,6 +1231,24 @@ public class Shiroko_TerrorSkill : CharacterSkillBase
         base.ExecuteSkill(skillContext);
         skillContext.Parent.transform.rotation = Quaternion.Euler(0, 180, 0);
         skillContext.Parent.customAnimator.animator.SetInteger("SkillID", skillContext.shirokoTerror_SkillID);
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new Shiroko_TerrorEnhancedSkill(this);
+    }
+}
+public class Shiroko_TerrorEnhancedSkill : CharacterSkillBase
+{
+    private Shiroko_TerrorSkill originalSkill;
+    public Shiroko_TerrorEnhancedSkill(Shiroko_TerrorSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        // 強化後的Aris技能邏輯
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Shiroko_Terror Skill");
     }
 }
 public class StarLevelStats

@@ -14,9 +14,17 @@ public class CharacterEquipmentManager : MonoBehaviour
     }
     public bool EquipItem(IEquipment equipment)
     {
+        ResourcePool.Instance.ally.UpdateTraitEffects();
         if (equippedItems.Count >= MaxEquipmentSlots)
         {
             return false;
+        }
+        if (equipment is SpecialEquipment specialEquipment)
+        {
+            Traits trait =  Parent.traitController.GetAcademy();
+            specialEquipment.OriginalstudentTrait = trait;
+            Parent.traitController.RemoveTrait(trait);
+            Parent.traitController.AddTrait(specialEquipment.trait);
         }
         foreach (var item in equippedItems)
         {
@@ -32,40 +40,43 @@ public class CharacterEquipmentManager : MonoBehaviour
         UpdateStatsForEquipment(equipment);
         return true;
     }
+    public void RemoveAllItem()
+    {
+        // 創建副本來安全地遍歷
+        var itemsToRemove = new List<IEquipment>(equippedItems);
+        foreach (var item in itemsToRemove)
+        {
+            RemoveEquipment(item);
+        }
+        Parent.UpdateEquipmentUI();
+    }
 
-    // 移除装备
     public void RemoveEquipment(IEquipment equipment)
     {
         if (equippedItems.Contains(equipment))
         {
             equippedItems.Remove(equipment);
             RemoveStatsForEquipment(equipment);
-            // 可以添加移除装备的显示逻辑
-        }
-    }
+            equipment.OnRemove(Parent);
+            EquipmentManager.Instance.AddEquipmentItem( equipment);
 
-    // 获取已装备的装备列表
+        }
+        ResourcePool.Instance.ally.UpdateTraitEffects();
+    }
     public List<IEquipment> GetEquippedItems()
     {
         return new List<IEquipment>(equippedItems);
     }
-
-    // 检查是否可以合成
     public bool CanCombine(IEquipment eq1, IEquipment eq2, out IEquipment result)
     {
         result = ResourcePool.Instance.combinationRoute.GetCombinationResult(eq1, eq2);
         return result != null;
     }
 
-
-    // 添加装备到列表
     private void AddEquipment(IEquipment equipment)
     {
         equippedItems.Add(equipment);
-        // 可以在这里调用显示装备的逻辑
     }
-
-    // 更新属性
     private void UpdateStatsForEquipment(IEquipment equipment)
     {
         foreach (var stat in equipment.GetStats())

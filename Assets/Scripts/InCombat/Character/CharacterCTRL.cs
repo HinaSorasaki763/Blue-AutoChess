@@ -32,6 +32,7 @@ public class CharacterCTRL : MonoBehaviour
     public EffectCTRL effectCTRL;
     private List<Shield> shields = new List<Shield>(); // 存儲所有護盾
     // Combat-related Fields
+    public bool IsHeroicEnhanced = false;
     public bool ManaLock = false;
     public bool enterBattle;
     public bool isAlive = true;
@@ -111,8 +112,17 @@ public class CharacterCTRL : MonoBehaviour
         }
         if (characterSkills.TryGetValue(characterId, out var characterSkillFunc))
         {
-            ActiveSkill = characterSkillFunc();
+            var baseSkill = characterSkillFunc();
+            if (IsHeroicEnhanced)
+            {
+                ActiveSkill = baseSkill.GetHeroicEnhancedSkill();
+            }
+            else
+            {
+                ActiveSkill = baseSkill;
+            }
         }
+
         if (characterStats.logistics)
         {
             SetStat(StatsType.Range, 20);
@@ -443,19 +453,43 @@ public class CharacterCTRL : MonoBehaviour
     public bool IsCasting() => customAnimator.animator.GetBool("CastSkill");
     public bool EquipItem(IEquipment equipment)
     {
+        if (equipment is SpecialEquipment specialEquipment) 
+        {
+            Traits traits = specialEquipment.trait;
+            foreach (var item in equipmentManager.GetEquippedItems())
+            {
+                if (item is SpecialEquipment)
+                {
+                    PopupManager.Instance.CreatePopup("已經有一個轉學證明了", 2);
+                    return false;
+                }
+            }
+            if (traitController.HasTrait(traits))
+            {
+                PopupManager.Instance.CreatePopup("本校學生無法配戴", 2);
+                return false;
+            }
+        }
+        if (equipment is ConsumableItem consumable)
+        {
+            CustomLogger.Log(this, $"{consumable} working");
+            consumable.OnActivated();
+            PopupManager.Instance.CreatePopup("觸發成功", 2);
+            return false;
+        }
         bool result = equipmentManager.EquipItem(equipment);
 
         if (result)
         {
-            // 更新装备显示
-            if (characterBars != null)
-            {
-                characterBars.UpdateEquipmentDisplay(equipmentManager.GetEquippedItems());
-            }
+            UpdateEquipmentUI();
+            ResourcePool.Instance.ally.UpdateTraitEffects();
         }
         return result;
     }
-
+    public void UpdateEquipmentUI()
+    {
+        characterBars.UpdateEquipmentDisplay(equipmentManager.GetEquippedItems());
+    }
     #endregion
 
     #region Targeting and Pathfinding

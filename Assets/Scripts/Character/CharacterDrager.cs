@@ -1,5 +1,6 @@
 using GameEnum;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -33,6 +34,16 @@ public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     }
     public void OnPointerClick(PointerEventData eventData)
     {
+        StringBuilder sb = new();
+        foreach (var item in characterCTRL.traitController.GetCurrentTraits())
+        {
+            sb.AppendLine(item.ToString());
+        }
+        foreach (var item in characterCTRL.equipmentManager.equippedItems)
+        {
+            sb.AppendLine(item.ToString());
+        }
+        CustomLogger.Log(this,sb.ToString());
         if (!UIManager.Instance.TryClose(characterCTRL))
         {
             UIManager.Instance.ShowCharacterStats(characterCTRL);

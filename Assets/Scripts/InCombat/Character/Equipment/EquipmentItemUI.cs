@@ -12,6 +12,8 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private Transform originalParent;
     private Canvas canvas;
     private EquipmentManager equipmentManager;
+    public TextMeshProUGUI ItemName;
+    public TextMeshProUGUI ItemDescription;
     public GameObject Detail;
     public Button Btn;
     public LayerMask characterLayerMask;
@@ -20,18 +22,26 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     // 新增 GridLayoutGroup 和原始索引變數
     private GridLayoutGroup gridLayoutGroup;
     private int originalIndex;
-
+    public bool IsConsumableItem;
     // 虛影用變數
     private GameObject ghostItem;
 
     public void Setup(IEquipment equipment, EquipmentManager manager, Transform parent)
     {
-        equipmentData = equipment;
-        icon.sprite = equipment.Icon;
+        EquipmentUIManager.Instance.RegisterUI(Detail);
+        ItemName.text = equipment.EquipmentName;
+        ItemDescription.text = equipment.EquipmentDetail;
+        Detail.SetActive(false);
         equipmentManager = manager;
         originalParent = parent;
-        EquipmentUIManager.Instance.RegisterUI(Detail);
-        Detail.SetActive(false);
+        if (equipment.IsConsumable)
+        {
+            IsConsumableItem = true;
+        }
+        equipmentData = equipment;
+        icon.sprite = equipment.Icon;
+
+
     }
 
     void Start()
@@ -74,6 +84,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     public void OnEndDrag(PointerEventData eventData)
     {
+
         Utility.ChangeImageAlpha(gameObject.GetComponentInChildren<Image>(), 1);
         List<RaycastResult> raycastResults = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, raycastResults);
@@ -85,6 +96,21 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             if (((1 << result.gameObject.layer) & characterLayerMask) != 0)
             {
                 CharacterCTRL character = result.gameObject.GetComponent<CharacterCTRL>();
+                if (IsConsumableItem)
+                {
+                    CustomLogger.Log(this, "Calling remover");
+                    Remover(character);
+                    Destroy(ghostItem);
+                    if (gridLayoutGroup != null)
+                    {
+                        gridLayoutGroup.enabled = true;
+                    }
+                    transform.SetParent(originalParent);
+                    transform.SetSiblingIndex(0);
+                    transform.localPosition = Vector3.zero;
+                    isDragging = false;
+                    return;
+                }
                 if (character != null)
                 {
                     successfulEquip = character.EquipItem(equipmentData);
@@ -97,15 +123,12 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                 }
             }
         }
-
-        // 刪除虛影
         Destroy(ghostItem);
 
         if (!successfulEquip)
         {
-            // 如果未成功裝備，將原物品恢復到其原來的父級位置
             transform.SetParent(originalParent);
-            transform.SetSiblingIndex(originalIndex); // 將物品放回原來的索引位置
+            transform.SetSiblingIndex(originalIndex);
             transform.localPosition = Vector3.zero;
         }
 
@@ -124,5 +147,10 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         {
             EquipmentUIManager.Instance.ToggleUI(Detail);
         }
+    }
+    public void Remover(CharacterCTRL character)
+    {
+        CustomLogger.Log(this, "removing");
+        character.equipmentManager.RemoveAllItem();
     }
 }

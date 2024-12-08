@@ -56,7 +56,7 @@ public class DeveloperTool : MonoBehaviour
 
     public void GenerateEquipmentButtons()
     {
-        List<EquipmentSO> allEquipments = equipmentManager.availableEquipments;
+        List<IEquipment> allEquipments = equipmentManager.availableEquipments;
         foreach (var equipment in allEquipments)
         {
             // 創建裝備按鈕實例
@@ -73,7 +73,7 @@ public class DeveloperTool : MonoBehaviour
                 Debug.LogWarning($"裝備 {equipment.EquipmentName} 缺少圖標 Sprite。");
                 image.color = new Color(1, 1, 1, 0);
             }
-            EquipmentSO capturedEquipment = equipment;
+            IEquipment capturedEquipment = equipment;
             button.onClick.AddListener(() => SpawnEquipment(capturedEquipment));
 
             // 將按鈕加入列表

@@ -9,14 +9,19 @@ public class EquipmentSO : ScriptableObject, IEquipment
     public string equipmentDescription;
     public string equipmentName;
     public Sprite icon;
-
+    public bool isSpecial;
+    public bool isConsumable;
+    public Traits Traits;
     public List<EquipmentType> Attributes;
     public List<int> Value;
     public Dictionary<EquipmentType, int> combinedStats;
 
+
     public string EquipmentDetail => equipmentDescription;
     public string EquipmentName => equipmentName;
     public Sprite Icon => icon;
+    public bool IsSpecial => isSpecial;
+    public bool IsConsumable => isConsumable;
 
     public Dictionary<EquipmentType, int> GetStats()
     {
@@ -32,6 +37,10 @@ public class EquipmentSO : ScriptableObject, IEquipment
             combinedStats[Attributes[i]] = Value[i];
         }
         return combinedStats;   
+
+    }
+    public void OnRemove()
+    {
 
     }
 }

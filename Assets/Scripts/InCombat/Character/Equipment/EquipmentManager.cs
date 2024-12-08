@@ -1,24 +1,48 @@
 ﻿using GameEnum;
 using System.Collections.Generic;
 using System.Text;
+using TMPro;
 using UnityEngine;
 
 public class EquipmentManager : MonoBehaviour
 {
+    public static EquipmentManager Instance { get; private set; }
     public CombinationRouteSO combinationRoute;
-    public List<EquipmentSO> availableEquipments = new List<EquipmentSO>(); // 使用 ScriptableObject 型別
+    public List<IEquipment> availableEquipments = new List<IEquipment>();
     public GameObject equipmentItemPrefab;
     public Transform equipmentArea;
     public List<IEquipment> ownedEquipments = new List<IEquipment>();
     public GameObject parent;
     public Transform UIParent;
+    public void Awake()
+    {
+        Instance = this;
+    }
+    public void Update()
+    {
+
+    }
     public void Start()
     {
-        // 載入所有裝備 ScriptableObject
         EquipmentSO[] equipments = Resources.LoadAll<EquipmentSO>("Equipments");
         foreach (var equipment in equipments)
         {
-            availableEquipments.Add(equipment);
+            if (equipment.isSpecial)
+            {
+                // 如果是特殊裝備，初始化為 SpecialEquipment
+                SpecialEquipment specialEquipment = new (equipment);
+                availableEquipments.Add(specialEquipment);
+            }
+            else if(equipment.IsConsumable)
+            {
+                ConsumableItem consumableItem = new (equipment);
+                availableEquipments.Add(consumableItem);
+            }
+            else
+            {
+                // 如果是普通裝備，直接加入到列表中
+                availableEquipments.Add(equipment);
+            }
         }
     }
 

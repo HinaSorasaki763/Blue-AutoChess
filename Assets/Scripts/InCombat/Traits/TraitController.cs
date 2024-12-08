@@ -45,6 +45,10 @@ public class TraitController : MonoBehaviour
         return currentTraits.Contains(trait);
     }
 
+    public Traits GetAcademy()
+    {
+        return Utility.IsAcademy(currentTraits);
+    }
     public void CreateObserverForTrait(Traits trait)
     {
         int traitLevel = TraitsEffectManager.Instance.GetTraitLevelForCharacter(trait, isEnemy: false);
