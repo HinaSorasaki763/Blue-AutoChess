@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static Unity.VisualScripting.Member;
 
 public class EffectCTRL : MonoBehaviour
 {
@@ -145,13 +146,13 @@ public class EffectCTRL : MonoBehaviour
 
 public static class EffectFactory
 {
-    public static Effect StatckableIncreaseStatsEffct(float duration, string source, float amount, StatsType statsType, CharacterCTRL parent, bool isPermanent)
+    public static Effect StatckableStatsEffct(float duration, string source, float amount, StatsType statsType, CharacterCTRL parent, bool isPermanent)
     {
         return new Effect(
             EffectType.Positive,
             ModifierType.None,
             amount,
-            $"{source}Increase{statsType}",
+            $"{source} adjust {statsType} {amount}",
             isPermanent,
             null, // ¼È¤£³]¸m©e¬£
             null,
@@ -163,13 +164,13 @@ public static class EffectFactory
 
 
 
-    public static Effect UnStatckableIncreaseStatsEffct(float duration, int amount, StatsType statsType, CharacterCTRL parent)
+    public static Effect UnStatckableStatsEffct(float duration, int amount, StatsType statsType, CharacterCTRL parent)
     {
         return new Effect(
             EffectType.Positive,
             ModifierType.None,
             0,
-            $"Increase{statsType}",
+            $"adjust {statsType} {amount}",
             false,
             (character) => character.ModifyStats(statsType, amount),
             (character) => character.ModifyStats(statsType, -amount),
@@ -434,5 +435,6 @@ public static class EffectFactory
             parent
         );
     }
+
 }
 

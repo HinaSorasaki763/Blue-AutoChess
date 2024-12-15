@@ -1,4 +1,6 @@
+using GameEnum;
 using UnityEngine;
+using System.Linq;
 
 public class NormalBullet : MonoBehaviour
 {
@@ -89,6 +91,20 @@ public class NormalBullet : MonoBehaviour
         if (distanceTravelled >= maxDistance)
         {
             gameObject.SetActive(false); // ¸T¥Î¤l¼u
+        }
+    }
+    public void HiyoriExplosion()
+    {
+        var nodes = Utility.GetHexInRange(parent.CurrentHex, 2);
+        var targets = nodes
+            .Where(node => node.OccupyingCharacter != null && node.OccupyingCharacter.IsAlly != parent.IsAlly)
+            .Select(node => node.OccupyingCharacter)
+            .ToList();
+        foreach (var item in targets)
+        {
+            Effect effect = EffectFactory.UnStatckableStatsEffct(5,20,StatsType.Resistence,parent);
+            item.effectCTRL.AddEffect(effect);
+            item.GetHit((int)damage, parent,iscrit);
         }
     }
 }

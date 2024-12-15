@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8c1404071b3438543b297a251187c120, type: 3}
-  m_Name: Mine
+  m_Name: Misaki
   m_EditorClassIdentifier: 
-  CharacterName: Mine
-  CharacterId: 19
-  Level: 2
-  Sprite: {fileID: 21300000, guid: f1d2f5e0ebc98cf458593cab608bc339, type: 3}
-  Model: {fileID: 5606218449742110168, guid: 18fda5cef27d43340a2f58d4d1e38157, type: 3}
+  CharacterName: Misaki
+  CharacterId: 34
+  Level: 3
+  Sprite: {fileID: 21300000, guid: 6a56d969d3ee61040bbeb4de39290de8, type: 3}
+  Model: {fileID: 2765393524771376512, guid: b46ebd6841683ba48a5c832554f9c446, type: 3}
   logistics: 0
   Stats:
     stats:
     - statType: 0
-      value: 3000
+      value: 700
     - statType: 1
       value: 0
     - statType: 2
@@ -29,13 +29,13 @@ MonoBehaviour:
     - statType: 3
       value: 0
     - statType: 4
-      value: 10
+      value: 60
     - statType: 5
-      value: 1
+      value: 0.5
     - statType: 6
-      value: 5
+      value: 25
     - statType: 7
-      value: 1
+      value: 5
     - statType: 8
       value: 10
     - statType: 9
@@ -52,11 +52,8 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
-  Traits: 040000000a00000008000000
+  Traits: 010000000a000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: Mine leaps into the air, searching for the tile with the most enemy
-    units within a two-tile radius. She then forcefully lands on the target area,
-    stunning enemies for one second and causing them to re-target their surroundings.
-    After the stun ends, their attack power is reduced for a short duration.
+  skillTooltip: 
   isObj: 0

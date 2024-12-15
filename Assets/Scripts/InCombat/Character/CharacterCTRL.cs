@@ -268,6 +268,11 @@ public class CharacterCTRL : MonoBehaviour
 
     public void Attack()
     {
+        if (Target!= null && Vector3.Distance(Target.transform.position,transform.position) > GetStat(StatsType.Range))
+        {
+            FindTarget();
+            return;
+        }
         if (IsDying) return;
         if (characterStats.logistics)
         {
@@ -700,6 +705,9 @@ public class CharacterCTRL : MonoBehaviour
             return;
         }
         int finalAmount = traitController?.ModifyDamageTaken(amount, sourceCharacter) ?? amount;
+        float r = GetStat(StatsType.Resistence);
+        float ratio = r / (100 + r);
+        finalAmount = (int)(finalAmount*ratio);
         if (isCrit)
         {
             TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Weak, finalAmount, screenPos,false);
@@ -953,7 +961,16 @@ public class CharacterCTRL : MonoBehaviour
         { 28, () => new NeruSkill()},
         { 29, () => new TsurugiSkill()},
         { 30, () => new WakamoSkill()},
-        { 31, () => new Shiroko_TerrorSkill()}
+        { 31, () => new Shiroko_TerrorSkill()},
+        { 32, () => new Atsuko_Skill()},
+        { 33, () => new Hiyori_Skill()},
+        { 34, () => new Misaki_Skill()},
+        { 35, () => new Miyako_Skill()},
+        { 36, () => new Miyu_Skill()},
+        { 37, () => new Moe_Skill()},
+        { 38, () => new Saki_Skill()},
+        { 39, () => new Saori_Skill()},
+        //40 is toki
     };
     #endregion
 

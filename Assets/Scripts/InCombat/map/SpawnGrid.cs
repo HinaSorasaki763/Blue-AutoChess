@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
-using UnityEngine.TextCore.Text;
-using UnityEditor;
-using Unity.VisualScripting;
-using System.Collections;
+using UnityEditor.Experimental.GraphView;
+using UnityEngine;
 public class SpawnGrid : MonoBehaviour
 {
     const int gridSize = 8;
@@ -36,7 +33,7 @@ public class SpawnGrid : MonoBehaviour
         preparationPositions.Clear();
         foreach (var node in hexNodes.Values)
         {
-            if (node.OccupyingCharacter != null&& node.OccupyingCharacter.IsAlly)
+            if (node.OccupyingCharacter != null && node.OccupyingCharacter.IsAlly)
             {
                 preparationPositions[node] = node.OccupyingCharacter;
             }
@@ -83,7 +80,7 @@ public class SpawnGrid : MonoBehaviour
             {
                 neighbor.TargetedAllyZone = false;
             }
-            node.TargetedAllyZone = false ;
+            node.TargetedAllyZone = false;
         }
         node.AllyBlockingZonecenter = false;
         node.EnemyBlockingZonecenter = false;
@@ -173,7 +170,7 @@ public class SpawnGrid : MonoBehaviour
             string cubeCoordKey = CubeCoordinatesToKey(node.X, node.Y, node.Z);
             hexNodes[cubeCoordKey] = node;
             indexToCubeKey[i] = cubeCoordKey;
-            if (i<32)
+            if (i < 32)
             {
                 node.isAllyHex = true;
             }
@@ -232,40 +229,68 @@ public class SpawnGrid : MonoBehaviour
         Debug.LogError($"No position found for GridIndex {index}");
         return Vector3.zero;
     }
-    public HexNode FindBestHexNode(CharacterCTRL character, int radius, bool findEnemies, bool requireEmpty, HexNode currHex,bool isLogistic = false)
+    public HexNode FindBestHexNode(CharacterCTRL character, int radius, bool findEnemies, bool requireEmpty, HexNode currHex, bool isLogistic = false)
     {
         HexNode bestHexNode = null;
         int maxCount = int.MinValue;
+        List<HexNode> candidates = new List<HexNode>();
+
         Debug.Log($"Starting FindBestHexNode for character {character.name}, radius: {radius}, findEnemies: {findEnemies}, requireEmpty: {requireEmpty}");
+
+        // 篩選符合條件的節點並找到最大鄰居數
         foreach (var node in hexNodes.Values)
         {
-            if (!node.IsBattlefield)
-            {
+            if (!node.IsBattlefield || (requireEmpty && node.OccupyingCharacter != null))
                 continue;
-            }
-            if (requireEmpty && node.OccupyingCharacter != null)
-            {
-                continue;
-            }
+
             int count = GetCharactersWithinRadius(node, character.IsAlly, radius, findEnemies, character).Count;
+
             if (count > maxCount)
             {
                 maxCount = count;
+            }
+        }
+        foreach (var node in hexNodes.Values)
+        {
+            if (!node.IsBattlefield || (requireEmpty && node.OccupyingCharacter != null))
+                continue;
+
+            int count = GetCharactersWithinRadius(node, character.IsAlly, radius, findEnemies, character).Count;
+
+            if (count == maxCount)
+            {
+                candidates.Add(node);
+            }
+        }
+        // 如果是後勤模式，直接返回找到的最佳節點
+        if (isLogistic)
+            return candidates.FirstOrDefault();
+
+        // 比較當前格子與最佳候選節點
+        int currentNeighborsCount = GetCharactersWithinRadius(currHex, character.IsAlly, radius, findEnemies, character).Count;
+
+        if (currentNeighborsCount >= maxCount)
+        {
+            Debug.Log($"Current hex {currHex.name} has same or higher neighbor count as best candidates. Keeping current hex.");
+            return currHex;
+        }
+
+        // 從候選節點中選擇距離當前格子最近的
+        int minDistance = int.MaxValue;
+        foreach (var node in candidates)
+        {
+            int distance = Mathf.Abs(currHex.Index - node.Index);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
                 bestHexNode = node;
             }
         }
-        if (isLogistic) return bestHexNode;
-        int currentNeighborsCount =     GetCharactersWithinRadius(currHex, character.IsAlly, radius, findEnemies, character).Count;
-        int bestNodeNeighborsCount = GetCharactersWithinRadius(bestHexNode, character.IsAlly, radius, findEnemies, character).Count;
-        Debug.Log($"Comparing current hex {currHex.name} with {currentNeighborsCount} neighbors to best node {bestHexNode.name} with {bestNodeNeighborsCount} neighbors");
-        if (currentNeighborsCount >= bestNodeNeighborsCount)
-        {
-            Debug.Log($"Current hex {currHex.name} has same neighbor count as best node {bestHexNode.name}. Keeping current hex as best.");
-            bestHexNode = currHex;
-        }
+
         Debug.Log($"Best node selected: {bestHexNode.name}");
         return bestHexNode;
     }
+
 
 
     public List<CharacterCTRL> GetCharactersWithinRadius(HexNode centerNode, bool isAlly, int radius, bool findEnemies, CharacterCTRL character)
@@ -273,7 +298,7 @@ public class SpawnGrid : MonoBehaviour
         int count = 0;
         HashSet<HexNode> visited = new HashSet<HexNode> { centerNode };
         List<HexNode> currentLayer = new List<HexNode> { centerNode };
-        List<CharacterCTRL> c = new List<CharacterCTRL> {  };
+        List<CharacterCTRL> c = new List<CharacterCTRL> { };
         for (int i = 0; i < radius; i++)
         {
             List<HexNode> nextLayer = new List<HexNode>();

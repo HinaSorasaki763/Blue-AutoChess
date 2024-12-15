@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -583,5 +584,10 @@ public class CustomLogger
     {
         string callerType = caller.GetType().Name;
         Debug.LogWarning($"[{callerType}] {message}");
+    }
+    public static void LogWhenThingShouldntHappened(object caller)
+    {
+        string callerType = caller.GetType().Name;
+        Debug.LogError($"[{callerType}] THIS TEXT SHOULDNT BE PRINTED!");
     }
 }

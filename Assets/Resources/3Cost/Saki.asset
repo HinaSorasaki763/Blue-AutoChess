@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8c1404071b3438543b297a251187c120, type: 3}
-  m_Name: Neru
+  m_Name: Saki
   m_EditorClassIdentifier: 
-  CharacterName: Neru
-  CharacterId: 28
+  CharacterName: Saki
+  CharacterId: 38
   Level: 3
-  Sprite: {fileID: 21300000, guid: 0e70f925a3fcc5d4eb140ad6a461dc13, type: 3}
-  Model: {fileID: 8927820391285616049, guid: 3ca301856084caa47b588e82e5f5a224, type: 3}
+  Sprite: {fileID: 21300000, guid: 79d1355f50939b34c91c5c5cdb761d78, type: 3}
+  Model: {fileID: 5478006033064301149, guid: dd1d4f177dfb45849bd4f8d72a0a8c62, type: 3}
   logistics: 0
   Stats:
     stats:
     - statType: 0
-      value: 3000
+      value: 850
     - statType: 1
       value: 0
     - statType: 2
@@ -29,11 +29,11 @@ MonoBehaviour:
     - statType: 3
       value: 0
     - statType: 4
-      value: 10
+      value: 30
     - statType: 5
-      value: 1
+      value: 0.6
     - statType: 6
-      value: 5
+      value: 45
     - statType: 7
       value: 5
     - statType: 8
@@ -52,7 +52,7 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
-  Traits: 030000000b00000005000000
+  Traits: 010000000a000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   skillTooltip: 

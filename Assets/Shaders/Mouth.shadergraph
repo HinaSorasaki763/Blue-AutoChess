@@ -11,6 +11,12 @@
         },
         {
             "m_Id": "cbb56315223d46afb061aa73381ab7a0"
+        },
+        {
+            "m_Id": "942289c0ae0345228de4c39cafa6b9c7"
+        },
+        {
+            "m_Id": "72775c7febb54fd7b233c29825401cc5"
         }
     ],
     "m_Keywords": [],
@@ -961,10 +967,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 0.0,
-            "height": 0.0
+            "x": -834.4000854492188,
+            "y": 303.1999816894531,
+            "width": 200.00006103515626,
+            "height": 40.800018310546878
         }
     },
     "m_Slots": [
@@ -1343,6 +1349,34 @@
 }
 
 {
+    "m_SGVersion": 1,
+    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector3ShaderProperty",
+    "m_ObjectId": "72775c7febb54fd7b233c29825401cc5",
+    "m_Guid": {
+        "m_GuidSerialized": "b3dd9c01-fd31-4437-aea9-e531fe2cff22"
+    },
+    "m_Name": "Vector3",
+    "m_DefaultRefNameVersion": 1,
+    "m_RefNameGeneratedByDisplayName": "Vector3",
+    "m_DefaultReferenceName": "_Vector3",
+    "m_OverrideReferenceName": "",
+    "m_GeneratePropertyBlock": true,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+    "m_DismissedVersion": 0,
+    "m_Precision": 0,
+    "overrideHLSLDeclaration": false,
+    "hlslDeclarationOverride": 0,
+    "m_Hidden": false,
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    }
+}
+
+{
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.DynamicVectorMaterialSlot",
     "m_ObjectId": "73885bacac4a44be902a5a2eb5993f38",
@@ -1692,6 +1726,34 @@
     "m_Value": 0.0,
     "m_DefaultValue": 0.0,
     "m_Labels": []
+}
+
+{
+    "m_SGVersion": 1,
+    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
+    "m_ObjectId": "942289c0ae0345228de4c39cafa6b9c7",
+    "m_Guid": {
+        "m_GuidSerialized": "7c18a5c7-9fbe-46d1-b40d-081fcf9deea0"
+    },
+    "m_Name": "eyedepth",
+    "m_DefaultRefNameVersion": 1,
+    "m_RefNameGeneratedByDisplayName": "eyedepth",
+    "m_DefaultReferenceName": "_eyedepth",
+    "m_OverrideReferenceName": "",
+    "m_GeneratePropertyBlock": true,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+    "m_DismissedVersion": 0,
+    "m_Precision": 0,
+    "overrideHLSLDeclaration": false,
+    "hlslDeclarationOverride": 0,
+    "m_Hidden": false,
+    "m_Value": 0.0,
+    "m_FloatType": 0,
+    "m_RangeValues": {
+        "x": 0.0,
+        "y": 1.0
+    }
 }
 
 {
@@ -2177,6 +2239,12 @@
         },
         {
             "m_Id": "cbb56315223d46afb061aa73381ab7a0"
+        },
+        {
+            "m_Id": "942289c0ae0345228de4c39cafa6b9c7"
+        },
+        {
+            "m_Id": "72775c7febb54fd7b233c29825401cc5"
         }
     ]
 }

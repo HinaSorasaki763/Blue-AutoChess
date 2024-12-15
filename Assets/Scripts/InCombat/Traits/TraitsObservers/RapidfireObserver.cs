@@ -8,7 +8,7 @@ public class RapidfireObserver : CharacterObserverBase
     {
         this.parent = character;
         character.effectCTRL.characterCTRL = character;
-        Effect effect = EffectFactory.StatckableIncreaseStatsEffct(0,"RapidfireObserver", 0, StatsType.AttackSpeed,parent,true);
+        Effect effect = EffectFactory.StatckableStatsEffct(0,"RapidfireObserver", 0, StatsType.AttackSpeed,parent,true);
         effect.SetActions(
             (character) => character.ModifyStats(StatsType.AttackSpeed, effect.Value, effect.Source),
             (character) => character.ModifyStats(StatsType.AttackSpeed, -effect.Value, effect.Source)

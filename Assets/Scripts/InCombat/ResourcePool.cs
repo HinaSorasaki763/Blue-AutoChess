@@ -9,11 +9,11 @@ public class ResourcePool : MonoBehaviour
 {
 
     public static ResourcePool Instance { get; private set; }
-    public GameObject floorPrefab, bulletPrefab, characterBarPrefab, FloatingTextPrefab,wallPrefab;
-    public Transform floorParent, bulletParent, characterBarParent, FloatingTextParent,wallParent;
-    public const int floorCount = 64, bulletCount = 50, barCount = 20, TextCount = 50,wallCount = 50;
-    public List<GameObject> floorPool = new(), bulletPool = new(), barPool = new(), textPool = new(),wallPool = new();
-    public List<Character> OneCostCharacter, TwoCostCharacter, ThreeCostCharacter, SpecialCharacter;
+    public GameObject floorPrefab, bulletPrefab, characterBarPrefab, FloatingTextPrefab, wallPrefab;
+    public Transform floorParent, bulletParent, characterBarParent, FloatingTextParent, wallParent;
+    public const int floorCount = 64, bulletCount = 50, barCount = 20, TextCount = 50, wallCount = 50;
+    public List<GameObject> floorPool = new(), bulletPool = new(), barPool = new(), textPool = new(), wallPool = new();
+    public List<Character> OneCostCharacter, TwoCostCharacter, ThreeCostCharacter, FourCostCharacter, FiveCostCharacter, SpecialCharacter;
     public List<List<Character>> Lists = new();
     public GameEvent AllResoucesLoaded;
 
@@ -58,10 +58,22 @@ public class ResourcePool : MonoBehaviour
     {
         foreach (var characterList in Lists)
         {
+            StringBuilder sb = new();
             foreach (var character in characterList)
             {
                 if (!characterDictionary.ContainsKey(character.CharacterId))
                 {
+                    sb.AppendLine($"character {character.CharacterName} ,level = {character.Level}");
+                    float res = character.Stats.GetStat(StatsType.Resistence);
+                    float ratio = res/(100 + res) ;
+                    sb.AppendLine($"effective health = {character.Stats.GetStat(StatsType.Health)*(1/(1-ratio))}");
+                    sb.AppendLine($"dps = {character.Stats.GetStat(StatsType.Attack)* character.Stats.GetStat(StatsType.AttackSpeed)}");
+                    sb.AppendLine($"range = {character.Stats.GetStat(StatsType.Range)}");
+                    if (character.logistics)
+                    {
+                        sb.AppendLine($"(logistics)");
+                    }
+                    sb.AppendLine("");
                     characterDictionary.Add(character.CharacterId, character);
                 }
                 else
@@ -69,6 +81,7 @@ public class ResourcePool : MonoBehaviour
                     Debug.LogWarning($"CharacterId {character.CharacterId} is already in the dictionary!");
                 }
             }
+            Debug.Log(sb.ToString());
         }
     }
     public List<Character> GetAllCharacters()
@@ -99,11 +112,15 @@ public class ResourcePool : MonoBehaviour
         LoadResources<Character>("1Cost", ref OneCostCharacter);
         LoadResources<Character>("2Cost", ref TwoCostCharacter);
         LoadResources<Character>("3Cost", ref ThreeCostCharacter);
+        LoadResources<Character>("4Cost", ref FourCostCharacter);
+        LoadResources<Character>("5Cost", ref FiveCostCharacter);
         LoadResources<Character>("Special", ref SpecialCharacter);
 
         Lists.Add(OneCostCharacter);
         Lists.Add(TwoCostCharacter);
         Lists.Add(ThreeCostCharacter);
+        Lists.Add(FourCostCharacter);
+        Lists.Add(FiveCostCharacter);
         Lists.Add(SpecialCharacter);
 
         PopulateCharacterDictionary();
@@ -164,7 +181,7 @@ public class ResourcePool : MonoBehaviour
     {
         foreach (var item in barPool)
         {
-            if (!item.activeInHierarchy&&item.GetComponent<CharacterBars>().Parent == null)
+            if (!item.activeInHierarchy && item.GetComponent<CharacterBars>().Parent == null)
             {
                 item.transform.position = pos;
                 item.SetActive(true);
@@ -209,7 +226,7 @@ public class ResourcePool : MonoBehaviour
     public GameObject SpawnCharacterAtPosition(GameObject characterPrefab, Vector3 position, HexNode hexNode, CharacterParent characterParent, bool isAlly = false)
     {
         GameObject obj = Instantiate(characterPrefab);
-        obj.transform.position = position+ new Vector3(0, 0.14f, 0);
+        obj.transform.position = position + new Vector3(0, 0.14f, 0);
         obj.transform.rotation = Quaternion.Euler(0, 180, 0);
         obj.layer = isAlly ? 8 : 9;
 
