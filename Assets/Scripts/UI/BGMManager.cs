@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class BGMManager : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class BGMManager : MonoBehaviour
     public List<AudioClip> bgmClips;    // 將 BGM 音樂拖曳進來
     private bool isPlayingBGM = false;  // 用來記錄目前是否正在播放中
     private int currentIndex = -1;      // 記錄目前播放的 BGM 索引
-
+    public Slider VolumeSlider;
     private void Awake()
     {
         // 確保此物件在場景切換時不被銷毀，且保持單例模式
@@ -24,7 +25,11 @@ public class BGMManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
+    public void Start()
+    {
+        VolumeSlider.value = 0.75f;
+        audioSource.volume = VolumeSlider.value*0.1f;
+    }
     private void Update()
     {
         // 假設不循環播放 (loop = false) ，當前音樂結束後 isPlaying 會變為 false
@@ -35,7 +40,10 @@ public class BGMManager : MonoBehaviour
             PlayRandomBGM();
         }
     }
-
+    public void VolumeSetting()
+    {
+        audioSource.volume = VolumeSlider.value * 0.1f;
+    }
     public void PlayBGM(int index, bool loop = false)
     {
         if (index < 0 || index >= bgmClips.Count) return;
@@ -44,6 +52,7 @@ public class BGMManager : MonoBehaviour
         audioSource.clip = bgmClips[index];
         audioSource.loop = loop;
         audioSource.Play();
+        
         isPlayingBGM = true;
     }
 

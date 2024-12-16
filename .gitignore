@@ -10,12 +10,23 @@
 [Mm]emoryCaptures/
 UserSettings/
 
-# Avoid uploading auto-generated items
+# Unity 自動生成的資源與記錄文件
+/[Yy]ourProject_Data/
+/[Tt]extMeshPro/Resources/TMP Settings.asset
+*.unitypackage
+*.asset
+
+# Addressables 自動生成的檔案
 Assets/AddressableAssetsData/*.bin*
 Assets/AddressableAssetsData/*.hash
 
+# Lightmap/Reflection Probes Cache
+/[Ll]ightmapSnapshot/
+Assets/**/Lightmap-*.exr
+Assets/**/ReflectionProbe-*.exr
+
 # =============== #
-# Visual Studio    #
+# Visual Studio   #
 # =============== #
 .vscode/
 .vs/
@@ -23,12 +34,21 @@ Assets/AddressableAssetsData/*.hash
 *.user
 *.userprefs
 *.unityproj
+*.pidb
+*.svclog
+*.pdb
+*.opendb
+*.VC.db
+*.obj
 
-# 需要保留以下專案文件
-# 保留 .csproj 和 .sln 文件，這些對 Visual Studio 和專案編譯是必要的
+# JetBrains Rider IDE
+.idea/
+*.iml
+*.ipr
+*.iws
 
 # =============== #
-# OS generated files #
+# MacOS / Windows OS #
 # =============== #
 .DS_Store
 *.DS_Store
@@ -36,3 +56,53 @@ Assets/AddressableAssetsData/*.hash
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# =============== #
+# Generated or temporary files #
+# =============== #
+*.apk
+*.aab
+*.unitypackage
+*.tmp
+*.log
+*.bak
+*.swp
+*.lock
+
+# Crash/Profiler Dumps
+sysinfo.txt
+stacktrace.log
+*.pid
+
+# =============== #
+# Build Artifacts #
+# =============== #
+*.exe
+*.dll
+*.so
+*.dylib
+*.pdb
+*.app
+*.ipa
+*.exp
+*.lib
+*.zip
+*.tar.gz
+*.7z
+
+# Android/iOS Platform #
+/.gradle/
+/build/
+/[Oo]utput/
+/obj/
+/temp/
+
+# =============== #
+# Other Unity Tools #
+# =============== #
+# Shader Cache
+/[Ss]hader[Cc]ache/
+
+# Auto-generated IDE folders
+MonoDevelop/
+VSCode/
