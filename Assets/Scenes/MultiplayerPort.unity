@@ -692,9 +692,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3fd2a66ba0ade743b5af912c01dc2f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ipInputField: {fileID: 613364717}
-  warningPanel: {fileID: 1790167854}
-  warningText: {fileID: 985104735}
+  playerListDisplay: {fileID: 0}
+  roomCodeInputField: {fileID: 0}
+  playerNameInputField: {fileID: 0}
+  roomCodeDisplay: {fileID: 0}
 --- !u!114 &613364715
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1271,9 +1272,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3fd2a66ba0ade743b5af912c01dc2f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ipInputField: {fileID: 613364717}
-  warningPanel: {fileID: 1790167854}
-  warningText: {fileID: 985104735}
+  playerListDisplay: {fileID: 0}
+  roomCodeInputField: {fileID: 0}
+  playerNameInputField: {fileID: 0}
+  roomCodeDisplay: {fileID: 0}
 --- !u!114 &985104735
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1384,6 +1386,7 @@ GameObject:
   - component: {fileID: 1039636290}
   - component: {fileID: 1039636289}
   - component: {fileID: 1039636288}
+  - component: {fileID: 1039636291}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1465,6 +1468,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1039636291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1039636287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
+  m_TaaSettings:
+    quality: 3
+    frameInfluence: 0.1
+    jitterScale: 1
+    mipBias: 0
+    varianceClampScale: 0.9
+    contrastAdaptiveSharpening: 0
 --- !u!1 &1156092730
 GameObject:
   m_ObjectHideFlags: 0
@@ -1677,6 +1724,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1561767239}
   - component: {fileID: 1561767238}
+  - component: {fileID: 1561767240}
   m_Layer: 0
   m_Name: HookScripts
   m_TagString: Untagged
@@ -1696,9 +1744,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3fd2a66ba0ade743b5af912c01dc2f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ipInputField: {fileID: 613364717}
-  warningPanel: {fileID: 1790167854}
-  warningText: {fileID: 985104735}
+  playerListDisplay: {fileID: 0}
+  roomCodeInputField: {fileID: 0}
+  playerNameInputField: {fileID: 0}
+  roomCodeDisplay: {fileID: 0}
 --- !u!4 &1561767239
 Transform:
   m_ObjectHideFlags: 0
@@ -1714,6 +1763,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1561767240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1561767237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 3139162798
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!1 &1669573370
 GameObject:
   m_ObjectHideFlags: 0
@@ -2074,9 +2143,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3fd2a66ba0ade743b5af912c01dc2f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ipInputField: {fileID: 613364717}
-  warningPanel: {fileID: 1790167854}
-  warningText: {fileID: 985104735}
+  playerListDisplay: {fileID: 0}
+  roomCodeInputField: {fileID: 0}
+  playerNameInputField: {fileID: 0}
+  roomCodeDisplay: {fileID: 0}
 --- !u!1 &1926515093
 GameObject:
   m_ObjectHideFlags: 0

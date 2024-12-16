@@ -6,17 +6,23 @@ public class StartMenuController : MonoBehaviour
     public void StartGame()
     {
         // 加载场景，确保场景名正确
+
         SceneManager.LoadScene("SampleScene");
     }
 
     public void Multiplayer()
     {
-      //  SceneManager.LoadScene("MultiplayerPort");
+        //  SceneManager.LoadScene("MultiplayerPort");
     }
 
     public void QuitGame()
     {
         // 退出游戏
         Application.Quit();
+    }
+
+    public void BGMPlay()
+    {
+        BGMManager.Instance.ToggleBGM();
     }
 }
