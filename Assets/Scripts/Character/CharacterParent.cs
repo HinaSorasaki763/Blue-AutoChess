@@ -31,6 +31,36 @@ public class CharacterParent : MonoBehaviour
         }
         GameStageManager.Instance.ChangeGamePhase(GamePhase.Battling);
     }
+    public void ResetAllGodOfSonFlags()
+    {
+        foreach (var child in childCharacters)
+        {
+            CharacterCTRL character = child.GetComponent<CharacterCTRL>();
+            if (character == null) continue;
+            var observer = character.traitController.GetObserverForTrait(Traits.Arius) as AriusObserver;
+            if (observer != null && observer.IsGodOfSon)
+            {
+                observer.IsGodOfSon = false;
+                CustomLogger.Log(this, $"Reset IsGodOfSon for {character.name}");
+            }
+        }
+    }
+    public void GetAllGodOfSonFlags()
+    {
+        StringBuilder sb = new();
+        foreach (var child in childCharacters)
+        {
+            CharacterCTRL character = child.GetComponent<CharacterCTRL>();
+            if (character == null) continue;
+            var observer = character.traitController.GetObserverForTrait(Traits.Arius) as AriusObserver;
+
+            if (observer != null)
+            {
+                sb.AppendLine($"character {character} flag is {observer.IsGodOfSon}");
+            }
+        }
+        CustomLogger.Log(this, sb.ToString());
+    }
 
     public void CheckAndCombineCharacters()
     {
@@ -40,6 +70,7 @@ public class CharacterParent : MonoBehaviour
             CharacterCTRL ctrl = character.GetComponent<CharacterCTRL>();
             int characterId = ctrl.characterStats.CharacterId;
             int star = ctrl.star;
+
             if (!characterGroups.ContainsKey(characterId))
             {
                 characterGroups[characterId] = new Dictionary<int, List<CharacterCTRL>>();
@@ -52,25 +83,55 @@ public class CharacterParent : MonoBehaviour
             {
                 characterGroups[characterId][star].Add(ctrl);
             }
-
         }
-        foreach (var group in characterGroups)
+
+        bool hasCombined;
+        do
         {
-            foreach (var starGroup in group.Value)
+            hasCombined = false;
+            foreach (var group in characterGroups)
             {
-                if (starGroup.Value.Count >= 3)
+                foreach (var starGroup in group.Value)
                 {
-                    if (starGroup.Value[0].isObj) continue;
-                    CombineCharacters(starGroup.Value);
+                    if (starGroup.Value.Count >= 3)
+                    {
+                        if (starGroup.Value[0].isObj) continue;
+
+                        // 暫存升級的角色，並即時更新
+                        CharacterCTRL upgradedCharacter = starGroup.Value[0];
+                        bool result = CombineCharacters(starGroup.Value);
+                        if (result)
+                        {
+                            hasCombined = true;
+
+                            // 移除舊分組資料
+                            characterGroups[group.Key][upgradedCharacter.star - 1].Remove(upgradedCharacter);
+
+                            // 重新加入升級後的角色到新分組
+                            if (!characterGroups[group.Key].ContainsKey(upgradedCharacter.star))
+                            {
+                                characterGroups[group.Key][upgradedCharacter.star] = new List<CharacterCTRL>();
+                            }
+                            characterGroups[group.Key][upgradedCharacter.star].Add(upgradedCharacter);
+
+                            break; // 跳出內層迴圈，重新檢查
+                        }
+                    }
                 }
+                if (hasCombined) break; // 如果有合成，跳出外層迴圈
             }
         }
+        while (hasCombined);
+
         UpdateStrongestMarks(characterGroups);
         UpdateTraitEffects();
     }
-    private void CombineCharacters(List<CharacterCTRL> charactersToCombine)
+
+
+    private bool CombineCharacters(List<CharacterCTRL> charactersToCombine)
     {
-        if (charactersToCombine.Count < 3) return;
+        if (charactersToCombine == null || charactersToCombine.Count < 3) return false;
+
         CharacterCTRL mainCharacter = charactersToCombine[0];
         mainCharacter.star++;
         for (int i = 1; i < 3; i++)
@@ -79,15 +140,20 @@ public class CharacterParent : MonoBehaviour
             childCharacters.Remove(character);
             Destroy(character);
         }
+
         if (mainCharacter.star > 3)
         {
             mainCharacter.star = 3;
         }
+
         mainCharacter.characterStats.ApplyLevelUp(mainCharacter.characterStats.Level + 1);
         mainCharacter.characterBars.UpdateStarLevel();  // 更新星級顯示
         mainCharacter.AudioManager.PlayOnStarUp();
-        CustomLogger.Log(this,$"{mainCharacter.name} 已升級至 {mainCharacter.star} 星");
+        CustomLogger.Log(this, $"{mainCharacter.name} 已升級至 {mainCharacter.star} 星");
+
+        return true;
     }
+
 
     // 查找 "最強" 的角色並設置標誌
     private void UpdateStrongestMarks(Dictionary<int, Dictionary<int, List<CharacterCTRL>>> characterGroups)

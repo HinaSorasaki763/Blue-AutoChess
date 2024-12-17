@@ -25,6 +25,14 @@ public class TraitController : MonoBehaviour
             currentTraits.Add(trait);
         }
     }
+    public CharacterObserverBase GetObserverForTrait(Traits trait)
+    {
+        if (traitObservers.TryGetValue(trait, out var observer))
+        {
+            return observer;
+        }
+        return null;
+    }
 
     public void RemoveTrait(Traits trait)
     {
@@ -56,15 +64,8 @@ public class TraitController : MonoBehaviour
 
         switch (trait)
         {
-            case Traits.Millennium:
-                observer = new MillenniumObserver(traitLevel, character);
-                break;
             case Traits.Abydos:
                 observer = new AbydosObserver(traitLevel, character);
-                break;
-            case Traits.Barrage:
-                observer = new BarrageObserver(traitLevel,character);
-
                 break;
             case Traits.Gehenna:
                 observer = new GehennaObserver(traitLevel, character);
@@ -72,27 +73,74 @@ public class TraitController : MonoBehaviour
             case Traits.Hyakkiyako:
                 observer = new HyakkiyakoObserver(traitLevel, character);
                 break;
+            case Traits.Millennium:
+                observer = new MillenniumObserver(traitLevel, character);
+                break;
+            case Traits.Trinity:
+                observer = new TrinityObserver(traitLevel, character);
+                break;
+            case Traits.Supremacy:
+                // 尚未實作
+                break;
+            case Traits.Precision:
+                // 尚未實作
+                break;
+            case Traits.Barrage:
+                observer = new BarrageObserver(traitLevel, character);
+                break;
             case Traits.Aegis:
                 observer = new AegisObserver(traitLevel, character);
                 break;
+            case Traits.Healer:
+                // 尚未實作
+                break;
+            case Traits.Disruptor:
+                // 尚未實作
+                break;
             case Traits.RapidFire:
                 observer = new RapidfireObserver(traitLevel, character);
-                CustomLogger.Log(this, $"observer {observer} RapidfireObserver observer on {character.name}");
                 break;
+            case Traits.logistic:
+                // 尚未實作
+                break;
+            case Traits.Mystic:
+                // 尚未實作
+                break;
+            case Traits.Arius:
+                observer = new AriusObserver();
+                break;
+            case Traits.SRT:
+                break;
+            case Traits.None:
             default:
+                // 不做任何操作
                 break;
         }
+
         if (observer != null)
         {
             traitObservers[trait] = observer;
         }
     }
+    public void OnDealtDmg(CharacterCTRL target,int dmg)
+    {
+        foreach (var item in traitObservers.Values)
+        {
+            item.OnDamageDealt(character,target,dmg);
+        }
+        foreach (var item in characterSpecificObservers)
+        {
+            item.OnDamageDealt(character, target, dmg);
+        }
+    }
     public int ModifyDamageTaken(int amount, CharacterCTRL sourceCharacter)
     {
         int modifiedAmount = amount;
+        sourceCharacter.traitController.OnDealtDmg(character, modifiedAmount);
         foreach (var observer in traitObservers.Values)
         {
             modifiedAmount = observer.OnDamageTaken(character, sourceCharacter, modifiedAmount);
+
         }
         foreach (var observer in characterSpecificObservers)
         {

@@ -98,18 +98,27 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                 CharacterCTRL character = result.gameObject.GetComponent<CharacterCTRL>();
                 if (IsConsumableItem)
                 {
-                    CustomLogger.Log(this, "Calling remover");
-                    Remover(character);
-                    Destroy(ghostItem);
-                    if (gridLayoutGroup != null)
+                    ConsumableItem consumableItem = equipmentData as ConsumableItem;
+                    if (consumableItem != null)
                     {
-                        gridLayoutGroup.enabled = true;
+                        consumableItem.consumableEffect.ApplyEffect(character);
+                        Destroy(ghostItem);
+                        if (!consumableItem.consumableEffect.Permanent)
+                        {
+                            equipmentManager.RemoveEquipmentItem(equipmentData, gameObject);
+
+                        }
+
+                        if (gridLayoutGroup != null)
+                        {
+                            gridLayoutGroup.enabled = true;
+                        }
+                        transform.SetParent(originalParent);
+                        transform.SetSiblingIndex(0);
+                        transform.localPosition = Vector3.zero;
+                        isDragging = false;
+                        return;
                     }
-                    transform.SetParent(originalParent);
-                    transform.SetSiblingIndex(0);
-                    transform.localPosition = Vector3.zero;
-                    isDragging = false;
-                    return;
                 }
                 if (character != null)
                 {
@@ -147,10 +156,5 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         {
             EquipmentUIManager.Instance.ToggleUI(Detail);
         }
-    }
-    public void Remover(CharacterCTRL character)
-    {
-        CustomLogger.Log(this, "removing");
-        character.equipmentManager.RemoveAllItem();
     }
 }

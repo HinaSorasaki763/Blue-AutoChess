@@ -64,7 +64,6 @@ public class CharacterCTRL : MonoBehaviour
     public TraitController traitController;
     private TraitEffectApplier traitEffectApplier = new TraitEffectApplier();
     private List<CharacterObserverBase> observers = new List<CharacterObserverBase>();
-
     // Animator-related Fields
     public CustomAnimatorController customAnimator;
 
@@ -458,6 +457,7 @@ public class CharacterCTRL : MonoBehaviour
     public bool IsCasting() => customAnimator.animator.GetBool("CastSkill");
     public bool EquipItem(IEquipment equipment)
     {
+        CustomLogger.Log(this,$"EquipItem {equipment.EquipmentName}");
         if (equipment is SpecialEquipment specialEquipment) 
         {
             Traits traits = specialEquipment.trait;
@@ -704,13 +704,14 @@ public class CharacterCTRL : MonoBehaviour
             TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Miss, 0, screenPos,false);
             return;
         }
-        int finalAmount = traitController?.ModifyDamageTaken(amount, sourceCharacter) ?? amount;
+        int finalAmount = amount;
         float r = GetStat(StatsType.Resistence);
         float ratio = r / (100 + r);
-        finalAmount = (int)(finalAmount*ratio);
+        finalAmount = (int)(finalAmount*(1-ratio));
+        finalAmount = traitController.ModifyDamageTaken(finalAmount, sourceCharacter);
         if (isCrit)
         {
-            TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Weak, finalAmount, screenPos,false);
+            TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Weak, finalAmount, screenPos, false);
         }
         dmgRecivedOnWakamoMarked += (int)(finalAmount * wakamoMarkRatio); 
         while (finalAmount > 0 && shields.Count > 0)
@@ -737,7 +738,7 @@ public class CharacterCTRL : MonoBehaviour
             TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.None, finalAmount, screenPos,true);
             AddStat(StatsType.currHealth, -finalAmount);
         }
-
+        
         if (CheckDeath())
         {
             StartCoroutine(Die());

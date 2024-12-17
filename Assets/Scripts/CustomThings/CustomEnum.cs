@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
 
 namespace GameEnum
@@ -38,6 +39,8 @@ namespace GameEnum
         RapidFire,
         logistic,
         Mystic,
+        Arius,
+        SRT,
         None
     }
     [SerializeField]
@@ -222,18 +225,20 @@ namespace GameEnum
         public Traits trait;
         public Traits OriginalstudentTrait;
         public List<EquipmentType> combinableWith;
+        public IConsumableEffect consumableEffect;
         public string EquipmentName => equipmentName;
         public string EquipmentDetail => equipmentDetail;
         public Sprite Icon => icon;
         public bool IsSpecial => isSpecial;
         public bool IsConsumable => isConsumable;
-        public ConsumableItem(EquipmentSO equipmentSO)
+        public ConsumableItem(EquipmentSO equipmentSO, IConsumableEffect effect)
         {
             icon = equipmentSO.icon;
             equipmentName = equipmentSO.equipmentName;
             equipmentDetail = equipmentSO.equipmentDescription;
             isSpecial = equipmentSO.isSpecial;
             isConsumable = equipmentSO.IsConsumable;
+            consumableEffect = effect;
         }
         public Dictionary<EquipmentType, int> GetStats()
         {
@@ -248,7 +253,102 @@ namespace GameEnum
             CustomLogger.Log(this, $"{EquipmentName} on remove");
         }
     }
+    public enum ConsumableEffectType
+    {
+        None,
+        Remover,
+        AriusSelector,
+        Duplicator
+    }
+    public interface IConsumableEffect
+    {
+        bool Permanent { get;}
+        void ApplyEffect(CharacterCTRL target);
+        void RemoveEffect(CharacterCTRL target);
+    }
+    public class None : IConsumableEffect
+    {
+        public bool Permanent => false;
+        public void ApplyEffect(CharacterCTRL target)
+        {
+            CustomLogger.LogWhenThingShouldntHappened(this);
+        }
 
+        public void RemoveEffect(CharacterCTRL target)
+        {
+            CustomLogger.LogWhenThingShouldntHappened(this);
+        }
+    }
+    public class Remover : IConsumableEffect
+    {
+        public bool Permanent => true;
+        public void ApplyEffect(CharacterCTRL target)
+        {
+            target.equipmentManager.RemoveAllItem();
+            CustomLogger.Log(this, $"Applied Remover to {target.name}");
+        }
+
+        public void RemoveEffect(CharacterCTRL target)
+        {
+            CustomLogger.Log(this, $"Remove Remover from {target.name}");
+        }
+    }
+    public class AriusSelector : IConsumableEffect
+    {
+        public bool Permanent => true;
+
+        public void ApplyEffect(CharacterCTRL target)
+        {
+            if (!target.traitController.HasTrait(Traits.Arius))
+            {
+                PopupManager.Instance.CreatePopup("Not Arius squad's character!", 2);
+            }
+            else
+            {
+                // 獲取 AriusObserver
+                var observer = target.traitController.GetObserverForTrait(Traits.Arius) as AriusObserver;
+
+                if (observer != null)
+                {
+                    ResourcePool.Instance.ally.ResetAllGodOfSonFlags();
+                    observer.IsGodOfSon = true;
+                    CustomLogger.Log(this, $"Applied AriusSelector to {target.name}, IsGodOfSon = {observer.IsGodOfSon}");
+                    ResourcePool.Instance.ally.GetAllGodOfSonFlags();
+                }
+                else
+                {
+                    CustomLogger.LogError(this, "AriusObserver not found for the target character.");
+                }
+            }
+        }
+        public void RemoveEffect(CharacterCTRL target)
+        {
+            CustomLogger.Log(this, $"Remove AriusSelector from {target.name}");
+        }
+    }
+
+    public class Duplicator : IConsumableEffect
+    {
+        public bool Permanent => false;
+        public void ApplyEffect(CharacterCTRL target)
+        {
+            if (!ResourcePool.Instance.BenchManager.IsBenchFull())
+            {
+                ResourcePool.Instance.BenchManager.AddToBench(target.characterStats.Model);
+
+            }
+            else
+            {
+                CustomLogger.Log(this,"备战席已满，无法添加新角色。");
+            }
+            CustomLogger.Log(this, $"Applied Duplicator to {target.name}");
+        }
+
+        public void RemoveEffect(CharacterCTRL target)
+        {
+            CustomLogger.Log(this, $"Remove Duplicator from {target.name}");
+        }
+    }
     [Serializable]
     public class StatsContainer
     {

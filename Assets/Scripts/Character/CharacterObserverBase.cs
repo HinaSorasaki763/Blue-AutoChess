@@ -42,6 +42,11 @@ public abstract class CharacterObserverBase
         // 默认实现，不修改伤害值
         return amount;
     }
+    public virtual void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage)
+    {
+
+    }
+
     public virtual void GetHit(CharacterCTRL character,CharacterCTRL source,float amount,bool isCrit)
     {
         CustomLogger.Log(this, $"{character.characterStats.name} get hit by {source.characterStats.name} for {amount}");

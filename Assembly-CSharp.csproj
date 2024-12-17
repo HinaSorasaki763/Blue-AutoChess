@@ -82,6 +82,7 @@
     <Compile Include="Assets\Resources\RoundProbabilityData\RoundProbabilityData.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Equipment\CombinationRouteSO.cs" />
     <Compile Include="Assets\Scripts\UI\FloatingText.cs" />
+    <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\AriusObserver.cs" />
     <Compile Include="Assets\Scripts\UI\AugmentInspecting.cs" />
     <Compile Include="Assets\Scripts\Network\DedicatedServerManager.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
@@ -103,6 +104,7 @@
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitPanelManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\CharacterCTRL.cs" />
     <Compile Include="Assets\Scripts\CustomThings\Shiroko_Terror_SkillCTRL.cs" />
+    <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\TrinityObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\GameController\EndBattleModal.cs" />
     <Compile Include="Assets\Scripts\CustomThings\CustomEnum.cs" />
     <Compile Include="Assets\Scripts\Enemy\EnemyWave.cs" />
@@ -124,6 +126,7 @@
     <Compile Include="Assets\Scripts\InCombat\Character\StaticObject.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitData\TraitDescriptionDatabase.cs" />
     <Compile Include="Assets\Scripts\InCombat\costumBullet\NormalBullet.cs" />
+    <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\ObserverRelated\TrinityManager.cs" />
     <Compile Include="Assets\Scripts\Character\ICharacterSkill.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitDescriptions.cs" />
     <Compile Include="Assets\Scripts\UI\HandleObject.cs" />

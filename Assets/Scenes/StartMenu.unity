@@ -3201,17 +3201,17 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1492994924}
-        m_TargetAssemblyTypeName: StartMenuController, Assembly-CSharp
-        m_MethodName: BGMPlay
-        m_Mode: 1
+      - m_Target: {fileID: 2028989130}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &838060934
 MonoBehaviour:
@@ -3409,7 +3409,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 1
+          m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &1022830943
 MonoBehaviour:
@@ -5034,7 +5034,6 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 163e0a5d4c507844fb32c79294ec2bc9, type: 3}
   - {fileID: 8300000, guid: c74f3e087750daa4b992a6e015c3ad93, type: 3}
   - {fileID: 8300000, guid: c9b64c65c34aca74fa14a8003336c59e, type: 3}
-  SettingPanel: {fileID: 2028989130}
   VolumeSlider: {fileID: 14005556}
 --- !u!82 &1801882939
 AudioSource:
@@ -5229,7 +5228,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1812072705}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1492994924}
+        m_TargetAssemblyTypeName: StartMenuController, Assembly-CSharp
+        m_MethodName: BGMPlay
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1812072705
 MonoBehaviour:
   m_ObjectHideFlags: 0

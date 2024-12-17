@@ -34,6 +34,8 @@ public class ResourcePool : MonoBehaviour
 
     private Dictionary<int, Character> characterDictionary = new Dictionary<int, Character>();
     public CombinationRouteSO combinationRoute;
+
+    public BenchManager BenchManager;
     private void Awake()
     {
         if (Instance != null && Instance != this)

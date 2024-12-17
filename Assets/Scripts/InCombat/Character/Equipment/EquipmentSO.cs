@@ -15,7 +15,7 @@ public class EquipmentSO : ScriptableObject, IEquipment
     public List<EquipmentType> Attributes;
     public List<int> Value;
     public Dictionary<EquipmentType, int> combinedStats;
-
+    public ConsumableEffectType effectType;
 
     public string EquipmentDetail => equipmentDescription;
     public string EquipmentName => equipmentName;

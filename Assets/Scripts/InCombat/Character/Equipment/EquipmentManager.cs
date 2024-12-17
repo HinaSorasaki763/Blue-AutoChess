@@ -35,7 +35,9 @@ public class EquipmentManager : MonoBehaviour
             }
             else if(equipment.IsConsumable)
             {
-                ConsumableItem consumableItem = new (equipment);
+                IConsumableEffect effect = CreateConsumableEffect(equipment);
+                CustomLogger.Log(this, $"equuipment {equipment} added {effect} effect");
+                ConsumableItem consumableItem = new (equipment,effect);
                 availableEquipments.Add(consumableItem);
             }
             else
@@ -45,7 +47,22 @@ public class EquipmentManager : MonoBehaviour
             }
         }
     }
-
+    private IConsumableEffect CreateConsumableEffect(EquipmentSO equipmentSO)
+    {
+        switch (equipmentSO.effectType)
+        {
+            case ConsumableEffectType.None:
+                return null;
+            case ConsumableEffectType.Remover:
+                return new Remover();
+            case ConsumableEffectType.AriusSelector:
+                return new AriusSelector();
+            case ConsumableEffectType.Duplicator:
+                return new Duplicator();
+            default:
+                return null;
+        }
+    }
     // 新增裝備方法
     public void AddEquipmentItem(IEquipment equipment)
     {
