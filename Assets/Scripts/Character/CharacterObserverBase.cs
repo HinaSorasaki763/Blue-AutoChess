@@ -95,6 +95,14 @@ public abstract class CharacterObserverBase
         string result = isVictory ? "victory" : "defeat";
         CustomLogger.Log(this,$"Battle ended with {result}.");
     }
+    public virtual void OnEnterBattleField(CharacterCTRL character)
+    {
+        CustomLogger.Log(this, $"{character} OnEnterBattleField.");
+    }
+    public virtual void OnLeaveBattleField(CharacterCTRL c)
+    {
+        CustomLogger.Log(this, $"{c} OnLeaveBattleField.");
+    }
     public virtual void ResetVaribles(CharacterCTRL characterCTRL)
     {
         CustomLogger.Log(this, $"ResetVaribles()");

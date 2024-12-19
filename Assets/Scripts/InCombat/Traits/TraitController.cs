@@ -17,7 +17,28 @@ public class TraitController : MonoBehaviour
             Debug.LogError("TraitController requires CharacterCTRL component.");
         }
     }
-
+    public void TriggerOnEnterBattleField()
+    {
+        foreach (var item in traitObservers.Values)
+        {
+            item.OnEnterBattleField(character);
+        }
+        foreach (var item in characterSpecificObservers)
+        {
+            item.OnEnterBattleField(character);
+        }
+    }
+    public void TriggerOnLeaveBattleField()
+    {
+        foreach (var item in traitObservers.Values)
+        {
+            item.OnLeaveBattleField(character);
+        }
+        foreach (var item in characterSpecificObservers)
+        {
+            item.OnLeaveBattleField(character);
+        }
+    }
     public void AddTrait(Traits trait)
     {
         if (!currentTraits.Contains(trait))
@@ -31,6 +52,7 @@ public class TraitController : MonoBehaviour
         {
             return observer;
         }
+        CustomLogger.LogError(this,"not found trait");
         return null;
     }
 
@@ -107,7 +129,7 @@ public class TraitController : MonoBehaviour
                 // 尚未實作
                 break;
             case Traits.Arius:
-                observer = new AriusObserver();
+                observer = new AriusObserver(character);
                 break;
             case Traits.SRT:
                 break;
@@ -116,10 +138,13 @@ public class TraitController : MonoBehaviour
                 // 不做任何操作
                 break;
         }
-
         if (observer != null)
         {
-            traitObservers[trait] = observer;
+            if (!traitObservers.TryGetValue(trait,out var value))
+            {
+                traitObservers[trait] = observer;
+            }
+
         }
     }
     public void OnDealtDmg(CharacterCTRL target,int dmg)
@@ -135,18 +160,18 @@ public class TraitController : MonoBehaviour
     }
     public int ModifyDamageTaken(int amount, CharacterCTRL sourceCharacter)
     {
-        int modifiedAmount = amount;
-        sourceCharacter.traitController.OnDealtDmg(character, modifiedAmount);
+        sourceCharacter.traitController.OnDealtDmg(character, amount);
+        DamageStatisticsManager.Instance.UpdateDamage(sourceCharacter,amount);
         foreach (var observer in traitObservers.Values)
         {
-            modifiedAmount = observer.OnDamageTaken(character, sourceCharacter, modifiedAmount);
+            amount = observer.OnDamageTaken(character, sourceCharacter, amount);
 
         }
         foreach (var observer in characterSpecificObservers)
         {
-            modifiedAmount = observer.OnDamageTaken(character, sourceCharacter, modifiedAmount);
+            amount = observer.OnDamageTaken(character, sourceCharacter, amount);
         }
-        return modifiedAmount;
+        return amount;
     }
 
     public void Win()

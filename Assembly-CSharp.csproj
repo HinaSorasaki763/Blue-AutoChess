@@ -67,6 +67,7 @@
     <Compile Include="Assets\Scripts\Network\NetworkUIManager.cs" />
     <Compile Include="Assets\Scripts\GameEvent\GameEvent.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\ArisActiveSkill.cs" />
+    <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\ObserverRelated\AriusManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\GameController\PopupManager.cs" />
     <Compile Include="Assets\Scripts\Enemy\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\CustomThings\ShirokoTerror_animCTRL.cs" />
@@ -144,6 +145,7 @@
     <Compile Include="Assets\Scripts\InCombat\map\SpawnGrid.cs" />
     <Compile Include="Assets\Scripts\InCombat\GameController\GameController.cs" />
     <Compile Include="Assets\Scripts\GlobalAudioManager.cs" />
+    <Compile Include="Assets\Scripts\UI\DamageStatisticsManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\PathFinding\HexNode.cs" />
     <Compile Include="Assets\Scripts\Augments\AugmentFactory.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\CoroutineController.cs" />

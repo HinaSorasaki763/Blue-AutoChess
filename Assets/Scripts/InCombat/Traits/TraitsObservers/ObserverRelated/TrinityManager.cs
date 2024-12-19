@@ -8,6 +8,7 @@ public class TrinityManager : MonoBehaviour
     public static TrinityManager Instance { get; set; }
     public GameObject cometPrefab;        // 彗星的Prefab
     public GameObject groundEffectPrefab; // 地面特效的Prefab
+    public GameObject Effect;
     public float fallDuration = 2f;       // 彗星墜落的時間
     public float fallHeight = 20f;        // 彗星的起始高度
     readonly int StackUplimit = 2;
@@ -55,18 +56,13 @@ public class TrinityManager : MonoBehaviour
         {
             elapsedTime += Time.deltaTime;
             float t = Mathf.Clamp01(elapsedTime / fallDuration);
-
-            // 讓彗星沿著直線墜落到落點
             comet.transform.position = Vector3.Lerp(startPosition, targetPosition, t);
-
             yield return null;
         }
-
-        // 彗星到達地面
         comet.transform.position = targetPosition;
-
-        // 銷毀地面特效和彗星
-        Destroy(groundEffect, 2f); // 地面特效2秒後消失
+        GameObject instantiatedEffect = Instantiate(Effect, targetPosition, Quaternion.identity);
+        Destroy(instantiatedEffect, 2f);
+        Destroy(groundEffect, 2f);
         Destroy(comet);
     }
 

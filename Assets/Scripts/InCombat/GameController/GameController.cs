@@ -36,7 +36,7 @@ public class GameController : MonoBehaviour
         bool isLogisticsCharacter = character.characterStats.logistics;
         if (targetSlot.Index >= 32)
         {
-            PopupManager.Instance.CreatePopup("!isBattlefield", 2);
+            PopupManager.Instance.CreatePopup("enemy territory", 2);
             ReturnToOriginalSlot(character);
             return (false, isBattlefield);
         }
@@ -128,6 +128,7 @@ public class GameController : MonoBehaviour
         }
         targetSlot.SetOccupyingCharacter(character);
         character.CurrentHex = targetSlot;
+        CheckSlot(character, targetSlot);
         if (targetSlot.TryGetComponent<HexNode>(out HexNode H))
         {
             H.Reserve(character);
@@ -147,10 +148,23 @@ public class GameController : MonoBehaviour
         slot2.GetComponent<HexNode>().Reserve(character1);
         character2.CurrentHex = slot1;
         slot1.GetComponent<HexNode>().Reserve(character2);
+        CheckSlot(character1,slot2);
+        CheckSlot(character2,slot1);
         character1.transform.position = new Vector3(slot2.transform.position.x, 0.14f, slot2.transform.position.z);
         character2.transform.position = new Vector3(slot1.transform.position.x, 0.14f, slot1.transform.position.z);
 
         Debug.Log($"Swapped {character1.name} and {character2.name} between slots {slot1.name} and {slot2.name}");
+    }
+    public void CheckSlot(CharacterCTRL c,HexNode hexNode)
+    {
+        if (!hexNode.IsBattlefield)
+        {
+            c.traitController.TriggerOnLeaveBattleField();
+        }
+        else
+        {
+            c.traitController.TriggerOnEnterBattleField();
+        }
     }
     public void AddGold(int amount)
     {

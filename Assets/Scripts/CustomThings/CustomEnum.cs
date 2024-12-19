@@ -303,6 +303,9 @@ namespace GameEnum
             {
                 PopupManager.Instance.CreatePopup("Not Arius squad's character!", 2);
             }
+            else if(!target.CurrentHex.IsBattlefield){
+                PopupManager.Instance.CreatePopup("Not On Board!", 2);
+            }
             else
             {
                 // 獲取 AriusObserver
@@ -311,7 +314,7 @@ namespace GameEnum
                 if (observer != null)
                 {
                     ResourcePool.Instance.ally.ResetAllGodOfSonFlags();
-                    observer.IsGodOfSon = true;
+                    observer.SetGodOfSon(true);
                     CustomLogger.Log(this, $"Applied AriusSelector to {target.name}, IsGodOfSon = {observer.IsGodOfSon}");
                     ResourcePool.Instance.ally.GetAllGodOfSonFlags();
                 }

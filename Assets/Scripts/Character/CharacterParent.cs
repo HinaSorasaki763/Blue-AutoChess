@@ -40,7 +40,7 @@ public class CharacterParent : MonoBehaviour
             var observer = character.traitController.GetObserverForTrait(Traits.Arius) as AriusObserver;
             if (observer != null && observer.IsGodOfSon)
             {
-                observer.IsGodOfSon = false;
+                observer.SetGodOfSon(false);
                 CustomLogger.Log(this, $"Reset IsGodOfSon for {character.name}");
             }
         }
@@ -213,7 +213,7 @@ public class CharacterParent : MonoBehaviour
         {
             CheckAndCombineCharacters();
         }
-
+        AddTraitEffects();
     }
     public void Update()
     {
@@ -265,6 +265,21 @@ public class CharacterParent : MonoBehaviour
             item.SetActive(false);
         }
         UpdateLogisticsDummies(battlefieldCharacters);
+    }
+    public void AddTraitEffects()
+    {
+        List<CharacterCTRL> battlefieldCharacters = GetAllCharacter();
+        Dictionary<Traits, int> traitCounts = TraitsEffectManager.Instance.CalculateTraitCounts(battlefieldCharacters);
+        StringBuilder sb = new StringBuilder();
+        int totalActivatedTraits = 0; // 激活的羁绊数量总和
+
+        foreach (var trait in traitCounts.Keys)
+        {
+            int traitLevel = traitCounts[trait];
+            sb.AppendLine($"{trait} 拥有 {traitLevel} 名角色激活");
+            totalActivatedTraits += traitLevel;
+            ApplyTraitEffect(trait, traitLevel, battlefieldCharacters, isEnemy);
+        }
     }
     private void UpdateLogisticsDummies(List<CharacterCTRL> battlefieldCharacters)
     {
@@ -333,6 +348,15 @@ public class CharacterParent : MonoBehaviour
             }
         }
         return i;
+    }
+    public List<CharacterCTRL> GetAllCharacter()
+    {
+        List<CharacterCTRL> L = new List<CharacterCTRL>();
+        foreach (var item in childCharacters)
+        {
+            L.Add(item.GetComponent<CharacterCTRL>());
+        }
+        return L;
     }
     public List<CharacterCTRL> GetBattleFieldCharacter()
     {
