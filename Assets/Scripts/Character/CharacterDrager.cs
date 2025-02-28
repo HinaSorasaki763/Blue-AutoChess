@@ -1,4 +1,5 @@
 using GameEnum;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -42,6 +43,12 @@ public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         foreach (var item in characterCTRL.equipmentManager.equippedItems)
         {
             sb.AppendLine(item.ToString());
+        }
+        sb.AppendLine("Character Stats:");
+        foreach (StatsType type in Enum.GetValues(typeof(StatsType)))
+        {
+            float value = characterCTRL.GetStat(type);
+            sb.AppendLine($"{type}: {value}");
         }
         CustomLogger.Log(this,sb.ToString());
         if (!UIManager.Instance.TryClose(characterCTRL))

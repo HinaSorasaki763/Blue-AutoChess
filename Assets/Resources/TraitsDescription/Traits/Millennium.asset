@@ -17,7 +17,24 @@ MonoBehaviour:
   sprite: {fileID: 21300000, guid: 662e9b8bf4f70754f9f8f461292ae22d, type: 3}
   description: Millennium
   descrtipns:
-  - "\u5343\u5E74\u79D1\u5B78\u9662\u7684\u5B78\u751F\u4E0D\u4EE5\u52DD\u5229\u70BA\u76EE\u6A19\u3002\u6BCF\u79D2\uFF0C\u5834\u4E0A\u5B58\u6D3B\u7684\u5343\u5E74\u5B78\u751F\u6703\u589E\u52A0\u300C\u6578\u64DA\u300D\uFF0C\u7576\u300C\u6578\u64DA\u300D\u7D2F\u7A4D\u5230\u4E0D\u540C\u7684\u95BE\u503C\u6642\uFF0C\u6703\u89E3\u9396\u5404\u7A2E\u734E\u52F5\u3002"
+  - "\u5343\u5E74\u79D1\u5B78\u9662\u7684\u5B78\u751F\u4E0D\u4EE5\u6BCF\u4E00\u5834\u7684\u52DD\u5229\u70BA\u76EE\u6A19\u3002\u6BCF\u79D2\uFF0C\u5834\u4E0A\u5B58\u6D3B\u7684\u5343\u5E74\u5B78\u751F\u6703\u589E\u52A0\"\u6578\u64DA\"\uFF0C\u7576\"\u6578\u64DA\"\u7D2F\u7A4D\u5230\u4E0D\u540C\u7684\u95BE\u503C\u6642\uFF0C\u6703\u89E3\u9396\u5404\u7A2E\u734E\u52F5\u3002"
   - Millennium students do not aim for victory. Instead, they generate "Data" every
     second they survive on the battlefield. When enough "Data" is accumulated, various
     rewards are unlocked at each threshold.
+  thresholds:
+  - level: 0
+    requiredCount: 2
+    effectValue: 0
+    effectDescription: 
+  - level: 1
+    requiredCount: 4
+    effectValue: 0
+    effectDescription: 
+  - level: 2
+    requiredCount: 6
+    effectValue: 0
+    effectDescription: 
+  - level: 3
+    requiredCount: 8
+    effectValue: 0
+    effectDescription: 

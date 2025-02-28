@@ -52,8 +52,17 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: 5203000040060000581b0000
+  Attack: 4600000069000000a5000000
   Traits: 030000000b00000005000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - "\u5C0D\u7576\u524D\u76EE\u6A19\u767C\u52D5\u591A\u6BB5\u653B\u64CA\uFF0C\n\u6BCF\u6BB5\u9020\u6210
+    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\uFF0C\n\u53EF\u89F8\u767C\u591A\u6B21\u547D\u4E2D\u6548\u679C\u3002"
+  - "Attacks the current target with multiple rapid hits, \neach dealing {data1}
+    + ({data2}% \xD7 ATK) (Final: {Final}), \ntriggering on-hit effects multiple
+    times."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0

@@ -52,8 +52,17 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: 20030000aa050000c4090000
+  Attack: 320000004b00000069000000
   Traits: 0f00000008000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - "\u53EC\u559A\u7121\u4EBA\u6A5F\uFF0C\u671D\u7576\u524D\u76EE\u6A19\u79FB\u52D5\u4E26\u5728\u78B0\u5230\u7B2C\u4E00\u500B\u6575\u8ECD\u6642\u81EA\u7206\uFF0C\n\u9020\u6210
+    {data1} (\u6700\u7D42: {Final})\uFF0C\u55AE\u9AD4\u6688\u7729 {data5} \u79D2\uFF0C\u4E26\u524A\u6E1B\u8B77\u7532\u3002"
+  - "Summons a drone that moves toward the current target and self-destructs upon
+    hitting the first enemy, \ndealing {data1} (Final: {Final}), stunning for {data5}
+    seconds, and reducing armor."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0

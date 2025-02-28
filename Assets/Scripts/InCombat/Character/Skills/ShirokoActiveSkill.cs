@@ -14,6 +14,11 @@ public class ShirokoActiveSkill : MonoBehaviour
     }
     public GameObject GetDrone(SkillContext skillContext)
     {
-        return Instantiate(Drone, skillContext.Parent.transform.position, Quaternion.identity);
+        GameObject obj = Instantiate(Drone, skillContext.Parent.transform.position, Quaternion.identity);
+        droneRef = obj;
+        droneRef.transform.LookAt(skillContext.Parent.Target.transform);
+        droneCTRL = obj.GetComponent<Shiroko_Terror_DroneCTRL>();
+        droneCTRL.stack++;
+        return obj;
     }
 }

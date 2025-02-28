@@ -13,10 +13,24 @@ MonoBehaviour:
   m_Name: EnemyWave 2
   m_EditorClassIdentifier: 
   EnemyName: enemy 2
-  gridSlots: []
+  gridSlots:
+  - GridIndex: 38
+    CharacterID: 999
+    EquipmentIDs: 0c000000ffffffffffffffff
+  - GridIndex: 40
+    CharacterID: 999
+    EquipmentIDs: 0c000000ffffffffffffffff
+  - GridIndex: 45
+    CharacterID: 999
+    EquipmentIDs: 0c000000ffffffffffffffff
+  - GridIndex: 56
+    CharacterID: 999
+    EquipmentIDs: 0c000000ffffffffffffffff
   logisticSlot1:
     GridIndex: 0
     CharacterID: -1
+    EquipmentIDs: ffffffffffffffffffffffff
   logisticSlot2:
     GridIndex: 0
     CharacterID: -1
+    EquipmentIDs: ffffffffffffffffffffffff

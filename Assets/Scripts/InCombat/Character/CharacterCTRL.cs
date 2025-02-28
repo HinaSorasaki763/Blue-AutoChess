@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 public class CharacterCTRL : MonoBehaviour
@@ -12,6 +11,7 @@ public class CharacterCTRL : MonoBehaviour
     #region 屬性變數宣告
     // Grid and Target-related Fields
     public HexNode CurrentHex;
+    public HexNode HexWhenBattleStart;
     public GameObject Target;
     public GameObject PreTarget;
 
@@ -33,27 +33,30 @@ public class CharacterCTRL : MonoBehaviour
     private List<Shield> shields = new List<Shield>(); // 存儲所有護盾
     // Combat-related Fields
     public bool IsHeroicEnhanced = false;
+    public bool FaceDirectionLock = false;
+    private bool tempDirectionLock = false;
     public bool ManaLock = false;
-    public bool enterBattle;
+    public bool enterBattle = false;
     public bool isAlive = true;
     public bool IsCastingAbility = false;
     public bool isWalking = false;
-    public bool IsDying;
-    public bool isMarked;
-    public bool isCCImmune;
-    public bool Invincible;
-    public bool Taunted;
+    public bool IsDying = false;
+    public bool isMarked = false;
+    public bool isCCImmune = false;
+    public bool Invincible = false;
+    public bool AntiHeal = false;
+    public bool Overtime = false;
+    public float AntiHealRatio = 0;
+    public bool Taunted = false;
     private bool isFindingPath = false;
-    private bool ManaAdded;
     public float attackRate = 5.0f;
     private float attackTimer = 0f;
     private float attackSpeed = 1.0f;
-    public bool WakamoMark;
+    public bool WakamoMark = false;
     private float wakamoMarkRatio;
     private int dmgRecivedOnWakamoMarked;
     private CharacterCTRL WakamoMarkParent;
-    public bool stunned;
-    public GameObject bulletPrefab;
+    public bool stunned = false;
     public Transform FirePoint;
     public Transform GetHitPoint;
     public CharacterSkillBase ActiveSkill;
@@ -63,10 +66,10 @@ public class CharacterCTRL : MonoBehaviour
     // Traits and Effects-related Fields
     public TraitController traitController;
     private TraitEffectApplier traitEffectApplier = new TraitEffectApplier();
-    private List<CharacterObserverBase> observers = new List<CharacterObserverBase>();
+    public List<CharacterObserverBase> observers = new List<CharacterObserverBase>();
     // Animator-related Fields
     public CustomAnimatorController customAnimator;
-
+    private int Amulet_WatchObserverManaRestoreAmount;
     // Targeting and Grid Events-related Fields
     public bool isTargetable = true;
     public delegate void GridChanged(HexNode oldTile, HexNode newTile);
@@ -78,20 +81,57 @@ public class CharacterCTRL : MonoBehaviour
     public bool isObj;
     public GameObject Logistic_dummy;
     public CharacterEquipmentManager equipmentManager;
+    public int StealManaCount;
+    public bool IsFeared { get; set; }
+    private CharacterCTRL fearSource = null;      // 恐懼來源
+    private float fearDuration = 0;            // 恐懼持續秒數
+    public Coroutine fearCorutine;
     #endregion
     #region Unity Lifecycle Methods
+    public void ResetToBeforeBattle()
+    {
+        if (fearCorutine != null)
+        {
+            StopCoroutine(fearCorutine);
+        }
+
+        customAnimator.ForceIdle();
+        enterBattle = false;
+        FaceDirectionLock = false;
+        tempDirectionLock = false;
+        Overtime = false;
+        ManaLock = false;
+        isAlive = true;
+        IsCastingAbility = false;
+        isWalking = false;
+        IsDying = false;
+        isMarked = false;
+        isCCImmune = false;
+        Invincible = false;
+        AntiHeal = false;
+        Taunted = false;
+        isFindingPath = false;
+        attackRate = 5.0f;
+        attackTimer = 0f;
+        WakamoMark = false;
+        stunned = false;
+        isTargetable = true;
+        fearSource = null;
+        fearDuration = 0;
+        effectCTRL.ClearAllEffect();
+    }
     public virtual void OnEnable()
     {
+        star = 1;
         stats = characterStats.Stats.Clone();
         ResetStats();
+
         allyParent = ResourcePool.Instance.ally;
         enemyParent = ResourcePool.Instance.enemy;
         modifierCTRL = GetComponent<ModifierCTRL>();
         effectCTRL = GetComponent<EffectCTRL>();
         effectCTRL.characterCTRL = GetComponent<CharacterCTRL>();
-        CustomLogger.Log(this, $"gifting effectCTRL {gameObject.name} ctrl");
         traitController = GetComponent<TraitController>();
-        customAnimator = null;
         IsDying = false;
         if (characterBars != null)
         {
@@ -105,15 +145,15 @@ public class CharacterCTRL : MonoBehaviour
             var observer = characterBehaviorFunc();
             AddObserver(observer);
         }
-        foreach (var item in observers)
-        {
-            item.CharacterStart(this);
-        }
+        GlobalBaseObserver globalObserver = new GlobalBaseObserver();
+        AddObserver(globalObserver);
         if (characterSkills.TryGetValue(characterId, out var characterSkillFunc))
         {
+            CustomLogger.Log(this, $"characterId {characterId} getting {characterSkillFunc} TestEnhanceSkill");
             var baseSkill = characterSkillFunc();
-            if (IsHeroicEnhanced)
+            if (characterStats.TestEnhanceSkill || characterId >= 500)
             {
+                CustomLogger.Log(this, $"characterId {characterId} getting {characterSkillFunc} TestEnhanceSkill");
                 ActiveSkill = baseSkill.GetHeroicEnhancedSkill();
             }
             else
@@ -129,11 +169,60 @@ public class CharacterCTRL : MonoBehaviour
         equipmentManager = GetComponent<CharacterEquipmentManager>();
         equipmentManager.SetParent(this);
         AudioManager = GetComponent<CharacterAudioManager>();
+
+    }
+    public void LockDirection(Vector3 PosLookAt)
+    {
+        Quaternion targetRotation = Quaternion.LookRotation(PosLookAt);
+        transform.rotation = targetRotation;
+        FaceDirectionLock = true;
+
+    }
+    private bool CanTakeDamage()
+    {
+        return isAlive
+            && !IsDying
+            && !(characterStats.TestEnhanceSkill)
+            && !characterStats.TestBuildInvinvicble;
+    }
+    private IEnumerator CheckEverySecond()
+    {
+        while (true)
+        {
+            if (enterBattle)
+            {
+                CustomLogger.Log(this, "enterBattle");
+                if (CurrentHex.isDesertified)
+                {
+                    CustomLogger.Log(this, "CurrentHex.isDesertified");
+                    bool isAbydos = traitController.GetAcademy() == Traits.Abydos;
+                    Effect effect = EffectFactory.CreateAbydosEffect(isAbydos, AbydosManager.Instance.level);
+                    CustomLogger.Log(this, $"isabydos = {isAbydos}, effect = {effect.Source}");
+                    effectCTRL.AddEffect(effect);
+                }
+            }
+
+            yield return new WaitForSeconds(1f);
+        }
+    }
+    public void ReleaseLockDirection()
+    {
+        if (Target == null)
+        {
+            FaceDirectionLock = false;
+            return;
+        }
+        transform.LookAt(Target.transform.position);
+        FaceDirectionLock = false;
+        CustomLogger.Log(this, $"character {characterStats.name} released ,time = {Time.time}");
     }
     public void ResetStats()
     {
+        SetStat(StatsType.Health, characterStats.Health[star - 1]);
+        SetStat(StatsType.Attack, characterStats.Attack[star - 1]);
         SetStat(StatsType.currHealth, GetStat(StatsType.Health));
         SetStat(StatsType.Mana, 0);
+        CustomLogger.Log(this, $"character {characterStats.name} , health = {characterStats.Health[star - 1]} , attack = {characterStats.Attack[star - 1]}");
     }
     private void Start()
     {
@@ -141,6 +230,9 @@ public class CharacterCTRL : MonoBehaviour
         enemyLayer = 1 << LayerMask.NameToLayer("Enemy");
         GridLayer = 1 << LayerMask.NameToLayer("Grid");
         customAnimator = GetComponent<CustomAnimatorController>();
+        TriggerCharacterStart();
+        TriggerManualUpdate();
+        StartCoroutine(CheckEverySecond());
     }
 
     void Awake()
@@ -150,31 +242,39 @@ public class CharacterCTRL : MonoBehaviour
 
     public virtual void Update()
     {
-        characterBars.UpdateText(customAnimator.GetState().Item1.ToString());
-        if (Target != null && Target.GetComponent<CharacterCTRL>().IsDying)
+        if (tempDirectionLock != FaceDirectionLock)
+        {
+            CustomLogger.Log(this, $"character {characterStats.name} lockDirection = {FaceDirectionLock} , time = {Time.time}");
+            tempDirectionLock = FaceDirectionLock;
+        }
+        if (customAnimator != null)
+        {
+            characterBars.UpdateText(customAnimator.GetState().Item1.ToString());
+            bool canAttack = !customAnimator.animator.GetBool("CastSkill") && !isWalking;
+
+            if (enterBattle)
+            {
+                DetectedPos = CurrentHex.transform.position + new Vector3(0, 0.3f, 0);
+
+                if (!(stunned || IsFeared))
+                {
+                    HandleTargetFinding();
+                    HandleAttack(canAttack);
+                }
+                CheckEveryThing();
+                foreach (var hitCollider in Physics.OverlapSphere(transform.position, 0.2f, GridLayer))
+                {
+                    CurrentHex = hitCollider.GetComponent<HexNode>();
+                    CurrentHex.SetOccupyingCharacter(this);
+                }
+            }
+        }
+
+        if (Target != null && (Target.GetComponent<CharacterCTRL>().IsDying || !Target.GetComponent<CharacterCTRL>().isAlive || !Target.activeInHierarchy))
         {
             Target = null;
         }
-        bool canAttack = !customAnimator.animator.GetBool("CastSkill") && !isWalking;
 
-        if (enterBattle)
-        {
-            DetectedPos = CurrentHex.transform.position + new Vector3(0, 0.3f, 0);
-
-            if (!stunned)
-            {
-                HandleTargetFinding();
-                HandleAttack(canAttack);
-            }
-
-            CheckEveryThing();
-
-            foreach (var hitCollider in Physics.OverlapSphere(transform.position, 0.2f, GridLayer))
-            {
-                CurrentHex = hitCollider.GetComponent<HexNode>();
-                CurrentHex.SetOccupyingCharacter(this);
-            }
-        }
         for (int i = shields.Count - 1; i >= 0; i--)
         {
             shields[i].remainingTime -= Time.deltaTime;
@@ -184,6 +284,21 @@ public class CharacterCTRL : MonoBehaviour
                 shields.RemoveAt(i);
             }
         }
+
+        if (characterStats.CharacterId == 28)
+        {
+            //FindTarget();
+        }
+        CharacterUpdate();
+    }
+    public void CharacterUpdate()
+    {
+        foreach (var item in observers)
+        {
+            item.CharacterUpdate();
+        }
+        traitController.CharacterUpdate();
+        equipmentManager.CharacterUpdate();
     }
     #endregion
 
@@ -216,8 +331,12 @@ public class CharacterCTRL : MonoBehaviour
             return;
         }
 
-        customAnimator.ChangeState(CharacterState.Attacking);
-        transform.LookAt(Target.transform);
+        SetAnimatorStateToAttack();
+        if (!FaceDirectionLock)
+        {
+            transform.LookAt(Target.transform);
+        }
+
 
         int animationIndex = 4;
         if (isShirokoTerror)
@@ -232,9 +351,25 @@ public class CharacterCTRL : MonoBehaviour
             attackTimer = 0f;
         }
     }
-
+    public void SetAnimatorStateToAttack()
+    {
+        if (IsCastingAbility || isWalking || isFindingPath)
+        {
+            return;
+        }
+        customAnimator.ChangeState(CharacterState.Attacking);
+    }
     public int ExecuteActiveSkill()
     {
+        CharacterCTRL target = null;
+        if (Target != null)
+        {
+            target = GetTarget().GetComponent<CharacterCTRL>();
+        }
+        else
+        {
+            CustomLogger.LogWarning(this, $"character {name} using empty target");
+        }
         var skillContext = new SkillContext
         {
             Parent = this,
@@ -244,8 +379,9 @@ public class CharacterCTRL : MonoBehaviour
             Range = 5,
             duration = 2f,
             currHex = CurrentHex,
-            CurrentTarget = Target.GetComponent<CharacterCTRL>(),
-            CharacterLevel = 1
+            CurrentTarget = target,
+            CharacterLevel = 1,
+            statsByStarLevel = ActiveSkill.GetCharacterLevel()
         };
         int i = 0;
         if (isShirokoTerror)
@@ -257,6 +393,7 @@ public class CharacterCTRL : MonoBehaviour
         SkillContext = skillContext;
         ActiveSkill.ExecuteSkill(skillContext);
         traitController.CastedSkill();
+        equipmentManager.OnParentCastedSkill();
         foreach (var item in observers)
         {
             item.OnCastedSkill(this);
@@ -264,15 +401,32 @@ public class CharacterCTRL : MonoBehaviour
         return i;
 
     }
+    public (bool, int) CalculateCrit(int dmg)
+    {
+        bool iscrit = false;
+        if (characterStats.CharacterId == 27)
+        {
+            dmg = (int)(dmg * (1 + ((GetStat(StatsType.CritRatio) + GetStat(StatsType.CritChance)) * 0.01f)));
+            iscrit = true;
+            return (iscrit, dmg);
+        }
 
+        if (Utility.Iscrit(GetStat(StatsType.CritChance)))
+        {
+            dmg = (int)(dmg * (1 + GetStat(StatsType.CritRatio) * 0.01f));
+            CustomLogger.Log(this, $"character {name} crit");
+            iscrit = true;
+        }
+        return (iscrit, dmg);
+    }
     public void Attack()
     {
-        if (Target!= null && Vector3.Distance(Target.transform.position,transform.position) > GetStat(StatsType.Range))
+        if (Target != null && Vector3.Distance(Target.transform.position, transform.position) > GetStat(StatsType.Range) + 0.1f)
         {
             FindTarget();
             return;
         }
-        if (IsDying) return;
+        if (IsDying || IsCastingAbility) return;
         if (characterStats.logistics)
         {
             logistics();
@@ -280,28 +434,34 @@ public class CharacterCTRL : MonoBehaviour
             return;
         }
         HandleAttacking();
-        customAnimator.ChangeState(CharacterState.Attacking);
-        var bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet,FirePoint.position, Quaternion.identity);
-        var bulletComponent = bullet.GetComponent<NormalBullet>();
-        if (!Target) return;
-        var targetCtrl = Target.GetComponent<CharacterCTRL>();
-        if (bulletComponent == null) 
+
+
+        SetAnimatorStateToAttack();
+        if (characterStats.CharacterId != 34)
         {
-            CustomLogger.LogWarning(this,$"Target {Target} dont have ctrl");
+            var bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, FirePoint.position, Quaternion.identity);
+            var bulletComponent = bullet.GetComponent<NormalBullet>();
+            if (!Target) return;
+            int damage = (int)(GetStat(StatsType.Attack) * (1 + modifierCTRL.GetTotalStatModifierValue(ModifierType.DamageDealt) * 0.01f));
+            (bool, int) tuple = CalculateCrit(damage);
+            bool iscrit = tuple.Item1;
+            damage = tuple.Item2;
+            bulletComponent.Initialize(damage, GetTargetLayer(), this, 20, Target, false, iscrit);
+
         }
-        int damage = (int)(GetStat(StatsType.Attack) * (1 + modifierCTRL.GetTotalStatModifierValue(ModifierType.DamageDealt) * 0.01f));
-        bool iscrit = false;
-        if (Utility.Iscrit(GetStat(StatsType.CritChance)))
-        {
-            damage = (int)(damage * (1 + GetStat(StatsType.CritRatio) * 0.01f));
-            CustomLogger.Log(this, $"character {name} crit");
-            iscrit = true;
-        }
-        bulletComponent.Initialize(targetCtrl.GetHitPoint.position, damage, GetTargetLayer(), this, 20,targetCtrl.gameObject,iscrit);
 
         transform.LookAt(Target.transform);
     }
-
+    public IEnumerator Explosion(int dmg, int range, HexNode centerNode, CharacterCTRL sourceCharacter, float waitforSec, string sources, bool iscrit)
+    {
+        yield return new WaitForSeconds(waitforSec);
+        Utility.DealDamageInRange(centerNode, range, sourceCharacter, dmg, sources, iscrit);
+        yield return null;
+    }
+    public int GetAttack()
+    {
+        return (int)GetStat(StatsType.Attack);
+    }
     private void HandleTargetFinding()
     {
         if (Target == null && !FindTarget())
@@ -318,34 +478,72 @@ public class CharacterCTRL : MonoBehaviour
 
     private void HandleAttacking()
     {
+        customAnimator.animator.speed = GetStat(StatsType.AttackSpeed);
         if (!ManaLock)
         {
-            AddStat(StatsType.Mana, 10);
+            Addmana(10);
         }
         foreach (var item in observers)
         {
             item.OnAttacking(this);
         }
         traitController.Attacking();
+        equipmentManager.OnParentAttack();
         AugmentEventHandler.Instance.Attacking(this);
     }
-
-
-    public void Heal(int amount,CharacterCTRL source)
+    public (float, float) BeforeApplyingNegetiveEffect(float length, float effectiveness)
     {
-        CustomLogger.Log(this,$"{source} heal {name} of {amount}");
+        float finallength = length;
+        float finaleffectiveness = effectiveness;
+        foreach (var item in observers)
+        {
+            (finallength, finaleffectiveness) = item.AdjustNegetiveEffect(finallength, finaleffectiveness);
+        }
+        (finallength, finaleffectiveness) = traitController.BeforeApplyingNegetiveEffect(finallength, finaleffectiveness);
+        (finallength, finaleffectiveness) = equipmentManager.BeforeApplyingNegetiveEffect(finallength, finaleffectiveness);
+        CustomLogger.Log(this, $"from ({length},{effectiveness}) to ({finallength},{finaleffectiveness})");
+        return (finallength, finaleffectiveness);
+    }
+    public int BeforeHealing(int amount, CharacterCTRL source)
+    {
+        int final = amount;
+        foreach (var item in observers)
+        {
+            final = item.BeforeHealing(source, final);
+        }
+        final = traitController.BeforeHealing(source, final);
+        final = equipmentManager.BeforeHealing(source, final);
+        return final;
+    }
+    public void Heal(int amount, CharacterCTRL source)
+    {
+        amount = BeforeHealing(amount, source);
+        if (AntiHeal)
+        {
+            amount = (int)(amount * (1 - AntiHealRatio));
+        }
+        if (amount <= 1)
+        {
+            return;
+        }
+        CustomLogger.Log(this, $"{source} heal {name} of {amount}");
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
+        TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.None, amount, screenPos, false, true);
         if (GetStat(StatsType.currHealth) + amount >= GetStat(StatsType.Health))
         {
             SetStat(StatsType.currHealth, GetStat(StatsType.Health));
+            if (equipmentManager.HaveSpecificEquipment(11))
+            {
+                int manashouldRestore = (int)(GetStat(StatsType.currHealth) + amount - GetStat(StatsType.Health)) / 20;
+                int manaRestoreAmount = Math.Min((int)GetStat(StatsType.MaxMana) / 5 - Amulet_WatchObserverManaRestoreAmount, manashouldRestore);
+                Amulet_WatchObserverManaRestoreAmount += manaRestoreAmount;
+                Addmana(manaRestoreAmount);
+            }
             return;
         }
         AudioManager.PlayHpRestoredSound();
         AddStat(StatsType.currHealth, amount);
     }
-
-
-    public void OnKillEnemy(CharacterCTRL enemy) => traitController.NotifyOnKilledEnemy();
-
     private Vector3 GetRandomDeviation(float deviation)
     {
         return new Vector3(
@@ -362,14 +560,88 @@ public class CharacterCTRL : MonoBehaviour
     {
         Invincible = b;
     }
+    public void SetAntiHeal(bool b)
+    {
+        AntiHeal = b;
+        if (b && !Overtime)
+        {
+            AntiHealRatio = 0.4f;
+        }
+    }
     public void SetTaunt(bool b)
     {
         Taunted = b;
     }
+    public void AbydosBuff(bool isAbydos, int data2, int data3, bool start)
+    {
+        AddAttackSpeed(data2 * 0.01f);
+        if (start)
+        {
+            int health = (int)(GetStat(StatsType.Health) * (isAbydos ? 1 : -1) * data3 * 0.01f);
+            AddStat(StatsType.currHealth, health);
+        }
+
+    }
+    public void RemoveHealth(int amount, string source)
+    {
+        if (IsDying || !isAlive) return;
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
+        if (amount <= 0)
+        {
+            amount = 1;
+        }
+        CustomLogger.Log(this, $"{name} losing {amount} health by  source {source} ");
+        while (amount > 0 && shields.Count > 0)
+        {
+            Shield shield = shields[0];
+            if (shield.amount >= amount)
+            {
+                TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Resist, amount, screenPos, false);
+                shield.amount -= amount;
+                AddStat(StatsType.Shield, -amount);
+                amount = 0;
+            }
+            else
+            {
+                TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Resist, shield.amount, screenPos, false);
+                amount -= shield.amount;
+                AddStat(StatsType.Shield, -shield.amount);
+                shields.RemoveAt(0);
+            }
+        }
+
+        if (amount > 0)
+        {
+            TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.None, amount, screenPos, true);
+            AddStat(StatsType.currHealth, -amount);
+        }
+    }
+    public void StealMana(CharacterCTRL stolen)
+    {
+        stolen.ManaStolen(this);
+    }
+    private void ManaStolen(CharacterCTRL stealer)
+    {
+        if (StealManaCount >= 5)
+        {
+            return;
+        }
+        StealManaCount++;
+        int amount = 10;
+        Addmana(-amount);
+        stealer.Addmana(amount);
+    }
     public void EmptyEffectFunction()
     {
+        //不能移除
 
-
+    }
+    public void OnKillEnemy(string source, CharacterCTRL characterDies)
+    {
+        foreach (var item in observers)
+        {
+            item.OnKilledEnemy(this, source, characterDies);
+        }
     }
     public void logistics()
     {
@@ -401,64 +673,175 @@ public class CharacterCTRL : MonoBehaviour
     {
         if (CheckDeath() && !IsDying)
         {
-            StartCoroutine(Die());
+            Die();
             return;
         }
-        if (GetStat(StatsType.Mana) >= GetStat(StatsType.MaxMana) && !IsCasting() && !isWalking&&!isObj&&!Taunted)
+        if (GetStat(StatsType.Mana) >= GetStat(StatsType.MaxMana) && !IsCasting() && !isWalking && !isObj && !Taunted)
         {
-            AddStat(StatsType.Mana, -GetStat(StatsType.MaxMana));
-            CustomLogger.Log(this,$"{gameObject.name} casting");
-            StartCoroutine(CastSkill());
+            Addmana(-(int)GetStat(StatsType.MaxMana));
+            SwapToCastSkill();
         }
     }
-
-    public float GetHealthPercentage() => GetStat(StatsType.currHealth) / (float)GetStat(StatsType.Health);
-
-    public float GetStat(StatsType statsType) => stats.GetStat(statsType);
-
-    public void AddStat(StatsType statsType, float amount) => SetStat(statsType, GetStat(statsType) + amount);
-
-    public void SetStat(StatsType statsType, float amount) => stats.SetStat(statsType, amount);
-
-    public IEnumerator CastSkill()
+    public void SwapToCastSkill()
     {
-        AudioManager.PlayCastExSkillSound();
-        CustomLogger.Log(this,$"{characterStats.CharacterName}CastSkill()");
-        IsCastingAbility = true;
         customAnimator.ChangeState(CharacterState.CastSkill);
-        int i = ExecuteActiveSkill();
-        int animationIndex = 7;
+        AudioManager.PlayCastExSkillSound();
+        CustomLogger.Log(this, $"{characterStats.CharacterName}CastSkill()");
+        IsCastingAbility = true;
+        int i = GetSkillID();
+        int animationIndex = 6;
         if (isShirokoTerror)
         {
             animationIndex = i + 8;
         }
-        float sec = customAnimator.GetAnimationClipInfo(animationIndex).Item2 / 3f;
+        float sec1 = customAnimator.GetAnimationClipInfo(animationIndex).Item2;
+        if (characterStats.CharacterId == 16)
+        {
+            sec1 /= GetStat(StatsType.AttackSpeed);
+        }
+        float sec = sec1 / 3f;
         Debug.Log($"[CharacterCTRL] index = {animationIndex} name = {customAnimator.GetAnimationClipInfo(animationIndex).Item1}  length = {customAnimator.GetAnimationClipInfo(animationIndex).Item2}");
+        StartCoroutine(CastSkillWaitTime(sec));
+    }
+    public IEnumerator CastSkillWaitTime(float sec)
+    {
         yield return new WaitForSeconds(sec);
         if (enterBattle)
         {
-            customAnimator.ChangeState(CharacterState.Attacking);
+            SetAnimatorStateToAttack();
             customAnimator.animator.SetBool("CastSkill", false);
         }
-        yield return new WaitForSeconds(sec * 2 - 0.2f);
+        yield return new WaitForSeconds(sec * 2 - 0.1f);
         AfterCastSkill();
+        yield return new WaitForSeconds(0.1f);
+    }
+    public float GetHealthPercentage() => GetStat(StatsType.currHealth) / (float)GetStat(StatsType.Health);
+
+    public float GetStat(StatsType statsType) => stats.GetStat(statsType);
+
+    public void AddStat(StatsType statsType, float amount)
+    {
+        if (statsType == StatsType.Mana)
+        {
+            Addmana((int)amount);
+            return;
+        }
+        if (statsType == StatsType.AttackSpeed)
+        {
+            AddAttackSpeed(amount);
+            return;
+        }
+        SetStat(statsType, GetStat(statsType) + amount);
+    }
+    public void AddAttackSpeed(float amount)
+    {
+        if (characterStats.CharacterId == 34)
+        {
+            AddStat(StatsType.Attack, amount * 100);
+            return;
+        }
+        SetStat(StatsType.AttackSpeed, GetStat(StatsType.AttackSpeed) + amount);
+    }
+    public void Addmana(int amount)
+    {
+        if (characterStats.CharacterId == 16)
+        {
+            return;
+        }
+        SetStat(StatsType.Mana, GetStat(StatsType.Mana) + amount);
+    }
+
+    public void SetStat(StatsType statsType, float amount) => stats.SetStat(statsType, amount);
+    private int GetSkillID()
+    {
+        CharacterCTRL c = null;
+        if (Target != null)
+        {
+            c = Target.GetComponent<CharacterCTRL>();
+        }
+        var skillContext = new SkillContext
+        {
+            Parent = this,
+            Enemies = GetEnemies(),
+            Allies = GetAllies(),
+            hexMap = SpawnGrid.Instance.hexNodes.Values.ToList(),
+            Range = 5,
+            duration = 2f,
+            currHex = CurrentHex,
+            CurrentTarget = GetTargetCTRL(),
+            CharacterLevel = 1
+        };
+        int i = 0;
+        if (isShirokoTerror)
+        {
+            Shiroko_Terror_SkillCTRL shiroko_Terror_SkillCTRL = GetComponent<Shiroko_Terror_SkillCTRL>();
+            skillContext.shirokoTerror_SkillID = shiroko_Terror_SkillCTRL.ChooseSkill(skillContext);
+            i = skillContext.shirokoTerror_SkillID;
+        }
+        return i;
+    }
+    public void CastSkill()
+    {
+        ExecuteActiveSkill();
+    }
+    public CharacterCTRL GetTargetCTRL()
+    {
+        if (Target != null && Target.activeInHierarchy)
+        {
+            return Target.GetComponent<CharacterCTRL>();
+        }
+        else
+        {
+            CustomLogger.LogWarning(this, "Getting null target");
+            return null;
+        }
+
+    }
+    public GameObject GetTarget()
+    {
+        if (Target != null && Target.activeInHierarchy)
+        {
+            return Target;
+        }
+        else
+        {
+            CustomLogger.LogWarning(this, "Getting null target");
+            return PreTarget;
+        }
+    }
+    public void AfterCastSkillAnimatorEvent()
+    {
         IsCastingAbility = false;
-        yield return new WaitForSeconds(0.2f);
+        if (Target == null)
+        {
+            return;
+        }
+        if ((Target.transform.position - transform.position).magnitude >= GetStat(StatsType.Range) + 0.1f)
+        {
+            Target = null;
+            PreTarget = null;
+        }
     }
     public void AfterCastSkill()
     {
+        Amulet_WatchObserverManaRestoreAmount = 0;
         foreach (var item in observers)
         {
             item.OnSkillFinished(this);
+
         }
+        ReleaseLockDirection();
         ManaLock = false;
         customAnimator.AfterCastSkill();
+        effectCTRL.OnParentCastSkillFinished();
+        IsCastingAbility = false;
+        StealManaCount = 0;
     }
     public bool IsCasting() => customAnimator.animator.GetBool("CastSkill");
     public bool EquipItem(IEquipment equipment)
     {
-        CustomLogger.Log(this,$"EquipItem {equipment.EquipmentName}");
-        if (equipment is SpecialEquipment specialEquipment) 
+        CustomLogger.Log(this, $"EquipItem {equipment.EquipmentName}");
+        if (equipment is SpecialEquipment specialEquipment)
         {
             Traits traits = specialEquipment.trait;
             foreach (var item in equipmentManager.GetEquippedItems())
@@ -507,8 +890,7 @@ public class CharacterCTRL : MonoBehaviour
         {
             if (!hitCollider.gameObject.TryGetComponent(out CharacterCTRL C) || !C.CurrentHex.IsBattlefield) continue;
             float distance = Vector3.Distance(transform.position, hitCollider.transform.position);
-
-            if (C.isTargetable && distance < closestDistance)
+            if (C.isTargetable && !C.characterStats.logistics && distance < closestDistance)
             {
                 closestTarget = hitCollider.gameObject;
                 closestDistance = distance;
@@ -531,7 +913,7 @@ public class CharacterCTRL : MonoBehaviour
     {
         if (closestTarget != null)
         {
-            if (closestDistance <= GetStat(StatsType.Range)+0.1f)
+            if (closestDistance <= GetStat(StatsType.Range) + 0.1f)
             {
                 PreTarget = null;
                 Target = closestTarget;
@@ -540,9 +922,8 @@ public class CharacterCTRL : MonoBehaviour
             {
                 Target = null;
                 PreTarget = closestTarget;
-                if (!isWalking && !isFindingPath)
+                if (!isWalking && !isFindingPath && !IsCastingAbility)
                 {
-                    CustomLogger.Log(this, $"{characterStats.CharacterName} 目標超出範圍，呼叫 TargetFinder");
                     TargetFinder();
                 }
             }
@@ -550,7 +931,6 @@ public class CharacterCTRL : MonoBehaviour
         }
         return false;
     }
-
     public void TargetFinder()
     {
         if (isFindingPath)
@@ -558,50 +938,29 @@ public class CharacterCTRL : MonoBehaviour
             return;
         }
         isFindingPath = true;
-
         HexNode targetNode = PreTarget?.GetComponent<CharacterCTRL>().CurrentHex ??
                              Target?.GetComponent<CharacterCTRL>().CurrentHex;
-
-        HexNode startNode = CurrentHex; // 确保起始节点是角色当前所在的格子
-
+        HexNode startNode = CurrentHex;
         if (startNode == null)
         {
-            Debug.LogError("StartNode is null");
             isFindingPath = false;
             return;
         }
-
         if (targetNode == null)
         {
-            Debug.LogError("TargetNode is null");
             isFindingPath = false;
             return;
         }
-
-        Debug.Log($"StartNode Position: {startNode.Position}, Cube Coordinates: {startNode.X},{startNode.Y},{startNode.Z}");
-        Debug.Log($"TargetNode Position: {targetNode.Position}, Cube Coordinates: {targetNode.X},{targetNode.Y},{targetNode.Z}");
         PathRequestManager.Instance.RequestPath(this, startNode, targetNode, OnPathFound, (int)stats.GetStat(StatsType.Range));
     }
 
     private void OnPathFound(List<HexNode> path)
     {
         isFindingPath = false;
-
         if (Target == null && PreTarget != null && !isWalking)
         {
-            Debug.Log($"{characterStats.CharacterName} 找到路徑，開始移動");
             StartCoroutine(MoveAlongPath(path));
         }
-
-        StringBuilder sb = new StringBuilder();
-        int i = 0;
-        sb.AppendLine($"角色 {characterStats.CharacterName} 移動路徑：");
-        foreach (var item in path)
-        {
-            i++;
-            sb.AppendLine($"節點 {i} : {item.Position}");
-        }
-        Debug.Log(sb.ToString());
     }
 
 
@@ -609,48 +968,38 @@ public class CharacterCTRL : MonoBehaviour
     {
         isWalking = true;
         customAnimator.ChangeState(CharacterState.Moving);
-        Debug.Log($"{characterStats.CharacterName} 開始沿路徑移動");
-
         HexNode previousNode = null;
         int currentNodeIndex = -1;
-
         for (int i = 0; i < path.Count; i++)
         {
             var node = path[i];
             Vector3 targetPos = node.Position + offset;
             yield return MoveTowardsPosition(targetPos);
-
             if (previousNode != null)
             {
                 previousNode.SetOccupyingCharacter(null);
                 previousNode.Release();
-                Debug.Log($"{characterStats.CharacterName} 釋放節點位置: {previousNode.Position}");
             }
-
             previousNode = CurrentHex;
             CurrentHex = node;
             CurrentHex.SetOccupyingCharacter(this);
-
             currentNodeIndex = i;
-
             if (IsTargetInRange())
             {
-                Debug.Log($"{characterStats.CharacterName} 發現目標在範圍內，中止移動");
                 currentNodeIndex = i;
                 break;
             }
         }
-        PathRequestManager.Instance.ReleaseRemainingReservations(this, currentNodeIndex + 1);
+        PathRequestManager.Instance.ReleaseCharacterReservations(this);
         isWalking = false;
         FindTarget();
-        Debug.Log($"{characterStats.CharacterName} 完成沿路徑移動");
     }
 
 
 
 
 
-    private IEnumerator MoveTowardsPosition(Vector3 targetPos)
+    public IEnumerator MoveTowardsPosition(Vector3 targetPos)
     {
         while (Vector3.Distance(transform.position, targetPos) > 0.1f)
         {
@@ -685,7 +1034,7 @@ public class CharacterCTRL : MonoBehaviour
     private bool IsTargetInRange()
     {
         float closestDistance = Mathf.Min(GetEnemies().Min(e => Vector3.Distance(transform.position, e.transform.position)), int.MaxValue);
-        bool inRange = closestDistance <= GetStat(StatsType.Range)+0.1f ||
+        bool inRange = closestDistance <= GetStat(StatsType.Range) + 0.1f ||
                        (PreTarget != null && Vector3.Distance(transform.position, PreTarget.transform.position) <= GetStat(StatsType.Range) + 0.1f);
         return inRange;
     }
@@ -693,40 +1042,112 @@ public class CharacterCTRL : MonoBehaviour
     #endregion
 
     #region Damage and Death
-    public virtual void GetHit(int amount, CharacterCTRL sourceCharacter,bool isCrit = false)
+    public virtual void Executed(CharacterCTRL sourceCharacter, string detailedSource)
     {
-        if (IsDying) return;
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
-        int rand = UnityEngine.Random.Range(0, 100);
+        TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Weak, 9999, screenPos, false);
+
+        sourceCharacter.traitController.NotifyOnKilledEnemy(detailedSource, this);
+        Die();
+
+    }
+    public virtual void GetHitByTrueDamage(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit)
+    {
+
+        if (!CanTakeDamage()) return;
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
+        if (isCrit)
+        {
+            TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Weak, amount, screenPos, false);
+        }
+        if (WakamoMark)
+        {
+            dmgRecivedOnWakamoMarked += (int)(amount * wakamoMarkRatio);
+        }
+        CustomLogger.Log(this, $"{name} get hit by {sourceCharacter}'s {detailedSource} with {amount} iscrit:{isCrit}");
+        while (amount > 0 && shields.Count > 0)
+        {
+            Shield shield = shields[0];
+            if (shield.amount >= amount)
+            {
+                TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Resist, amount, screenPos, false);
+                shield.amount -= amount;
+                AddStat(StatsType.Shield, -amount);
+                amount = 0;
+            }
+            else
+            {
+                TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Resist, shield.amount, screenPos, false);
+                amount -= shield.amount;
+                AddStat(StatsType.Shield, -shield.amount);
+                shields.RemoveAt(0);
+            }
+        }
+
+        if (amount > 0)
+        {
+            TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.None, amount, screenPos, true);
+            AddStat(StatsType.currHealth, -amount);
+        }
+        foreach (var item in observers)
+        {
+            item.GetHit(this, sourceCharacter, amount, isCrit, detailedSource);
+        }
+        traitController.NotifyGetHit(this, sourceCharacter, amount, isCrit, detailedSource);
+        equipmentManager.OnParentGethit(this, sourceCharacter, amount, isCrit, detailedSource);
+        if (CheckDeath() && !IsDying)
+        {
+            sourceCharacter.traitController.NotifyOnKilledEnemy(detailedSource, this);
+            Die();
+
+        }
+    }
+
+    public virtual void GetHit(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit)
+    {
+        if (IsDying || (characterStats.TestEnhanceSkill && IsAlly) || characterStats.TestBuildInvinvicble) return;//TODO:正式版記得拔掉
+        if (!isAlive) return;
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
+        int rand = UnityEngine.Random.Range(1, 100);
         if (GetStat(StatsType.DodgeChance) >= rand)
         {
             AudioManager.PlayDodgedSound();
-            TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Miss, 0, screenPos,false);
+            TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Miss, 0, screenPos, false);
+            CustomLogger.Log(this, $"{sourceCharacter} attack got dodged");
             return;
         }
-        int finalAmount = amount;
+        int finalAmount = ObserverDamageModifier(amount, sourceCharacter, detailedSource, isCrit);
+        finalAmount = BeforeDealtDmg(finalAmount, sourceCharacter, detailedSource, isCrit);
         float r = GetStat(StatsType.Resistence);
         float ratio = r / (100 + r);
-        finalAmount = (int)(finalAmount*(1-ratio));
-        finalAmount = traitController.ModifyDamageTaken(finalAmount, sourceCharacter);
+        finalAmount = (int)(finalAmount * (1 - ratio));
+        finalAmount = traitController.ModifyDamageTaken(finalAmount, sourceCharacter, detailedSource, isCrit);
+        finalAmount = (int)(finalAmount * (1 - GetStat(StatsType.PercentageResistence) / 100f));
+        finalAmount = (int)MathF.Max(finalAmount, 1);
+        bool getEffect = false;
         if (isCrit)
         {
             TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Weak, finalAmount, screenPos, false);
+            getEffect = true;
         }
-        dmgRecivedOnWakamoMarked += (int)(finalAmount * wakamoMarkRatio); 
+        if (WakamoMark)
+        {
+            dmgRecivedOnWakamoMarked += (int)(finalAmount * wakamoMarkRatio);
+        }
+        CustomLogger.Log(this, $"{name} get hit by {sourceCharacter}'s {detailedSource} with {amount} iscrit:{isCrit}");
         while (finalAmount > 0 && shields.Count > 0)
         {
             Shield shield = shields[0];
             if (shield.amount >= finalAmount)
             {
-                TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Resist, finalAmount, screenPos, false);
+                if (!getEffect) TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Resist, finalAmount, screenPos, false);
                 shield.amount -= finalAmount;
                 AddStat(StatsType.Shield, -finalAmount);
                 finalAmount = 0;
             }
             else
             {
-                TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Resist, shield.amount, screenPos, false);
+                if (!getEffect) TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Resist, shield.amount, screenPos, false);
                 finalAmount -= shield.amount;
                 AddStat(StatsType.Shield, -shield.amount);
                 shields.RemoveAt(0);
@@ -735,25 +1156,53 @@ public class CharacterCTRL : MonoBehaviour
 
         if (finalAmount > 0)
         {
-            TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.None, finalAmount, screenPos,true);
+            if (!getEffect) TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.None, finalAmount, screenPos, true);
             AddStat(StatsType.currHealth, -finalAmount);
         }
-        
-        if (CheckDeath())
+        foreach (var item in observers)
         {
-            StartCoroutine(Die());
-            if (sourceCharacter.traitController != null)
-            {
-                sourceCharacter.traitController.NotifyOnKilledEnemy();
-            }
-            else
-            {
-                Debug.LogWarning("sourceCharacter or its traitController is null, unable to notify observer.");
-            }
+            item.GetHit(this, sourceCharacter, finalAmount, isCrit, detailedSource);
+        }
+        traitController.NotifyGetHit(this, sourceCharacter, finalAmount, isCrit, detailedSource);
+        equipmentManager.OnParentGethit(this, sourceCharacter, finalAmount, isCrit, detailedSource);
+        if (CheckDeath() && !IsDying)
+        {
+            sourceCharacter.traitController.NotifyOnKilledEnemy(detailedSource, this);
+            Die();
+
         }
     }
+    public int ObserverDamageModifier(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit)
+    {
+        foreach (var item in observers)
+        {
+            amount = item.DamageModifier(sourceCharacter, this, amount, detailedSource, isCrit);
+        }
+        amount = sourceCharacter.traitController.ObserverDamageModifier(sourceCharacter, this, amount, detailedSource, isCrit);
+        amount = sourceCharacter.equipmentManager.ObserverDamageModifier(sourceCharacter, this, amount, detailedSource, isCrit);
+        if (amount <= 0)
+        {
+            amount = 0;
+        }
+        return amount;
+    }
 
-
+    public int BeforeDealtDmg(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit)
+    {
+        int totalAdjustedAmount = 0;
+        foreach (var item in observers)
+        {
+            totalAdjustedAmount += item.BeforeDealtDmg(sourceCharacter, this, amount, detailedSource, isCrit);
+        }
+        totalAdjustedAmount += sourceCharacter.traitController.BeforeDealtDamage(sourceCharacter, this, amount, detailedSource, isCrit);
+        totalAdjustedAmount += sourceCharacter.equipmentManager.BeforeDealtDamage(sourceCharacter, this, amount, detailedSource, isCrit);
+        amount -= totalAdjustedAmount;
+        if (amount <= 0)
+        {
+            amount = 0;
+        }
+        return amount;
+    }
     public void AddShield(int amount, float duration, CharacterCTRL source)
     {
         Shield newShield = new Shield(amount, duration);
@@ -762,8 +1211,54 @@ public class CharacterCTRL : MonoBehaviour
         CustomLogger.Log(this, $"{source} Shield {name} of {amount}");
         AddStat(StatsType.Shield, amount);
     }
+    public void ApplyFear(CharacterCTRL source, float duration)
+    {
+        if (IsFeared)
+        {
+            fearDuration += duration;
+            return;
+        }
+        IsFeared = true;
+        fearSource = source;
+        fearDuration = duration;
+        CustomLogger.Log(this, $"進入恐懼狀態，恐懼來源: {fearSource.name}");
+
+        // 可以用協程來控制恐懼時間
+        StartCoroutine(FearRoutine());
+    }
+
+    private IEnumerator FearRoutine()
+    {
+        // 恐懼狀態持續
+        float timer = 0f;
+        while (timer < fearDuration)
+        {
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        // 恐懼結束
+        IsFeared = false;
+        fearSource = null;
+        CustomLogger.Log(this, "恐懼狀態結束");
+
+        // 先把角色拉回當前 Hex 的中心（如果因為誤差造成偏移）
+        RecenterOnHex();
+
+        // 恢復正常目標搜尋
+        FindTarget();
+    }
+
+    public void RecenterOnHex()
+    {
+        if (CurrentHex != null)
+        {
+            transform.position = CurrentHex.Position + offset;
+        }
+    }
     public void Stun(bool s)
     {
+        CustomLogger.Log(this, $"{characterStats.name} getting stuuned : {s}");
         if (isObj) return;
         stunned = s;
         if (stunned)
@@ -773,21 +1268,21 @@ public class CharacterCTRL : MonoBehaviour
         }
         else
         {
-            customAnimator.ChangeState(CharacterState.Attacking);
+            SetAnimatorStateToAttack();
             customAnimator.animator.SetBool("StunFinished", true);
         }
     }
-    public void SetWakamoMark(float ratio,CharacterCTRL wakamo)
+    public void SetWakamoMark(int ratio, CharacterCTRL wakamo)
     {
         WakamoMark = true;
-        wakamoMarkRatio = ratio;
+        wakamoMarkRatio = ratio * 0.01f;
         WakamoMarkParent = wakamo;
     }
     public void OnWakamoMarkCountedDown()
     {
         WakamoMark = false;
         wakamoMarkRatio = 0;
-        GetHit(dmgRecivedOnWakamoMarked, WakamoMarkParent,false);
+        GetHit(dmgRecivedOnWakamoMarked, WakamoMarkParent, DamageSourceType.Skill.ToString(), false);
         WakamoMarkParent = null;
         dmgRecivedOnWakamoMarked = 0;
 
@@ -803,43 +1298,87 @@ public class CharacterCTRL : MonoBehaviour
     }
     public void SetMarked(bool marked)
     {
+
         isMarked = marked;
         Debug.Log($"{name} is {(isMarked ? "marked" : "no longer marked")}.");
         if (marked)
         {
             foreach (var item in GetEnemies())
             {
-                if ((item.transform.position-transform.position).magnitude <= item.GetStat(StatsType.Range) && item.characterStats.logistics)
+                if ((item.transform.position - transform.position).magnitude <= item.GetStat(StatsType.Range) + 2 && !item.characterStats.logistics)
                 {
-                    item.PreTarget = null;
-                    item.Target = gameObject;
+                    item.UpdateTarget(gameObject, (item.transform.position - transform.position).magnitude);
                 }
             }
         }
-
     }
-    public void ModifyStats(StatsType statsType, float amount,string source = null)
+    public void ModifyStats(StatsType statsType, float amount, string source = null)
     {
         AddStat(statsType, amount);
-        if (source!= null)
+        if (source != null)
         {
-            CustomLogger.Log(this,$"source = {source} , modifing {statsType} to {GetStat(statsType)} by added {amount}");
+            CustomLogger.Log(this, $"source = {source} , modifing {statsType} to {GetStat(statsType)} by added {amount}");
         }
     }
+    public void ModifyMultipleStats(Dictionary<StatsType, float> statsModifiers, string source = null, bool isRevert = false)
+    {
+        foreach (var modifier in statsModifiers)
+        {
+            float valueToApply = isRevert ? -modifier.Value : modifier.Value;
+            AddStat(modifier.Key, valueToApply);
+
+            if (source != null)
+            {
+                CustomLogger.Log(this,
+                    $"source = {source}, modifying {modifier.Key} to {GetStat(modifier.Key)} by {(isRevert ? "removing" : "adding")} {Math.Abs(modifier.Value)}");
+            }
+        }
+    }
+
     private bool CheckDeath()
     {
         if (GetStat(StatsType.currHealth) <= 0.5f)
         {
             isAlive = false;
+            ShutdownEverything();
             return true;
         }
         return false;
     }
-
-    public virtual IEnumerator Die()
+    public void ShutdownEverything()
     {
-        float soundLength = AudioManager.PlayOnDefeatedSound();
-        float animationLength = customAnimator.animator.GetCurrentAnimatorClipInfo(0)[0].clip.length;
+        PathRequestManager.Instance.ReleaseCharacterReservations(this);
+        FearManager.Instance.RemoveCharacterFromFear(this);
+
+        foreach (var item in SpawnGrid.Instance.hexNodes.Values)
+        {
+            if (item.IsReservedBy(this))
+            {
+                item.HardRelease();
+            }
+
+        }
+        StopAllCoroutines();
+
+
+    }
+    public void TriggerCharacterStart()
+    {
+        traitController.TriggerCharacterStart();
+        equipmentManager.TriggerCharacterStart();
+        foreach (var item in observers)
+        {
+            item.CharacterStart(this);
+        }
+    }
+    public void TriggerManualUpdate()
+    {
+        ResourcePool.Instance.ally.TriggerManualUpdate();
+        ResourcePool.Instance.enemy.TriggerManualUpdate();
+    }
+    public virtual void Die()
+    {
+        SetStat(StatsType.currHealth, 0);
         Debug.Log($"{gameObject.name} Die()");
         SpawnGrid.Instance.RemoveCenterPoint(CurrentHex);
         foreach (var item in observers)
@@ -847,20 +1386,18 @@ public class CharacterCTRL : MonoBehaviour
             item.OnDying(this);
         }
         IsDying = true;
-        customAnimator.ChangeState(CharacterState.Dying);
+        customAnimator.ForceDying();
         CurrentHex.OccupyingCharacter = null;
         isTargetable = false;
         CurrentHex.HardRelease();
-        if (soundLength >= animationLength)
-        {
-            yield return new WaitForSeconds(soundLength);
-        }
-        else
-        {
-            yield return new WaitForSeconds(0.5f);
-            yield return new WaitForSeconds(animationLength - 0.6f);
-        }
-        gameObject.SetActive(false);
+        TriggerManualUpdate();
+    }
+    public void BattleOverTime()
+    {
+        Overtime = true;
+        AntiHeal = true;
+        AddStat(StatsType.PercentageResistence, -20);
+        AntiHealRatio = 0.8f;
     }
     public void MarkedByWakamoStart()
     {
@@ -870,10 +1407,40 @@ public class CharacterCTRL : MonoBehaviour
     {
 
     }
+    public SkillContext GetSkillContext()
+    {
+        UpdateSkillContext();
+        return SkillContext;
+    }
+    public void UpdateSkillContext()
+    {
+        CharacterCTRL c;
+        if (Target != null)
+        {
+            c = Target.GetComponent<CharacterCTRL>();
+        }
+        else
+        {
+            c = null;
+        }
+        SkillContext = new SkillContext
+        {
+            Parent = this,
+            Enemies = GetEnemies(),
+            Allies = GetAllies(),
+            hexMap = SpawnGrid.Instance.hexNodes.Values.ToList(),
+            Range = 5,
+            duration = 2f,
+            currHex = CurrentHex,
+            CurrentTarget = c,
+            CharacterLevel = star
+        };
+
+    }
     #endregion
 
     #region Layer and Team Operations
-    public LayerMask GetTargetLayer() => (IsAlly ^ characterStats.logistics) ? enemyLayer : allyLayer;
+    public LayerMask GetTargetLayer() => IsAlly ? enemyLayer : allyLayer;
 
     public LayerMask GetAllyLayer() => IsAlly ? allyLayer : enemyLayer;
     public List<CharacterCTRL> GetEnemies()
@@ -885,7 +1452,7 @@ public class CharacterCTRL : MonoBehaviour
         {
             CharacterCTRL characterCtrl = character.GetComponent<CharacterCTRL>();
 
-            if (characterCtrl.CurrentHex.IsBattlefield && characterCtrl.gameObject.activeInHierarchy && !characterCtrl.IsDying)
+            if (characterCtrl.CurrentHex.IsBattlefield && characterCtrl.gameObject.activeInHierarchy && !characterCtrl.IsDying && !characterCtrl.characterStats.logistics && characterCtrl.isTargetable)
             {
                 enemies.Add(characterCtrl);
 
@@ -903,7 +1470,7 @@ public class CharacterCTRL : MonoBehaviour
         {
             CharacterCTRL characterCtrl = character.GetComponent<CharacterCTRL>();
 
-            if (characterCtrl.CurrentHex.IsBattlefield && characterCtrl.gameObject.activeInHierarchy&&!characterCtrl.characterStats.logistics)
+            if (characterCtrl.CurrentHex.IsBattlefield && characterCtrl.gameObject.activeInHierarchy && !characterCtrl.characterStats.logistics)
             {
                 allies.Add(characterCtrl);
             }
@@ -922,16 +1489,21 @@ public class CharacterCTRL : MonoBehaviour
         { 10, () => new ShizukoObserver()},
         { 12, () => new AkoObserver()},
         { 15, () => new AyaneObserver()},
+        { 16, () => new IzunaObserver()},
         { 22, () => new ShirokoObserver()},
 
         { 25, () => new HinaObserver()},
         { 26, () => new HoshinoObserver()},
+        { 27,() => new MikaObserver()},
         { 29, () => new TsurugiObserver()},
-        { 31, () => new Shiroko_Terror_Observer()}
+        { 31, () => new Shiroko_Terror_Observer()},
+        { 34,() => new MisakiObserver()},
+        { 36,()=> new MiyuObserver()}
     };
 
     public Dictionary<int, Func<CharacterSkillBase>> characterSkills = new()
     {
+        {  0, () => new NullSkill()},
         {  1, () => new ArisSkill()},
         {  2, () => new AyaneSkill()},
         {  3, () => new HarukaSkill()},
@@ -972,6 +1544,7 @@ public class CharacterCTRL : MonoBehaviour
         { 38, () => new Saki_Skill()},
         { 39, () => new Saori_Skill()},
         //40 is toki
+        {  504, () => new HarunaSkill()},
     };
     #endregion
 

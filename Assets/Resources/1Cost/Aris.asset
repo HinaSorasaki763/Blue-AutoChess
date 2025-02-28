@@ -21,7 +21,7 @@ MonoBehaviour:
   Stats:
     stats:
     - statType: 0
-      value: 550
+      value: 575
     - statType: 1
       value: 0
     - statType: 2
@@ -31,7 +31,7 @@ MonoBehaviour:
     - statType: 4
       value: 55
     - statType: 5
-      value: 0.5
+      value: 2
     - statType: 6
       value: 15
     - statType: 7
@@ -47,13 +47,24 @@ MonoBehaviour:
     - statType: 12
       value: 25
     - statType: 14
-      value: 5
+      value: 0
     - statType: 15
       value: 15
     - statType: 13
       value: 55
+  Health: 260200008403000054060000
+  Attack: 370000004e00000078000000
   Traits: 03000000060000000d000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - "\u611B\u9E97\u7D72\u627E\u5230\u4E00\u500B\u53EF\u4EE5\u8CAB\u7A7F\u6700\u591A\u6575\u4EBA\u7684\u65B9\u5411\uFF0C\u5411\u8A72\u65B9\u5411\u767C\u5C04\u4E00\u500B\u53EF\u4EE5\u8CAB\u7A7F\u6575\u4EBA\u7684\u5B50\u5F48\uFF0C\u9020\u6210:
+    {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C\n\u6BCF\u7A7F\u904E\u4E00\u500B\u6575\u4EBA\u5F8C\uFF0C\u5B50\u5F48\u50B7\u5BB3\u964D\u4F4E\u81F3
+    {data3}%\u3002"
+  - "Finds the direction that can pierce the largest number of enemies and fires
+    a bullet in that direction, \ndealing {data1} + ({data2}% \xD7 {Attack}) (Final:
+    {Final}), \nwith each pierced enemy reducing the bullet's damage to {data3}%
+    of the previous value."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0

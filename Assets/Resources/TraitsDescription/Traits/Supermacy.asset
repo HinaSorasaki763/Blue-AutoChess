@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ead49aeef8c59df4f8ca6dd50b8bceb2, type: 3}
   m_Name: Supermacy
   m_EditorClassIdentifier: 
+  IsAcademy: 0
   trait: 5
   sprite: {fileID: 21300000, guid: e6254812c8191924e90ab6781f783fd1, type: 3}
   description: 'Supermacy
@@ -22,3 +23,24 @@ MonoBehaviour:
   - This trait is only activated when exactly one Supremacy student is present or
     when all Supremacy students are on the field. Supremacy units gain stat bonuses,
     and their skills can execute units below a certain health threshold.
+  thresholds:
+  - level: 0
+    requiredCount: 1
+    effectValue: 0
+    effectDescription: 
+  - level: 1
+    requiredCount: 2
+    effectValue: 0
+    effectDescription: 
+  - level: 3
+    requiredCount: 4
+    effectValue: 0
+    effectDescription: 
+  - level: 3
+    requiredCount: 4
+    effectValue: 0
+    effectDescription: 
+  - level: 1
+    requiredCount: 4
+    effectValue: 0
+    effectDescription: 

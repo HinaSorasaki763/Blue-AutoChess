@@ -3504,7 +3504,7 @@ GameObject:
   - component: {fileID: 197906662521984478}
   m_Layer: 0
   m_Name: Moe
-  m_TagString: Untagged
+  m_TagString: Character
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3624,6 +3624,7 @@ MonoBehaviour:
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
   IsHeroicEnhanced: 0
+  FaceDirectionLock: 0
   ManaLock: 0
   enterBattle: 0
   isAlive: 1
@@ -3633,11 +3634,11 @@ MonoBehaviour:
   isMarked: 0
   isCCImmune: 0
   Invincible: 0
+  AntiHeal: 0
   Taunted: 0
   attackRate: 5
   WakamoMark: 0
   stunned: 0
-  bulletPrefab: {fileID: 0}
   FirePoint: {fileID: 1262720300985150486}
   GetHitPoint: {fileID: 2708793644775555008}
   DetectedPos: {x: 0, y: 0, z: 0}
@@ -3650,6 +3651,7 @@ MonoBehaviour:
   isObj: 0
   Logistic_dummy: {fileID: 0}
   equipmentManager: {fileID: 0}
+  StealManaCount: 0
 --- !u!114 &4681874101017538319
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3690,7 +3692,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -3730,6 +3732,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
+  animatorSpeed: 0
+  animationLock: 0
 --- !u!114 &6762198058473005379
 MonoBehaviour:
   m_ObjectHideFlags: 0

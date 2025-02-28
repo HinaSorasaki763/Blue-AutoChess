@@ -9,11 +9,11 @@ public class ResourcePool : MonoBehaviour
 {
 
     public static ResourcePool Instance { get; private set; }
-    public GameObject floorPrefab, bulletPrefab, characterBarPrefab, FloatingTextPrefab, wallPrefab;
-    public Transform floorParent, bulletParent, characterBarParent, FloatingTextParent, wallParent;
-    public const int floorCount = 64, bulletCount = 50, barCount = 20, TextCount = 50, wallCount = 50;
-    public List<GameObject> floorPool = new(), bulletPool = new(), barPool = new(), textPool = new(), wallPool = new();
-    public List<Character> OneCostCharacter, TwoCostCharacter, ThreeCostCharacter, FourCostCharacter, FiveCostCharacter, SpecialCharacter;
+    public GameObject floorPrefab, characterBarPrefab, FloatingTextPrefab, wallPrefab;
+    public Transform floorParent, characterBarParent, FloatingTextParent, wallParent;
+    public const int floorCount = 64,barCount = 20, TextCount = 50, wallCount = 50;
+    public List<GameObject> floorPool = new(), barPool = new(), textPool = new(), wallPool = new();
+    public List<Character> OneCostCharacter, TwoCostCharacter, ThreeCostCharacter, FourCostCharacter, FiveCostCharacter, SpecialCharacter ,TestBuildCharacter;
     public List<List<Character>> Lists = new();
     public GameEvent AllResoucesLoaded;
 
@@ -36,6 +36,10 @@ public class ResourcePool : MonoBehaviour
     public CombinationRouteSO combinationRoute;
 
     public BenchManager BenchManager;
+    public GameObject MisslePrefab;
+    public GameObject MissleFragmentsPrefab;
+    public int RandomKeyThisGame;
+    public Sprite RandomRewardSprite;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -45,11 +49,12 @@ public class ResourcePool : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
-    }
 
+    }
     void Start()
     {
         StartCoroutine(InitializeAll());
+        RandomKeyThisGame = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
     }
     void LoadResources<T>(string path, ref List<T> list) where T : Object
     {
@@ -85,6 +90,14 @@ public class ResourcePool : MonoBehaviour
             }
             Debug.Log(sb.ToString());
         }
+        StringBuilder Sb = new();
+        foreach (var character in characterDictionary)
+        {
+
+            Sb.AppendLine($"character tooltips chinese : {character.Value.Tooltips[0]}  \n english : {character.Value.Tooltips[1]}");
+
+        }
+        Debug.Log(Sb.ToString());
     }
     public List<Character> GetAllCharacters()
     {
@@ -117,44 +130,21 @@ public class ResourcePool : MonoBehaviour
         LoadResources<Character>("4Cost", ref FourCostCharacter);
         LoadResources<Character>("5Cost", ref FiveCostCharacter);
         LoadResources<Character>("Special", ref SpecialCharacter);
-
+        LoadResources<Character>("TestBuildCharacter",ref TestBuildCharacter);
         Lists.Add(OneCostCharacter);
         Lists.Add(TwoCostCharacter);
         Lists.Add(ThreeCostCharacter);
         Lists.Add(FourCostCharacter);
         Lists.Add(FiveCostCharacter);
         Lists.Add(SpecialCharacter);
-
+        Lists.Add(TestBuildCharacter);
         PopulateCharacterDictionary();
-
-        // 初始化物件池
         yield return StartCoroutine(InitPool(floorPrefab, floorParent, floorPool, floorCount));
-        yield return StartCoroutine(InitPool(bulletPrefab, bulletParent, bulletPool, bulletCount));
         yield return StartCoroutine(InitPool(characterBarPrefab, characterBarParent, barPool, barCount));
         yield return StartCoroutine(InitPool(FloatingTextPrefab, FloatingTextParent, textPool, TextCount));
         yield return StartCoroutine(InitPool(wallPrefab, wallParent, wallPool, wallCount));
-        yield return StartCoroutine(InitializeBulletPool(500));
-
-        // 確保所有資源載入並等待短時間
         yield return new WaitForSeconds(0.1f);
-
-        // 發送所有資源載入完成的通知
         AllResoucesLoaded.Raise();
-    }
-    IEnumerator InitializeBulletPool(int count)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            // 使用 SpawnObject 方法生成子彈，並且位置設置為 (0, 0, 0)
-            GameObject bullet = SpawnObject(SkillPrefab.NormalTrailedBullet, Vector3.zero, Quaternion.identity);
-
-            if (bullet != null)
-            {
-                bullet.SetActive(false); // 預設禁用以便重新使用
-                bulletPool.Add(bullet); // 將子彈加入到池子中
-            }
-        }
-        yield return null;
     }
 
     IEnumerator InitPool(GameObject prefab, Transform parent, List<GameObject> pool, int count)
@@ -204,10 +194,6 @@ public class ResourcePool : MonoBehaviour
     {
         return GetObject(wallPrefab, wallParent, wallPool, pos);
     }
-    public GameObject GetBullet(Vector3 pos)
-    {
-        return GetObject(bulletPrefab, bulletParent, bulletPool, pos);
-    }
 
     public GameObject GetObject(GameObject prefab, Transform parent, List<GameObject> pool, Vector3 pos)
     {
@@ -228,7 +214,7 @@ public class ResourcePool : MonoBehaviour
     public GameObject SpawnCharacterAtPosition(GameObject characterPrefab, Vector3 position, HexNode hexNode, CharacterParent characterParent, bool isAlly = false)
     {
         GameObject obj = Instantiate(characterPrefab);
-        obj.transform.position = position + new Vector3(0, 0.14f, 0);
+        obj.transform.position = position + new Vector3(0, 0.23f, 0);
         obj.transform.rotation = Quaternion.Euler(0, 180, 0);
         obj.layer = isAlly ? 8 : 9;
 
@@ -266,9 +252,7 @@ public class ResourcePool : MonoBehaviour
     public GameObject SpawnObject(SkillPrefab skillPrefabName, Vector3 position, Quaternion rotation)
     {
         GameObject prefab = null;
-        Transform parent = null; // 根據 prefab 指派的父物件
-
-        // 根據 skillPrefabName 設置 prefab 和對應的父物件
+        Transform parent = null;
         switch (skillPrefabName)
         {
             case SkillPrefab.PenetrateTrailedBullet:
@@ -287,18 +271,14 @@ public class ResourcePool : MonoBehaviour
 
         if (prefab != null && parent != null)
         {
-            // 嘗試在父物件中找到已禁用的同類物件
             GameObject existingObject = FindDisabledChild(prefab.name, parent);
             if (existingObject != null)
             {
-                // 找到已禁用的物件，啟用並重新定位
                 existingObject.transform.position = position;
                 existingObject.transform.rotation = rotation;
                 existingObject.SetActive(true);
                 return existingObject;
             }
-
-            // 沒有找到已禁用的物件，生成新的並將其設置為指定父物件的子物件
             return Instantiate(prefab, position, rotation, parent);
         }
         else

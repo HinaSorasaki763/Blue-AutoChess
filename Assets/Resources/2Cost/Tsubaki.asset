@@ -52,8 +52,15 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: 20030000a0050000280a0000
+  Attack: 2d0000004b00000073000000
   Traits: 0200000008000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - "\u5632\u8AF7\u6240\u6709\u6575\u4EBA\uFF0C\u82E5\u6A01\u5728\u5176\u653B\u64CA\u7BC4\u570D\u5167\uFF0C\u5247\u5F37\u5236\u8F49\u706B\u653B\u64CA\u6A01\u3002"
+  - "Taunts all enemies. If Tsubaki is within their attack range, \nthey are forced
+    to target her instead. (Final: {Final})"
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0

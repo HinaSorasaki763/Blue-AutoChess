@@ -7,6 +7,7 @@ public class GameController : MonoBehaviour
     private int gold;
     public CharacterParent CharacterParent;
     public TextMeshProUGUI GoldText;
+    readonly float yOffset = 0.23f;
     private void Update()
     {
         GoldText.text = $"gold : {gold}";
@@ -23,17 +24,14 @@ public class GameController : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
     public (bool, bool) TryMoveCharacter(CharacterCTRL character, HexNode targetSlot)
     {
         if (!targetSlot)
         {
-            Debug.Log("!targetSlot");
+            Debug.Log($"!targetSlot");
             return (false, false);
         }
         bool isBattlefield = targetSlot.IsBattlefield;
-        bool isLogisticsSlot = targetSlot.IsLogistics;
-        bool isLogisticsCharacter = character.characterStats.logistics;
         if (targetSlot.Index >= 32)
         {
             PopupManager.Instance.CreatePopup("enemy territory", 2);
@@ -43,24 +41,27 @@ public class GameController : MonoBehaviour
         if (!isBattlefield)
         {
             MoveOrSwapCharacter(character, targetSlot);
-
             return (true, isBattlefield);
         }
-        if (isLogisticsCharacter != isLogisticsSlot)
+        if (character.characterStats.logistics != targetSlot.IsLogistics)
         {
-            Debug.Log(isLogisticsCharacter ? "後勤角色只能放置在後勤格子" : "前線角色不能放置在後勤格子");
+            Debug.Log(character.characterStats.logistics
+                ? $"後勤角色只能放置在後勤格子"
+                : $"前線角色不能放置在後勤格子");
             ReturnToOriginalSlot(character);
             return (false, isBattlefield);
         }
-        CustomLogger.Log(this, $"GameStageManager.Instance.GetCharacterLimit() = {GameStageManager.Instance.GetCharacterLimit()}");
-        if (ResourcePool.Instance.ally.GetBattleFieldCharacter().Count >= GameStageManager.Instance.GetCharacterLimit() && !character.CurrentHex.IsBattlefield && targetSlot.OccupyingCharacter == null)
+        int characterLimit = GameStageManager.Instance.GetCharacterLimit();
+        CustomLogger.Log(this, $"GameStageManager.Instance.GetCharacterLimit() = {characterLimit}");
+        if (ResourcePool.Instance.ally.GetBattleFieldCharacter().Count >= characterLimit &&
+            !character.CurrentHex.IsBattlefield &&
+            targetSlot.OccupyingCharacter == null)
         {
             PopupManager.Instance.CreatePopup("On Limit", 2);
             ReturnToOriginalSlot(character);
             return (false, isBattlefield);
         }
         MoveOrSwapCharacter(character, targetSlot);
-        Debug.Log("other situation");
         return (true, isBattlefield);
     }
 
@@ -69,7 +70,7 @@ public class GameController : MonoBehaviour
     {
         if (character.CurrentHex != null)
         {
-            Vector3 originalPosition = new Vector3(character.CurrentHex.transform.position.x, 0.14f, character.CurrentHex.transform.position.z);
+            Vector3 originalPosition = new Vector3(character.CurrentHex.transform.position.x, yOffset, character.CurrentHex.transform.position.z);
             character.transform.position = originalPosition;
         }
         else
@@ -83,7 +84,7 @@ public class GameController : MonoBehaviour
         if (character.CurrentHex == targetSlot)
         {
             Vector3 v = character.CurrentHex.transform.position;
-            character.transform.position = new Vector3(v.x, 0.14f, v.z);
+            character.transform.position = new Vector3(v.x, yOffset, v.z);
             targetSlot.GetComponent<HexNode>().Reserve(character);
             return;
         }
@@ -117,6 +118,7 @@ public class GameController : MonoBehaviour
     }
     private void MoveCharacterToSlot(CharacterCTRL character, HexNode targetSlot)
     {
+        
         if (character.CurrentHex != null)
         {
             character.CurrentHex.SetOccupyingCharacter(null);
@@ -128,12 +130,12 @@ public class GameController : MonoBehaviour
         }
         targetSlot.SetOccupyingCharacter(character);
         character.CurrentHex = targetSlot;
-        CheckSlot(character, targetSlot);
+        CheckSlot(character, character.CurrentHex);
         if (targetSlot.TryGetComponent<HexNode>(out HexNode H))
         {
             H.Reserve(character);
         }
-        character.transform.position = new Vector3(targetSlot.transform.position.x, 0.14f, targetSlot.transform.position.z);
+        character.transform.position = new Vector3(targetSlot.transform.position.x, yOffset, targetSlot.transform.position.z);
     }
 
     private void SwapCharacters(CharacterCTRL character1, CharacterCTRL character2)
@@ -150,8 +152,8 @@ public class GameController : MonoBehaviour
         slot1.GetComponent<HexNode>().Reserve(character2);
         CheckSlot(character1,slot2);
         CheckSlot(character2,slot1);
-        character1.transform.position = new Vector3(slot2.transform.position.x, 0.14f, slot2.transform.position.z);
-        character2.transform.position = new Vector3(slot1.transform.position.x, 0.14f, slot1.transform.position.z);
+        character1.transform.position = new Vector3(slot2.transform.position.x, yOffset, slot2.transform.position.z);
+        character2.transform.position = new Vector3(slot1.transform.position.x, yOffset, slot1.transform.position.z);
 
         Debug.Log($"Swapped {character1.name} and {character2.name} between slots {slot1.name} and {slot2.name}");
     }

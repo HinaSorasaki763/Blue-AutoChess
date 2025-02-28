@@ -1,8 +1,6 @@
 ﻿using GameEnum;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
-using UnityEngine.TextCore.Text;
 public class HexNode : MonoBehaviour
 {
     public Vector3 Position;
@@ -33,17 +31,12 @@ public class HexNode : MonoBehaviour
     public bool EnemyBlockingZonecenter { get; set; }
     public bool TargetedAllyZone { get; set; }
     public bool TargetedEnemyzone { get; set; }
-    private float burningDuration = 0f;
-    private int burningDamagePerTick = 0;
-    private float burningTickInterval = 1f;
-    private float burningTimer = 0f;
-    private float burningTickTimer = 0f;
-    private bool isBurningAppliedByAlly = false;
     public ColorState currentColorState = ColorState.Default;
     public float temporaryColorDuration = 0f;
     private Color temporaryColor = Color.yellow;
 
     private bool isTemporarilyReserved = false;
+    private List<BurningEffect> burningEffects = new List<BurningEffect>();
     public bool IsHexReserved()
     {
         return reservedBy != null;
@@ -54,31 +47,39 @@ public class HexNode : MonoBehaviour
     }
     public void HardReserve(CharacterCTRL character)
     {
+        CustomLogger.Log(this, $"character {character}HardReserve");
         reservedBy = character;
         OccupyingCharacter = character;
         SetColorState(ColorState.Reserved);
     }
     public void Reserve(CharacterCTRL character)
     {
+        CustomLogger.Log(this, $"character {character}reserving node {name}");
         reservedBy = character;
         SetColorState(ColorState.Reserved);
     }
 
     public void Release()
     {
+        CustomLogger.Log(this, $"node {name} Release()");
         if (OccupyingCharacter != null)
         {
             return;
         }
         reservedBy = null;
+        CameFrom = null;
+        gCost = Mathf.Infinity;
+        hCost = Mathf.Infinity;
         SetColorState(isBurning ? ColorState.Burning : ColorState.Default);
     }
 
 
     public void HardRelease()
     {
+        CustomLogger.Log(this, $"node {name} HardRelease()");
         OccupyingCharacter = null;
         reservedBy = null;
+        CameFrom = null;
         SetColorState(isBurning ? ColorState.Burning : ColorState.Default);
     }
     public void HardResetAll()
@@ -105,55 +106,62 @@ public class HexNode : MonoBehaviour
     {
         return isTemporarilyReserved;
     }
-    public void ApplyBurningEffect(float duration, int damagePerTick, float tickInterval, bool appliedByAlly)
+    public void ApplyBurningEffect(float duration, int damagePerTick, float tickInterval, CharacterCTRL source)
     {
+        // 檢查是否已有相同來源的燃燒效果
+        BurningEffect existingEffect = burningEffects.Find(effect => effect.Source == source);
+        if (existingEffect != null)
+        {
+            // 疊加持續時間與傷害
+            existingEffect.Duration += duration;
+            existingEffect.Timer += duration;
+            existingEffect.DamagePerTick += damagePerTick;
+        }
+        else
+        {
+            // 新增新的燃燒效果
+            burningEffects.Add(new BurningEffect(source, duration, damagePerTick, tickInterval));
+        }
+
         isBurning = true;
-        burningDuration = duration;
-        burningDamagePerTick = damagePerTick;
-        burningTickInterval = tickInterval;
-        burningTimer = duration;
-        burningTickTimer = tickInterval;
-        isBurningAppliedByAlly = appliedByAlly;
         UpdateTileColor();
     }
 
     private void Update()
     {
-        if (isBurning)
+        if (burningEffects.Count > 0)
         {
-            burningTimer -= Time.deltaTime;
-            burningTickTimer -= Time.deltaTime;
-
-            if (burningTickTimer <= 0f)
+            for (int i = burningEffects.Count - 1; i >= 0; i--)
             {
-                burningTickTimer = burningTickInterval;
+                BurningEffect effect = burningEffects[i];
+                effect.Timer -= Time.deltaTime;
+                effect.TickTimer -= Time.deltaTime;
 
-                if (OccupyingCharacter != null)
+                if (effect.TickTimer <= 0f)
                 {
-                    bool isEnemy = OccupyingCharacter.IsAlly != isBurningAppliedByAlly;
+                    effect.TickTimer = effect.TickInterval;
 
-                    if (isEnemy)
+                    if (OccupyingCharacter != null)
                     {
-                        OccupyingCharacter.GetHit(burningDamagePerTick, null);//TODO: to set not null
+                        if (OccupyingCharacter.IsAlly != effect.Source.IsAlly)
+                        {
+                            (bool, int) tuple = effect.Source.CalculateCrit(effect.DamagePerTick);
+                            OccupyingCharacter.GetHit(tuple.Item2, effect.Source, $"Burn from {effect.Source.name}", tuple.Item1);
+                        }
                     }
+                }
+
+                // 如果此燃燒效果已結束，移除它
+                if (effect.Timer <= 0f)
+                {
+                    burningEffects.RemoveAt(i);
                 }
             }
 
-            if (burningTimer <= 0f)
+            // 如果所有燃燒效果都結束，重設 isBurning 狀態
+            if (burningEffects.Count == 0)
             {
                 isBurning = false;
-                SetColorState(IsHexReserved() ? ColorState.Reserved : ColorState.Default);
-            }
-        }
-
-        // 處理暫時顏色效果
-        if (temporaryColorDuration > 0f)
-        {
-            temporaryColorDuration -= Time.deltaTime;
-
-            // 當時間結束後，將狀態設置回正常狀態
-            if (temporaryColorDuration <= 0f)
-            {
                 SetColorState(IsHexReserved() ? ColorState.Reserved : ColorState.Default);
             }
         }
@@ -184,7 +192,10 @@ public class HexNode : MonoBehaviour
                     tileMaterial.color = Color.white; // Default state
                     break;
             }
-
+            if (isDesertified)
+            {
+                tileMaterial.color = Color.yellow;
+            }
             renderer.material = tileMaterial; // Ensure the material is applied
         }
     }
@@ -255,5 +266,24 @@ public class HexNode : MonoBehaviour
     }
     public void Start()
     {
+    }
+    private class BurningEffect
+    {
+        public CharacterCTRL Source;
+        public float Duration;
+        public int DamagePerTick;
+        public float TickInterval;
+        public float Timer;
+        public float TickTimer;
+
+        public BurningEffect(CharacterCTRL source, float duration, int damagePerTick, float tickInterval)
+        {
+            Source = source;
+            Duration = duration;
+            DamagePerTick = damagePerTick;
+            TickInterval = tickInterval;
+            Timer = duration;
+            TickTimer = tickInterval;
+        }
     }
 }

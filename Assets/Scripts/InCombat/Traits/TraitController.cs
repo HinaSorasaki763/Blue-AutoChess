@@ -1,4 +1,5 @@
 ﻿using GameEnum;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -52,7 +53,7 @@ public class TraitController : MonoBehaviour
         {
             return observer;
         }
-        CustomLogger.LogError(this,"not found trait");
+        CustomLogger.LogError(this, "not found trait");
         return null;
     }
 
@@ -79,9 +80,8 @@ public class TraitController : MonoBehaviour
     {
         return Utility.IsAcademy(currentTraits);
     }
-    public void CreateObserverForTrait(Traits trait)
+    public void CreateObserverForTrait(Traits trait,int traitLevel)
     {
-        int traitLevel = TraitsEffectManager.Instance.GetTraitLevelForCharacter(trait, isEnemy: false);
         CharacterObserverBase observer = null;
 
         switch (trait)
@@ -102,10 +102,10 @@ public class TraitController : MonoBehaviour
                 observer = new TrinityObserver(traitLevel, character);
                 break;
             case Traits.Supremacy:
-                // 尚未實作
+                observer = new SupermacyObserver(traitLevel, character);
                 break;
             case Traits.Precision:
-                // 尚未實作
+                observer = new PrecisionObserver(traitLevel, character);
                 break;
             case Traits.Barrage:
                 observer = new BarrageObserver(traitLevel, character);
@@ -114,24 +114,25 @@ public class TraitController : MonoBehaviour
                 observer = new AegisObserver(traitLevel, character);
                 break;
             case Traits.Healer:
-                // 尚未實作
+                observer = new HealerObserver(traitLevel, character);
                 break;
             case Traits.Disruptor:
-                // 尚未實作
+                observer = new DisruptorObserver(traitLevel,character);
                 break;
             case Traits.RapidFire:
                 observer = new RapidfireObserver(traitLevel, character);
                 break;
             case Traits.logistic:
-                // 尚未實作
+                observer = new LogisticObserver(traitLevel, character);
                 break;
             case Traits.Mystic:
-                // 尚未實作
+                observer = new MysticObserver(traitLevel, character);
                 break;
             case Traits.Arius:
-                observer = new AriusObserver(character);
+                observer = new AriusObserver(traitLevel,character);
                 break;
             case Traits.SRT:
+                observer = new SRTObserver(traitLevel,character);
                 break;
             case Traits.None:
             default:
@@ -140,28 +141,33 @@ public class TraitController : MonoBehaviour
         }
         if (observer != null)
         {
-            if (!traitObservers.TryGetValue(trait,out var value))
-            {
-                traitObservers[trait] = observer;
-            }
+            CustomLogger.Log(this, $"observer{observer} = level {traitLevel}");
+            traitObservers[trait] = observer;
 
         }
     }
-    public void OnDealtDmg(CharacterCTRL target,int dmg)
+    public void OnDealtDmg(CharacterCTRL target, int dmg,string detailedSource, bool iscrit)
     {
+        Lifesteal(dmg);
         foreach (var item in traitObservers.Values)
         {
-            item.OnDamageDealt(character,target,dmg);
+            item.OnDamageDealt(character, target, dmg, detailedSource, iscrit);
         }
         foreach (var item in characterSpecificObservers)
         {
-            item.OnDamageDealt(character, target, dmg);
+            item.OnDamageDealt(character, target, dmg, detailedSource, iscrit);
         }
+        character.equipmentManager.OnParentDealtDamage(character, target, dmg, detailedSource,iscrit);
     }
-    public int ModifyDamageTaken(int amount, CharacterCTRL sourceCharacter)
+    private void Lifesteal(int dmg)
     {
-        sourceCharacter.traitController.OnDealtDmg(character, amount);
-        DamageStatisticsManager.Instance.UpdateDamage(sourceCharacter,amount);
+        float lifesteal = character.GetStat(StatsType.Lifesteal);
+        character.Heal((int)(dmg * lifesteal / 100),character);
+    }
+    public int ModifyDamageTaken(int amount, CharacterCTRL sourceCharacter,string detailedSource,bool iscrit)
+    {
+        sourceCharacter.traitController.OnDealtDmg(character, amount, detailedSource,iscrit);
+        DamageStatisticsManager.Instance.UpdateDamage(sourceCharacter, amount);
         foreach (var observer in traitObservers.Values)
         {
             amount = observer.OnDamageTaken(character, sourceCharacter, amount);
@@ -174,20 +180,87 @@ public class TraitController : MonoBehaviour
         return amount;
     }
 
-    public void Win()
+    public void OnBattleEnd(bool win)
     {
         gameObject.GetComponent<CustomAnimatorController>().SetToIdle();
         foreach (var observer in traitObservers.Values)
         {
-            observer.OnBattleEnd(true);
+            observer.OnBattleEnd(win);
         }
     }
-
-    public void NotifyOnKilledEnemy()
+    public void NotifyGetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit,string detailedSource)
     {
         foreach (var observer in traitObservers.Values)
         {
-            observer.OnKilledEnemy(character);
+            observer.GetHit(character, source, amount, isCrit,detailedSource);
+        }
+
+    }
+    public (float, float) BeforeApplyingNegetiveEffect(float length, float effectiveness)
+    {
+        float finallength = length;
+        float finaleffectiveness = effectiveness;
+        foreach (var item in traitObservers.Values)
+        {
+            (finallength, finaleffectiveness) = item.AdjustNegetiveEffect(finallength, finaleffectiveness);
+        }
+        return (finallength, finaleffectiveness);
+    }
+
+    public void CharacterUpdate()
+    {
+        foreach (var item in traitObservers.Values)
+        {
+            item.CharacterUpdate();
+        }
+    }
+    public int ObserverDamageModifier(CharacterCTRL sourceCharacter, CharacterCTRL target, int amount, string detailedSource, bool isCrit)
+    {
+        foreach (var item in traitObservers.Values)
+        {
+            amount = item.DamageModifier(sourceCharacter, target, amount, detailedSource, isCrit);
+        }
+        return amount;
+    }
+    public int BeforeDealtDamage(CharacterCTRL sourceCharacter,CharacterCTRL target,  int amount, string detailedSource, bool isCrit)
+    {
+        int reduced = 0;
+        foreach (var item in traitObservers.Values)
+        {
+            reduced += item.BeforeDealtDmg(sourceCharacter, target, amount, detailedSource,isCrit);
+        }
+        return reduced;
+    }
+    public int BeforeHealing(CharacterCTRL source ,int amount)
+    {
+        int final = amount;
+        foreach (var item in traitObservers.Values)
+        {
+            final = item.BeforeHealing(source, amount);
+        }
+        return final;
+    }
+    public void NotifyOnKilledEnemy(string detailedSource,CharacterCTRL characterDies)
+    {
+        character.OnKillEnemy(detailedSource, characterDies);
+        foreach (var observer in traitObservers.Values)
+        {
+            observer.OnKilledEnemy(character, detailedSource, characterDies);
+        }
+        character.equipmentManager.OnParentKilledEnemy(detailedSource, characterDies);
+    }
+    public void TriggerCharacterStart()
+    {
+        foreach (var observer in traitObservers.Values)
+        {
+            observer.CharacterStart(character);
+        }
+    }
+    public void TriggerManualUpdate()
+    {
+        foreach (var observer in traitObservers.Values)
+        {
+            observer.ManualUpdate(character);
         }
     }
     public void CastedSkill()
@@ -196,6 +269,7 @@ public class TraitController : MonoBehaviour
         {
             observer.OnCastedSkill(character);
         }
+        
     }
     private void RemoveObserverForTrait(Traits trait)
     {
@@ -229,13 +303,6 @@ public class TraitController : MonoBehaviour
 
     void Update()
     {
-        if (character.enterBattle)
-        {
-            foreach (var observer in traitObservers.Values)
-            {
-                observer.CharacterUpdate();
-            }
-        }
 
     }
 }

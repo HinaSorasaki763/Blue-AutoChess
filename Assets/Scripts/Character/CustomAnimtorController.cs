@@ -9,8 +9,11 @@ public class CustomAnimatorController : MonoBehaviour
     public Animator animator;
     const string skillIndex = "SkillID";
     private CharacterCTRL character;
+    public float animatorSpeed;
+    public bool animationLock = false;
     void Start()
     {
+        animationLock = false;
         animator = GetComponent<Animator>();
         character = GetComponent<CharacterCTRL>();
         RuntimeAnimatorController controller = animator.runtimeAnimatorController;
@@ -27,7 +30,7 @@ public class CustomAnimatorController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        animatorSpeed = animator.speed;
     }
     public (string, float) GetAnimationClipInfo(int order)
     {
@@ -36,7 +39,6 @@ public class CustomAnimatorController : MonoBehaviour
         List<AnimationClip> clips = new List<AnimationClip>();
         if (controller is AnimatorOverrideController overrideController)
         {
-            // 如果有Animator Override Controller，获取覆盖后的动画剪辑
             List<KeyValuePair<AnimationClip, AnimationClip>> overrideClips = new List<KeyValuePair<AnimationClip, AnimationClip>>();
             overrideController.GetOverrides(overrideClips);
             foreach (var clipPair in overrideClips)
@@ -46,7 +48,6 @@ public class CustomAnimatorController : MonoBehaviour
         }
         else
         {
-            // 如果没有Animator Override Controller，直接获取Animator Controller的动画剪辑
             clips.AddRange(controller.animationClips);
         }
 
@@ -63,14 +64,17 @@ public class CustomAnimatorController : MonoBehaviour
     }
     public void ExitBattle()
     {
+        if (animationLock) return;
         animator.SetBool("HaveTarget", false);
     }
     public void HaveTarget(bool havetarget)
     {
+        if (animationLock) return;
         animator.SetBool("HaveTarget", havetarget);
     }
     public void AfterCastSkill()
     {
+        if (animationLock) return;
         animator.SetBool("CastSkill", false);
         if (character.isShirokoTerror)
         {
@@ -81,6 +85,7 @@ public class CustomAnimatorController : MonoBehaviour
     }
     public void SetToIdle()
     {
+        if (animationLock) return;
         animator.SetBool("Idling", true);
         animator.SetBool("Moving", false);
         animator.SetBool("Attacking", false);
@@ -90,17 +95,11 @@ public class CustomAnimatorController : MonoBehaviour
     }
     public void ChangeState(CharacterState newState)
     {
-        if (newState == CharacterState.Attacking)
-        {
-            animator.speed = character.GetStat(StatsType.AttackSpeed);
-        }
-        else
-        {
-            animator.speed = 1;
-        }
+        if (animationLock) return;
         CharacterState oldState = currentState;
         if (oldState == newState) return;
-        animator.speed = 1;
+        CustomLogger.Log(this, $"character{character} from state {currentState} change to {newState} at {Time.time}");
+        animator.speed = 1f;
         animator.SetBool("Idling", false);
         animator.SetBool("Moving", false);
         animator.SetBool("Attacking", false);
@@ -123,6 +122,7 @@ public class CustomAnimatorController : MonoBehaviour
                 animator.SetBool("PickedUp", true);
                 break;
             case CharacterState.CastSkill:
+                if (character.characterStats.CharacterId == 16) animator.speed = character.GetStat(StatsType.AttackSpeed);
                 animator.SetBool("CastSkill", true);
                 break;
             case CharacterState.HaveTarget:
@@ -137,6 +137,26 @@ public class CustomAnimatorController : MonoBehaviour
         }
         currentState = newState; // 更新當前狀態
     }
+    public void ForceIdle()
+    {
+        animationLock = false;
+        animator.speed = 1f;
+        currentState = CharacterState.Idling;
+        animator.SetBool("Idling", true);
+        animator.SetBool("Moving", false);
+        animator.SetBool("Attacking", false);
+        animator.SetBool("PickedUp", false);
+    }    
+    public void ForceDying()
+    {
+        animationLock = true;
+        animator.speed = 1f;
+        animator.SetBool("Idling", false);
+        animator.SetBool("Moving", false);
+        animator.SetBool("Attacking", false);
+        animator.SetBool("PickedUp", false);
+        animator.SetTrigger("DyingTrigger");
+    }
     public (CharacterState, bool) GetState()
     {
         bool canAttack = false;
@@ -145,5 +165,10 @@ public class CustomAnimatorController : MonoBehaviour
             canAttack = true;
         }
         return (currentState, canAttack);
+    }
+    public void SetCharacterFalse()
+    {
+        PathRequestManager.Instance.ReleaseCharacterReservations(character);
+        character.gameObject.SetActive(false);
     }
 }

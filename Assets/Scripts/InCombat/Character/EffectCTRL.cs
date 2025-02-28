@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static Unity.VisualScripting.Member;
+using UnityEngine.TextCore.LowLevel;
 
 public class EffectCTRL : MonoBehaviour
 {
@@ -27,22 +27,24 @@ public class EffectCTRL : MonoBehaviour
     // 添加效果
     public void AddEffect(Effect effect)
     {
+        if (effect.EffectType == EffectType.Negative)
+        {
+            (float length, float effectiveness) = effect.Parent.BeforeApplyingNegetiveEffect(effect.Duration, effect.Value);
+        }
         var existingEffect = activeEffects.FirstOrDefault(e => e.Source == effect.Source);
 
         if (existingEffect != null)
         {
             if (existingEffect.IsPermanent)
             {
-                CustomLogger.Log(this, $"Effect from {effect.Source} is already permanent. Ignored.");
-                if (effect.Value > existingEffect.Value)
+                if (existingEffect.Stackable)
                 {
-                    CustomLogger.Log(this, $"Effect from {effect.Source} is permanent, but new value {effect.Value} is higher than existing value {existingEffect.Value}. Overwriting.");
+                    existingEffect.AddValue(effect.Value);
+                }
+                if (effect.Value > existingEffect.Value && !existingEffect.Stackable)
+                {
                     existingEffect.UpdateValue(effect.Value);
                     UpdateEffectNames();
-                }
-                else
-                {
-                    CustomLogger.Log(this, $"Effect from {effect.Source} is permanent, and new value {effect.Value} is not higher. Ignored.");
                 }
                 return;
             }
@@ -56,7 +58,7 @@ public class EffectCTRL : MonoBehaviour
                 float newDuration = Mathf.Max(existingEffect.Duration, effect.Duration);
                 CustomLogger.Log(this, $"Updated duration of {effect.Source} to {newDuration:F2} seconds.");
                 existingEffect.Duration = newDuration;
-                UpdateEffectNames(); // 更新效果名稱列表
+                UpdateEffectNames();
                 return;
             }
 
@@ -66,7 +68,7 @@ public class EffectCTRL : MonoBehaviour
             characterCTRL.AudioManager.PlayBuffedSound();
         }
         activeEffects.Add(effect);
-        UpdateEffectNames(); 
+        UpdateEffectNames();
         if (effect.SpecialType == SpecialEffectType.None)
         {
             modifierCTRL.AddStatModifier(effect.ModifierType, effect.Value, effect.Source, effect.IsPermanent, effect.Duration);
@@ -120,7 +122,38 @@ public class EffectCTRL : MonoBehaviour
     {
         return activeEffects.FirstOrDefault(e => e.Source == source);
     }
+    public void OnParentCastSkillFinished()
+    {
+        // 先收集需要移除的效果
+        List<Effect> effectsToRemove = new List<Effect>();
 
+        foreach (var effect in activeEffects)
+        {
+            if (effect.ClearEffectCondition == ClearEffectCondition.OnSkillCastFinished)
+            {
+                effectsToRemove.Add(effect);
+            }
+        }
+
+        // 遍歷收集到的效果並移除
+        foreach (var effect in effectsToRemove)
+        {
+            CustomLogger.LogWarning(this, $"removing effect {effect.GetType()}");
+            RemoveEffect(effect);
+        }
+    }
+    public void ClearAllEffect()
+    {
+        List<Effect> effectsToRemove = new List<Effect>();
+        foreach (var item in activeEffects)
+        {
+            effectsToRemove.Add(item);
+        }
+        foreach (var effect in effectsToRemove)
+        {
+            RemoveEffect(effect);
+        }
+    }
     private void Update()
     {
         List<Effect> expiredEffects = new List<Effect>();
@@ -136,7 +169,7 @@ public class EffectCTRL : MonoBehaviour
                 }
             }
         }
-
+        UpdateEffectNames();
         foreach (var expiredEffect in expiredEffects)
         {
             RemoveEffect(expiredEffect);
@@ -154,29 +187,31 @@ public static class EffectFactory
             amount,
             $"{source} adjust {statsType} {amount}",
             isPermanent,
-            null, // 暫不設置委派
+            null,
             null,
             duration,
             SpecialEffectType.None,
-            parent
+            parent,
+            true
         );
     }
 
 
 
-    public static Effect UnStatckableStatsEffct(float duration, int amount, StatsType statsType, CharacterCTRL parent)
+    public static Effect UnStatckableStatsEffct(float duration, string source, float amount, StatsType statsType, CharacterCTRL parent, bool isPermanent)
     {
         return new Effect(
             EffectType.Positive,
             ModifierType.None,
-            0,
-            $"adjust {statsType} {amount}",
-            false,
-            (character) => character.ModifyStats(statsType, amount),
-            (character) => character.ModifyStats(statsType, -amount),
+            amount,
+            $"{source} adjust {statsType} {amount}",
+            isPermanent,
+            null,
+            null,
             duration,
             SpecialEffectType.None,
-            parent
+            parent,
+            true
         );
     }
 
@@ -196,20 +231,22 @@ public static class EffectFactory
         );
     }
 
-    public static Effect CreateMarkedEffect(float duration, CharacterCTRL parent)
+    public static Effect CreateMarkedEffect(CharacterCTRL parent)
     {
+
         return new Effect(
             EffectType.Negative,
             ModifierType.None,
             0,
             "MarkSkill",
-            false,
+            true,
             (character) => character.SetMarked(true),
             (character) => character.SetMarked(false),
-            duration,
+            0,
             SpecialEffectType.Marked,
             parent
         );
+
     }
 
     public static Effect ClarityEffect(float duration, CharacterCTRL parent)
@@ -374,6 +411,7 @@ public static class EffectFactory
 
     public static Effect CreateShizukoEffect(int amount, float duration, CharacterCTRL parent)
     {
+
         return new Effect(
             EffectType.Positive,
             ModifierType.DamageDealt,
@@ -397,31 +435,17 @@ public static class EffectFactory
             "WakamoEffect",
             false,
             (character) => character.SetWakamoMark(50, parent), // TODO: 用真實數據代替
-            (character) => character.WakamoMarkEnd(),
+            (character) => character.OnWakamoMarkCountedDown(),
             duration,
             SpecialEffectType.None,
             parent
         );
     }
 
-    public static Effect CreateKayokoFearEffct(int amount, float duration, CharacterCTRL parent)
-    {
-        return new Effect(
-            EffectType.Negative,
-            ModifierType.None,
-            amount,
-            "KayokoFearEffect",
-            false,
-            (character) => character.Stun(true), // TODO: 記得新增"恐懼"效果!
-            (character) => character.Stun(false), // TODO: 記得新增"恐懼"效果!
-            duration,
-            SpecialEffectType.Fear,
-            parent
-        );
-    }
 
-    public static Effect CreateTsubakiFearEffct(int amount, float duration, CharacterCTRL parent)
+    public static Effect CreateTsubakiTauntEffct(int amount, float duration, CharacterCTRL parent)
     {
+
         return new Effect(
             EffectType.Negative,
             ModifierType.None,
@@ -434,7 +458,107 @@ public static class EffectFactory
             SpecialEffectType.Taunt,
             parent
         );
-    }
 
+    }
+    public static Effect CreateAkoActiveSkillBuff(int amount, float duration, CharacterCTRL parent)
+    {
+        var modifiers = new Dictionary<StatsType, float>
+        {
+            { StatsType.CritChance, amount },
+            { StatsType.CritRatio, amount },
+        };
+
+
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            amount,
+            "AkoActiveSkillBuff",
+            true,
+            (character) => character.ModifyMultipleStats(modifiers, "BuffEffect"),
+            (character) => character.ModifyMultipleStats(modifiers, "BuffEffect", isRevert: true),
+            duration,
+            SpecialEffectType.None,
+            parent,
+            false,
+            ClearEffectCondition.OnSkillCastFinished
+        );
+
+    }
+    public static Effect CreateAntiHealEffect(float duration, CharacterCTRL parent)
+    {
+
+        return new Effect(
+            EffectType.Negative,
+            ModifierType.None,
+            0,
+            "AntiHealEffect",
+            false,
+            (character) => character.SetTaunt(true),
+            (character) => character.SetTaunt(false),
+            duration,
+            SpecialEffectType.None,
+            parent
+        );
+
+    }
+    public static Effect CreateAbydosEffect(bool isAbydos, int level)
+    {
+        Dictionary<int, TraitLevelStats> statsByStarLevel = new Dictionary<int, TraitLevelStats>()
+        {
+            {1, new TraitLevelStats(6,30,2)},
+            {2, new TraitLevelStats(8,45,3)},
+            {3, new TraitLevelStats(10,70,5)},
+            {4, new TraitLevelStats(12,70,10)}
+        };
+        int effectiveness = statsByStarLevel[level].Data2 * (isAbydos ? 1 : -1);
+
+        return new Effect(
+            isAbydos ? EffectType.Positive : EffectType.Negative,
+            ModifierType.None,
+            effectiveness,
+            "AbydosEffect",
+            false,
+            (character) => character.AbydosBuff(isAbydos, effectiveness, statsByStarLevel[level].Data3, true),
+            (character) => character.AbydosBuff(isAbydos, -effectiveness, statsByStarLevel[level].Data3, false),
+            1,
+            SpecialEffectType.None,
+            null
+        );
+    }
+    public static Effect CreateAriusEffect()
+    {
+
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            "AriusTraitEffect",
+            true,
+            (character) => character.AddStat(StatsType.PercentageResistence, 50),
+            (character) => character.AddStat(StatsType.PercentageResistence, -50),
+            0,
+            SpecialEffectType.None,
+            null
+        );
+
+    }
+    public static Effect OverTimeEffect()
+    {
+
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            "OverTimeEffect",
+            true,
+            (character) => character.BattleOverTime(),
+            (character) => character.BattleOverTime(),
+            0,
+            SpecialEffectType.None,
+            null
+        );
+
+    }
 }
 

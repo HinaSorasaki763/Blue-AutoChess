@@ -25,7 +25,7 @@ MonoBehaviour:
     - statType: 1
       value: 0
     - statType: 2
-      value: 50
+      value: 60
     - statType: 3
       value: 0
     - statType: 4
@@ -35,7 +35,7 @@ MonoBehaviour:
     - statType: 6
       value: 60
     - statType: 7
-      value: 5
+      value: 1
     - statType: 8
       value: 10
     - statType: 9
@@ -52,8 +52,16 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: 1a0400006207000028230000
+  Attack: 5500000078000000b4000000
   Traits: 040000000500000007000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - "\u5C07\u63A5\u4E0B\u4F86 {data3} \u6B21\u666E\u901A\u653B\u64CA\u66FF\u63DB\u70BA\u7BC4\u570D\u50B7\u5BB3\uFF0C\n\u9020\u6210
+    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\uFF0C\u4E26\u7372\u5F97\u9AD8\u984D\u5438\u8840\u3002"
+  - "For the next {data3} basic attacks, they become AoE, \ndealing {data1} + ({data2}%
+    \xD7 ATK) (Final: {Final}), and granting high lifesteal."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0

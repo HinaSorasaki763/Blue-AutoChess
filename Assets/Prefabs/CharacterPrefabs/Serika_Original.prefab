@@ -179,7 +179,6 @@ GameObject:
   - component: {fileID: 1055100650348601919}
   - component: {fileID: 1629982935538524156}
   - component: {fileID: -8908398277374650044}
-  - component: {fileID: 4322353236428525142}
   - component: {fileID: 3699406590081084877}
   - component: {fileID: 4829297874048442877}
   - component: {fileID: 8818939548302801889}
@@ -269,6 +268,8 @@ MonoBehaviour:
   star: 0
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
+  IsHeroicEnhanced: 0
+  FaceDirectionLock: 0
   ManaLock: 0
   enterBattle: 0
   isAlive: 1
@@ -278,9 +279,11 @@ MonoBehaviour:
   isMarked: 0
   isCCImmune: 0
   Invincible: 0
+  AntiHeal: 0
+  Taunted: 0
   attackRate: 5
+  WakamoMark: 0
   stunned: 0
-  bulletPrefab: {fileID: 0}
   FirePoint: {fileID: 6815293222526727826}
   GetHitPoint: {fileID: 3862741222615170186}
   DetectedPos: {x: 0, y: 0, z: 0}
@@ -293,6 +296,7 @@ MonoBehaviour:
   isObj: 0
   Logistic_dummy: {fileID: 0}
   equipmentManager: {fileID: 0}
+  StealManaCount: 0
 --- !u!95 &8560360662369924796
 Animator:
   serializedVersion: 5
@@ -348,6 +352,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
+  animatorSpeed: 0
+  animationLock: 0
 --- !u!114 &2985113890066868830
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -400,18 +406,6 @@ MonoBehaviour:
   effectNames: []
   characterCTRL: {fileID: 0}
 --- !u!114 &-8908398277374650044
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 388111979018923067}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d166ca0c523f59641ab22e288092a104, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &4322353236428525142
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

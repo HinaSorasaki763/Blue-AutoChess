@@ -22,3 +22,20 @@ MonoBehaviour:
     threshold. If their health is about to fall below that threshold, it is set to
     the threshold value, and all enemies targeting them will be redirected to other
     students. For a short time, the student cannot be harmed.
+  thresholds:
+  - level: 0
+    requiredCount: 3
+    effectValue: 0
+    effectDescription: 
+  - level: 1
+    requiredCount: 5
+    effectValue: 0
+    effectDescription: 
+  - level: 2
+    requiredCount: 7
+    effectValue: 0
+    effectDescription: 
+  - level: 3
+    requiredCount: 9
+    effectValue: 0
+    effectDescription: 

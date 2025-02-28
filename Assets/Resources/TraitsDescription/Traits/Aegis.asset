@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ead49aeef8c59df4f8ca6dd50b8bceb2, type: 3}
   m_Name: Aegis
   m_EditorClassIdentifier: 
+  IsAcademy: 0
   trait: 8
   sprite: {fileID: 21300000, guid: c8e310d63a3b3304da28f83c3ea0614f, type: 3}
   description: 'Aegis
@@ -22,3 +23,20 @@ MonoBehaviour:
   - Aegis students have shields. Whenever they use a skill, they raise their shield,
     blocking bullets within one tile around them. They absorb part of the bullet
     damage and nullify the rest.
+  thresholds:
+  - level: 0
+    requiredCount: 2
+    effectValue: 0
+    effectDescription: 
+  - level: 1
+    requiredCount: 4
+    effectValue: 0
+    effectDescription: 
+  - level: 2
+    requiredCount: 6
+    effectValue: 0
+    effectDescription: 
+  - level: 3
+    requiredCount: 8
+    effectValue: 0
+    effectDescription: 

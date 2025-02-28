@@ -57,7 +57,17 @@ public class GlobalAudioManager : MonoBehaviour
     }
     private System.Collections.IEnumerator RemoveAudioSourceWhenFinished(AudioSource source)
     {
-        yield return new WaitWhile(() => source.isPlaying);
-        activeAudioSources.Remove(source); // 移除已播放完畢的音效
+        // 持續檢查 source 是否有效，並且是否仍在播放
+        while (source != null && source.isPlaying)
+        {
+            yield return null; // 等待下一幀
+        }
+
+        // 確保 source 尚未被移除再執行移除邏輯
+        if (source != null)
+        {
+            activeAudioSources.Remove(source);
+        }
     }
+
 }

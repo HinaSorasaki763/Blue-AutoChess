@@ -17,5 +17,18 @@ MonoBehaviour:
   sprite: {fileID: 21300000, guid: 03feff20f863072478de7b21d69e1e6d, type: 3}
   description: 
   descrtipns:
-  - 
-  - 
+  - "\u6CBB\u7642\u5E2B(Healer)\u4F7F\u5F97\u968A\u4F0D\u6CBB\u7642\u91CF\u589E\u52A0"
+  - "Increases the team\u2019s healing amount. "
+  thresholds:
+  - level: 0
+    requiredCount: 2
+    effectValue: 0
+    effectDescription: 
+  - level: 1
+    requiredCount: 4
+    effectValue: 0
+    effectDescription: 
+  - level: 2
+    requiredCount: 6
+    effectValue: 0
+    effectDescription: 

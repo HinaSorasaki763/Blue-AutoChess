@@ -1,5 +1,6 @@
 using GameEnum;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,6 +9,7 @@ public class Shop : MonoBehaviour
     public List<Button> ShopButtons = new List<Button>();
     private List<Image> images = new List<Image>();
     private List<GameObject> Characters = new List<GameObject>();
+    private List<int> prices = new List<int>();
     public BenchManager benchManager;
     public RoundProbabilityData roundProbabilityData;
 
@@ -17,11 +19,26 @@ public class Shop : MonoBehaviour
         {
             images.Add(ShopButtons[i].GetComponent<Image>());
             Characters.Add(null);
+            prices.Add(0);
             int indx = i;
             ShopButtons[indx].onClick.AddListener(() => SpawnCharacter(indx));
         }
     }
-
+    public void Update()
+    {
+        int gold = GameController.Instance.GetGoldAmount();
+        for (int i = 0; i <5; i++)
+        {
+            if (prices[i] > gold)
+            {
+                ShopButtons[i].interactable = false;
+            }
+            else
+            {
+                ShopButtons[i].interactable = true;
+            }
+        }
+    }
     public void Refresh()
     {
         GetCharacter();
@@ -30,6 +47,7 @@ public class Shop : MonoBehaviour
     public void SpawnCharacter(int index)
     {
         var shopButton = ShopButtons[index].gameObject.GetComponent<ShopButton>();
+        GameController.Instance.AddGold(-prices[index]);
         shopButton.SetImagesNull();
         if (!benchManager.IsBenchFull())
         {
@@ -44,12 +62,13 @@ public class Shop : MonoBehaviour
         }
         else
         {
-            // 處理備戰席已滿的情況，比如顯示一個消息給玩家
+            
         }
     }
 
     public void GetCharacter()
     {
+        prices.Clear();
         int currentRound = 5; // 假設為第五輪
         RoundProbability currentProbability = roundProbabilityData.roundProbabilities[currentRound];
         for (int i = 0; i < ShopButtons.Count; i++)
@@ -58,14 +77,22 @@ public class Shop : MonoBehaviour
             int selectedCharacterId = -1;
             if (rand < currentProbability.OneCostProbability)
             {
+                prices.Add(1);
                 selectedCharacterId = GetRandomCharacterId(ResourcePool.Instance.OneCostCharacter);
+                if (selectedCharacterId == 4)
+                {
+                    selectedCharacterId += 500;
+                    CustomLogger.Log(this, "switch to spring");
+                }
             }
             else if (rand < currentProbability.OneCostProbability + currentProbability.TwoCostProbability)
             {
+                prices.Add(2);
                 selectedCharacterId = GetRandomCharacterId(ResourcePool.Instance.TwoCostCharacter);
             }
             else
             {
+                prices.Add(3);
                 selectedCharacterId = GetRandomCharacterId(ResourcePool.Instance.ThreeCostCharacter);
             }
 
@@ -107,7 +134,6 @@ public class Shop : MonoBehaviour
                 }
 
                 Characters[i] = character.Model;
-
                 if (ShopButtons[i] != null)
                 {
                     ShopButtons[i].interactable = true;

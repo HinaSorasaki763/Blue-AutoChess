@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using GameEnum;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 public class SpawnGrid : MonoBehaviour
@@ -186,12 +187,92 @@ public class SpawnGrid : MonoBehaviour
             item.SetColorState(GameEnum.ColorState.Default);
         }
     }
+    /// <summary>
+    /// 取得從 (startCol, startRow) 開始、寬度為 width、高度固定 3 的六角格清單。
+    /// </summary>
+    public List<HexNode> GetRectangleHexNodes(int startCol, int startRow, int width)
+    {
+        var result = new List<HexNode>();
+
+        // 高度(垂直方向) = 3，所以 col 從 startCol ~ startCol+2
+        for (int col = startCol; col < startCol + 3; col++)
+        {
+            // 邊界檢查
+            if (col < 0 || col >= gridSize)
+                continue;
+
+            // 寬度(水平方向) = width，所以 row 從 startRow ~ startRow+(width-1)
+            for (int row = startRow; row < startRow + width; row++)
+            {
+                if (row < 0 || row >= gridSize)
+                    continue;
+
+                // 依您 SpawnMap 的公式 i = col*gridSize + row 取得 index
+                int index = col * gridSize + row;
+
+                if (indexToCubeKey.TryGetValue(index, out string cubeKey))
+                {
+                    result.Add(hexNodes[cubeKey]);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 計算一組 HexNode 中的「敵方單位」數量。
+    /// (若 OccupyingCharacter != null、且其 IsAlly != parentIsAlly，即視為敵方)
+    /// </summary>
+    private int GetEnemyCount(List<HexNode> nodes, bool parentIsAlly)
+    {
+        int count = 0;
+        foreach (var node in nodes)
+        {
+            if (node.OccupyingCharacter != null
+                && node.OccupyingCharacter.IsAlly != parentIsAlly
+                && node.OccupyingCharacter.isTargetable)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /// <summary>
+    /// 在地圖上找出可容納最多敵方單位的 3×width 區域，並返回其 HexNode 清單。
+    /// </summary>
+    public List<HexNode> FindBestEnemyRectangle(int width, bool parentIsAlly)
+    {
+        int maxEnemies = -1;
+        List<HexNode> bestRect = null;
+
+        // 需要容納 3 列 (col, col+1, col+2)，所以最遠只能到 gridSize - 3
+        for (int col = 0; col <= gridSize - 3; col++)
+        {
+            // 寬度為 width，row 方向最遠只能到 gridSize - width
+            for (int row = 0; row <= gridSize - width; row++)
+            {
+                // 取得該位置的 3×width 區域
+                var rectNodes = GetRectangleHexNodes(col, row, width);
+
+                // 計算其中的「敵方單位」數量
+                int enemyCount = GetEnemyCount(rectNodes, parentIsAlly);
+
+                if (enemyCount > maxEnemies)
+                {
+                    maxEnemies = enemyCount;
+                    bestRect = rectNodes;
+                }
+            }
+        }
+
+        CustomLogger.Log(this, $"最佳 3×{width} 區域可容納敵方數量 = {maxEnemies}");
+        return bestRect;
+    }
+
     public HexNode GetEmptyHex()
     {
-        foreach (var item in hexNodes.Values)
-        {
-
-        }
         for (int i = 31; i > 1; i--)
         {
             if (hexNodes[indexToCubeKey[i]].OccupyingCharacter == null)
@@ -383,11 +464,10 @@ public class SpawnGrid : MonoBehaviour
         }
     }
 
-    public void UpdateDesertifiedTiles(int traitLevel, int gameStage)
+    public void UpdateDesertifiedTiles(int randomKey,int count)
     {
-        SetDesertifiedTiles(CalculateDesertTileCount(traitLevel, gameStage));
+        SetDesertifiedTiles(count, randomKey);
     }
-
     public void ResetDesertifiedTiles()
     {
         foreach (var tile in hexNodes.Values)
@@ -397,13 +477,11 @@ public class SpawnGrid : MonoBehaviour
         }
     }
 
-    public void SetDesertifiedTiles(int count)
+    public void SetDesertifiedTiles(int count, int randomKey)
     {
-        foreach (var tile in hexNodes.Values)
-        {
-            tile.isDesertified = false;
-            tile.UpdateTileColor();
-        }
+        // 確保 count 是合法的羈絆數量（6、8、10、12）
+        int[] validCounts = { 6, 8, 10, 12 };
+        if (!validCounts.Contains(count)) return;
 
         List<HexNode> deployableTiles = new List<HexNode>();
         foreach (var tile in hexNodes.Values)
@@ -413,20 +491,55 @@ public class SpawnGrid : MonoBehaviour
         }
 
         count = Mathf.Min(count, deployableTiles.Count);
-        for (int i = 0; i < count; i++)
+        if (count % 2 != 0) count--; // 確保偶數
+
+        int perGroup = count / 2;
+
+        List<HexNode> group1 = new List<HexNode>();
+        List<HexNode> group2 = new List<HexNode>();
+
+        // 將可用的格子分成兩組
+        foreach (var tile in deployableTiles)
         {
-            int index = Random.Range(0, deployableTiles.Count);
-            HexNode selectedTile = deployableTiles[index];
-            selectedTile.isDesertified = true;
-            selectedTile.UpdateTileColor();
-            deployableTiles.RemoveAt(index);
+            if (tile.Index >= 0 && tile.Index <= 31)
+                group1.Add(tile);
+            else if (tile.Index >= 32 && tile.Index <= 63)
+                group2.Add(tile);
+        }
+
+        // 統一使用相同的隨機種子來確保一致性
+        System.Random prng = new System.Random(randomKey);
+
+        // 產生一個固定的選擇順序
+        List<HexNode> selectedOrderGroup1 = group1.OrderBy(t => prng.Next()).ToList();
+        List<HexNode> selectedOrderGroup2 = group2.OrderBy(t => prng.Next()).ToList();
+
+        // 確保 count 增加時是累積選擇
+        int maxGroup1 = Mathf.Min(perGroup, selectedOrderGroup1.Count);
+        int maxGroup2 = Mathf.Min(perGroup, selectedOrderGroup2.Count);
+
+        // 設定格子的狀態
+        foreach (var tile in hexNodes.Values)
+        {
+            tile.isDesertified = false; // 重置所有格子
+            tile.UpdateTileColor();
+        }
+
+        // 選擇前 maxGroup1 個作為 desertified
+        for (int i = 0; i < maxGroup1; i++)
+        {
+            selectedOrderGroup1[i].isDesertified = true;
+            selectedOrderGroup1[i].UpdateTileColor();
+        }
+
+        // 選擇前 maxGroup2 個作為 desertified
+        for (int i = 0; i < maxGroup2; i++)
+        {
+            selectedOrderGroup2[i].isDesertified = true;
+            selectedOrderGroup2[i].UpdateTileColor();
         }
     }
-    private int CalculateDesertTileCount(int traitLevel, int gameStage)
-    {
-        return 10;
-        // return traitLevel + gameStage;
-    }
+
     public string GetHexNodeKey(HexNode node)
     {
         return CubeCoordinatesToKey(node.X, node.Y, node.Z);

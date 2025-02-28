@@ -12,19 +12,21 @@ public class Character : ScriptableObject
     public GameObject Model;
     public bool logistics;
     public StatsContainer Stats = new StatsContainer();
-
+    public int[] Health = new int[3];
+    public int[] Attack = new int[3];
     public List<Traits> Traits;
     public int BarrageIntervalAngle;
     public int BarrageInitAngle;
     [TextArea(3, 10)]
-    public string skillTooltip;
+    public List<string> Tooltips = new List<string>(2);
     public bool isObj;
+
+    public bool TestEnhanceSkill;
+    public bool TestBuildInvinvicble;
     public void ApplyLevelUp(int newLevel)
     {
         Level = newLevel;
     }
-
-    // OnValidate 用來檢查和設置初始值
     private void SetStatIfBelowThreshold(StatsType statType, float threshold, int value)
     {
         if (!isObj)
@@ -57,7 +59,7 @@ public class Character : ScriptableObject
         SetStatIfBelowThreshold(StatsType.AttackSpeedGrowth, 0, 0);
         SetStatIfBelowThreshold(StatsType.ResistenceGrowth, 0, 10);
         SetStatIfBelowThreshold(StatsType.CritChance, 0, 25);
-        SetStatIfBelowThreshold(StatsType.DodgeChance, 0, 5);
+        SetStatIfBelowThreshold(StatsType.DodgeChance, 0, 0);
         SetStatIfBelowThreshold(StatsType.Accuracy, 0, 15);
         SetStatIfBelowThreshold(StatsType.CritRatio, 0, 55);
     }

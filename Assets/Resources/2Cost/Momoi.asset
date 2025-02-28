@@ -52,8 +52,16 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: 58020000d40300002c060000
+  Attack: 340000004e00000078000000
   Traits: 0300000007000000
-  BarrageIntervalAngle: 0
-  BarrageInitAngle: 0
-  skillTooltip: 
+  BarrageIntervalAngle: 2
+  BarrageInitAngle: 90
+  Tooltips:
+  - "\u5C0B\u627E\u53EF\u6DB5\u84CB\u6700\u591A\u6575\u4EBA\u7684\u89D2\u5EA6\uFF0C\u9032\u884C\u6383\u5C04\uFF0C\n\u6BCF\u767C\u5B50\u5F48\u9020\u6210
+    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\u3002"
+  - "Finds the angle that hits the most enemies and performs a sweeping shot, \neach
+    bullet dealing {data1} + ({data2}% \xD7 ATK) (Final: {Final})."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0

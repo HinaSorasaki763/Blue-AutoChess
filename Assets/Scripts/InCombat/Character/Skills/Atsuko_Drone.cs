@@ -79,15 +79,11 @@ public class Atsuko_Drone : MonoBehaviour
     public void Trigger()
     {
         CustomLogger.Log(this, "Trigger()");
-        var nodes = Utility.GetHexInRange(characterCTRL.CurrentHex, 5);
-        var targets = nodes
-            .Where(node => node.OccupyingCharacter != null && node.OccupyingCharacter.IsAlly == characterCTRL.IsAlly)
-            .Select(node => node.OccupyingCharacter)
-            .ToList();
-
-        foreach (var target in targets)
+        var characters = Utility.GetCharacterInrange(characterCTRL.CurrentHex,5, characterCTRL, true);
+        int healAmount = characterCTRL.ActiveSkill.GetAttackCoefficient(characterCTRL.GetSkillContext());
+        foreach (var target in characters)
         {
-            target.Heal(100, characterCTRL);
+            target.Heal(healAmount, characterCTRL);
         }
     }
 

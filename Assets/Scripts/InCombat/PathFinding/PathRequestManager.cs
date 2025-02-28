@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 public class PathRequestManager : MonoBehaviour
@@ -22,95 +23,61 @@ public class PathRequestManager : MonoBehaviour
         }
     }
 
-    private Dictionary<CharacterCTRL, List<HexNode>> characterReservations = new Dictionary<CharacterCTRL, List<HexNode>>();
-    private List<PathRequest> pathRequestBuffer = new List<PathRequest>(); // 用於暫存請求的列表
+    private Dictionary<CharacterCTRL, List<HexNode>> characterReservations
+        = new Dictionary<CharacterCTRL, List<HexNode>>();
+    private List<PathRequest> pathRequestBuffer = new List<PathRequest>();
     private bool isProcessingPath;
 
-    public void RequestPath(CharacterCTRL character, HexNode startNode, HexNode targetNode, Action<List<HexNode>> callback, int range)
+    public void RequestPath(CharacterCTRL character, HexNode startNode, HexNode targetNode,
+                            Action<List<HexNode>> callback, int range)
     {
+        CustomLogger.Log(this, $"character {character} requesting path from {startNode} to {targetNode} , target = {character.Target}, target node occupying {targetNode.OccupyingCharacter}");
         PathRequest newRequest = new PathRequest(character, startNode, targetNode, callback, range);
         pathRequestBuffer.Add(newRequest);
 
         if (!isProcessingPath)
+        {
             StartCoroutine(ProcessBufferedRequests());
+        }
     }
 
     private IEnumerator ProcessBufferedRequests()
     {
         isProcessingPath = true;
         yield return new WaitForSeconds(0.1f);
-
-        List<PathRequest> optimalOrder = GetOptimalPathOrder(pathRequestBuffer);
-        foreach (var request in optimalOrder)
+        List<PathRequest> sortedRequests = pathRequestBuffer
+            .OrderBy(r => GetHexDistance(r.startNode, r.targetNode))
+            .ToList();
+        StringBuilder sb = new StringBuilder();
+        foreach (HexNode node in SpawnGrid.Instance.hexNodes.Values)
         {
-            List<HexNode> path = PathFinder.FindPath(request.character.characterStats.CharacterName, request.startNode, request.targetNode, request.character.IsAlly, (int)request.character.stats.GetStat(GameEnum.StatsType.Range), false);
+            node.gCost = Mathf.Infinity;
+            node.hCost = Mathf.Infinity;
+            node.CameFrom = null;
+        }
+
+        foreach (var request in sortedRequests)
+        {
+            sb.AppendLine($" request: {request.character.characterStats.CharacterName} to target{request.targetNode}");
+            List<HexNode> path = PathFinder.FindPath(
+                request.character.characterStats.CharacterName,
+                request.startNode,
+                request.targetNode,
+                (int)request.character.stats.GetStat(GameEnum.StatsType.Range)
+            );
             ReserveNodes(path, request.character);
             request.callback(path);
         }
-
+        CustomLogger.Log(this, sb.ToString() ); 
         pathRequestBuffer.Clear();
         isProcessingPath = false;
     }
-
-    private List<PathRequest> GetOptimalPathOrder(List<PathRequest> requests)
+    private int GetHexDistance(HexNode a, HexNode b)
     {
-        var permutations = GetPermutations(requests);
-        List<PathRequest> optimalOrder = null;
-        int minimumTotalSteps = int.MaxValue;
-
-        foreach (var permutation in permutations)
-        {
-            int totalSteps = CalculateTotalPathLength(permutation);
-            if (totalSteps < minimumTotalSteps)
-            {
-                minimumTotalSteps = totalSteps;
-                optimalOrder = permutation;
-            }
-        }
-
-        return optimalOrder;
-    }
-
-    private List<List<PathRequest>> GetPermutations(List<PathRequest> requests)
-    {
-        if (requests.Count == 1) return new List<List<PathRequest>> { requests };
-
-        var permutations = new List<List<PathRequest>>();
-        foreach (var request in requests)
-        {
-            var remainingRequests = new List<PathRequest>(requests);
-            remainingRequests.Remove(request);
-
-            foreach (var subPermutation in GetPermutations(remainingRequests))
-            {
-                var newPermutation = new List<PathRequest> { request };
-                newPermutation.AddRange(subPermutation);
-                permutations.Add(newPermutation);
-            }
-        }
-        return permutations;
-    }
-
-    private int CalculateTotalPathLength(List<PathRequest> requests)
-    {
-        int totalSteps = 0;
-        List<HexNode> temporaryReservations = new List<HexNode>();
-        foreach (var request in requests)
-        {
-            List<HexNode> estimatedPath = PathFinder.FindPath(request.character.characterStats.CharacterName, request.startNode, request.targetNode, request.character.IsAlly, (int)request.character.stats.GetStat(GameEnum.StatsType.Range), true);
-            totalSteps += estimatedPath.Count;
-            foreach (var node in estimatedPath)
-            {
-                node.TemporarilyReserve(); // 標記為「假預約」
-                temporaryReservations.Add(node);
-            }
-        }
-        foreach (var node in temporaryReservations)
-        {
-            node.ClearTemporaryReservation();
-        }
-
-        return totalSteps;
+        int dx = b.X - a.X;
+        int dy = b.Y - a.Y;
+        int dz = b.Z - a.Z;
+        return Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy), Mathf.Abs(dz));
     }
 
     private void ReserveNodes(List<HexNode> path, CharacterCTRL character)
@@ -147,6 +114,19 @@ public class PathRequestManager : MonoBehaviour
             reservedNodes.RemoveRange(startIndex, reservedNodes.Count - startIndex);
         }
     }
+
+    private void Update()
+    {
+        // 假如有角色被移除或失效，就釋放它的預約
+        var keys = new List<CharacterCTRL>(characterReservations.Keys);
+        foreach (var item in keys)
+        {
+            if (!item || !item.gameObject.activeInHierarchy)
+            {
+                ReleaseCharacterReservations(item);
+            }
+        }
+    }
 }
 
 public struct PathRequest
@@ -157,7 +137,8 @@ public struct PathRequest
     public Action<List<HexNode>> callback;
     public int range;
 
-    public PathRequest(CharacterCTRL _character, HexNode _startNode, HexNode _targetNode, Action<List<HexNode>> _callback, int _range)
+    public PathRequest(CharacterCTRL _character, HexNode _startNode, HexNode _targetNode,
+                       Action<List<HexNode>> _callback, int _range)
     {
         character = _character;
         startNode = _startNode;

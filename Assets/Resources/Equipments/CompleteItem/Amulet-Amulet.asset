@@ -12,8 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d134da17ecf0bc4993dcac8b47ed2b1, type: 3}
   m_Name: Amulet-Amulet
   m_EditorClassIdentifier: 
-  equipmentDescription: Amulet-Description
-  equipmentName: Amulet
+  Index: 6
+  equipmentDescription: "\u64CA\u6BBA\u6575\u4EBA\u8FD4\u9084\u9B54\u529B\u503C"
+  equipmentDescriptionEnglish: gain mana onkill
+  equipmentName: "Antikythera(\u5B89\u63D0\u57FA\u5E0C\u62C9)"
   icon: {fileID: 21300000, guid: 5be4cdee87cc8bf4bb6fdf966a03252f, type: 3}
-  Attributes: 00000000
-  Value: 0a000000
+  isSpecial: 0
+  isConsumable: 0
+  Traits: 16
+  Attributes: 0000000001000000
+  Value: 0a0000001e000000
+  effectType: 0

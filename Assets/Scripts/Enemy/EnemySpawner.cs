@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using GameEnum;
 
 public class EnemySpawner : MonoBehaviour
 {
@@ -78,17 +79,20 @@ public class EnemySpawner : MonoBehaviour
 
     public void SpawnEnemiesNextStage()
     {
-        CustomLogger.Log(this, "SpawnEnemiesNextStage");
         if (chosenWave == null)
         {
             Debug.LogError("No wave chosen. Please select a wave first.");
             return;
         }
+
+        // 清理上一波敵人
         foreach (var item in enemyParent.childCharacters)
         {
             Destroy(item.GetComponent<CharacterCTRL>().characterBars);
             Destroy(item);
         }
+
+        // 生成新一波敵人
         foreach (var slot in chosenWave.gridSlots)
         {
             if (slot.CharacterID != -1)
@@ -100,7 +104,52 @@ public class EnemySpawner : MonoBehaviour
                         Vector3 position = hexNode.Position;
                         Character characterData = ResourcePool.Instance.GetCharacterByID(slot.CharacterID);
                         GameObject characterPrefab = characterData.Model;
-                        GameObject go = ResourcePool.Instance.SpawnCharacterAtPosition(characterPrefab, position, hexNode, enemyParent, isAlly: false);
+                        GameObject go = ResourcePool.Instance.SpawnCharacterAtPosition(
+                            characterPrefab,
+                            position,
+                            hexNode,
+                            enemyParent,
+                            isAlly: false
+                        );
+
+                        CharacterCTRL characterCtrl = go.GetComponent<CharacterCTRL>();
+                        if (characterCtrl != null)
+                        {
+                            // 為該角色裝備裝備
+                            for (int i = 0; i < slot.EquipmentIDs.Length; i++)
+                            {
+                                int equipmentID = slot.EquipmentIDs[i];
+                                if (equipmentID != -1)
+                                {
+                                    IEquipment template = EquipmentManager.Instance.GetEquipmentByID(equipmentID);
+                                    if (template != null)
+                                    {
+                                        // 先 Clone 一份新裝備，再給角色裝備
+                                        IEquipment newEquipment = template.Clone();
+                                        CharacterObserverBase c = ItemObserverFactory.GetObserverByIndex(newEquipment.Id);
+                                        if (c != null)
+                                        {
+                                            newEquipment.Observer = c;
+                                        }
+                                        bool equipped = characterCtrl.EquipItem(newEquipment);
+
+                                        CustomLogger.Log(
+                                            this,
+                                            $"Character {characterData.name} equipped with {newEquipment.EquipmentName}: {equipped}"
+                                        );
+                                    }
+                                    else
+                                    {
+                                        CustomLogger.LogError(this, $"No Equipment found for ID {equipmentID}");
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            CustomLogger.LogError(this, $"Character {characterData.name} has no CharacterCTRL component.");
+                        }
+
                         CustomLogger.Log(this, $"Character {characterData.name} spawned at {position}");
                     }
                     else
@@ -114,8 +163,11 @@ public class EnemySpawner : MonoBehaviour
                 }
             }
         }
+
+        // 為 Logistic 角色配置裝備 (如果需要)
         SpawnLogisticCharacter(chosenWave.logisticSlot1, ResourcePool.Instance.EnemylogisticSlotNode1);
         SpawnLogisticCharacter(chosenWave.logisticSlot2, ResourcePool.Instance.EnemylogisticSlotNode2);
+
         ResourcePool.Instance.enemy.UpdateTraitEffects();
     }
 

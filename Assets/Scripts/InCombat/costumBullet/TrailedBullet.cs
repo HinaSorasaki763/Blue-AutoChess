@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class TrailedBullet : MonoBehaviour
 {
@@ -13,17 +12,22 @@ public class TrailedBullet : MonoBehaviour
     public float decayFactor;
     public LayerMask HitLayer;
     public CharacterCTRL Parent;
+
     private Vector3 startPosition;
+    private Vector3 moveDirection; // 用來記錄移動方向
     private bool IsCrit;
+
     void Awake()
     {
         attackId = nextId++;
     }
+
     public void OnEnable()
     {
         targetPosition = Vector3.zero;
     }
-    public void Initialized(Vector3 targetPosition, float damage, float decayFactor, LayerMask hitLayer, CharacterCTRL parent,bool isCrit)
+
+    public void Initialized(Vector3 targetPosition, float damage, float decayFactor, LayerMask hitLayer, CharacterCTRL parent, bool isCrit)
     {
         this.targetPosition = targetPosition;
         this.damage = damage;
@@ -32,10 +36,14 @@ public class TrailedBullet : MonoBehaviour
         HitLayer = hitLayer;
         Parent = parent;
         startPosition = transform.position;
+
+        // 初始化移動方向（忽略Y軸高度差的話，就固定自己的Y或直接帶入transform.position.y）
+        Vector3 targetPosWithFixedY = new Vector3(targetPosition.x, transform.position.y, targetPosition.z);
+        moveDirection = (targetPosWithFixedY - transform.position).normalized;
     }
+
     public void OnTriggerEnter(Collider other)
     {
-        Debug.Log("OnTriggerEnter");
         if (((1 << other.gameObject.layer) & HitLayer) != 0)
         {
             CharacterCTRL enemy = other.GetComponent<CharacterCTRL>();
@@ -45,20 +53,28 @@ public class TrailedBullet : MonoBehaviour
             }
         }
     }
+
     void Update()
     {
-        Vector3 targetPosWithFixedY = new Vector3(targetPosition.x, transform.position.y, targetPosition.z);
-        transform.position += speed * Time.deltaTime * (targetPosWithFixedY - transform.position).normalized;
-        transform.LookAt(targetPosWithFixedY);
+        // 沿著初始化時的方向持續前進
+        transform.position += moveDirection * speed * Time.deltaTime;
+
+        // 調整朝向
+        transform.LookAt(transform.position + moveDirection);
+        // 再加上額外的90度旋轉
         Quaternion additionalRotation = Quaternion.Euler(90, 0, 0);
         transform.rotation *= additionalRotation;
+
         CheckMaxDistance();
     }
+
     void HitTarget(CharacterCTRL enemy)
     {
-        enemy.GetHit((int)damage, Parent,IsCrit);
-        damage *= decayFactor;
+        CustomLogger.Log(this, "enemy.GetHit((int)damage, Parent, \"TrailedBullet\", IsCrit);");
+        enemy.GetHit((int)damage, Parent, "TrailedBullet", IsCrit);
+        damage *= decayFactor * 0.01f;
     }
+
     public void OnDisable()
     {
         Parent = null;
@@ -66,12 +82,13 @@ public class TrailedBullet : MonoBehaviour
         damage = 0;
         attackId = 0;
     }
+
     private void CheckMaxDistance()
     {
         float distanceTravelled = Vector3.Distance(startPosition, transform.position);
         if (distanceTravelled >= 20)
         {
-            gameObject.SetActive(false); // 禁用子彈
+            gameObject.SetActive(false);
         }
     }
 }

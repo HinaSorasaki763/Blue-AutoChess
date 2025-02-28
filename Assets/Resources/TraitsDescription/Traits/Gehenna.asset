@@ -17,7 +17,24 @@ MonoBehaviour:
   sprite: {fileID: 21300000, guid: b7a1f442d2819b24795dfa08d6a46710, type: 3}
   description: Gehenna
   descrtipns:
-  - "\u683C\u9ED1\u5A1C\u7684\u5B78\u751F\u5728\u64CA\u5012\u6575\u65B9\u5B78\u751F\u6216\u5B58\u6D3B\u81F3\u6230\u9B25\u7D50\u675F\u5F8C\uFF0C\u7372\u5F97\u300C\u5A01\u58D3\u300D\u5C64\u6578\u3002\u300C\u5A01\u58D3\u300D\u6703\u5C0F\u5E45\u63D0\u5347\u5404\u9805\u6578\u503C\u53CA\u6280\u80FD\u5F37\u5EA6\u3002"
+  - "\u683C\u9ED1\u5A1C\u7684\u5B78\u751F\u5728\u64CA\u5012\u6575\u65B9\u5B78\u751F\u6216\u5B58\u6D3B\u81F3\u6230\u9B25\u7D50\u675F\u5F8C\uFF0C\u7372\u5F97\"\u5A01\u58D3\"\u5C64\u6578\u3002\"\u5A01\u58D3\"\u6703\u5C0F\u5E45\u63D0\u5347\u5404\u9805\u6578\u503C\u53CA\u6280\u80FD\u5F37\u5EA6\u3002"
   - ' Gehenna students gain stacks of "Intimidation" when defeating enemy students
     or surviving until the end of the battle. "Intimidation" slightly increases various
     stats and skill strength.'
+  thresholds:
+  - level: 0
+    requiredCount: 3
+    effectValue: 0
+    effectDescription: 
+  - level: 1
+    requiredCount: 5
+    effectValue: 0
+    effectDescription: 
+  - level: 2
+    requiredCount: 7
+    effectValue: 0
+    effectDescription: 
+  - level: 3
+    requiredCount: 9
+    effectValue: 0
+    effectDescription: 

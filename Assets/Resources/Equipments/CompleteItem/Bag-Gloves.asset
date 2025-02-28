@@ -12,8 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d134da17ecf0bc4993dcac8b47ed2b1, type: 3}
   m_Name: Bag-Gloves
   m_EditorClassIdentifier: 
-  equipmentDescription: Bag-Description
-  equipmentName: Bag
+  Index: 14
+  equipmentDescription: "\u666E\u901A\u653B\u64CA\u6642\uFF0C\u9644\u5E36\u76EE\u6A19\u7576\u524D\u751F\u547D4%\u7684\u50B7\u5BB3\u3002"
+  equipmentDescriptionEnglish: 
+  equipmentName: "Ether(\u4EE5\u592A)"
   icon: {fileID: 21300000, guid: 118f7467c11d5d647889305177693697, type: 3}
-  Attributes: 05000000
-  Value: 0a000000
+  isSpecial: 0
+  isConsumable: 0
+  Traits: 16
+  Attributes: 0500000002000000
+  Value: 0a0000000a000000
+  effectType: 0

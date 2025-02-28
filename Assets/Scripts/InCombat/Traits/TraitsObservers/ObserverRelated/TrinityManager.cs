@@ -1,6 +1,8 @@
+using GameEnum;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public class TrinityManager : MonoBehaviour
 {
@@ -16,16 +18,16 @@ public class TrinityManager : MonoBehaviour
     {
         Instance = this;
     }
-    public void AddStack(Vector3 v)
+    public void AddStack(Vector3 v,string detailSource,HexNode h,CharacterCTRL c )
     {
         TrinityStackCount++;
         if (TrinityStackCount >=StackUplimit)
         {
             TrinityStackCount -= StackUplimit;
-            TriggerComet(v);
+            TriggerComet(v,detailSource,h,c);
         }
     }
-    public void TriggerComet(Vector3 targetPosition)
+    public void TriggerComet(Vector3 targetPosition, string detailSource,HexNode h,CharacterCTRL c )
     {
         // 生成地面特效
         GameObject groundEffect = Instantiate(groundEffectPrefab, targetPosition, Quaternion.identity);
@@ -44,10 +46,10 @@ public class TrinityManager : MonoBehaviour
         GameObject comet = Instantiate(cometPrefab, cometStartPosition, cometRotation);
 
         // 開始彗星墜落協程
-        StartCoroutine(FallComet(comet, targetPosition, groundEffect));
+        StartCoroutine(FallComet(comet, targetPosition, groundEffect, detailSource,h,c));
     }
 
-    private IEnumerator FallComet(GameObject comet, Vector3 targetPosition, GameObject groundEffect)
+    private IEnumerator FallComet(GameObject comet, Vector3 targetPosition, GameObject groundEffect,string detailSource,HexNode h,CharacterCTRL c)
     {
         Vector3 startPosition = comet.transform.position;
         float elapsedTime = 0f;
@@ -60,6 +62,14 @@ public class TrinityManager : MonoBehaviour
             yield return null;
         }
         comet.transform.position = targetPosition;
+        var observer = c.traitController.GetObserverForTrait(Traits.Trinity) as TrinityObserver;
+        int dmg = observer.GetCuurDmg();
+        (bool iscrit, int dmg1) = c.CalculateCrit(dmg);
+        foreach (var item in Utility.GetCharacterInrange(h,1,c,false))
+        {
+            item.GetHit(dmg1,c,detailSource, iscrit);
+        }
+        CustomLogger.Log(this, $"item.GetHit({dmg1},{c},{detailSource}, {iscrit});");
         GameObject instantiatedEffect = Instantiate(Effect, targetPosition, Quaternion.identity);
         Destroy(instantiatedEffect, 2f);
         Destroy(groundEffect, 2f);

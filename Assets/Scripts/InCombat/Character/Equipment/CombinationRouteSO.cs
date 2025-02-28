@@ -17,12 +17,13 @@ public class CombinationRouteSO : ScriptableObject
     public EquipmentSO GetCombinationResult(IEquipment eq1, IEquipment eq2)
     {
         CustomLogger.Log(this,$"Start finding combination with {eq1},{eq2}");
-        if (eq1 is EquipmentSO eqSO1 && eq2 is EquipmentSO eqSO2)
+        if (eq1 is BasicEquipment eqSO1 && eq2 is BasicEquipment eqSO2)
         {
+
             foreach (var entry in combinationEntries)
             {
-                if ((entry.equipmentA == eqSO1 && entry.equipmentB == eqSO2) ||
-                    (entry.equipmentA == eqSO2 && entry.equipmentB == eqSO1))
+                if ((entry.equipmentA.Id == eqSO1.Id && entry.equipmentB.Id == eqSO2.Id) ||
+                    (entry.equipmentA.Id == eqSO2.id && entry.equipmentB.Id == eqSO1.Id))
                 {
                     CustomLogger.Log(this, $"result = {entry.resultEquipment}");
                     return entry.resultEquipment;

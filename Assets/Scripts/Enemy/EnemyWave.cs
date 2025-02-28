@@ -9,8 +9,10 @@ public class EnemyWave : ScriptableObject
     public class GridSlotData
     {
         public int GridIndex;
-        public int CharacterID; 
+        public int CharacterID;
+        public int[] EquipmentIDs = new int[3] { -1, -1, -1 }; // 預設為 -1，表示沒有裝備
     }
+
     public string EnemyName;
     public List<GridSlotData> gridSlots = new List<GridSlotData>();
     public GridSlotData logisticSlot1 = new GridSlotData();

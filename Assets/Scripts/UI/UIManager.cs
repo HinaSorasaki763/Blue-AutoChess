@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 public class UIManager : MonoBehaviour
 {
@@ -23,6 +24,9 @@ public class UIManager : MonoBehaviour
     public TextMeshProUGUI EquipmentDetail;
     public Image equipmentIcon;
     public GameObject EquipmntModal;
+    public GameObject EquipmentPreComposingModal;
+    public Image Sprite1, Sprite2, CompleteItemSprite;
+    public TextMeshProUGUI CompleteItemText;
     private void Awake()
     {
         if (Instance == null)
@@ -55,7 +59,19 @@ public class UIManager : MonoBehaviour
         EquipmentName.text = equipment.EquipmentName;
         EquipmentDetail.text = equipment.EquipmentDetail;
     }
-
+    public void ShowEquipmentPreComposing(IEquipment eq1,IEquipment eq2,IEquipment result)
+    {
+        EquipmentPreComposingModal.SetActive(true);
+        EquipmentPreComposingModal.transform.position = Input.mousePosition;
+        Sprite1.sprite = eq1.Icon;
+        Sprite2.sprite = eq2.Icon;
+        CompleteItemSprite.sprite = result.Icon;
+        CompleteItemText.text = result.EquipmentDetail;
+    }
+    public void DisableEquipmentPreComposing()
+    {
+        EquipmentPreComposingModal.SetActive(false);
+    }
     public bool TryClose(CharacterCTRL character)
     {
         if (character == currentCharacter)
@@ -76,7 +92,12 @@ public class UIManager : MonoBehaviour
         shieldBar.SetMinValue(0);
         manaBar.SetMaxValue(character.GetStat(StatsType.MaxMana));
         manaBar.SetMinValue(0);
-        skillContext.text = character.characterStats.skillTooltip;
+        int level = character.star;
+        int language = PlayerSettings.SelectedDropdownValue;
+        var replacements = StringPlaceholderReplacer.BuildPlaceholderDictionary(character, level, language);
+        string rawTooltip = character.characterStats.Tooltips[language];
+        string finalTooltip = StringPlaceholderReplacer.ReplacePlaceholders(rawTooltip, replacements);
+        skillContext.text = finalTooltip;
     }
 
     private void Update()
@@ -107,11 +128,56 @@ public class UIManager : MonoBehaviour
         shieldBar.UpdateValue(currentCharacter.GetStat(StatsType.Shield));
         manaBar.UpdateValue(currentCharacter.GetStat(StatsType.Mana));
     }
-
+    public void OnQuit()
+    {
+        Application.Quit();
+    }
     private void CloseCharacterStats()
     {
         EquipmntModal.SetActive(false);
         characterStatsPopup.SetActive(false);
         currentCharacter = null;
     }
+}
+public static class StringPlaceholderReplacer
+{
+    private static readonly Regex PlaceholderRegex = new Regex(@"\{([^}]+)\}");
+
+    public static string ReplacePlaceholders(string source, Dictionary<string, string> replacements)
+    {
+        // 找到所有 {xxx} 的片段
+        return PlaceholderRegex.Replace(source, match =>
+        {
+            // match.Groups[1].Value 會是 "xxx"（不含大括號）
+            string key = match.Groups[1].Value;
+            // 若replacements裡有這個key，就替換；否則原樣返回
+            if (replacements.TryGetValue(key, out string value))
+            {
+                CustomLogger.Log(value,$"getting {key} key , returing {value } value");
+                return value;
+            }
+            else
+            {
+                // 這裡也可以選擇返回空字串、或保留原本的 {xxx} 不動
+                return match.Value;
+            }
+        });
+    }
+    public static Dictionary<string, string> BuildPlaceholderDictionary(CharacterCTRL character, int level,int language)
+    {
+        StarLevelStats stats = character.ActiveSkill.GetCharacterLevel()[level];
+        bool isChinese = (language == 0);
+        return new Dictionary<string, string>()
+    {
+        {"data1", stats.Data1.ToString()},
+        {"data2", stats.Data2.ToString()},
+        {"data3", stats.Data3.ToString()},
+        {"data4", stats.Data4.ToString()},
+        {"data5", stats.Data5.ToString("F1")},
+        {"Attack", isChinese? $"攻擊力 ({character.GetStat(StatsType.Attack)})" : $"Atk({character.GetStat(StatsType.Attack)}) "},
+        {"Health", isChinese? $"攻擊力 ({character.GetStat(StatsType.Health)})" : $"Atk({character.GetStat(StatsType.Health)}) "},
+        {"Final", character.ActiveSkill.GetAttackCoefficient(character.GetSkillContext()).ToString()}
+    };
+    }
+
 }

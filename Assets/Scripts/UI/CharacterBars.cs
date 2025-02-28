@@ -79,7 +79,7 @@ public class CharacterBars : MonoBehaviour
         strongestMark.SetActive(false);  // 重置時隱藏"最強"標誌
     }
 
-    void InitBars()
+    public void InitBars()
     {
         HealthSlider.SetMaxValue(CharacterCTRL.GetStat(StatsType.Health));
         CustomLogger.Log(this,$"set character {CharacterCTRL.name} max health = {CharacterCTRL.GetStat(StatsType.Health)}, max = {HealthSlider.sliderComponent.maxValue}");

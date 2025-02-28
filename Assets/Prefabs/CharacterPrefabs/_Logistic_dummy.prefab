@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3781199236721641404}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: GetHitPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 954476011115279921}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0, z: 0.855}
+  m_LocalPosition: {x: -0.149, y: 0.708, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -49,7 +49,7 @@ GameObject:
   - component: {fileID: 7350124531225570687}
   - component: {fileID: 6278937515453599878}
   - component: {fileID: 2797557215766332626}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: _Logistic_dummy
   m_TagString: Character
   m_Icon: {fileID: 0}
@@ -64,7 +64,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2254578881858061344}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.7071068, z: -0.7071068, w: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -72,7 +72,7 @@ Transform:
   - {fileID: 7512112681154738731}
   - {fileID: 3781199236721641404}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -90, y: 0, z: -180}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1845308265307684697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98,7 +98,7 @@ MonoBehaviour:
   GridLayer:
     serializedVersion: 2
     m_Bits: 0
-  characterStats: {fileID: 11400000, guid: ffd791154550ccb499e5f5ec3c8806e2, type: 2}
+  characterStats: {fileID: 11400000, guid: 5d4eaf2ba4ca7fc4fb41e1f7a357b2d6, type: 2}
   characterBars: {fileID: 0}
   allyParent: {fileID: 0}
   enemyParent: {fileID: 0}
@@ -141,6 +141,8 @@ MonoBehaviour:
   star: 0
   modifierCTRL: {fileID: 6817569935606067784}
   effectCTRL: {fileID: 6044703480681648879}
+  IsHeroicEnhanced: 0
+  FaceDirectionLock: 0
   ManaLock: 0
   enterBattle: 0
   isAlive: 1
@@ -150,9 +152,11 @@ MonoBehaviour:
   isMarked: 0
   isCCImmune: 0
   Invincible: 0
+  AntiHeal: 0
+  Taunted: 0
   attackRate: 5
+  WakamoMark: 0
   stunned: 0
-  bulletPrefab: {fileID: 0}
   FirePoint: {fileID: 0}
   GetHitPoint: {fileID: 3781199236721641404}
   DetectedPos: {x: 0, y: 0, z: 0}
@@ -165,6 +169,7 @@ MonoBehaviour:
   isObj: 1
   Logistic_dummy: {fileID: 0}
   equipmentManager: {fileID: 0}
+  StealManaCount: 0
 --- !u!114 &6817569935606067784
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -210,8 +215,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.50569546, y: 0.46545398, z: 1.4625359}
-  m_Center: {x: -0.025204346, y: 0.007822961, z: 0.71238977}
+  m_Size: {x: 0.583361, y: 1.4564565, z: 0.30291617}
+  m_Center: {x: -0.022350505, y: 0.5033242, z: 0.060100943}
 --- !u!114 &8823207437843596959
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -370,7 +375,7 @@ GameObject:
   - component: {fileID: 1806952471455492468}
   - component: {fileID: 1198012114261061558}
   - component: {fileID: 5657921198391395550}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: Logistic_dummy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -385,13 +390,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5094665012361601124}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4488454020445764111}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!33 &1806952471455492468
 MeshFilter:
   m_ObjectHideFlags: 0

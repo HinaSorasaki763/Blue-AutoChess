@@ -22,7 +22,7 @@ public class PressureManager : MonoBehaviour
     }
     public void Update()
     {
-        UpdateIndicater();
+        
     }
     public int GetPressure()
     {
@@ -31,6 +31,7 @@ public class PressureManager : MonoBehaviour
     public void IncreasePressure(int amount)
     {
         CurrentPressure += amount;
+        UpdateIndicater();
         Debug.Log($"[PressureManager] 威压层数增加 {amount}，当前总层数：{CurrentPressure}");
     }
 
@@ -40,7 +41,7 @@ public class PressureManager : MonoBehaviour
     }
     public void UpdateIndicater()
     {
-        if (TraitsEffectManager.Instance.GetTraitLevelForCharacter(GameEnum.Traits.Gehenna, false)> 0)
+        if (GameEnum.Utility.GetInBattleCharactersWithTrait(GameEnum.Traits.Gehenna, true).Count > 0)
         {
             PressureIndicator.SetActive(true);
             TraitText.gameObject.SetActive(true);

@@ -13,7 +13,7 @@ public class DeveloperTool : MonoBehaviour
     public Transform characterContentParent;
     public Transform equipmentContentParent;
     public BenchManager benchManager;
-    public EquipmentManager equipmentManager; // 引用装备管理器
+    public EquipmentManager equipmentManager;
 
     private List<GameObject> characterButtons = new List<GameObject>();
     private List<GameObject> equipmentButtons = new List<GameObject>();
@@ -97,7 +97,6 @@ public class DeveloperTool : MonoBehaviour
 
     private void SpawnEquipment(IEquipment equipment)
     {
-        // 调用 EquipmentManager 的方法，将装备添加到装备区域
-        equipmentManager.AddEquipmentItem(equipment);
+        EquipmentManager.Instance.AddEquipmentItem(equipment);
     }
 }

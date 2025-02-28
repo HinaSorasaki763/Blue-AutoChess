@@ -21,7 +21,7 @@ MonoBehaviour:
   Stats:
     stats:
     - statType: 0
-      value: 550
+      value: 575
     - statType: 1
       value: 0
     - statType: 2
@@ -52,8 +52,16 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: 26020000e8030000f4060000
+  Attack: 230000003700000053000000
   Traits: 090000000400000008000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - "\u6CBB\u7652\u81EA\u8EAB: {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42:
+    {Final})\uFF0C\n\u4E26\u5728 {data5} \u79D2\u5167\u514D\u75AB\u8CA0\u9762\u72C0\u614B\u3002"
+  - "Heals herself for {data1} + ({data2}% \xD7 {Attack}) (Final: {Final}) \nand
+    becomes immune to negative status effects for {data5} seconds."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0

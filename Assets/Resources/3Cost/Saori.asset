@@ -52,8 +52,18 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: bc0200007e04000034080000
+  Attack: 280000004b0000005f000000
   Traits: 0e00000006000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - "\u958B\u4E00\u69CD\uFF0C\u4E0D\u6703\u88AB\u4EFB\u4F55\u7269\u9AD4\u963B\u64CB\uFF0C\u9020\u6210
+    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\uFF0C\n\u6BCF\u7A7F\u900F\u4E00\u540D\u6575\u4EBA\u5F8C\u50B7\u5BB3\u8870\u6E1B\u81F3
+    {data3}%\uFF0C\u6700\u4F4E\u4E0D\u4F4E\u65BC\u539F\u50B7\u5BB3\u7684 60%\u3002"
+  - "Fires a single shot that cannot be blocked, dealing {data1} + ({data2}% \xD7
+    ATK) (Final: {Final}). \nEach enemy pierced reduces the shot's damage to {data3}%
+    of the previous, \ndown to a minimum of 60% of the original damage."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0

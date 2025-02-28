@@ -55,7 +55,7 @@ public class AddManaObserver : CharacterObserverBase
     }
     public override void OnAttacking(CharacterCTRL character)
     {
-        character.AddStat(StatsType.Mana, amount);
+        character.Addmana( amount);
         base.OnAttacking(character);
     }
 }

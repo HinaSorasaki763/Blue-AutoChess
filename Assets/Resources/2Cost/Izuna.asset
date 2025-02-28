@@ -21,11 +21,11 @@ MonoBehaviour:
   Stats:
     stats:
     - statType: 0
-      value: 750
+      value: 550
     - statType: 1
       value: 0
     - statType: 2
-      value: 50
+      value: 1
     - statType: 3
       value: 0
     - statType: 4
@@ -52,8 +52,16 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: 26020000de03000008070000
+  Attack: 2a0000003f0000005f000000
   Traits: 020000000b000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - "\u6C92\u6709\u4E3B\u52D5\u6280\u80FD\uFF0C\n\u7B2C\u516D\u6B21\u666E\u901A\u653B\u64CA\u6539\u70BA\u5C0D\u5713\u5F62\u7BC4\u570D\u5167\u6575\u4EBA\u9020\u6210
+    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\u3002"
+  - "Has no active skill. Instead, her sixth basic attack deals \n{data1} + ({data2}%
+    \xD7 ATK) (Final: {Final}) in a circular area."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0

@@ -52,8 +52,16 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: b00400007008000010270000
+  Attack: 3c0000005a00000087000000
   Traits: 000000000500000008000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - "\u67B6\u8D77\u8B77\u76FE\uFF0C\u5C0D\u524D\u65B9\u4E00\u683C\u8207\u5DE6\u53F3\u5169\u683C\u9020\u6210\u591A\u6B21\u50B7\u5BB3\uFF0C\n\u6BCF\u6CE2\u7D04\u70BA
+    {data1} (\u6700\u7D42: {Final})\u3002"
+  - "Raises a shield and deals multiple waves of damage to the tile directly in front
+    \nand the two adjacent tiles, each wave dealing about {data1} (Final: {Final})."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 1

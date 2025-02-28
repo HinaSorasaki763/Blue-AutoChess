@@ -52,8 +52,16 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: 52030000a00500001c0c0000
+  Attack: 410000006200000096000000
   Traits: 0000000007000000
-  BarrageIntervalAngle: 0
-  BarrageInitAngle: 0
-  skillTooltip: 
+  BarrageIntervalAngle: 6
+  BarrageInitAngle: 90
+  Tooltips:
+  - "\u4EE5\u7576\u524D\u76EE\u6A19\u70BA\u4E2D\u5FC3\u9032\u884C\u6383\u5C04\uFF0C\u591A\u6B21\u5C04\u64CA\uFF0C\n\u6BCF\u767C\u9020\u6210
+    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\u3002"
+  - "Centers on the current enemy and performs multiple shots, \neach dealing {data1}
+    + ({data2}% \xD7 ATK) (Final: {Final})."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0

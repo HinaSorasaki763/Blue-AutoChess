@@ -35,7 +35,7 @@ MonoBehaviour:
     - statType: 6
       value: 40
     - statType: 7
-      value: 5
+      value: 1
     - statType: 8
       value: 10
     - statType: 9
@@ -52,8 +52,17 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: 8a020000920400003a080000
+  Attack: 280000003c00000058000000
   Traits: 0100000008000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - "\u9059\u9999\u67B6\u8D77\u8B77\u76FE\uFF0C\u4E26\u5411\u524D\u65B9\u767C\u52D5\u591A\u6B21\u653B\u64CA\uFF0C\n\u9020\u6210:
+    {data1} + ({data2}% \xD7 {Attack}) + \u5A01\u58D3*{data3} (\u6700\u7D42: {Final})\uFF0C\n\u88AB\u547D\u4E2D\u7684\u6575\u4EBA\u5C07\u6E1B\u5C11\u653B\u64CA\u529B\u3002"
+  - "Raises a shield and attacks forward multiple times, \ndealing {data1} + ({data2}%
+    \xD7 {Attack}) +Pressure * {data3} (Final: {Final}). \nEnemies hit have their
+    attack power reduced."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 1

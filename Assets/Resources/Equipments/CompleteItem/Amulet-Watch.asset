@@ -12,8 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d134da17ecf0bc4993dcac8b47ed2b1, type: 3}
   m_Name: Amulet-Watch
   m_EditorClassIdentifier: 
-  equipmentDescription: 
-  equipmentName: Amulet
+  Index: 11
+  equipmentDescription: "\u751F\u547D\u5077\u53D6\u7684\u8D85\u51FA\u90E8\u5206\u5C07\u6709\u90E8\u5206\u88AB\u8F49\u70BA\u9B54\u529B\u3002\u900F\u904E\u6B64\u9053\u5177\u7372\u53D6\u7684\u9B54\u529B\u91CF\u6700\u591A\u70BA\u9B54\u529B\u4E0A\u9650\u7684\u4E94\u5206\u4E4B\u4E00\uFF0C\u65BD\u653E\u6280\u80FD\u5F8C\u91CD\u7F6E\u3002"
+  equipmentDescriptionEnglish: 
+  equipmentName: "lokimask(\u6D1B\u57FA\u9762\u5177)"
   icon: {fileID: 21300000, guid: 72f2d0de40d9bc14cb672bbdc02344a4, type: 3}
-  Attributes: 00000000
-  Value: 0a000000
+  isSpecial: 0
+  isConsumable: 0
+  Traits: 16
+  Attributes: 0000000004000000
+  Value: 0a0000000a000000
+  effectType: 0

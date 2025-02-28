@@ -6,16 +6,21 @@ using UnityEngine.UI; // 假設您使用 Unity 的 UI 系統
 
 public class GameStageManager : MonoBehaviour
 {
+    private readonly Vector3 offset = new Vector3(0, 0.14f, 0);
     public static GameStageManager Instance { get; private set; }
     public CharacterParent allyParent;
     public CharacterParent enemyParent;
     public GameObject endGamePopup;
+    public GameObject SupplyPopup;
     public Button continueButton;
     public int CurrentStage;
     public int PlayerHealth = 20;
     private int currentRound = 0;
     private int baseLimit = 3;
     private int netWin = 0;
+    public float enteringBattleCounter = 0;
+    private bool overTimeFlag;
+    private bool startBattleFlag;
     public GameEvent startBattle;
     public delegate void GameStageChanged(int newStage);
     public event GameStageChanged OnGameStageChanged;
@@ -23,9 +28,9 @@ public class GameStageManager : MonoBehaviour
     public EnemySpawner Spawner;
     public OpponentSelectionUI opponentSelectionUI;
     public TextMeshProUGUI currGamePhase;
+    readonly int OvertimeThreshold = 30;
     public int WinStreak { get; private set; } = 0; // 連勝次數
     public int LoseStreak { get; private set; } = 0; // 連敗次數
-    public int MaxInterest = 5; // 利息上限
 
     private void Awake()
     {
@@ -41,19 +46,32 @@ public class GameStageManager : MonoBehaviour
         continueButton.onClick.AddListener(OnContinueButtonClicked);
         endGamePopup.SetActive(false);
     }
-    private IEnumerator ShowEndGamePopup()
+    public void Start()
+    {
+        CalculateGold();
+        PressureManager.Instance.UpdateIndicater();
+    }
+    private IEnumerator ShowEndGamePopup(bool isEnemy)
     {
         yield return new WaitForSeconds(2f);
         CalculateGold();
-        EndBattleModal.Instance.UpdateText();
+        EndBattleModal.Instance.UpdateText(isEnemy);
         endGamePopup.SetActive(true);
         ChangeGamePhase(GamePhase.Preparing);
+        
     }
     public void StartBattle()
     {
         // 隨機選擇三個敵人波次並顯示選擇 UI
-        EnemySpawner.Instance.SelectRandomEnemyWaves();
-        opponentSelectionUI.Show(EnemySpawner.Instance.selectedEnemyWaves);
+        //TODO: 根據玩家選擇決定波次，目前PVE不需要
+        /*EnemySpawner.Instance.SelectRandomEnemyWaves();
+        opponentSelectionUI.Show(EnemySpawner.Instance.selectedEnemyWaves);*/
+        PVE_EnemySpawner.Instance.SpawnEnemiesNextStage();
+        opponentSelectionUI.Hide();
+        StartCoroutine(StartBattleCorutine());
+        EndBattleModal.Instance.lastPressure = PressureManager.Instance.GetPressure();
+        EndBattleModal.Instance.lastData = DataStackManager.Instance.GetData();
+        SpawnGrid.Instance.SavePreparationPositions();
     }
 
     public void OnStartBattleConfirmed()
@@ -77,12 +95,43 @@ public class GameStageManager : MonoBehaviour
 
     public IEnumerator StartBattleCorutine()
     {
+        foreach (var item in ResourcePool.Instance.ally.childCharacters)
+        {
+            CharacterCTRL c = item.GetComponent<CharacterCTRL>();
+            c.enterBattle = false;
+            if (c.CurrentHex.IsBattlefield)
+            {
+                c.HexWhenBattleStart = c.CurrentHex;
+            }
+            else
+            {
+                c.HexWhenBattleStart = null;
+            }
+        }
         yield return new WaitForSeconds(1.5f);
         startBattle.Raise();
+        startBattleFlag = true;
+        AbydosManager.Instance.UpdateDesertifiedTiles();
     }
     private void OnContinueButtonClicked()
     {
         endGamePopup.SetActive(false);
+        ResourcePool.Instance.enemy.ClearAllCharacter();
+        DataStackManager.Instance.CheckDataStackRewards();
+        foreach (var item in SpawnGrid.Instance.hexNodes.Values)
+        {
+            item.HardRelease();
+        }
+        foreach (var item in ResourcePool.Instance.ally.childCharacters)
+        {
+            item.SetActive(true);
+            item.GetComponent<CharacterCTRL>().ResetToBeforeBattle();
+            if (item.GetComponent<CharacterCTRL>().HexWhenBattleStart != null)
+            {
+                item.GetComponent<CharacterCTRL>().HexWhenBattleStart.HardReserve(item.GetComponent<CharacterCTRL>());
+                item.transform.position = item.GetComponent<CharacterCTRL>().HexWhenBattleStart.Position + offset;
+            }
+        }
         AdvanceStage();
     }
 
@@ -104,12 +153,33 @@ public class GameStageManager : MonoBehaviour
             OnVictory(enemyParent, defeatedTeam);
         }
 
-        StartCoroutine(ShowEndGamePopup());
+        StartCoroutine(ShowEndGamePopup(defeatedTeam.isEnemy));
     }
-
+    public void GainSupply()
+    {
+        //
+    }
     public void Update()
     {
         currGamePhase.text = CurrGamePhase.ToString();
+        if (startBattleFlag)
+        {
+            enteringBattleCounter += Time.deltaTime;
+            if (enteringBattleCounter >= OvertimeThreshold && !overTimeFlag)
+            {
+                overTimeFlag = true;
+                foreach (var item in Utility.GetAllBattlingCharacter(ResourcePool.Instance.ally))
+                {
+                    Effect effect = EffectFactory.OverTimeEffect();
+                    item.effectCTRL.AddEffect(effect);
+                }
+                foreach (var item in Utility.GetAllBattlingCharacter(ResourcePool.Instance.enemy))
+                {
+                    Effect effect = EffectFactory.OverTimeEffect();
+                    item.effectCTRL.AddEffect(effect);
+                }
+            }
+        }
     }
     public void ChangeGamePhase(GamePhase gamePhase)
     {
@@ -139,7 +209,15 @@ public class GameStageManager : MonoBehaviour
         {
             if (item.activeInHierarchy)
             {
-                item.GetComponent<CharacterCTRL>().traitController.Win();
+                item.GetComponent<CharacterCTRL>().traitController.OnBattleEnd(true);
+                item.transform.rotation = Quaternion.identity;
+            }
+        }
+        foreach (var item in defeatedTeam.childCharacters)
+        {
+            if (item.activeInHierarchy)
+            {
+                item.GetComponent<CharacterCTRL>().traitController.OnBattleEnd(false);
                 item.transform.rotation = Quaternion.identity;
             }
         }
@@ -156,7 +234,7 @@ public class GameStageManager : MonoBehaviour
         }
     }
 
-    private int CalculateDamageTaken(int stage)
+    public int CalculateDamageTaken(int stage)
     {
         int[] damageArray = { 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 10, 10, 10, 10, 10, 10 };
         return damageArray[Mathf.Min(stage, damageArray.Length - 1)];
@@ -175,11 +253,10 @@ public class GameStageManager : MonoBehaviour
     private void CalculateGold()
     {
         int gold = GameController.Instance.GetGoldAmount();
-        int interest = Mathf.Min(gold / 10, MaxInterest);
         int streakBonus = CalculateStreakBonus();
-        int amount = interest + streakBonus + CurrentStage + 3;
+        int amount = streakBonus + CurrentStage + 3;
         GameController.Instance.AddGold(amount);
-        CustomLogger.Log(this, $"Gold: {gold}, Interest: {interest}, Streak Bonus: {streakBonus},stagebouns = {CurrentStage + 3}, Total: {amount}");
+        CustomLogger.Log(this, $"Gold: {gold}, Streak Bonus: {streakBonus},stagebouns = {CurrentStage + 3}, Total: {amount}");
     }
     private int CalculateStreakBonus()
     {
@@ -193,6 +270,7 @@ public class GameStageManager : MonoBehaviour
     }
     public int GetCharacterLimit()
     {
+        return 10;
         int additionalLimit = (currentRound - 1) / 2;
         return baseLimit + additionalLimit;
     }

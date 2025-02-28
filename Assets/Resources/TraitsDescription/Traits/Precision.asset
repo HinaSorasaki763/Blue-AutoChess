@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ead49aeef8c59df4f8ca6dd50b8bceb2, type: 3}
   m_Name: Precision
   m_EditorClassIdentifier: 
+  IsAcademy: 0
   trait: 6
   sprite: {fileID: 21300000, guid: b78e15b5d2c97a94fb3e2625af8bf97d, type: 3}
   description: 'Precision
@@ -22,3 +23,16 @@ MonoBehaviour:
   - ' Skills target the current enemy. If the skill hits the expected target, it
     deals increased damage. If the target is killed, a small amount of mana is restored,
     provided the first condition is met.'
+  thresholds:
+  - level: 1
+    requiredCount: 1
+    effectValue: 0
+    effectDescription: 
+  - level: 2
+    requiredCount: 4
+    effectValue: 0
+    effectDescription: 
+  - level: 3
+    requiredCount: 6
+    effectValue: 0
+    effectDescription: 

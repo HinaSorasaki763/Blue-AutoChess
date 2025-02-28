@@ -29,7 +29,7 @@ MonoBehaviour:
     - statType: 3
       value: 0
     - statType: 4
-      value: 30
+      value: 40
     - statType: 5
       value: 0.7
     - statType: 6
@@ -52,8 +52,17 @@ MonoBehaviour:
       value: 5
     - statType: 15
       value: 15
+  Health: 58020000380400009e070000
+  Attack: 280000004800000082000000
   Traits: 010000000c00000009000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - "\u4F7F\u672C\u5C40\u9020\u6210\u50B7\u5BB3\u6700\u591A\u7684\u53CB\u8ECD\u7372\u5F97\u589E\u76CA\uFF1A\n\u5728\u4E0B\u4E00\u6B21\u4E3B\u52D5\u6280\u80FD\u7D50\u675F\u524D,\u589E\u52A0\u7206\u64CA\u7387
+    {data1}% \u8207\u7206\u64CA\u50B7\u5BB3 {data2}\u3002"
+  - "Grants the ally who has dealt the most damage this round a buff \nthat increases
+    critical chance by {data1}% and critical damage by {data2} until their next active
+    skill ends."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0

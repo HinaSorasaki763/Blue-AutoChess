@@ -5,8 +5,12 @@ using GameEnum;
 [CreateAssetMenu(fileName = "Equipment", menuName = "Equipment")]
 public class EquipmentSO : ScriptableObject, IEquipment
 {
+    public int Index;
+    public int Id => Index;
     [TextArea(3, 10)]
     public string equipmentDescription;
+    [TextArea(3, 10)]
+    public string equipmentDescriptionEnglish;
     public string equipmentName;
     public Sprite icon;
     public bool isSpecial;
@@ -16,7 +20,17 @@ public class EquipmentSO : ScriptableObject, IEquipment
     public List<int> Value;
     public Dictionary<EquipmentType, int> combinedStats;
     public ConsumableEffectType effectType;
+    public CharacterObserverBase observer;
+    public CharacterObserverBase Observer
+    {
+        get => observer;
+        set => observer = value;
+    }
 
+    public IEquipment Clone()
+    {
+        return new EquipmentSO();
+    }
     public string EquipmentDetail => equipmentDescription;
     public string EquipmentName => equipmentName;
     public Sprite Icon => icon;
@@ -28,7 +42,6 @@ public class EquipmentSO : ScriptableObject, IEquipment
         return CalculateCombinedStats();
     }
 
-    // 您可以在编辑器中手动设置 combinedStats，或者在代码中计算
     public Dictionary<EquipmentType, int> CalculateCombinedStats()
     {
         combinedStats = new Dictionary<EquipmentType, int>();

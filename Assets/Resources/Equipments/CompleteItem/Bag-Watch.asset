@@ -12,8 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d134da17ecf0bc4993dcac8b47ed2b1, type: 3}
   m_Name: Bag-Watch
   m_EditorClassIdentifier: 
-  equipmentDescription: Bag-Description
-  equipmentName: Bag
+  Index: 16
+  equipmentDescription: "\u66B4\u64CA\u6642\uFF0C\u6E1B\u5C11\u6575\u4EBA\u6CBB\u7652\u91CF\u3002"
+  equipmentDescriptionEnglish: 
+  equipmentName: "Jamhsid(\u8CC8\u59C6\u897F\u5FB7)"
   icon: {fileID: 21300000, guid: 5eccc40608af9114c880d3b28537779c, type: 3}
-  Attributes: 05000000
-  Value: 0a000000
+  isSpecial: 0
+  isConsumable: 0
+  Traits: 16
+  Attributes: 0500000004000000
+  Value: 0a0000000a000000
+  effectType: 0

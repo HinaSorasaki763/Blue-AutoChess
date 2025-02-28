@@ -20,19 +20,6 @@ public class TraitsEffectManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    public int GetTraitLevelForCharacter(Traits trait, bool isEnemy)
-    {
-        if (isEnemy && enemyParent.currTraits.ContainsKey(trait))
-        {
-            return enemyParent.currTraits[trait];
-        }
-        else if (!isEnemy && allyParent.currTraits.ContainsKey(trait))
-        {
-            return allyParent.currTraits[trait];
-        }
-
-        return 0; // 如果未找到，返回 0 表示未激活
-    }
     public Dictionary<Traits, int> CalculateTraitCounts(List<CharacterCTRL> characters)
     {
         Dictionary<Traits, int> traitCounts = new Dictionary<Traits, int>();
@@ -42,7 +29,7 @@ public class TraitsEffectManager : MonoBehaviour
         foreach (var character in characters)
         {
             int characterId = character.characterStats.CharacterId;
-            if (countedCharacterIds.Contains(characterId)||character.isObj)
+            if (countedCharacterIds.Contains(characterId)||character.isObj||!character.CurrentHex.IsBattlefield)
             {
                 continue;
             }

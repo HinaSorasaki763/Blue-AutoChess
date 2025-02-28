@@ -6,7 +6,7 @@ using UnityEngine;
 public class AugmentEventHandler : MonoBehaviour
 {
     private List<CharacterObserverBase> observers = new ();
-    public static AugmentEventHandler Instance = new AugmentEventHandler ();
+    public static AugmentEventHandler Instance { get; private set; }
     public void Awake()
     {
         Instance = this;

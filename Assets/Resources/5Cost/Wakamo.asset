@@ -52,8 +52,18 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: 2003000040060000401f0000
+  Attack: 550000007d000000be000000
   Traits: 0200000005000000060000000d000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - "\u5C0D\u7576\u524D\u76EE\u6A19\u9020\u6210 {data1} + ({data2}% \xD7 \u653B\u64CA\u529B)
+    (\u6700\u7D42: {Final})\uFF0C\u4E26\u65BD\u52A0\"\u6A19\u8A18\"\uFF0C\n\u6A19\u8A18\u5132\u5B58\u90E8\u5206\u53D7\u5230\u7684\u50B7\u5BB3\uFF0C\u65BC
+    {data5} \u79D2\u5F8C\u6E05\u9664\u4E26\u5F15\u7206\u6240\u7D2F\u7A4D\u7684\u50B7\u5BB3\u3002"
+  - "Snipes the current target for {data1} + ({data2}% \xD7 ATK) (Final: {Final}),
+    applying a mark.\nThe mark stores a portion of damage taken and explodes after
+    {data5} seconds."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0

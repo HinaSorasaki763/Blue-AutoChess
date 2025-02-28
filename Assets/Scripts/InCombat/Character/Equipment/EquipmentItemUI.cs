@@ -15,6 +15,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     public TextMeshProUGUI ItemName;
     public TextMeshProUGUI ItemDescription;
     public GameObject Detail;
+    
     public Button Btn;
     public LayerMask characterLayerMask;
     private bool isDragging;
@@ -39,6 +40,11 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             IsConsumableItem = true;
         }
         equipmentData = equipment;
+        if (equipmentData.Observer!=null)
+        {
+            CustomLogger.Log(this, $"equipmentData {equipmentData.Observer.GetType()}");
+        }
+
         icon.sprite = equipment.Icon;
 
 
@@ -78,8 +84,32 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     public void OnDrag(PointerEventData eventData)
     {
-        // 虛影跟隨鼠標移動
+
         ghostItem.transform.position = Input.mousePosition;
+        Utility.ChangeImageAlpha(gameObject.GetComponentInChildren<Image>(), 1);
+        List<RaycastResult> raycastResults = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, raycastResults);
+        bool canCompose = false;
+        foreach (var result in raycastResults)
+        {
+            if (((1 << result.gameObject.layer) & characterLayerMask) != 0)
+            {
+                CharacterCTRL character = result.gameObject.GetComponent<CharacterCTRL>();
+                foreach (var item in character.equipmentManager.equippedItems)
+                {
+                    if (CharacterEquipmentManager.CanCombine(item, equipmentData, out IEquipment resultEq))
+                    {
+                        CustomLogger.Log(this,$"can combine {item} and {equipmentData} to {resultEq}");
+                        canCompose = true;
+                        UIManager.Instance.ShowEquipmentPreComposing(item, equipmentData, resultEq);
+                    }
+                }
+            }
+        }
+        if (!canCompose)
+        {
+            UIManager.Instance.DisableEquipmentPreComposing();
+        }
     }
 
     public void OnEndDrag(PointerEventData eventData)

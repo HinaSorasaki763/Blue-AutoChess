@@ -1,5 +1,4 @@
 ﻿// GehennaObserver.cs
-using GameEnum;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,8 +11,27 @@ public class GehennaObserver : CharacterObserverBase
         traitLevel = level;
         this.character = character;
     }
-
-    public override void OnKilledEnemy(CharacterCTRL character)
+    public override Dictionary<int, TraitLevelStats> GetTraitObserverLevel()
+    {
+        Dictionary<int, TraitLevelStats> statsByStarLevel = new Dictionary<int, TraitLevelStats>()
+        {
+            {0, new TraitLevelStats(0,0)},
+            {1, new TraitLevelStats(1,0)},
+            {2, new TraitLevelStats(2,0)},
+            {3, new TraitLevelStats(3,0)},
+            {4, new TraitLevelStats(5,0)},
+        };
+        return statsByStarLevel;
+    }
+    public override void ActivateTrait()
+    {
+        PressureManager.Instance.UpdateIndicater();
+    }
+    public override void DeactivateTrait()
+    {
+        PressureManager.Instance.UpdateIndicater();
+    }
+    public override void OnKilledEnemy(CharacterCTRL character, string detailedSource, CharacterCTRL characterDies)
     {
         if (character.IsAlly)
         {
@@ -43,7 +61,15 @@ public class GehennaObserver : CharacterObserverBase
             EnhanceSkillBasedOnPressure();
         }
     }
-
+    public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
+    {
+        List<int> i = new List<int>() { 3, 4, 504, 12, 15, 17, 25 };//角色編號
+        if (detailedSource != "GehennaTraitDamage" && !i.Contains(source.characterStats.CharacterId))
+        {
+            int dmg = damage * (int)(PressureManager.Instance.GetPressure() * 0.01f);
+            target.GetHit(dmg, source, "GehennaTraitDamage", iscrit);
+        }
+    }
     private void EnhanceSkillBasedOnPressure()
     {
         int pressure = PressureManager.Instance.CurrentPressure;

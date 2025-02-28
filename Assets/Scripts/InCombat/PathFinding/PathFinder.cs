@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PathFinder : MonoBehaviour
@@ -17,8 +19,9 @@ public class PathFinder : MonoBehaviour
             return _instance;
         }
     }
-    public static List<HexNode> FindPath(string name, HexNode startNode, HexNode targetNode, bool isAlly, int range = 0,bool simulated = false)
+    public static List<HexNode> FindPath(string name, HexNode startNode, HexNode targetNode,int range = 0)
     {
+        CustomLogger.Log(name,$"Finding {name}'s path");
         foreach (HexNode node in SpawnGrid.Instance.hexNodes.Values)
         {
             node.gCost = Mathf.Infinity;
@@ -28,38 +31,25 @@ public class PathFinder : MonoBehaviour
 
         startNode.gCost = 0;
         startNode.hCost = GetHexDistance(startNode, targetNode);
-
         List<HexNode> openList = new List<HexNode> { startNode };
         HashSet<HexNode> closedList = new HashSet<HexNode>();
-
         while (openList.Count > 0)
         {
-            // 找到 fCost 最小的节点
             HexNode currentNode = openList.OrderBy(node => node.fCost).ThenBy(node => node.hCost).First();
-
             openList.Remove(currentNode);
             closedList.Add(currentNode);
-
-            // 检查是否达到目标或在范围内
             int distanceToTarget = GetHexDistance(currentNode, targetNode);
             if (currentNode == targetNode || (range > 0 && distanceToTarget <= range))
             {
                 return RetracePath(startNode, currentNode);
             }
 
-
             foreach (HexNode neighbor in currentNode.Neighbors)
             {
-                bool reserved = neighbor.IsHexReserved() || (simulated && neighbor.IsTemporarilyReserved());
-
-                if (neighbor == null || closedList.Contains(neighbor) || (neighbor != startNode && neighbor != targetNode && reserved))
+                if (neighbor == null || closedList.Contains(neighbor) || (neighbor != startNode && neighbor != targetNode && neighbor.IsHexReserved()))
                     continue;
                 float movementCost = currentNode.gCost + 1f;
-
-                // 根据 isAlly 调整移动成本
                 int moveDeltaZ = neighbor.Z - currentNode.Z;
-                //movementCost += (isAlly && moveDeltaZ > 0) || (!isAlly && moveDeltaZ < 0) ? -1f : 0f;
-
                 if (movementCost < neighbor.gCost)
                 {
                     neighbor.gCost = movementCost;
@@ -91,6 +81,12 @@ public class PathFinder : MonoBehaviour
         path.Add(startNode); // 包含起始节点
 
         path.Reverse();
+        StringBuilder sb = new StringBuilder();
+        foreach (var item in path)
+        {
+            sb.AppendLine(item.name);
+        }
+        CustomLogger.Log(startNode, sb.ToString());
         return path;
     }
 

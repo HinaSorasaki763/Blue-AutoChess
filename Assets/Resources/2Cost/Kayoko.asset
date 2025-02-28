@@ -52,8 +52,16 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: 58020000380400009e070000
+  Attack: 3c0000005a00000087000000
   Traits: 010000000a000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - "\u5C0D\u5927\u7BC4\u570D\u6575\u4EBA\u9020\u6210 {data1} (\u6700\u7D42: {Final})\u50B7\u5BB3\uFF0C\u4E26\u65BD\u52A0\u6050\u61FC
+    {data5} \u79D2\u3002"
+  - "Deals {data1} (Final: {Final}) damage to enemies in a large area \nand inflicts
+    Fear for {data5} seconds."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 1

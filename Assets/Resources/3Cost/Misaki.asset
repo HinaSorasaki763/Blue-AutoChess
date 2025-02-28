@@ -52,8 +52,19 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: bc020000ec040000fc080000
+  Attack: 3c0000005a00000087000000
   Traits: 0e0000000a000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - "\u88AB\u52D5: \u666E\u901A\u653B\u64CA\u70BA\u6162\u901F\u5927\u7832\uFF0C\u4E0D\u53D7\u653B\u901F\u589E\u76CA\u4E14\u8F49\u70BA\u653B\u64CA\u529B\u3002\u6BCF\u6B21\u653B\u64CA\u6703\u5728\u5730\u4E0A\u7559\u4E0B\u788E\u7247\u3002\n\u4E3B\u52D5:
+    \u5C04\u51FA\u4E00\u5927\u6CE2\u5F48\u85E5\u788E\u7247\uFF0C\u9020\u6210 {data1}
+    + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\uFF0C\u4E26\u5F15\u7206\u6240\u6709\u788E\u7247\u3002"
+  - "Passive: Basic attack is a slow cannon shot that doesn\u2019t benefit from attack
+    speed, \nconverting it into attack power. Each shot leaves shards on the ground.\nActive:
+    Fires a large wave of ammo shards, dealing {data1} + ({data2}% \xD7 ATK) (Final:
+    {Final}), \nthen detonates all existing shards."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0

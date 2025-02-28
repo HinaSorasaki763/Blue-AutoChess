@@ -52,8 +52,17 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: 58020000380400009e070000
+  Attack: 230000003500000050000000
   Traits: 020000000d000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - "\u5C0D\u7BC4\u570D\u5167\u7684\u683C\u5B50\u7051\u6BD2\uFF0C\u5728 {data5} \u79D2\u5167\u5C0D\u5176\u4E0A\u7684\u6575\u4EBA\u6301\u7E8C\u9020\u6210\u50B7\u5BB3\uFF0C\n\u7E3D\u8A08\u7D04\u70BA
+    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\u3002"
+  - "Scatters poison over tiles in an area for {data5} seconds, \ndealing a total
+    of {data1} + ({data2}% \xD7 ATK) (Final: {Final}) \nover time to enemies on those
+    tiles."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0

@@ -133,7 +133,9 @@ public class Shiroko_Terror_SkillCTRL : MonoBehaviour
         {
             if (item.OccupyingCharacter != null)
             {
-                item.OccupyingCharacter.GetHit(10,skillContext.Parent);
+                int dmg = (int)skillContext.Parent.GetStat(GameEnum.StatsType.Attack);
+                (bool,int) tuple = skillContext.Parent.CalculateCrit(dmg);
+                item.OccupyingCharacter.GetHit(tuple.Item2, skillContext.Parent, "HoshinoMimicSingleshot()",tuple.Item1);
             }
         }
     }
@@ -181,11 +183,13 @@ public class GrenadeSkill : I_Shiroko_Terror_Skill//2
             yield return null;
         }
         grenadeInstance.transform.position = targetPosition;
+        int dmg = (int)skillContext.Parent.GetStat(GameEnum.StatsType.Attack);
+        (bool,int) tuple = skillContext.Parent.CalculateCrit(dmg);
         foreach (var item in skillContext.TargetHex.Neighbors)
         {
             if (item.OccupyingCharacter!= null && item.OccupyingCharacter.IsAlly!= skillContext.Parent.IsAlly)
             {
-                item.OccupyingCharacter.GetHit(20,skillContext.Parent);
+                item.OccupyingCharacter.GetHit(tuple.Item2, skillContext.Parent, "Shiroko_Terror_ThrowGrenade()", tuple.Item1);
             }
         }
     }
@@ -205,12 +209,12 @@ public class DroneSummonSkill : I_Shiroko_Terror_Skill//3
 
             skillController.droneRef.transform.SetParent(skillContext.Parent.transform,true);
             skillController.droneCTRL = skillController.droneRef.GetComponent<Shiroko_Terror_DroneCTRL>();
-            skillController.droneCTRL.Dmg = normDroneDmg;
+            skillController.droneCTRL.stack = 1;
         }
         else
         {
             skillController.droneRef.SetActive(true);
-            skillController.droneCTRL.Dmg += normDroneDmg;
+            skillController.droneCTRL.stack = 1;
         }
         Debug.Log($"{skillContext.Parent.characterStats.name} 使用了召喚無人機技能！");
     }
@@ -227,11 +231,11 @@ public class StrongerDroneSummonSkill : I_Shiroko_Terror_Skill//4
         {
             GameObject drone = skillController.GetDrone(skillContext);
             skillController.droneCTRL = drone.GetComponent<Shiroko_Terror_DroneCTRL>();
-            skillController.droneCTRL.Dmg = extraDroneDmg;
+            skillController.droneCTRL.stack = 2;
         }
         else
         {
-            skillController.droneCTRL.Dmg += extraDroneDmg;
+            skillController.droneCTRL.stack += 2; ;
         }
         Debug.Log($"{skillContext.Parent.characterStats.name} 使用了召喚無人機技能！");
     }

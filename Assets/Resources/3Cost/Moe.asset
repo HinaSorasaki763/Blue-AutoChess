@@ -17,7 +17,7 @@ MonoBehaviour:
   Level: 3
   Sprite: {fileID: 21300000, guid: ef90ff90163185e44ade6051ba52c77f, type: 3}
   Model: {fileID: 8788391508725314848, guid: 39c045026b55acd48a7cd47174bf61d0, type: 3}
-  logistics: 0
+  logistics: 1
   Stats:
     stats:
     - statType: 0
@@ -52,8 +52,16 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: bc020000ec040000fc080000
+  Attack: 280000003c0000005a000000
   Traits: 0f0000000d000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - "\u5C0D\u77E9\u5F62\u7BC4\u570D\u5167\u9020\u6210 {data1} + ({data2}% \xD7 \u653B\u64CA\u529B)
+    (\u6700\u7D42: {Final}) \u7684\u6301\u7E8C\u50B7\u5BB3\uFF0C\n\u4E26\u5728\u8A72\u5340\u57DF\u7559\u4E0B\u4E00\u6BB5\u707C\u71D2\u6548\u679C\u3002"
+  - "Deals {data1} + ({data2}% \xD7 ATK) (Final: {Final}) damage over time in a rectangular
+    area,leaving a scorched effect."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0

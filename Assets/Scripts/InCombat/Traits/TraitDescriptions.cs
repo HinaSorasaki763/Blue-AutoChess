@@ -7,7 +7,7 @@ public class TraitDescriptions : MonoBehaviour
 {
     public static TraitDescriptions Instance { get; private set; }
 
-    public TraitDescriptionDatabase traitDescriptionDatabase; // 引用 ScriptableObject
+    public TraitDescriptionDatabase traitDescriptionDatabase;
 
     private Dictionary<Traits, string> traitDescriptions;
     private Dictionary<Traits, Sprite> traitImages;
@@ -34,7 +34,7 @@ public class TraitDescriptions : MonoBehaviour
         // 從可編程物件中加載描述
         foreach (var traitData in traitDescriptionDatabase.traitDescriptions)
         {
-            traitDescriptions[traitData.trait] = traitData.descrtipns[1];
+            traitDescriptions[traitData.trait] = traitData.descrtipns[PlayerSettings.SelectedDropdownValue];
             traitImages[traitData.trait] = traitData.sprite;
             isAcademy[traitData.trait] = traitData.IsAcademy;
         }
@@ -43,6 +43,10 @@ public class TraitDescriptions : MonoBehaviour
 
     public string GetTraitDescription(Traits trait)
     {
+        foreach (var item in traitDescriptionDatabase.traitDescriptions)
+        {
+            traitDescriptions[item.trait] = item.descrtipns[PlayerSettings.SelectedDropdownValue];
+        }
         return traitDescriptions.ContainsKey(trait) ? traitDescriptions[trait] : "No description available.";
     }
     public Sprite GetTraitImage(Traits traits)

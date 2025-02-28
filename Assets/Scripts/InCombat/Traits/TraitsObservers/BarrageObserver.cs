@@ -21,6 +21,17 @@ public class BarrageObserver : CharacterObserverBase
         IntervalAngle = character.characterStats.BarrageIntervalAngle;
         InitAngle = character.characterStats.BarrageInitAngle;
     }
+    public override Dictionary<int, TraitLevelStats> GetTraitObserverLevel()
+    {
+        Dictionary<int, TraitLevelStats> statsByStarLevel = new Dictionary<int, TraitLevelStats>()
+        {
+            {0, new TraitLevelStats(0,0,0)},
+            {1, new TraitLevelStats(3,1,30)},
+            {2, new TraitLevelStats(5,1,40)},
+            {3, new TraitLevelStats(10,3,50)}
+        };
+        return statsByStarLevel;
+    }
     public override void ResetVaribles(CharacterCTRL character)
     {
         base.ResetVaribles(character);
@@ -29,7 +40,7 @@ public class BarrageObserver : CharacterObserverBase
     public override void OnCastedSkill(CharacterCTRL character)
     {
         base.OnCastedSkill(character);
-        CustomLogger.Log(this,$"BarrageObserver OnCastedSkill {character.name}");
+        CustomLogger.Log(this, $"BarrageObserver OnCastedSkill {character.name}");
         CoroutineController coroutineController = character.GetComponent<CoroutineController>();
         if (coroutineController == null)
         {
@@ -44,7 +55,7 @@ public class BarrageObserver : CharacterObserverBase
             if (skillID == 7)
             {
                 float animationTime = character.customAnimator.GetAnimationClipInfo(15).Item2;
-                coroutineController.SetNextSkill(this, animationTime, 0.1f, bestAngle, GetAngle()); // 設定間隔時間為0.1秒
+                coroutineController.SetNextSkill(this, animationTime, 0.1f, bestAngle, GetAngle());
                 return;
             }
         }
@@ -60,10 +71,10 @@ public class BarrageObserver : CharacterObserverBase
     public List<HexNode> FindBestSector()
     {
         Vector3 origin = Character.transform.position;
-        CustomLogger.Log(this,$"Character position: {origin}");
+        CustomLogger.Log(this, $"Character position: {origin}");
         List<HexNode> bestSector = new List<HexNode>();
         int maxEnemiesCount = 0;
-        Vector3 v = Character.transform.position - Character.Target.transform.position;
+        Vector3 v = Character.transform.position - Character.GetTarget().transform.position;
         float startAngle = Character.transform.rotation.eulerAngles.y;
         CustomLogger.Log(this, $"Character start rotation angle: {startAngle}");
         StringBuilder sb = new StringBuilder();
@@ -83,13 +94,13 @@ public class BarrageObserver : CharacterObserverBase
             {
                 maxEnemiesCount = enemiesCount;
                 bestSector = currentSectorNodes;
-                BestAngle = angleStart + startAngle + (GetAngle()/2);
+                BestAngle = angleStart + startAngle + (GetAngle() / 2);
                 sb.AppendLine($"New best sector found at step {i} with {maxEnemiesCount} enemies. BestAngle = {BestAngle}");
             }
         }
-        List<HexNode> currentSectorNode = GetNodesInSector(origin, startAngle-GetAngle()/2, startAngle+GetAngle()/2);
+        List<HexNode> currentSectorNode = GetNodesInSector(origin, startAngle - GetAngle() / 2, startAngle + GetAngle() / 2);
         int EnemiesCount = CountEnemiesInNodes(currentSectorNode);
-        if (EnemiesCount>= maxEnemiesCount)
+        if (EnemiesCount >= maxEnemiesCount)
         {
             bestSector = currentSectorNode;
             BestAngle = startAngle;
@@ -151,14 +162,9 @@ public class BarrageObserver : CharacterObserverBase
         Vector3 direction = Quaternion.Euler(0, bulletAngle, 0) * Vector3.forward;
         Vector3 targetPosition = Character.transform.position + direction * maxDistance;
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, Character.FirePoint.position, Quaternion.identity);
-        bool iscrit = false;
-        if (Utility.Iscrit(Character.GetStat(StatsType.CritChance)))
-        {
-            dmg = (int)(dmg * (1 + Character.GetStat(StatsType.CritRatio) * 0.01f));
-            CustomLogger.Log(this, $"character {Character.name} crit");
-            iscrit = true;
-        }
-        bullet.GetComponent<NormalBullet>().Initialize(targetPosition, dmg, Character.GetTargetLayer(), Character, 15f, Character.Target, iscrit);
+        dmg = Character.ActiveSkill.GetAttackCoefficient(Character.GetSkillContext());
+        (bool iscrit, int dmg1) = Character.CalculateCrit(dmg);
+        bullet.GetComponent<NormalBullet>().Initialize(dmg1, Character.GetTargetLayer(), Character, 15f, Character.GetTarget(), false, iscrit, null, 20, true, targetPosition);
     }
 
 }

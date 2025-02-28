@@ -35,7 +35,7 @@ MonoBehaviour:
     - statType: 6
       value: 15
     - statType: 7
-      value: 1
+      value: 5
     - statType: 8
       value: 10
     - statType: 9
@@ -52,9 +52,16 @@ MonoBehaviour:
       value: 15
     - statType: 13
       value: 55
+  Health: f40100002a030000b4050000
+  Attack: 320000004b00000073000000
   Traits: 0100000006000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: Changes her targeting to the enemy with the lowest health on the
-    field, then fires a single bullet.
+  Tooltips:
+  - "\u671D\u8457\u7576\u524D\u751F\u547D\u503C\u6700\u4F4E\u7684\u6575\u4EBA\u9032\u884C\u72D9\u64CA\uFF0C\n\u9020\u6210:
+    {data1} + ({data2}% \xD7 {Attack}) +\u5A01\u58D3* {data3} (\u6700\u7D42: {Final})\u3002"
+  - "Snipes the enemy with the lowest current HP, dealing {data1} + ({data2}% \xD7
+    {Attack}) + Pressure*{data3} (Final: {Final})."
   isObj: 0
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0
