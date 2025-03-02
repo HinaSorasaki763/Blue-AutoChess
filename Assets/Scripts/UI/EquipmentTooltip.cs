@@ -36,7 +36,15 @@ public class EquipmentTooltip : MonoBehaviour
         if (equipmentNameText != null)
             equipmentNameText.text = equipment.equipmentName;
         if (equipmentDescriptionText != null)
-            equipmentDescriptionText.text = equipment.equipmentDescription;
+            if (PlayerSettings.SelectedDropdownValue == 0)
+            {
+                equipmentDescriptionText.text = equipment.equipmentDescription;
+            }
+            else
+            {
+                equipmentDescriptionText.text = equipment.equipmentDescriptionEnglish;
+            }
+
 
         // ≈„•‹ Tooltip ªP≠I¥∫
         tooltipPanel.SetActive(true);

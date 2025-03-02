@@ -33,9 +33,14 @@ public class GehennaObserver : CharacterObserverBase
     }
     public override void OnKilledEnemy(CharacterCTRL character, string detailedSource, CharacterCTRL characterDies)
     {
+        int amount = GetTraitObserverLevel()[traitLevel].Data1;
         if (character.IsAlly)
         {
-            PressureManager.Instance.IncreasePressure(1);
+            PressureManager.Instance.IncreasePressure(amount);
+        }
+        else
+        {
+            EnemyTraitRelated.Instance.AddPressure(amount);
         }
 
         Debug.Log($"[GehennaObserver] {character.name} 击杀了敌方单位，威压层数增加 1。");
@@ -49,7 +54,7 @@ public class GehennaObserver : CharacterObserverBase
             {
                 PressureManager.Instance.IncreasePressure(1);
             }
-            Debug.Log($"[GehennaObserver] 回合胜利，原有的威壓：{PressureManager.Instance.GetPressure()}，威压层数增加 {GameController.Instance.GetAliveCount()}。");
+            Debug.Log($"[GehennaObserver] 回合胜利，原有的威壓：{PressureManager.Instance.GetPressure(true)}，威压层数增加 {GameController.Instance.GetAliveCount()}。");
         }
     }
 
@@ -66,7 +71,7 @@ public class GehennaObserver : CharacterObserverBase
         List<int> i = new List<int>() { 3, 4, 504, 12, 15, 17, 25 };//角色編號
         if (detailedSource != "GehennaTraitDamage" && !i.Contains(source.characterStats.CharacterId))
         {
-            int dmg = damage * (int)(PressureManager.Instance.GetPressure() * 0.01f);
+            int dmg = damage * (int)(PressureManager.Instance.GetPressure(source.IsAlly) * 0.01f);
             target.GetHit(dmg, source, "GehennaTraitDamage", iscrit);
         }
     }

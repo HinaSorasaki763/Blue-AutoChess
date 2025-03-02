@@ -27,7 +27,7 @@ public class EnemyWaveEditor : Editor
             EditorGUI.indentLevel++;
             if (GUILayout.Button("Add Grid Slot"))
             {
-                enemyWave.gridSlots.Add(new EnemyWave.GridSlotData { GridIndex = 0, CharacterID = -1 });
+                enemyWave.gridSlots.Add(new EnemyWave.GridSlotData { GridIndex = 0, CharacterID = -1, Level = 1 });
             }
 
             for (int i = 0; i < enemyWave.gridSlots.Count; i++)
@@ -37,7 +37,7 @@ public class EnemyWaveEditor : Editor
 
                 enemyWave.gridSlots[i].GridIndex = EditorGUILayout.IntField("Grid Index", enemyWave.gridSlots[i].GridIndex);
                 enemyWave.gridSlots[i].CharacterID = EditorGUILayout.IntField("Character ID", enemyWave.gridSlots[i].CharacterID);
-
+                enemyWave.gridSlots[i].Level = EditorGUILayout.IntField("Level", enemyWave.gridSlots[i].Level);
                 // ½s¿è¸Ë³Æ
                 EditorGUILayout.LabelField("Equipment IDs", EditorStyles.boldLabel);
                 for (int j = 0; j < enemyWave.gridSlots[i].EquipmentIDs.Length; j++)
@@ -66,11 +66,13 @@ public class EnemyWaveEditor : Editor
             EditorGUILayout.LabelField("Logistic Slot 1", EditorStyles.boldLabel);
             enemyWave.logisticSlot1.GridIndex = EditorGUILayout.IntField("Grid Index", enemyWave.logisticSlot1.GridIndex);
             enemyWave.logisticSlot1.CharacterID = EditorGUILayout.IntField("Character ID", enemyWave.logisticSlot1.CharacterID);
-
+            enemyWave.logisticSlot1.Level = EditorGUILayout.IntField("Level", enemyWave.logisticSlot1.Level);
+            enemyWave.logisticSlot1.DummyGridIndex = EditorGUILayout.IntField("Dummy Grid Index", enemyWave.logisticSlot1.DummyGridIndex);
             EditorGUILayout.LabelField("Logistic Slot 2", EditorStyles.boldLabel);
             enemyWave.logisticSlot2.GridIndex = EditorGUILayout.IntField("Grid Index", enemyWave.logisticSlot2.GridIndex);
             enemyWave.logisticSlot2.CharacterID = EditorGUILayout.IntField("Character ID", enemyWave.logisticSlot2.CharacterID);
-
+            enemyWave.logisticSlot2.Level = EditorGUILayout.IntField("Level", enemyWave.logisticSlot2.Level);
+            enemyWave.logisticSlot2.DummyGridIndex = EditorGUILayout.IntField("Dummy Grid Index", enemyWave.logisticSlot2.DummyGridIndex);
             EditorGUI.indentLevel--;
         }
 

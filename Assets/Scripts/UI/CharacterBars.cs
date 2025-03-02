@@ -12,10 +12,9 @@ public class CharacterBars : MonoBehaviour
     public SliderCTRL HealthSlider;
     public SliderCTRL ManaSlider;
     public TMPro.TextMeshProUGUI CurrentState;
-
-    // 新增的 UI 元素
+    public List<Sprite> StarSprites = new List<Sprite>();  // 星級圖片
+    public Image starImage;  // 顯示星級的圖片
     public GameObject strongestMark;  // "最強"標誌
-    public TMPro.TextMeshProUGUI starLevelText;  // 顯示星級的占位符
 
     public Transform equipmentDisplayArea; // 用于显示装备图标的区域
     public GameObject equipmentIconPrefab; // 装备图标的预制体
@@ -70,7 +69,7 @@ public class CharacterBars : MonoBehaviour
         InitBars();
     }
 
-    void ResetBars()
+    public void ResetBars()
     {
         HealthSlider.SetMaxValue(1);
         HealthSlider.SetMinValue(0);
@@ -86,21 +85,14 @@ public class CharacterBars : MonoBehaviour
         HealthSlider.SetMinValue(0);
         ManaSlider.SetMaxValue(CharacterCTRL.GetStat(StatsType.MaxMana));
         ManaSlider.SetMinValue(0);
-
-        UpdateStarLevel();
         strongestMark.SetActive(false);  // 默認情況下隱藏
     }
 
     void UpdateUIs()
     {
+        starImage.sprite = StarSprites[CharacterCTRL.star - 1];
         HealthSlider.UpdateValue(CharacterCTRL.GetStat(StatsType.currHealth));
         ManaSlider.UpdateValue(CharacterCTRL.GetStat(StatsType.Mana));
-    }
-
-    // 更新星級標誌
-    public void UpdateStarLevel()
-    {
-        starLevelText.text = $"star: {CharacterCTRL.star}";  // 顯示星級
     }
 
     // 更新"最強"標誌

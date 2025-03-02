@@ -11,8 +11,7 @@ public class SupermacyObserver : CharacterObserverBase
             {0, new TraitLevelStats(15)},
             {1, new TraitLevelStats(0)},
             {2, new TraitLevelStats(0)},
-            {3, new TraitLevelStats(0)},
-            {4, new TraitLevelStats(30)}
+            {3, new TraitLevelStats(30)}
         };
         return statsByStarLevel;
     }

@@ -18,6 +18,10 @@ public abstract class CharacterSkillBase
         };
         return statsByStarLevel;
     }
+    public virtual int GetLogisticCoefficient(SkillContext skillContext)
+    {
+        return 0;
+    }
     public virtual int GetAttackCoefficient(SkillContext skillContext)
     {
         StarLevelStats stats = skillContext.Parent.ActiveSkill.GetCharacterLevel()[skillContext.Parent.star];
@@ -71,7 +75,7 @@ public abstract class CharacterSkillBase
         {
             if (item.OccupyingCharacter != null)
             {
-                if (item.OccupyingCharacter.IsAlly == isAlly == GetAlly)
+                if (item.OccupyingCharacter.IsAlly == isAlly == GetAlly&& item.OccupyingCharacter.isAlive && item.OccupyingCharacter.gameObject.activeInHierarchy)
                 {
                     count++;
                 }
@@ -173,6 +177,13 @@ public class AyaneSkill : CharacterSkillBase//陵音(Ayane)找到一個範圍內
     {
 
     }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseHeal = stats.Data1;
+        int HealRatio = stats.Data2;
+        return BaseHeal + (int)((HealRatio / 100f) * skillContext.Parent.GetStat(StatsType.healAbility));
+    }
     public override Dictionary<int, StarLevelStats> GetCharacterLevel()
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
@@ -194,7 +205,11 @@ public class AyaneSkill : CharacterSkillBase//陵音(Ayane)找到一個範圍內
         bool IsFindingAlly = true;
         HexNode targetHex = FindMaxOccupiedEntityGrid(skillContext.Range, skillContext.hexMap, skillContext, IsFindingAlly);
         GameObject HealPack = ResourcePool.Instance.SpawnObject(SkillPrefab.HealPack, targetHex.Position + new Vector3(0, 3, 0), Quaternion.identity);
-        HealPack.GetComponent<HealPack>().InitStats(targetHex, skillContext.Range, BaseHeal + (int)((HealRatio / 100f) * skillContext.Parent.GetStat(StatsType.healAbility)), skillContext.Parent, skillContext.Parent.IsAlly);
+        HealPack.GetComponent<HealPack>().InitStats(targetHex, skillContext.Range, GetAttackCoefficient(skillContext), skillContext.Parent, skillContext.Parent.IsAlly);
+    }
+    public override int GetLogisticCoefficient(SkillContext skillContext)
+    {
+        return (int)skillContext.Parent.GetStat(StatsType.Attack);
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
     {
@@ -265,7 +280,7 @@ public class HarukaSkill : CharacterSkillBase//遙香(Haruka)架起護盾，並�
         {
             if (neighbor.OccupyingCharacter != null && neighbor.OccupyingCharacter.IsAlly != isAlly)
             {
-                int dmg = BaseDmg + (int)skillContext.Parent.GetStat(StatsType.Attack) * DmgRatio / 100 + PressureRatio * PressureManager.Instance.GetPressure();
+                int dmg = BaseDmg + (int)skillContext.Parent.GetStat(StatsType.Attack) * DmgRatio / 100 + PressureRatio * PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly);
                 (bool, int) tuple = skillContext.Parent.CalculateCrit(dmg);
                 neighbor.OccupyingCharacter.GetHit(tuple.Item2, skillContext.Parent, "HarukaSkill", tuple.Item1);
                 Effect effect = EffectFactory.CreateHarukaMinusAtkEffect(5, 5, neighbor.OccupyingCharacter);
@@ -317,9 +332,9 @@ public class HarunaSkill : CharacterSkillBase//羽留奈(Haruna)朝著當前生�
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(100,80,30)}, // 星級1的數據
-            {2, new StarLevelStats(13,120,45)}, // 星級2的數據
-            {3, new StarLevelStats(17,200,75)}  // 星級3的數據
+            {1, new StarLevelStats(100,350,100)}, // 星級1的數據
+            {2, new StarLevelStats(150,475,150)}, // 星級2的數據
+            {3, new StarLevelStats(350,680,225)}  // 星級3的數據
         };
         return statsByStarLevel;
     }
@@ -335,7 +350,7 @@ public class HarunaSkill : CharacterSkillBase//羽留奈(Haruna)朝著當前生�
         CharacterCTRL lowestEnemy = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true)[0];
         skillContext.Parent.transform.LookAt(lowestEnemy.GetHitPoint);
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
-        int initDmg = BaseDmg + DmgRatio * skillContext.Parent.GetAttack() + PressureManager.Instance.GetPressure() * PressureRatio;
+        int initDmg = BaseDmg + (int)(DmgRatio * skillContext.Parent.GetAttack()*0.01f) + (int)(PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly) * PressureRatio * 0.01f);
         (bool, int) tuple = skillContext.Parent.CalculateCrit(initDmg);
         bullet.GetComponent<NormalBullet>().Initialize(tuple.Item2, layer, skillContext.Parent, 20, lowestEnemy.gameObject, true, tuple.Item1);
     }
@@ -410,7 +425,7 @@ public class HarunaEnhancedSkill : CharacterSkillBase
         DmgRatio = stats.Data2;
         PressureRatio = stats.Data3;
         List<CharacterCTRL> characters = target.GetComponent<CharacterCTRL>().CurrentHex.GetCharacterOnNeighborHex(1, true);
-        int dmg = BaseDmg + (int)skillContext.Parent.GetStat(StatsType.Attack) * DmgRatio / 100 + PressureRatio * PressureManager.Instance.GetPressure();
+        int dmg = BaseDmg + (int)skillContext.Parent.GetStat(StatsType.Attack) * DmgRatio / 100 + PressureRatio * PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly);
         (bool, int) tuple = skillContext.Parent.CalculateCrit(dmg);
         foreach (var item in characters)
         {
@@ -496,9 +511,9 @@ public class NatsuSkill : CharacterSkillBase//夏(Natsu)治癒自己一定血量
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(10,1,1)},
-            {2, new StarLevelStats(20,2,2)},
-            {3, new StarLevelStats(30,3,3)}
+            {1, new StarLevelStats(10,1,1,0,2)},
+            {2, new StarLevelStats(20,2,2,0,2.5f)},
+            {3, new StarLevelStats(30,3,3,0,4)}
         };
         return statsByStarLevel;
     }
@@ -514,7 +529,7 @@ public class NatsuSkill : CharacterSkillBase//夏(Natsu)治癒自己一定血量
         base.ExecuteSkill(skillContext);
         int heal = GetAttackCoefficient(skillContext);
         skillContext.Parent.Heal(heal, skillContext.Parent);
-        Effect effect = EffectFactory.ClarityEffect(5, skillContext.Parent);
+        Effect effect = EffectFactory.ClarityEffect(GetCharacterLevel()[skillContext.Parent.star].Data5, skillContext.Parent);
         skillContext.Parent.effectCTRL.AddEffect(effect);
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
@@ -562,7 +577,7 @@ public class NoaSkill : CharacterSkillBase//乃愛(Noa)對生命值上限最低�
     {
         base.ExecuteSkill(skillContext);
         int level = skillContext.CharacterLevel;
-        StarLevelStats stats = statsByStarLevel[level];
+        StarLevelStats stats = GetCharacterLevel()[level];
         int amount = stats.Data1;
         base.ExecuteSkill(skillContext);
         CharacterCTRL weakestEnemy = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.Health, false, 1, true)[0];
@@ -773,9 +788,9 @@ public class SumireSkill : CharacterSkillBase//堇(sumire)翻滾到最好的位�
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(150,350)},
-            {2, new StarLevelStats(250,475)},
-            {3, new StarLevelStats(400,585)}
+            {1, new StarLevelStats(50,115)},
+            {2, new StarLevelStats(80,160)},
+            {3, new StarLevelStats(135,195)}
         };
         return statsByStarLevel;
     }
@@ -825,17 +840,22 @@ public class AkoSkill : CharacterSkillBase
     public int PressureRatio;
     public AkoSkill()
     {
-        statsByStarLevel = new Dictionary<int, StarLevelStats>()
+
+    }
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(0,475,100)}, // 星級1的數據
-            {2, new StarLevelStats(0,600,100)}, // 星級2的數據
-            {3, new StarLevelStats(0,900,100)}  // 星級3的數據
+            {1, new StarLevelStats(40)}, // 星級1的數據
+            {2, new StarLevelStats(60)}, // 星級2的數據
+            {3, new StarLevelStats(80)}  // 星級3的數據
         };
+        return statsByStarLevel;
     }
     public override void ExecuteSkill(SkillContext skillContext)//使本局造成傷害最多的角色獲得"在下一次主動技能施放結束前，增加爆擊機率和爆擊數值"
     {
 
-        Effect effect = EffectFactory.CreateAkoActiveSkillBuff(40, 0, skillContext.Parent);
+        Effect effect = EffectFactory.CreateAkoActiveSkillBuff(GetCharacterLevel()[skillContext.Parent.star].Data1, 0, skillContext.Parent);
         DamageStatisticsManager.Instance.GetTopDamageDealer(skillContext.Parent.IsAlly).effectCTRL.AddEffect(effect);
         CustomLogger.Log(this, $"{DamageStatisticsManager.Instance.GetTopDamageDealer(skillContext.Parent.IsAlly)} getting buff {effect.GetType()}");
         base.ExecuteSkill(skillContext);
@@ -968,11 +988,15 @@ public class FuukaSkill : CharacterSkillBase//風華(Fukka)找到一個範圍內
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(20,40)}, // 星級1的數據
-            {2, new StarLevelStats(40,60)}, // 星級2的數據
-            {3, new StarLevelStats(80,90)}  // 星級3的數據
+            {1, new StarLevelStats(20,40,25)}, // 星級1的數據
+            {2, new StarLevelStats(40,60,35)}, // 星級2的數據
+            {3, new StarLevelStats(80,90,50)}  // 星級3的數據
         };
         return statsByStarLevel;
+    }
+    public override int GetLogisticCoefficient(SkillContext skillContext)
+    {
+        return (int)(skillContext.Parent.GetStat(StatsType.Attack) * GetCharacterLevel()[skillContext.Parent.star].Data3 * 0.01f);
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
@@ -1077,7 +1101,7 @@ public class KayokoSkill : CharacterSkillBase//佳代子(Kayoko)對大範圍敵�
         BaseDmg = stats.Data1;
         DmgRatio = stats.Data2;
         PressureRatio = stats.Data3;
-        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack()) + PressureRatio * PressureManager.Instance.GetPressure();
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack()) + PressureRatio * PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly);
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
@@ -1554,8 +1578,8 @@ public class HinaSkill : CharacterSkillBase//陽奈(Hina)朝著能夠覆蓋最�
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(10,8,1,0,0.25f)},
-            {2, new StarLevelStats(15,8,1,0,0.25f)},
+            {1, new StarLevelStats(40,8,1,0,0.25f)},
+            {2, new StarLevelStats(60,8,1,0,0.25f)},
             {3, new StarLevelStats(999,219,10,0,0.25f)}
         };
         return statsByStarLevel;
@@ -1566,7 +1590,7 @@ public class HinaSkill : CharacterSkillBase//陽奈(Hina)朝著能夠覆蓋最�
         BaseDmg = stats.Data1;
         DmgRatio = stats.Data2;
         PressureRatio = stats.Data3;
-        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack()) + PressureRatio * PressureManager.Instance.GetPressure();
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack()) + PressureRatio * PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly);
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
@@ -1664,20 +1688,31 @@ public class MikaSkill : CharacterSkillBase//被動:彌香(mika)的傷害總是�
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(100,5000)},
-            {2, new StarLevelStats(130,405)},
-            {3, new StarLevelStats(170,480)}
+            {1, new StarLevelStats(100,250)},
+            {2, new StarLevelStats(375,405)},
+            {3, new StarLevelStats(999,9999)}
         };
         return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
-        CharacterCTRL C = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.Health, false, 1, true)[0];
-        GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
-        List<HitEffect> hitEffect = new List<HitEffect> { new MikaSkillEffect() };
-        (bool iscrit, int dmg1) = skillContext.Parent.CalculateCrit(skillContext.Parent.GetAttack());
-        bullet.GetComponent<NormalBullet>().Initialize(dmg1, skillContext.Parent.GetTargetLayer(), skillContext.Parent, 15f, C.gameObject, true, iscrit, hitEffect);
+        if (Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.Health, false, 1, true).Count >0)
+        {
+            CharacterCTRL C = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.Health, false, 1, true)[0];
+            GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
+            List<HitEffect> hitEffect = new List<HitEffect> { new MikaSkillEffect() };
+            (bool iscrit, int dmg1) = skillContext.Parent.CalculateCrit(GetAttackCoefficient(skillContext));
+            bullet.GetComponent<NormalBullet>().Initialize(dmg1, skillContext.Parent.GetTargetLayer(), skillContext.Parent, 15f, C.gameObject, true, iscrit, hitEffect);
+        }
+        
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
     {

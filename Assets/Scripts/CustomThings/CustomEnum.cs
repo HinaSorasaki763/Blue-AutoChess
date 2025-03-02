@@ -740,6 +740,8 @@ namespace GameEnum
         public int OneCostProbability;
         public int TwoCostProbability;
         public int ThreeCostProbability;
+        public int FourCostProbability;
+        public int FiveCostProbability;
     }
     public static class Utility
     {
@@ -890,7 +892,7 @@ namespace GameEnum
             var nodes = GetHexInRange(startNode, range);
             foreach (var item in nodes)
             {
-                if (item.OccupyingCharacter != null && (item.OccupyingCharacter.IsAlly == finder.IsAlly) == findingAlly && !item.OccupyingCharacter.characterStats.logistics)
+                if (item.OccupyingCharacter != null && (item.OccupyingCharacter.IsAlly == finder.IsAlly) == findingAlly && !item.OccupyingCharacter.characterStats.logistics && item.OccupyingCharacter.isAlive)
                 {
                     characters.Add(item.OccupyingCharacter);
                 }
@@ -904,11 +906,12 @@ namespace GameEnum
                 item.GetHit(dmg, sourceCharacter, source, iscrit);
             }
         }
-        public static bool Iscrit(float critChance, int seedOffset = 0)
+        public static bool Iscrit(float critChance, CharacterCTRL c)
         {
             UnityEngine.Random.State oldState = UnityEngine.Random.state;
             int battleCounterInt = Mathf.FloorToInt(GameStageManager.Instance.enteringBattleCounter * 1000);
-            int seed = ResourcePool.Instance.RandomKeyThisGame + battleCounterInt + seedOffset;
+            int i = c.IsAlly ? 1 : 0;
+            int seed = ResourcePool.Instance.RandomKeyThisGame + battleCounterInt + c.characterStats.CharacterId + i;
             UnityEngine.Random.InitState(seed);
             int rand = UnityEngine.Random.Range(0, 101);
             UnityEngine.Random.state = oldState;

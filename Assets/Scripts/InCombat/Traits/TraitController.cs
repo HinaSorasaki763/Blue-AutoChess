@@ -182,7 +182,12 @@ public class TraitController : MonoBehaviour
 
     public void OnBattleEnd(bool win)
     {
-        gameObject.GetComponent<CustomAnimatorController>().SetToIdle();
+
+        if (gameObject.GetComponent<CustomAnimatorController>() != null)
+        {
+            gameObject.GetComponent<CustomAnimatorController>().SetToIdle();
+        }
+
         foreach (var observer in traitObservers.Values)
         {
             observer.OnBattleEnd(win);

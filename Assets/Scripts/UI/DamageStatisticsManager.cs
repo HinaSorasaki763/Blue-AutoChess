@@ -130,7 +130,17 @@ public class DamageStatisticsManager : MonoBehaviour
         }
         UpdateUIForTeam(enemyDamageTaken, enemyParent);
     }
-
+    public void ClearAll()
+    {
+        allyDamage.Clear();
+        enemyDamage.Clear();
+        allyDamageTaken.Clear();
+        enemyDamageTaken.Clear();
+        maxAllyDamage = 0;
+        maxEnemyDamage = 0;
+        maxAllyDamageTaken = 0;
+        maxEnemyDamageTaken = 0;
+    }
     private void UpdateSlider(CharacterCTRL character, float damage, float maxDamage, Transform parent)
     {
         var entry = parent.Find(character.name);

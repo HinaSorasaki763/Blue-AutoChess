@@ -14,6 +14,9 @@ GameObject:
   - component: {fileID: -6701284225084400918}
   - component: {fileID: 7572091158710221031}
   - component: {fileID: 4057808316048864516}
+  - component: {fileID: 6251576936792179130}
+  - component: {fileID: 4783180386992401758}
+  - component: {fileID: 6507023919684515182}
   m_Layer: 0
   m_Name: Shizuko_Original_Teahouse_Idle
   m_TagString: Untagged
@@ -100,6 +103,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentHex: {fileID: 0}
+  HexWhenBattleStart: {fileID: 0}
   Target: {fileID: 0}
   PreTarget: {fileID: 0}
   IsAlly: 0
@@ -155,6 +159,8 @@ MonoBehaviour:
   star: 0
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
+  IsHeroicEnhanced: 0
+  FaceDirectionLock: 0
   ManaLock: 0
   enterBattle: 0
   isAlive: 1
@@ -164,18 +170,27 @@ MonoBehaviour:
   isMarked: 0
   isCCImmune: 0
   Invincible: 0
+  AntiHeal: 0
+  Overtime: 0
+  AntiHealRatio: 0
+  Taunted: 0
   attackRate: 5
+  WakamoMark: 0
   stunned: 0
-  bulletPrefab: {fileID: 0}
   FirePoint: {fileID: 0}
   GetHitPoint: {fileID: 0}
   DetectedPos: {x: 0, y: 0, z: 0}
+  AudioManager: {fileID: 0}
   traitController: {fileID: 0}
   customAnimator: {fileID: 0}
   isTargetable: 1
   isShirokoTerror: 0
   droneCTRL: {fileID: 0}
   isObj: 0
+  Logistic_dummy: {fileID: 0}
+  equipmentManager: {fileID: 0}
+  StealManaCount: 0
+  parent: {fileID: 0}
 --- !u!114 &7572091158710221031
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -200,5 +215,42 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 22d938ec778301c46b13e376ebadaab2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6251576936792179130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2508619662423299920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642bc75772efce143adab14c975c5a9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Audio: {fileID: 0}
+--- !u!114 &4783180386992401758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2508619662423299920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 461b299f846491145b8c3660fb8bb268, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &6507023919684515182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2508619662423299920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1f0e333457e9f7448f7a6f0ff11015b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

@@ -388,7 +388,7 @@ public class SpawnGrid : MonoBehaviour
                 if (node.OccupyingCharacter != null)
                 {
                     bool isEnemy = node.OccupyingCharacter.IsAlly != isAlly;
-                    if (findEnemies == isEnemy && node.OccupyingCharacter != character && node.OccupyingCharacter.gameObject.activeInHierarchy)
+                    if (findEnemies == isEnemy && node.OccupyingCharacter != character && node.OccupyingCharacter.gameObject.activeInHierarchy&& !node.OccupyingCharacter.isObj)
                     {
                         count++;
                         c.Add(node.OccupyingCharacter);

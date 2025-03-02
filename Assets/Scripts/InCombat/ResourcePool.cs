@@ -40,6 +40,7 @@ public class ResourcePool : MonoBehaviour
     public GameObject MissleFragmentsPrefab;
     public int RandomKeyThisGame;
     public Sprite RandomRewardSprite;
+    public Sprite[] numberSprites;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -60,7 +61,15 @@ public class ResourcePool : MonoBehaviour
     {
         list = Resources.LoadAll<T>(path).ToList();
     }
-
+    public Sprite Getnumber(int num)
+    {
+        if (num < 0 || num > 9)
+        {
+            Debug.LogError("number out of range");
+            return null;
+        }
+        return numberSprites[num];
+    }
     void PopulateCharacterDictionary()
     {
         foreach (var characterList in Lists)
@@ -211,10 +220,11 @@ public class ResourcePool : MonoBehaviour
         obj.SetActive(true);
         return obj;
     }
-    public GameObject SpawnCharacterAtPosition(GameObject characterPrefab, Vector3 position, HexNode hexNode, CharacterParent characterParent, bool isAlly = false)
+    public GameObject SpawnCharacterAtPosition(GameObject characterPrefab, Vector3 position, HexNode hexNode, CharacterParent characterParent, bool isAlly = false,int star = 1)
     {
         GameObject obj = Instantiate(characterPrefab);
         obj.transform.position = position + new Vector3(0, 0.23f, 0);
+        CustomLogger.Log(this, $"{characterPrefab.name}spawned at {position}");
         obj.transform.rotation = Quaternion.Euler(0, 180, 0);
         obj.layer = isAlly ? 8 : 9;
 
@@ -223,7 +233,7 @@ public class ResourcePool : MonoBehaviour
 
 
         CharacterCTRL ctrl = obj.GetComponent<CharacterCTRL>();
-        ctrl.star = 1;
+        ctrl.star = star;
         ctrl.CurrentHex = hexNode;
         hexNode.OccupyingCharacter = ctrl;
         hexNode.Reserve(ctrl);

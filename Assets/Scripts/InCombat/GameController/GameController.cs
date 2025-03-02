@@ -32,7 +32,7 @@ public class GameController : MonoBehaviour
             return (false, false);
         }
         bool isBattlefield = targetSlot.IsBattlefield;
-        if (targetSlot.Index >= 32)
+        if (targetSlot.Index >= 32|| !targetSlot.isAllyHex)
         {
             PopupManager.Instance.CreatePopup("enemy territory", 2);
             ReturnToOriginalSlot(character);
@@ -172,6 +172,10 @@ public class GameController : MonoBehaviour
     {
         gold += amount;
         Debug.Log($"gold = {gold}");
+    }
+    public void SetGold(int amount)
+    {
+        gold = amount;
     }
     public int GetGoldAmount()
     {

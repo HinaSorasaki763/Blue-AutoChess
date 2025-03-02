@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CharacterName: Mika
   CharacterId: 27
-  Level: 5
+  Level: 26
   Sprite: {fileID: 21300000, guid: 8b569e9f82920a34e89c00b116864190, type: 3}
   Model: {fileID: 5602422217922349445, guid: 41b18051d94ca4740a157388ad2ff1a2, type: 3}
   logistics: 0
@@ -63,11 +63,11 @@ MonoBehaviour:
   BarrageInitAngle: 0
   Tooltips:
   - "\u88AB\u52D5: \u50B7\u5BB3\u7E3D\u662F\u7206\u64CA\uFF0C\u4E14\u6240\u6709\u7206\u64CA\u7387\u8F49\u70BA\u7206\u64CA\u50B7\u5BB3\u3002\n\u4E3B\u52D5:
-    \u72D9\u64CA\u55AE\u4E00\u6575\u4EBA\uFF0C\u9020\u6210 {data1} (\u6700\u7D42:
+    \u72D9\u64CA\u55AE\u4E00\u6575\u4EBA\uFF0C\u9020\u6210 {data1}+{data2}%*{Attack}(\u6700\u7D42:
     {Final})\u3002\u82E5\u64CA\u6BBA\u76EE\u6A19\uFF0C\u6703\u5728\u5176\u5468\u570D1\u683C\u7206\u70B8\uFF0C\u4E26\u53EF\u7121\u9650\u9023\u9396\u3002\u3002"
   - "Passive: Always critically strikes, converting all crit chance into crit damage.\nActive:
-    Snipes a single enemy for {data1} (Final: {Final}). If it kills the target, \nit
-    explodes in a 1-tile radius for the same damage, chaining indefinitely."
+    Snipes a single enemy for {data1}+{data2}%*{Attack}(Final: {Final}). If it kills
+    the target, \nit explodes in a 1-tile radius for the same damage, chaining indefinitely."
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

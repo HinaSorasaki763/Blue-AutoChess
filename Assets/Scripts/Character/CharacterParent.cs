@@ -172,7 +172,6 @@ public class CharacterParent : MonoBehaviour
             Destroy(characterGameObject);
         }
         mainCharacter.characterStats.ApplyLevelUp(mainCharacter.characterStats.Level + 1);
-        mainCharacter.characterBars.UpdateStarLevel();
         mainCharacter.ResetStats();
         mainCharacter.GetSkillContext();
         mainCharacter.AudioManager.PlayOnStarUp();
@@ -292,7 +291,11 @@ public class CharacterParent : MonoBehaviour
         {
             item.SetActive(false);
         }
-        UpdateLogisticsDummies(battlefieldCharacters);
+        if (!isEnemy)
+        {
+            UpdateLogisticsDummies(battlefieldCharacters);
+        }
+
     }
     public void AddTraitEffects()
     {
@@ -444,6 +447,7 @@ public class CharacterParent : MonoBehaviour
     }
     public List<CharacterCTRL> GetBattleFieldCharacter()
     {
+
         List<CharacterCTRL> battlefieldCharacters = new List<CharacterCTRL>();
         foreach (var item in childCharacters)
         {
@@ -460,8 +464,11 @@ public class CharacterParent : MonoBehaviour
     {
         for (int i = childCharacters.Count; i > 0; i--)
         {
+            childCharacters[i - 1].GetComponent<CharacterCTRL>().characterBars.ResetBars();
+            childCharacters[i - 1].GetComponent<CharacterCTRL>().characterBars.gameObject.SetActive(false);
             childCharacters[i - 1].SetActive(false);
             Destroy(childCharacters[i - 1]);
+            logisticsDummies.Clear();
             childCharacters.RemoveAt(i - 1);
         }
     }

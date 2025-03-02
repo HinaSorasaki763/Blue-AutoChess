@@ -7,6 +7,7 @@ public class ShopButton : MonoBehaviour
 {
     public List<Image> traitIcon = new();
     public Image AcademyIcon;
+    public Image PriceImage;
     public void Start()
     {
         
@@ -20,5 +21,7 @@ public class ShopButton : MonoBehaviour
         }
         AcademyIcon.sprite = null;
         AcademyIcon.color = new Color(1, 1, 1, 0);
+        PriceImage.sprite = null;
+        PriceImage.color = new Color(1, 1, 1, 0);
     }
 }

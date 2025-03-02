@@ -22,11 +22,13 @@ public class PressureManager : MonoBehaviour
     }
     public void Update()
     {
-        
+
     }
-    public int GetPressure()
+    public int GetPressure(bool isAlly)
     {
-        return CurrentPressure;
+        if (isAlly) return CurrentPressure;
+        else return EnemyTraitRelated.Instance.GetPressure();
+
     }
     public void IncreasePressure(int amount)
     {
@@ -45,7 +47,7 @@ public class PressureManager : MonoBehaviour
         {
             PressureIndicator.SetActive(true);
             TraitText.gameObject.SetActive(true);
-            TraitText.TextMesh.text = $"Pressure =  {GetPressure()}";
+            TraitText.TextMesh.text = $"Pressure =  {GetPressure(true)}";
         }
         else
         {

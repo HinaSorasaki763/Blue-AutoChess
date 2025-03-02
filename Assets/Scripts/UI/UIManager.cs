@@ -4,6 +4,8 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Text;
+
 
 public class UIManager : MonoBehaviour
 {
@@ -27,6 +29,7 @@ public class UIManager : MonoBehaviour
     public GameObject EquipmentPreComposingModal;
     public Image Sprite1, Sprite2, CompleteItemSprite;
     public TextMeshProUGUI CompleteItemText;
+    public Button BugReportButton;
     private void Awake()
     {
         if (Instance == null)
@@ -108,7 +111,49 @@ public class UIManager : MonoBehaviour
             UpdateCharacterStats();
         }
     }
-
+    public void ReSetBattleData()
+    {
+        GameStageManager.Instance.ResetBattleData();
+    }
+    public void ShowBugReport()
+    {
+        int randKey = ResourcePool.Instance.RandomKeyThisGame;
+        int round = GameStageManager.Instance.GetRound();
+        List<CharacterCTRL> allies = ResourcePool.Instance.ally.GetBattleFieldCharacter();
+        List<CharacterCTRL> enemies = ResourcePool.Instance.enemy.GetBattleFieldCharacter();
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.AppendLine($"Round {round},randkey = {randKey}");
+        stringBuilder.AppendLine("Allies");
+        foreach (var ally in allies)
+        {
+            stringBuilder.AppendLine($"{ally.characterStats.CharacterName} at  hex {ally.CurrentHex.Index}");
+            stringBuilder.AppendLine("Equipments");
+            foreach (var item in ally.equipmentManager.equippedItems)
+            {
+                stringBuilder.AppendLine(item.EquipmentName);
+            }
+        }
+        stringBuilder.AppendLine("Enemies");
+        foreach (var enemy in enemies)
+        {
+            stringBuilder.AppendLine($"{enemy.characterStats.CharacterName} at  hex {enemy.CurrentHex.Index}");
+            stringBuilder.AppendLine("Equipments");
+            foreach (var item in enemy.equipmentManager.equippedItems)
+            {
+                stringBuilder.AppendLine(item.EquipmentName);
+            }
+        }
+        CustomLogger.Log(this,stringBuilder.ToString());
+        GUIUtility.systemCopyBuffer = stringBuilder.ToString();
+    }
+    public void ResumeTime()
+    {
+        Time.timeScale = 1;
+    }
+    public void StopTime()
+    {
+        Time.timeScale = 0;
+    }
     private void UpdateCharacterStats()
     {
         // 根據 currentCharacter 更新彈窗中的數據
@@ -176,7 +221,8 @@ public static class StringPlaceholderReplacer
         {"data5", stats.Data5.ToString("F1")},
         {"Attack", isChinese? $"攻擊力 ({character.GetStat(StatsType.Attack)})" : $"Atk({character.GetStat(StatsType.Attack)}) "},
         {"Health", isChinese? $"攻擊力 ({character.GetStat(StatsType.Health)})" : $"Atk({character.GetStat(StatsType.Health)}) "},
-        {"Final", character.ActiveSkill.GetAttackCoefficient(character.GetSkillContext()).ToString()}
+        {"Final", character.ActiveSkill.GetAttackCoefficient(character.GetSkillContext()).ToString()},
+        {"Logistic",character.ActiveSkill.GetLogisticCoefficient(character.GetSkillContext()).ToString() }
     };
     }
 

@@ -1,5 +1,4 @@
 using GameEnum;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,7 +7,6 @@ public class PVE_EnemySpawner : MonoBehaviour
 {
     public static PVE_EnemySpawner Instance;
     public List<EnemyWave> enemyWaves;
-    private int index = 0;
     public CharacterParent enemyParent;
     private void Awake()
     {
@@ -18,23 +16,27 @@ public class PVE_EnemySpawner : MonoBehaviour
     {
         LoadEnemyWaves();
     }
-
     // Step 1: Load all enemy waves from Resources
     private void LoadEnemyWaves()
     {
-        enemyWaves = Resources.LoadAll<EnemyWave>("PVE_Resources").ToList();
+        enemyWaves = Resources.LoadAll<EnemyWave>("PVE_Resources").OrderBy(wave =>
+        {
+            string[] parts = wave.name.Split(' ');
+            int roundNumber = int.Parse(parts[1]);
+            return roundNumber;
+        }).ToList();
     }
     public void SpawnEnemiesNextStage()
     {
+        CustomLogger.Log(this, "PVE_EnemySpawner SpawnEnemiesNextStage");
         // 清理上一波敵人
         foreach (var item in enemyParent.childCharacters)
         {
             Destroy(item.GetComponent<CharacterCTRL>().characterBars);
             Destroy(item);
         }
-
         // 生成新一波敵人
-        foreach (var slot in enemyWaves[index].gridSlots)
+        foreach (var slot in enemyWaves[GameStageManager.Instance.currentRound].gridSlots)
         {
             if (slot.CharacterID != -1)
             {
@@ -42,6 +44,11 @@ public class PVE_EnemySpawner : MonoBehaviour
                 {
                     if (SpawnGrid.Instance.hexNodes.TryGetValue(cubeKey, out HexNode hexNode))
                     {
+                        int lvl = slot.Level;
+                        if (slot.Level == 0)
+                        {
+                            lvl = 1;
+                        }
                         Vector3 position = hexNode.Position;
                         Character characterData = ResourcePool.Instance.GetCharacterByID(slot.CharacterID);
                         GameObject characterPrefab = characterData.Model;
@@ -50,10 +57,12 @@ public class PVE_EnemySpawner : MonoBehaviour
                             position,
                             hexNode,
                             enemyParent,
-                            isAlly: false
+                            isAlly: false,
+                            lvl
                         );
 
                         CharacterCTRL characterCtrl = go.GetComponent<CharacterCTRL>();
+                        characterCtrl.ResetStats();
                         if (characterCtrl != null)
                         {
                             // 為該角色裝備裝備
@@ -104,24 +113,49 @@ public class PVE_EnemySpawner : MonoBehaviour
                 }
             }
         }
-
-        // 為 Logistic 角色配置裝備 (如果需要)
-        SpawnLogisticCharacter(enemyWaves[index].logisticSlot1, ResourcePool.Instance.EnemylogisticSlotNode1);
-        SpawnLogisticCharacter(enemyWaves[index].logisticSlot2, ResourcePool.Instance.EnemylogisticSlotNode2);
+        SpawnLogisticCharacter(enemyWaves[GameStageManager.Instance.currentRound].logisticSlot1, ResourcePool.Instance.EnemylogisticSlotNode1);
+        SpawnLogisticCharacter(enemyWaves[GameStageManager.Instance.currentRound].logisticSlot2, ResourcePool.Instance.EnemylogisticSlotNode2);
 
         ResourcePool.Instance.enemy.UpdateTraitEffects();
-        index++;
     }
 
     private void SpawnLogisticCharacter(EnemyWave.GridSlotData logisticSlot, HexNode logisticSlotNode)
     {
         if (logisticSlot.CharacterID != -1)
         {
-            Vector3 position = logisticSlotNode.Position;
+            Vector3 position = logisticSlotNode.transform.position;
             Character characterData = ResourcePool.Instance.GetCharacterByID(logisticSlot.CharacterID);
             GameObject characterPrefab = characterData.Model;
+            int lvl = logisticSlot.Level;
+            if (logisticSlot.Level == 0)
+            {
+                lvl = 1;
+            }
+            GameObject go = ResourcePool.Instance.SpawnCharacterAtPosition(characterPrefab, position, logisticSlotNode, enemyParent, isAlly: false, lvl);
+            go.transform.position = position;
+            int dummyIndex = logisticSlot.DummyGridIndex;
+            SpawnGrid.Instance.indexToCubeKey.TryGetValue(logisticSlot.DummyGridIndex, out string cubeKey);
+            SpawnGrid.Instance.hexNodes.TryGetValue(cubeKey, out HexNode h);
+            GameObject obj = Instantiate(ResourcePool.Instance.LogisticDummy, h.Position + new Vector3(0, 0.14f, 0), Quaternion.Euler(new Vector3(0, 0, 0)));
+            CustomLogger.Log(this, "spawned dummy");
+            obj.transform.SetParent(ResourcePool.Instance.enemy.transform);
+            CharacterBars bar = ResourcePool.Instance.GetBar(h.Position).GetComponent<CharacterBars>();
+            ResourcePool.Instance.enemy.childCharacters.Add(obj);
+            obj.name = $"dummy ({characterData.CharacterName})";
+            CharacterCTRL ctrl = obj.GetComponent<CharacterCTRL>();
+            StaticObject staticObj = obj.GetComponent<StaticObject>();
+            CharacterCTRL c = go.GetComponent<CharacterCTRL>();
+            staticObj.parent = c;
 
-            ResourcePool.Instance.SpawnCharacterAtPosition(characterPrefab, position, logisticSlotNode, enemyParent, isAlly: false);
+            ctrl.SetBarChild(bar);
+            ctrl.characterBars = bar;
+            CustomLogger.Log(this, $"get bar to {obj.name},bar parent = {ctrl},child = {ctrl.characterBars}");
+            bar.SetBarsParent(obj.transform);
+            staticObj.RefreshDummy(c);
+            ctrl.CurrentHex = h;
+            h.OccupyingCharacter = ctrl;
+            h.Reserve(ctrl);
+
         }
     }
 }

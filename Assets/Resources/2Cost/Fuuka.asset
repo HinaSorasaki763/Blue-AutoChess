@@ -58,8 +58,8 @@ MonoBehaviour:
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
-  - "\u5C0B\u627E\u7BC4\u570D\u5167\u6700\u591A\u53CB\u8ECD\u7684\u7A7A\u683C\uFF0C\u6295\u653E\u6CBB\u7652\uFF0C\n\u56DE\u5FA9:
-    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\uFF0C\n\u4E26\u8B93\u9644\u8FD1\u53CB\u8ECD\u76E1\u53EF\u80FD\u5F80\u8A72\u683C\u79FB\u52D5\u3002"
+  - "\u5F8C\u63F4\u6548\u679C:\u627E\u5230\u5169\u683C\u5167\u6700\u591A\u53CB\u8ECD\u7684\u683C\u5B50\uFF0C\u4F7F\u5F97\u4ED6\u5011\u6CBB\u7652{Logistic}(\u653B\u64CA\u529B*{data3}%)\n\u5C0B\u627E\u7BC4\u570D\u5167\u6700\u591A\u53CB\u8ECD\u7684\u7A7A\u683C\uFF0C\u6295\u653E\u6CBB\u7652\uFF0C\n\u56DE\u5FA9:
+    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B({Attack})) (\u6700\u7D42: {Final})\uFF0C\n\u4E26\u8B93\u9644\u8FD1\u53CB\u8ECD\u76E1\u53EF\u80FD\u5F80\u8A72\u683C\u79FB\u52D5\u3002"
   - "Identifies a tile with the most allies in range and deploys a healing effect
     there, \nrestoring {data1} + ({data2}% \xD7 ATK) (Final: {Final}), \nand causing
     allies to move toward that tile if possible."

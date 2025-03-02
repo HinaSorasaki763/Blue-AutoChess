@@ -8,7 +8,7 @@ public class StaticObject : CharacterCTRL
     private float lastShakeTime = 0f; // 上次旋轉效果觸發的時間
     private float shakeCooldown = 0.7f; // 旋轉效果的冷卻時間（秒）
     public CharacterCTRL parent;
-    
+
     public override void OnEnable()
     {
         star = 1;
@@ -24,11 +24,11 @@ public class StaticObject : CharacterCTRL
         equipmentManager.SetParent(this);
         AudioManager = GetComponent<CharacterAudioManager>();
         ActiveSkill = characterSkills[0]();
-        
+
         originalRotation = transform.rotation;
         initStats();
     }
-    public override void GetHit(int amount, CharacterCTRL sourceCharacter,string detailedSource, bool isCrit)
+    public override void GetHit(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit)
     {
         if (!isAlive) return;
         base.GetHit(amount, sourceCharacter, detailedSource, isCrit);
@@ -41,7 +41,7 @@ public class StaticObject : CharacterCTRL
     }
     public void Start()
     {
-        
+
     }
     public void initStats()
     {
@@ -51,6 +51,8 @@ public class StaticObject : CharacterCTRL
     public void RefreshDummy(CharacterCTRL c)
     {
         parent = c;
+        IsAlly = c.IsAlly;
+        gameObject.layer = IsAlly ? 8 : 9;
         SetStats();
         characterBars.InitBars();
     }
@@ -58,11 +60,11 @@ public class StaticObject : CharacterCTRL
     {
         var observer = parent.traitController.GetObserverForTrait(Traits.logistic) as LogisticObserver;
         float ratio = observer.GetCurrStat() * 0.01f;
-        int health = (int)(parent.GetStat(StatsType.Health)*ratio);
+        int health = (int)(parent.GetStat(StatsType.Health) * ratio);
         int def = (int)(parent.GetStat(StatsType.Resistence) * ratio);
         int percentageResistance = (int)(parent.GetStat(StatsType.PercentageResistence) * ratio);
         SetStat(StatsType.Health, health);
-        SetStat(StatsType.currHealth,health);
+        SetStat(StatsType.currHealth, health);
         SetStat(StatsType.Resistence, def);
         SetStat(StatsType.PercentageResistence, percentageResistance);
     }

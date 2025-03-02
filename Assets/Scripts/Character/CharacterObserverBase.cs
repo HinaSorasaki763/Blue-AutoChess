@@ -33,7 +33,10 @@ public abstract class CharacterObserverBase
     {
     
     }
-    
+    public virtual void OnCharacterDisabled(CharacterCTRL character)
+    {
+        
+    }
     public virtual void CharacterStart(CharacterCTRL character)
     {
 
@@ -213,7 +216,7 @@ public class FuukaObserver : CharacterObserverBase
         HexNode targetHex = SpawnGrid.Instance.FindBestHexNode(character, 2, false, false, character.CurrentHex);
         foreach (var item in targetHex.GetCharacterOnNeighborHex(2, true))
         {
-            item.Heal(10, character);
+            item.Heal((int)(character.GetStat(StatsType.Attack)*0.25f), character);
         }
     }
 }
@@ -229,12 +232,9 @@ public class MikaObserver : CharacterObserverBase
             int DamageRatio = stats.Data2;
             int dmg = BaseDamage + DamageRatio * (int)character.GetStat(StatsType.Attack);
             (bool iscrit, int dmg1) = character.CalculateCrit(dmg);
-            foreach (var item in characterDies.CurrentHex.Neighbors)
+            foreach (var item in Utility.GetCharacterInrange(characterDies.CurrentHex,1,character,false))
             {
-                if (item.OccupyingCharacter!= null)
-                {
-                    item.OccupyingCharacter.GetHit(dmg1,character, DamageSourceType.Skill.ToString(),iscrit);
-                }
+                item.GetHit(dmg1, character, DamageSourceType.Skill.ToString(), iscrit);
             }
         }
         base.OnKilledEnemy(character, detailedSource, characterDies);
@@ -249,7 +249,7 @@ public class SerinaObserver : CharacterObserverBase
         CharacterCTRL LowestHealthCharacter = characters
             .OrderByDescending(item => item.GetStat(StatsType.currHealth))
             .Last();
-        LowestHealthCharacter.Heal(10, character);
+        LowestHealthCharacter.Heal((int)character.GetStat(StatsType.Attack), character);
     }
 }
 public class ShizukoObserver : CharacterObserverBase
@@ -261,7 +261,12 @@ public class ShizukoObserver : CharacterObserverBase
         CharacterCTRL LowestHealthCharacter = characters
             .OrderByDescending(item => item.GetStat(StatsType.currHealth))
             .Last();
-        LowestHealthCharacter.AddShield(100, 5.0f, character);
+        LowestHealthCharacter.AddShield(character.GetAttack()*2, 5.0f, character);
+    }
+    public override void OnCharacterDisabled(CharacterCTRL character)
+    {
+        character.gameObject.GetComponent<ShizukoActiveSkill>().Reference.SetActive(false);
+        base.OnCharacterDisabled(character);
     }
 }
 public class HinaObserver : CharacterObserverBase
@@ -629,4 +634,5 @@ public class GlobalBaseObserver : CharacterObserverBase
     {
         CustomLogger.Log(this, $"ResetVaribles()");
     }
+    
 }

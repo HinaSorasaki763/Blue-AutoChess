@@ -95,7 +95,11 @@ public class CharacterCTRL : MonoBehaviour
             StopCoroutine(fearCorutine);
         }
 
-        customAnimator.ForceIdle();
+        if (customAnimator!= null)
+        {
+            customAnimator.ForceIdle();
+        }
+
         enterBattle = false;
         FaceDirectionLock = false;
         tempDirectionLock = false;
@@ -171,6 +175,14 @@ public class CharacterCTRL : MonoBehaviour
         AudioManager = GetComponent<CharacterAudioManager>();
 
     }
+    public void OnDisable()
+    {
+        foreach (var item in observers)
+        {
+            CustomLogger.Log(this, $"character {characterStats.name} disabled");
+            item.OnCharacterDisabled(this);
+        }
+    }
     public void LockDirection(Vector3 PosLookAt)
     {
         Quaternion targetRotation = Quaternion.LookRotation(PosLookAt);
@@ -198,6 +210,7 @@ public class CharacterCTRL : MonoBehaviour
                     bool isAbydos = traitController.GetAcademy() == Traits.Abydos;
                     Effect effect = EffectFactory.CreateAbydosEffect(isAbydos, AbydosManager.Instance.level);
                     CustomLogger.Log(this, $"isabydos = {isAbydos}, effect = {effect.Source}");
+
                     effectCTRL.AddEffect(effect);
                 }
             }
@@ -297,8 +310,15 @@ public class CharacterCTRL : MonoBehaviour
         {
             item.CharacterUpdate();
         }
-        traitController.CharacterUpdate();
-        equipmentManager.CharacterUpdate();
+        if (traitController!= null)
+        {
+            traitController.CharacterUpdate();
+        }
+        if (equipmentManager!= null)
+        {
+            equipmentManager.CharacterUpdate();
+        }
+
     }
     #endregion
 
@@ -411,7 +431,7 @@ public class CharacterCTRL : MonoBehaviour
             return (iscrit, dmg);
         }
 
-        if (Utility.Iscrit(GetStat(StatsType.CritChance)))
+        if (Utility.Iscrit(GetStat(StatsType.CritChance),this))
         {
             dmg = (int)(dmg * (1 + GetStat(StatsType.CritRatio) * 0.01f));
             CustomLogger.Log(this, $"character {name} crit");

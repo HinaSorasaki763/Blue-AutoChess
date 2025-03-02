@@ -19,9 +19,9 @@ MonoBehaviour:
 
 '
   descrtipns:
-  - "\u53EA\u6709\u7576\u5834\u4E0A\u6070\u597D\u64C1\u6709\u4E00\u540D\u5DE8\u982D\uFF0C\u6216\u662F\u96C6\u9F4A\u5168\u90E8\u5DE8\u982D\u6642\uFF0C\u8A72\u7F88\u7D46\u624D\u6703\u555F\u7528\u3002\u5DE8\u982D\u55AE\u4F4D\u7372\u5F97\u6578\u503C\u52A0\u6210\uFF0C\u6280\u80FD\u53EF\u8655\u6C7A\u751F\u547D\u503C\u4F4E\u65BC\u67D0\u4E00\u9580\u6ABB\u7684\u55AE\u4F4D\u3002"
+  - "\u53EA\u6709\u7576\u5834\u4E0A\u6070\u597D\u64C1\u6709\u4E00\u540D\u5DE8\u982D\uFF0C\u6216\u662F\u6070\u597D\u6709\u56DB\u540D\u5DE8\u982D\u6642\uFF0C\u8A72\u7F88\u7D46\u624D\u6703\u555F\u7528\u3002\u5DE8\u982D\u55AE\u4F4D\u7372\u5F97\u6578\u503C\u52A0\u6210\uFF0C\u6280\u80FD\u53EF\u8655\u6C7A\u751F\u547D\u503C\u4F4E\u65BC\u67D0\u4E00\u9580\u6ABB\u7684\u55AE\u4F4D\u3002"
   - This trait is only activated when exactly one Supremacy student is present or
-    when all Supremacy students are on the field. Supremacy units gain stat bonuses,
+    when 4 Supremacy students are on the field. Supremacy units gain stat bonuses,
     and their skills can execute units below a certain health threshold.
   thresholds:
   - level: 0
@@ -33,14 +33,10 @@ MonoBehaviour:
     effectValue: 0
     effectDescription: 
   - level: 3
-    requiredCount: 4
+    requiredCount: 3
     effectValue: 0
     effectDescription: 
   - level: 3
-    requiredCount: 4
-    effectValue: 0
-    effectDescription: 
-  - level: 1
     requiredCount: 4
     effectValue: 0
     effectDescription: 

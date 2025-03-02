@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using GameEnum;
+using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using System;
-using System.Collections;
-using GameEnum;
 
 public class DeveloperTool : MonoBehaviour
 {
@@ -57,9 +55,11 @@ public class DeveloperTool : MonoBehaviour
     public void GenerateEquipmentButtons()
     {
         List<IEquipment> allEquipments = equipmentManager.availableEquipments;
+        StringBuilder sb = new StringBuilder();
         foreach (var equipment in allEquipments)
         {
             // 創建裝備按鈕實例
+            sb.AppendLine($"{equipment} description : {equipment.EquipmentDetail}");
             GameObject buttonObj = Instantiate(equipmentButtonPrefab, equipmentContentParent);
             Button button = buttonObj.GetComponent<Button>();
             Image image = buttonObj.GetComponentInChildren<Image>();
@@ -79,6 +79,7 @@ public class DeveloperTool : MonoBehaviour
             // 將按鈕加入列表
             equipmentButtons.Add(buttonObj);
         }
+        CustomLogger.Log(this, sb.ToString());
     }
 
 

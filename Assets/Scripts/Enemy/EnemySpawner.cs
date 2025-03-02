@@ -109,7 +109,8 @@ public class EnemySpawner : MonoBehaviour
                             position,
                             hexNode,
                             enemyParent,
-                            isAlly: false
+                            isAlly: false,
+                            slot.Level
                         );
 
                         CharacterCTRL characterCtrl = go.GetComponent<CharacterCTRL>();
@@ -179,7 +180,7 @@ public class EnemySpawner : MonoBehaviour
             Character characterData = ResourcePool.Instance.GetCharacterByID(logisticSlot.CharacterID);
             GameObject characterPrefab = characterData.Model;
 
-            ResourcePool.Instance.SpawnCharacterAtPosition(characterPrefab, position, logisticSlotNode, enemyParent, isAlly: false);
+            ResourcePool.Instance.SpawnCharacterAtPosition(characterPrefab, position, logisticSlotNode, enemyParent, isAlly: false,logisticSlot.Level);
         }
     }
     public List<EnemyWave.GridSlotData> GetRevealedCharacters(EnemyWave wave)

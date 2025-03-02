@@ -17,7 +17,6 @@ public static class AugmentFactory
             case 4:
                 return new Tempaugment3(config);
             default:
-                Debug.LogError($"未知的強化索引：{config.augmentIndex}");
                 return null;
         }
     }

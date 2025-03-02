@@ -8,7 +8,7 @@ public class DisruptorObserver : CharacterObserverBase
     {
         Dictionary<int, TraitLevelStats> statsByStarLevel = new Dictionary<int, TraitLevelStats>()
         {//增加秒數(*0.1),效果
-            {1, new TraitLevelStats(0,0)},
+            {0, new TraitLevelStats(0,0)},
             {1, new TraitLevelStats(5,10)},
             {2, new TraitLevelStats(10,20)},
             {3, new TraitLevelStats(15,30)}

@@ -130,7 +130,8 @@ public class Bag_CapObserver : CharacterObserverBase
     }
     public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource = "default")
     {
-        if (!trigger)
+        int threshold = (int)(character.GetStat(StatsType.Health)*0.5f);
+        if (!trigger && character.GetStat(StatsType.currHealth) <= threshold)
         {
             trigger = true;
             Effect effect = EffectFactory.UnStatckableStatsEffct(0, "Bag_CapObserver", 20, StatsType.PercentageResistence, character, true);
@@ -180,7 +181,6 @@ public class Cap_CapObserver : CharacterObserverBase
         {
             target.GetHit((int)(damage * 0.12f), source, "Cap_CapObserver", iscrit);
         }
-        base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
     }
 }
 public class Cap_GlovesObserver : CharacterObserverBase

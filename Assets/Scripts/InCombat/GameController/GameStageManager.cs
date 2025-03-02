@@ -1,6 +1,7 @@
 using GameEnum;
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI; // 假設您使用 Unity 的 UI 系統
 
@@ -15,8 +16,8 @@ public class GameStageManager : MonoBehaviour
     public Button continueButton;
     public int CurrentStage;
     public int PlayerHealth = 20;
-    private int currentRound = 0;
-    private int baseLimit = 3;
+    public int currentRound = 0;
+    private int baseLimit = 2;
     private int netWin = 0;
     public float enteringBattleCounter = 0;
     private bool overTimeFlag;
@@ -28,7 +29,10 @@ public class GameStageManager : MonoBehaviour
     public EnemySpawner Spawner;
     public OpponentSelectionUI opponentSelectionUI;
     public TextMeshProUGUI currGamePhase;
+    public TextMeshProUGUI currCharacterLimit;
+    public GameObject BarParent;
     readonly int OvertimeThreshold = 30;
+    
     public int WinStreak { get; private set; } = 0; // 連勝次數
     public int LoseStreak { get; private set; } = 0; // 連敗次數
 
@@ -69,11 +73,18 @@ public class GameStageManager : MonoBehaviour
         PVE_EnemySpawner.Instance.SpawnEnemiesNextStage();
         opponentSelectionUI.Hide();
         StartCoroutine(StartBattleCorutine());
-        EndBattleModal.Instance.lastPressure = PressureManager.Instance.GetPressure();
+        EndBattleModal.Instance.lastPressure = PressureManager.Instance.GetPressure(true);
         EndBattleModal.Instance.lastData = DataStackManager.Instance.GetData();
         SpawnGrid.Instance.SavePreparationPositions();
     }
-
+    public void SimulateAdvanceRound()
+    {
+        currentRound++;
+    }
+    public int GetRound()
+    {
+        return currentRound;
+    }
     public void OnStartBattleConfirmed()
     {
         CustomLogger.Log(this, "OnStartBattleConfirmed");
@@ -88,7 +99,7 @@ public class GameStageManager : MonoBehaviour
         EnemySpawner.Instance.PlayerSelectWave(selectedIndex);
         opponentSelectionUI.Hide();
         StartCoroutine(StartBattleCorutine());
-        EndBattleModal.Instance.lastPressure = PressureManager.Instance.GetPressure();
+        EndBattleModal.Instance.lastPressure = PressureManager.Instance.GetPressure(true);
         EndBattleModal.Instance.lastData = DataStackManager.Instance.GetData();
         SpawnGrid.Instance.SavePreparationPositions();
     }
@@ -134,7 +145,28 @@ public class GameStageManager : MonoBehaviour
         }
         AdvanceStage();
     }
-
+    public void ResetBattleData()
+    {
+        CurrGamePhase = GamePhase.Preparing;
+        PlayerHealth = 20;
+        currentRound = 0;
+        netWin = 0;
+        CurrentStage = 0;
+        WinStreak = 0;
+        LoseStreak = 0;
+        startBattleFlag = false;
+        overTimeFlag = false;
+        enteringBattleCounter = 0;
+        baseLimit = 2;
+        PressureManager.Instance.ResetPressure();
+        PressureManager.Instance.UpdateIndicater();
+        ResourcePool.Instance.ally.ClearAllCharacter();
+        ResourcePool.Instance.enemy.ClearAllCharacter();
+        SpawnGrid.Instance.ResetAll();
+        GameController.Instance.SetGold(10);
+        Shop.Instance.GoldLessRefresh();
+        DamageStatisticsManager.Instance.ClearAll();
+    }
     public void NotifyTeamDefeated(CharacterParent defeatedTeam)
     {
         currentRound++;
@@ -159,9 +191,14 @@ public class GameStageManager : MonoBehaviour
     {
         //
     }
-    public void Update()
+    public void UpdateTexts()
     {
         currGamePhase.text = CurrGamePhase.ToString();
+        currCharacterLimit.text = $"Max limit character = {GetCharacterLimit()}";
+    }
+    public void Update()
+    {
+        UpdateTexts();
         if (startBattleFlag)
         {
             enteringBattleCounter += Time.deltaTime;
@@ -188,6 +225,9 @@ public class GameStageManager : MonoBehaviour
     }
     private void OnVictory(CharacterParent winningTeam, CharacterParent defeatedTeam)
     {
+        startBattleFlag = false;
+        DamageStatisticsManager.Instance.ClearAll();
+        enteringBattleCounter = 0;
         ChangeGamePhase(GamePhase.Preparing);
         Debug.Log(winningTeam.isEnemy ? "敵方勝利！" : "友方勝利！");
         EndBattleModal.Instance.currData = DataStackManager.Instance.GetData();
@@ -221,17 +261,23 @@ public class GameStageManager : MonoBehaviour
                 item.transform.rotation = Quaternion.identity;
             }
         }
+        ResourcePool.Instance.enemy.ClearAllCharacter();
         GameObject randomItem;
-        do
+        if (winningTeam.childCharacters.Count>0)
         {
-            int randomIndex = Random.Range(0, winningTeam.childCharacters.Count);
-            randomItem = winningTeam.childCharacters[randomIndex];
-        } while (!randomItem.activeInHierarchy);
-        CharacterCTRL characterCtrl = randomItem.GetComponent<CharacterCTRL>();
-        if (characterCtrl != null)
-        {
-            characterCtrl.AudioManager.PlayOnVictory();
+            do
+            {
+                int randomIndex = Random.Range(0, winningTeam.childCharacters.Count);
+                randomItem = winningTeam.childCharacters[randomIndex];
+            } while (!randomItem.activeInHierarchy);
+            CharacterCTRL characterCtrl = randomItem.GetComponent<CharacterCTRL>();
+            if (characterCtrl != null)
+            {
+                characterCtrl.AudioManager.PlayOnVictory();
+            }
         }
+
+
     }
 
     public int CalculateDamageTaken(int stage)
@@ -253,8 +299,8 @@ public class GameStageManager : MonoBehaviour
     private void CalculateGold()
     {
         int gold = GameController.Instance.GetGoldAmount();
-        int streakBonus = CalculateStreakBonus();
-        int amount = streakBonus + CurrentStage + 3;
+        int streakBonus = CalculateStreakBonus()*2;
+        int amount = streakBonus + CurrentStage*2 + 10;
         GameController.Instance.AddGold(amount);
         CustomLogger.Log(this, $"Gold: {gold}, Streak Bonus: {streakBonus},stagebouns = {CurrentStage + 3}, Total: {amount}");
     }
@@ -270,8 +316,18 @@ public class GameStageManager : MonoBehaviour
     }
     public int GetCharacterLimit()
     {
-        return 10;
-        int additionalLimit = (currentRound - 1) / 2;
+        int[] round = { 1, 3, 5, 7, 10, 13, 16, 18 };
+        int additionalLimit = 0;
+        int rounds = currentRound - 1;
+
+        for (int i = 0; i < round.Length; i++)
+        {
+            if(currentRound >= round[i])
+            {
+                additionalLimit++;
+            }
+        }
+
         return baseLimit + additionalLimit;
     }
 }

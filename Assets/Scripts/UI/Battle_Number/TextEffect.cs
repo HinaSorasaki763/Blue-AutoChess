@@ -37,7 +37,6 @@ public class TextEffect : MonoBehaviour
         targetPosition = screenPosition + Vector3.up * 50; // 設定上升目標位置
         gameObject.SetActive(true);
     }
-
     private void SetNumber(int number, bool healing)
     {
         // 先隱藏所有數字圖片

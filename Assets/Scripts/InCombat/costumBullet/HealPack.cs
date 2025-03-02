@@ -2,6 +2,8 @@ using GameEnum;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using UnityEngine;
 
 public class HealPack : MonoBehaviour
@@ -9,16 +11,16 @@ public class HealPack : MonoBehaviour
     public HexNode TargetHex;
     private int Range;
     private int HealAmount;
-    private CharacterCTRL characterCTRL;
+    private CharacterCTRL parent;
     private float fallSpeed = 10.0f; // ¤U¼Y³t«×
     private bool isAlly;
     private bool stop;
-    public void InitStats(HexNode targetHex, int range, int healAmount,CharacterCTRL character,bool Ally)
+    public void InitStats(HexNode targetHex, int range, int healAmount,CharacterCTRL parent,bool Ally)
     {
         TargetHex = targetHex;
         Range = range;
         HealAmount = healAmount;
-        characterCTRL = character;
+        this.parent = parent;
         isAlly = Ally;
     }
     public void Start()
@@ -40,18 +42,25 @@ public class HealPack : MonoBehaviour
     }
     public void Heal()
     {
-        CustomLogger.Log(this, $"Heal");
-        List<CharacterCTRL> c = SpawnGrid.Instance.GetCharactersWithinRadius(TargetHex,isAlly,Range,false,characterCTRL);
+
+        HashSet<CharacterCTRL> c = SpawnGrid.Instance.GetCharactersWithinRadius(TargetHex,isAlly,Range,false, parent).ToHashSet();
+        StringBuilder sb = new StringBuilder();
         foreach (var item in c)
         {
-            item.Heal(HealAmount,characterCTRL);
+            sb.AppendLine(item.name);
+        }
+        CustomLogger.Log(this, $"HealPack Heal {sb.ToString()}");
+        foreach (var item in c)
+        {
+            CustomLogger.Log(this, $"{parent.name} Heal {item.name} for {HealAmount}");
+            item.Heal(HealAmount, parent);
         }
         Return();
     }
     public void Return()
     {
         stop = false;
-        characterCTRL = null;
+        parent = null;
         HealAmount = 0;
         Range = 0;
         gameObject.SetActive(false);
