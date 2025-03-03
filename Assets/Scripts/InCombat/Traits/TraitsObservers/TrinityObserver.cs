@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class TrinityObserver : CharacterObserverBase
 {
-    private int traitLevel;
+    public int traitLevel {  get; private set; }
     public CharacterCTRL parent;
     
     public TrinityObserver(int level, CharacterCTRL character)

@@ -53,7 +53,9 @@ public class EquipmentManager : MonoBehaviour
             }
             else if(equipment.Index < 6)
             {
+                CharacterObserverBase c = ItemObserverFactory.GetObserverByIndex(equipment.Index);
                 BasicEquipment basicEquipment = new(equipment);
+                basicEquipment.observer = c;
                 availableEquipments.Add(basicEquipment);
             }
 

@@ -17,6 +17,17 @@ public class CharacterEquipmentManager : MonoBehaviour
     public bool EquipItem(IEquipment equipment)
     {
         ResourcePool.Instance.ally.UpdateTraitEffects();
+        foreach (var item in equippedItems)
+        {
+            if (CanCombine(item, equipment, out IEquipment result))
+            {
+                UIManager.Instance.DisableEquipmentPreComposing();
+                RemoveEquipment(item, true);
+                AddEquipment(result);
+                UpdateStatsForEquipment(result);
+                return true;
+            }
+        }
         if (equippedItems.Count >= MaxEquipmentSlots)
         {
             return false;
@@ -27,16 +38,6 @@ public class CharacterEquipmentManager : MonoBehaviour
             specialEquipment.OriginalstudentTrait = trait;
             Parent.traitController.RemoveTrait(trait);
             Parent.traitController.AddTrait(specialEquipment.trait);
-        }
-        foreach (var item in equippedItems)
-        {
-            if (CanCombine(item, equipment, out IEquipment result))
-            {
-                RemoveEquipment(item, true);
-                AddEquipment(result);
-                UpdateStatsForEquipment(result);
-                return true;
-            }
         }
         AddEquipment(equipment);
         UpdateStatsForEquipment(equipment);
@@ -179,7 +180,13 @@ public class CharacterEquipmentManager : MonoBehaviour
     public static bool CanCombine(IEquipment eq1, IEquipment eq2, out IEquipment result)
     {
         result = ResourcePool.Instance.combinationRoute.GetCombinationResult(eq1, eq2);
-        return result != null;
+        if (result == null)
+        {
+            return false;
+        }
+        CharacterObserverBase c = ItemObserverFactory.GetObserverByIndex(result.Id);
+        result.Observer = c;
+        return true;
     }
 
     private void AddEquipment(IEquipment equipment)

@@ -27,6 +27,5 @@ public class SupermacyObserver : CharacterObserverBase
         {
             target.Executed(source, detailedSource);
         }
-        base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
     }
 }

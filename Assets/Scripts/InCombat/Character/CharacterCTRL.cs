@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class CharacterCTRL : MonoBehaviour
@@ -81,6 +82,8 @@ public class CharacterCTRL : MonoBehaviour
     public bool isObj;
     public GameObject Logistic_dummy;
     public CharacterEquipmentManager equipmentManager;
+    public int critTransferAmount;
+    readonly int crtiTranferRatio = 70;
     public int StealManaCount;
     public bool IsFeared { get; set; }
     private CharacterCTRL fearSource = null;      // 恐懼來源
@@ -738,7 +741,60 @@ public class CharacterCTRL : MonoBehaviour
     public float GetHealthPercentage() => GetStat(StatsType.currHealth) / (float)GetStat(StatsType.Health);
 
     public float GetStat(StatsType statsType) => stats.GetStat(statsType);
+    public void CritCorrection()
+    {
+        int currentCritChance = (int)GetStat(StatsType.CritChance);
+        float ratio = crtiTranferRatio * 0.01f; // 轉換因子
 
+        if (currentCritChance > 100)
+        {
+            // 有溢出：計算超出部分
+            int overflow = currentCritChance - 100;
+            // 將 overflow 部分轉換成額外爆擊傷害
+            float addedCritRatio = overflow * ratio;
+            AddStat(StatsType.CritRatio, addedCritRatio);
+            SetStat(StatsType.CritChance, 100);
+            critTransferAmount = overflow;
+
+            CustomLogger.Log(this, $"Applied overflow: {overflow} overflow converted to {addedCritRatio} extra CritRatio.");
+        }
+        else // currentCritChance <= 100
+        {
+            // 當前爆擊率低於上限，檢查是否有先前轉換的溢出需要還原
+            int deficit = 100 - currentCritChance;
+            // 要還原的爆擊傷害數值，也就是如果要補足至 100，理論上需要扣除的 CritRatio
+            float neededCritRatio = deficit * ratio;
+
+            if (critTransferAmount > 0)
+            {
+                // 先計算從目前已轉換的 critTransferAmount 能還原多少爆擊率
+                // 反向公式：還原的爆擊率 = 扣除的 CritRatio / ratio
+                // 如果 critTransferAmount（以爆擊率點數計）足夠填補 deficit，則可全部還原
+                if (critTransferAmount >= deficit)
+                {
+                    float removalCritRatio = deficit * ratio;
+                    AddStat(StatsType.CritRatio, -removalCritRatio);
+                    SetStat(StatsType.CritChance, 100);
+                    critTransferAmount -= deficit;
+                    CustomLogger.Log(this, $"Restored full deficit: restored {deficit} CritChance by removing {removalCritRatio} CritRatio.");
+                }
+                else
+                {
+                    // 如果不足，則部分還原：依據現有轉換量還原對應的爆擊率
+                    int restoredCritChance = critTransferAmount; // 已有的全部轉換點數都能還原
+                    float removalCritRatio = restoredCritChance * ratio;
+                    AddStat(StatsType.CritRatio, -removalCritRatio);
+                    SetStat(StatsType.CritChance, currentCritChance + restoredCritChance);
+                    critTransferAmount = 0;
+                    CustomLogger.Log(this, $"Partially restored: restored {restoredCritChance} CritChance by removing {removalCritRatio} CritRatio.");
+                }
+            }
+            else
+            {
+                CustomLogger.Log(this, "No overflow correction needed.");
+            }
+        }
+    }
     public void AddStat(StatsType statsType, float amount)
     {
         if (statsType == StatsType.Mana)
@@ -1053,6 +1109,7 @@ public class CharacterCTRL : MonoBehaviour
 
     private bool IsTargetInRange()
     {
+        if (GetEnemies().Count == 0) return false;
         float closestDistance = Mathf.Min(GetEnemies().Min(e => Vector3.Distance(transform.position, e.transform.position)), int.MaxValue);
         bool inRange = closestDistance <= GetStat(StatsType.Range) + 0.1f ||
                        (PreTarget != null && Vector3.Distance(transform.position, PreTarget.transform.position) <= GetStat(StatsType.Range) + 0.1f);
@@ -1064,9 +1121,10 @@ public class CharacterCTRL : MonoBehaviour
     #region Damage and Death
     public virtual void Executed(CharacterCTRL sourceCharacter, string detailedSource)
     {
+        if (IsDying) return;
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
         TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Weak, 9999, screenPos, false);
-
+        IsDying = true;
         sourceCharacter.traitController.NotifyOnKilledEnemy(detailedSource, this);
         Die();
 
@@ -1563,7 +1621,7 @@ public class CharacterCTRL : MonoBehaviour
         { 37, () => new Moe_Skill()},
         { 38, () => new Saki_Skill()},
         { 39, () => new Saori_Skill()},
-        //40 is toki
+        { 40, () => new Toki_Skill()},
         {  504, () => new HarunaSkill()},
     };
     #endregion

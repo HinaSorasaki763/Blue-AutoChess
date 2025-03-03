@@ -46,10 +46,7 @@ public class Shop : MonoBehaviour
                 ShopButtons[i].interactable = true;
             }
         }
-        if (gold < 2)
-        {
-            RefreshButton.interactable = false;
-        }
+        RefreshButton.interactable = gold >= 2;
     }
     public void GoldLessRefresh()
     {

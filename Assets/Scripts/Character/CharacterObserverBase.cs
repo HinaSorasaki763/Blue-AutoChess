@@ -196,7 +196,6 @@ public class AyaneObserver : CharacterObserverBase
 {
     public override void OnLogistic(CharacterCTRL character)
     {
-        base.OnLogistic(character);
         List<CharacterCTRL> characters = character.GetAllies();
         CharacterCTRL highestAttackCharacter = characters
             .OrderByDescending(item => item.GetStat(StatsType.Attack))
@@ -212,7 +211,6 @@ public class FuukaObserver : CharacterObserverBase
 {
     public override void OnLogistic(CharacterCTRL character)
     {
-        base.OnLogistic(character);
         HexNode targetHex = SpawnGrid.Instance.FindBestHexNode(character, 2, false, false, character.CurrentHex);
         foreach (var item in targetHex.GetCharacterOnNeighborHex(2, true))
         {
@@ -237,7 +235,6 @@ public class MikaObserver : CharacterObserverBase
                 item.GetHit(dmg1, character, DamageSourceType.Skill.ToString(), iscrit);
             }
         }
-        base.OnKilledEnemy(character, detailedSource, characterDies);
     }
 }
 public class SerinaObserver : CharacterObserverBase
@@ -256,7 +253,6 @@ public class ShizukoObserver : CharacterObserverBase
 {
     public override void OnLogistic(CharacterCTRL character)
     {
-        base.OnLogistic(character);
         List<CharacterCTRL> characters = character.GetAllies();
         CharacterCTRL LowestHealthCharacter = characters
             .OrderByDescending(item => item.GetStat(StatsType.currHealth))
@@ -265,8 +261,10 @@ public class ShizukoObserver : CharacterObserverBase
     }
     public override void OnCharacterDisabled(CharacterCTRL character)
     {
-        character.gameObject.GetComponent<ShizukoActiveSkill>().Reference.SetActive(false);
-        base.OnCharacterDisabled(character);
+        if (character.gameObject.GetComponent<ShizukoActiveSkill>().Reference != null)
+        {
+            character.gameObject.GetComponent<ShizukoActiveSkill>().Reference.SetActive(false);
+        }
     }
 }
 public class HinaObserver : CharacterObserverBase

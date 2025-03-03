@@ -16,6 +16,14 @@ public class MillenniumObserver : CharacterObserverBase
         this.character = character;
         isAlive = true;
     }
+    public override void ActivateTrait()
+    {
+        DataStackManager.Instance.UpdateIndicator();
+    }
+    public override void DeactivateTrait()
+    {
+        DataStackManager.Instance.UpdateIndicator();
+    }
     public override void OnBattleEnd(bool isVictory)
     {
         base.OnBattleEnd(isVictory);

@@ -13,13 +13,14 @@ public class TrinityManager : MonoBehaviour
     public GameObject Effect;
     public float fallDuration = 2f;       // 彗星墜落的時間
     public float fallHeight = 20f;        // 彗星的起始高度
-    readonly int StackUplimit = 2;
     public void OnEnable()
     {
         Instance = this;
     }
     public void AddStack(Vector3 v,string detailSource,HexNode h,CharacterCTRL c )
     {
+        var observer = c.traitController.GetObserverForTrait(Traits.Trinity) as TrinityObserver;
+        int StackUplimit = observer.GetTraitObserverLevel()[observer.traitLevel].Data2;
         TrinityStackCount++;
         if (TrinityStackCount >=StackUplimit)
         {

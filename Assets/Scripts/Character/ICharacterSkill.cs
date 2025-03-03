@@ -2329,6 +2329,43 @@ public class SaoriEnhancedSkill : CharacterSkillBase//來源自紗織的傷害�
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Saori Skill");
     }
 }
+public class Toki_Skill :CharacterSkillBase
+{
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(0)},
+            {2, new StarLevelStats(0)},
+            {3, new StarLevelStats(0)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        base.ExecuteSkill(skillContext);
+    }
+}
+public class TokiEnhancedSkill : CharacterSkillBase
+{
+    private Toki_Skill originalSkill;
+    public TokiEnhancedSkill(Toki_Skill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        base.ExecuteSkill(skillContext);
+    }
+}
 public class StarLevelStats
 {
     public int Data1;

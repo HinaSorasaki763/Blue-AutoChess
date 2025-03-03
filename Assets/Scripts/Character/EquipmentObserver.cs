@@ -7,7 +7,13 @@ public static class ItemObserverFactory
 {
     private static Dictionary<int, Func<CharacterObserverBase>> observerMap =
         new Dictionary<int, Func<CharacterObserverBase>>
-    {
+        {
+        { 0, () => new Amulet_Observer() },
+        { 1, () => new Bag_Observer() },
+        { 2, () => new Cap_Observer() },
+        { 3, () => new Gloves_Observer() },
+        { 4, () => new Hairband_Observer() },
+        { 5, () => new Watch_Observer() },
         { 6, () => new Amulet_AmuletObserver() },
         { 7, () => new Amulet_BagObserver() },
         { 8, () => new Amulet_CapObserver() },
@@ -44,6 +50,25 @@ public static class ItemObserverFactory
     }
 }
 
+public class Amulet_Observer : CharacterObserverBase
+{
+
+}
+public class Bag_Observer : CharacterObserverBase
+{
+}
+public class Cap_Observer : CharacterObserverBase
+{
+}
+public class Gloves_Observer : CharacterObserverBase
+{
+}
+public class Hairband_Observer : CharacterObserverBase
+{
+}
+public class Watch_Observer : CharacterObserverBase
+{
+}
 public class Amulet_AmuletObserver : CharacterObserverBase
 {
     public override void OnKilledEnemy(CharacterCTRL character, string detailedSource, CharacterCTRL characterDies)
@@ -94,7 +119,9 @@ public class Amulet_HairbandObserver : CharacterObserverBase
 {
     public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource)
     {
-        int manaAmount = 5 * (int)(amount / (amount + 10));
+
+        int manaAmount = (int)(5 * (amount / (amount + 10)));//TODO: ½Õ¾ã¼Æ­È
+        CustomLogger.Log(this, $"Amulet_HairbandObserver AddMana{manaAmount}");
         character.Addmana(manaAmount);
     }
 }

@@ -31,7 +31,13 @@ public class DataStackManager : MonoBehaviour
         InitializeFloorRewardMapping();
         StartCoroutine(Temp());
     }
-    private void Update()
+
+    public void ResetData()
+    {
+        CurrentDataStack = 0;
+        claimedFloors.Clear();
+    }
+    private void Start()
     {
         UpdateIndicator();
     }
@@ -172,6 +178,7 @@ public class DataStackManager : MonoBehaviour
     public void IncreaseDataStack(int amount)
     {
         CurrentDataStack += amount;
+        UpdateIndicator();
     }
     public int GetData()
     {

@@ -17,6 +17,7 @@ public class SpawnGrid : MonoBehaviour
     public HashSet<string> createdEnemyWalls = new HashSet<string>();
     public List<GameObject> activeWalls = new List<GameObject>();
     public CharacterParent allyParent;
+    private readonly Vector3 offset = new Vector3(0, 0.14f, 0);
     void OnEnable()
     {
         Instance = this;
@@ -48,9 +49,11 @@ public class SpawnGrid : MonoBehaviour
         foreach (var pair in preparationPositions)
         {
             GameController.Instance.TryMoveCharacter(pair.Value, pair.Key);
-            pair.Value.transform.position = pair.Key.transform.position;
+            pair.Value.transform.position = pair.Key.transform.position +offset;
             pair.Value.gameObject.SetActive(true);
             pair.Value.ResetStats();
+            pair.Key.Reserve(pair.Value);
+            pair.Key.OccupyingCharacter = pair.Value;
             allyParent.childCharacters.Add(pair.Value.gameObject);
 
         }

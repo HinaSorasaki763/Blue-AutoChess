@@ -160,6 +160,8 @@ public class GameStageManager : MonoBehaviour
         baseLimit = 2;
         PressureManager.Instance.ResetPressure();
         PressureManager.Instance.UpdateIndicater();
+        DataStackManager.Instance.ResetData();
+        DataStackManager.Instance.UpdateIndicator();
         ResourcePool.Instance.ally.ClearAllCharacter();
         ResourcePool.Instance.enemy.ClearAllCharacter();
         SpawnGrid.Instance.ResetAll();
