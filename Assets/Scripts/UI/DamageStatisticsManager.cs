@@ -5,167 +5,158 @@ using UnityEngine.UI;
 
 public class DamageStatisticsManager : MonoBehaviour
 {
-    [SerializeField] private Transform allyParent;
-    [SerializeField] private Transform enemyParent;
-    [SerializeField] private GameObject damageEntryPrefab;
     public static DamageStatisticsManager Instance { get; private set; }
 
-    private Dictionary<CharacterCTRL, int> allyDamage = new Dictionary<CharacterCTRL, int>();
-    private Dictionary<CharacterCTRL, int> enemyDamage = new Dictionary<CharacterCTRL, int>();
-    private Dictionary<CharacterCTRL, int> allyDamageTaken = new Dictionary<CharacterCTRL, int>();
-    private Dictionary<CharacterCTRL, int> enemyDamageTaken = new Dictionary<CharacterCTRL, int>();
+    public Transform DealtAllyParent;
+    public Transform DealtEnemyParent;
+    public Transform TakenAllyParent;
+    public Transform TakenEnemyParent;
 
-    private int maxAllyDamage = 0;
-    private int maxEnemyDamage = 0;
-    private int maxAllyDamageTaken = 0;
-    private int maxEnemyDamageTaken = 0;
+    [SerializeField] private GameObject damageEntryPrefab;
 
-    public void Awake()
+    private readonly List<CharacterCTRL> allCharacters = new List<CharacterCTRL>();
+
+    private void Awake()
     {
         Instance = this;
     }
 
-    private void UpdateUIForTeam(Dictionary<CharacterCTRL, int> damageDict, Transform parent)
+    public void RegisterCharacter(CharacterCTRL character)
     {
-        var sortedCharacters = new List<KeyValuePair<CharacterCTRL, int>>(damageDict);
-        sortedCharacters.Sort((a, b) => b.Value.CompareTo(a.Value));
+        allCharacters.Add(character);
 
-        for (int i = 0; i < sortedCharacters.Count; i++)
-        {
-            var character = sortedCharacters[i].Key;
-            var damage = sortedCharacters[i].Value;
+        var dealtParent = character.IsAlly ? DealtAllyParent : DealtEnemyParent;
+        var dealtEntry = Instantiate(damageEntryPrefab, dealtParent);
+        dealtEntry.name = character.name;
+        var dealtUI = dealtEntry.GetComponent<StatisticUIPrefab>();
+        dealtUI.icon.sprite = character.characterStats.Sprite;
+        dealtUI.slider.maxValue = 1;
 
-            var entry = parent.Find(character.name);
-            if (entry != null)
-            {
-                entry.SetSiblingIndex(i);
-
-                var sliders = entry.GetComponentsInChildren<Slider>();
-                if (sliders.Length > 0)
-                {
-                    sliders[0].maxValue = damageDict.Values.Max();
-                    sliders[0].value = damage;
-                }
-            }
-        }
+        var takenParent = character.IsAlly ? TakenAllyParent : TakenEnemyParent;
+        var takenEntry = Instantiate(damageEntryPrefab, takenParent);
+        takenEntry.name = character.name;
+        var takenUI = takenEntry.GetComponent<StatisticUIPrefab>();
+        takenUI.icon.sprite = character.characterStats.Sprite;
+        takenUI.slider.maxValue = 1;
     }
 
     public void UpdateDamage(CharacterCTRL character, int amount)
     {
-        var targetDict = character.IsAlly ? allyDamage : enemyDamage;
-
-        if (!targetDict.ContainsKey(character))
-        {
-            targetDict[character] = 0;
-            CreateUIEntry(character);
-        }
-
-        targetDict[character] += amount;
-
-        if (character.IsAlly)
-            maxAllyDamage = Mathf.Max(maxAllyDamage, targetDict[character]);
-        else
-            maxEnemyDamage = Mathf.Max(maxEnemyDamage, targetDict[character]);
-
-        UpdateUI();
+        CustomLogger.Log(this, $"UpdateDamage, {character}, {amount}");
+        character.DealtDamageThisRound += amount;
+        RefreshDealtUI();
     }
 
     public void UpdateDamageTaken(CharacterCTRL character, int amount)
     {
-        var targetDict = character.IsAlly ? allyDamageTaken : enemyDamageTaken;
-
-        if (!targetDict.ContainsKey(character))
-        {
-            targetDict[character] = 0;
-            CreateUIEntry(character);
-        }
-
-        targetDict[character] += amount;
-
-        if (character.IsAlly)
-            maxAllyDamageTaken = Mathf.Max(maxAllyDamageTaken, targetDict[character]);
-        else
-            maxEnemyDamageTaken = Mathf.Max(maxEnemyDamageTaken, targetDict[character]);
-
-        UpdateUI();
+        CustomLogger.Log(this, $"UpdateDamageTaken, {character}, {amount}");
+        character.TakeDamageThisRound += amount;
+        RefreshTakenUI();
     }
 
-    private void CreateUIEntry(CharacterCTRL character)
+    public void RefreshDealtUI()
     {
-        var parent = character.IsAlly ? allyParent : enemyParent;
-        var entry = Instantiate(damageEntryPrefab, parent);
-        entry.name = character.name;
-        entry.GetComponentInChildren<Image>().sprite = character.characterStats.Sprite;
+        var allyChars = allCharacters.Where(c => c.IsAlly).OrderByDescending(c => c.DealtDamageThisRound).ToList();
+        var enemyChars = allCharacters.Where(c => !c.IsAlly).OrderByDescending(c => c.DealtDamageThisRound).ToList();
+        float allyMax = allyChars.Any() ? allyChars.Max(c => c.DealtDamageThisRound) : 1;
+        float enemyMax = enemyChars.Any() ? enemyChars.Max(c => c.DealtDamageThisRound) : 1;
 
-        var sliders = entry.GetComponentsInChildren<Slider>();
-        foreach (var slider in sliders)
+        for (int i = 0; i < allyChars.Count; i++)
         {
-            slider.maxValue = 1;
-        }
-    }
-
-    private void UpdateUI()
-    {
-        foreach (var kvp in allyDamage)
-        {
-            UpdateSlider(kvp.Key, kvp.Value, maxAllyDamage, allyParent);
-        }
-        UpdateUIForTeam(allyDamage, allyParent);
-
-        foreach (var kvp in enemyDamage)
-        {
-            UpdateSlider(kvp.Key, kvp.Value, maxEnemyDamage, enemyParent);
-        }
-        UpdateUIForTeam(enemyDamage, enemyParent);
-
-        foreach (var kvp in allyDamageTaken)
-        {
-            UpdateSlider(kvp.Key, kvp.Value, maxAllyDamageTaken, allyParent);
-        }
-        UpdateUIForTeam(allyDamageTaken, allyParent);
-
-        foreach (var kvp in enemyDamageTaken)
-        {
-            UpdateSlider(kvp.Key, kvp.Value, maxEnemyDamageTaken, enemyParent);
-        }
-        UpdateUIForTeam(enemyDamageTaken, enemyParent);
-    }
-    public void ClearAll()
-    {
-        allyDamage.Clear();
-        enemyDamage.Clear();
-        allyDamageTaken.Clear();
-        enemyDamageTaken.Clear();
-        maxAllyDamage = 0;
-        maxEnemyDamage = 0;
-        maxAllyDamageTaken = 0;
-        maxEnemyDamageTaken = 0;
-    }
-    private void UpdateSlider(CharacterCTRL character, float damage, float maxDamage, Transform parent)
-    {
-        var entry = parent.Find(character.name);
-        if (entry != null)
-        {
-            var sliders = entry.GetComponentsInChildren<Slider>();
-            if (sliders.Length > 0)
+            var c = allyChars[i];
+            var entry = DealtAllyParent.Find(c.name);
+            if (entry)
             {
-                sliders[0].maxValue = maxDamage;
-                sliders[0].value = damage;
+                entry.SetSiblingIndex(i);
+                var ui = entry.GetComponent<StatisticUIPrefab>();
+                ui.slider.maxValue = allyMax;
+                ui.slider.value = c.DealtDamageThisRound;
+                ui.amount.text = c.DealtDamageThisRound.ToString();
+            }
+        }
+        for (int i = 0; i < enemyChars.Count; i++)
+        {
+            var c = enemyChars[i];
+            var entry = DealtEnemyParent.Find(c.name);
+            if (entry)
+            {
+                entry.SetSiblingIndex(i);
+                var ui = entry.GetComponent<StatisticUIPrefab>();
+                ui.slider.maxValue = enemyMax;
+                ui.slider.value = c.DealtDamageThisRound;
+                ui.amount.text = c.DealtDamageThisRound.ToString();
+            }
+        }
+    }
+
+    public void RefreshTakenUI()
+    {
+        var allyChars = allCharacters.Where(c => c.IsAlly).OrderByDescending(c => c.TakeDamageThisRound).ToList();
+        var enemyChars = allCharacters.Where(c => !c.IsAlly).OrderByDescending(c => c.TakeDamageThisRound).ToList();
+        float allyMax = allyChars.Any() ? allyChars.Max(c => c.TakeDamageThisRound) : 1;
+        float enemyMax = enemyChars.Any() ? enemyChars.Max(c => c.TakeDamageThisRound) : 1;
+
+        for (int i = 0; i < allyChars.Count; i++)
+        {
+            var c = allyChars[i];
+            var entry = TakenAllyParent.Find(c.name);
+            if (entry)
+            {
+                entry.SetSiblingIndex(i);
+                var ui = entry.GetComponent<StatisticUIPrefab>();
+                ui.slider.maxValue = allyMax;
+                ui.slider.value = c.TakeDamageThisRound;
+                ui.amount.text = c.TakeDamageThisRound.ToString();
+            }
+        }
+        for (int i = 0; i < enemyChars.Count; i++)
+        {
+            var c = enemyChars[i];
+            var entry = TakenEnemyParent.Find(c.name);
+            if (entry)
+            {
+                entry.SetSiblingIndex(i);
+                var ui = entry.GetComponent<StatisticUIPrefab>();
+                ui.slider.maxValue = enemyMax;
+                ui.slider.value = c.TakeDamageThisRound;
+                ui.amount.text = c.TakeDamageThisRound.ToString();
             }
         }
     }
 
     public CharacterCTRL GetTopDamageDealer(bool isAlly)
     {
-        var targetDict = isAlly ? allyDamage : enemyDamage;
-        return targetDict
-            .OrderByDescending(x => x.Value)
-            .ThenBy(x => x.Key.characterStats.logistics)
-            .FirstOrDefault().Key;
+        return allCharacters
+            .Where(c => c.IsAlly == isAlly)
+            .OrderByDescending(c => c.DealtDamageThisRound)
+            .FirstOrDefault();
     }
+
     public CharacterCTRL GetTopDamageTaken(bool isAlly)
     {
-        var targetDict = isAlly ? allyDamageTaken : enemyDamageTaken;
-        return targetDict.OrderByDescending(x => x.Value).FirstOrDefault().Key;
+        return allCharacters
+            .Where(c => c.IsAlly == isAlly)
+            .OrderByDescending(c => c.TakeDamageThisRound)
+            .FirstOrDefault();
+    }
+
+    public void ResetDamage()
+    {
+        foreach (var c in allCharacters)
+        {
+            c.DealtDamageThisRound = 0;
+            c.TakeDamageThisRound = 0;
+        }
+        RefreshDealtUI();
+        RefreshTakenUI();
+    }
+
+    public void ClearAll()
+    {
+        allCharacters.Clear();
+        foreach (Transform child in DealtAllyParent) Destroy(child.gameObject);
+        foreach (Transform child in DealtEnemyParent) Destroy(child.gameObject);
+        foreach (Transform child in TakenAllyParent) Destroy(child.gameObject);
+        foreach (Transform child in TakenEnemyParent) Destroy(child.gameObject);
     }
 }

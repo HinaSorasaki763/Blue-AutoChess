@@ -17,7 +17,7 @@ public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHan
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (characterCTRL.enterBattle)
+        if (!characterCTRL.Dragable())
         {
             return;
         }
@@ -65,7 +65,7 @@ public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHan
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (characterCTRL.enterBattle)
+        if (!characterCTRL.Dragable())
         {
             return;
         }

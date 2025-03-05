@@ -89,6 +89,8 @@ public class CharacterCTRL : MonoBehaviour
     private CharacterCTRL fearSource = null;      // 恐懼來源
     private float fearDuration = 0;            // 恐懼持續秒數
     public Coroutine fearCorutine;
+    public int DealtDamageThisRound;
+    public int TakeDamageThisRound;
     #endregion
     #region Unity Lifecycle Methods
     public void ResetToBeforeBattle()
@@ -1180,7 +1182,10 @@ public class CharacterCTRL : MonoBehaviour
 
         }
     }
-
+    public bool Dragable()
+    {
+        return !(enterBattle||GameStageManager.Instance.CurrGamePhase == GamePhase.Battling);
+    }
     public virtual void GetHit(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit)
     {
         if (IsDying || (characterStats.TestEnhanceSkill && IsAlly) || characterStats.TestBuildInvinvicble) return;//TODO:正式版記得拔掉
@@ -1199,6 +1204,7 @@ public class CharacterCTRL : MonoBehaviour
         float r = GetStat(StatsType.Resistence);
         float ratio = r / (100 + r);
         finalAmount = (int)(finalAmount * (1 - ratio));
+        
         finalAmount = traitController.ModifyDamageTaken(finalAmount, sourceCharacter, detailedSource, isCrit);
         finalAmount = (int)(finalAmount * (1 - GetStat(StatsType.PercentageResistence) / 100f));
         finalAmount = (int)MathF.Max(finalAmount, 1);
