@@ -11,6 +11,8 @@ public class DamageStatisticsManager : MonoBehaviour
     public Transform DealtEnemyParent;
     public Transform TakenAllyParent;
     public Transform TakenEnemyParent;
+    private readonly Dictionary<CharacterCTRL, Transform> dealtEntries = new Dictionary<CharacterCTRL, Transform>();
+    private readonly Dictionary<CharacterCTRL, Transform> takenEntries = new Dictionary<CharacterCTRL, Transform>();
 
     [SerializeField] private GameObject damageEntryPrefab;
 
@@ -27,7 +29,9 @@ public class DamageStatisticsManager : MonoBehaviour
 
         var dealtParent = character.IsAlly ? DealtAllyParent : DealtEnemyParent;
         var dealtEntry = Instantiate(damageEntryPrefab, dealtParent);
-        dealtEntry.name = character.name;
+        dealtEntry.name = character.name;  // 名字可隨意，不影響後續查找
+        dealtEntries[character] = dealtEntry.transform;
+
         var dealtUI = dealtEntry.GetComponent<StatisticUIPrefab>();
         dealtUI.icon.sprite = character.characterStats.Sprite;
         dealtUI.slider.maxValue = 1;
@@ -35,10 +39,13 @@ public class DamageStatisticsManager : MonoBehaviour
         var takenParent = character.IsAlly ? TakenAllyParent : TakenEnemyParent;
         var takenEntry = Instantiate(damageEntryPrefab, takenParent);
         takenEntry.name = character.name;
+        takenEntries[character] = takenEntry.transform;
+
         var takenUI = takenEntry.GetComponent<StatisticUIPrefab>();
         takenUI.icon.sprite = character.characterStats.Sprite;
         takenUI.slider.maxValue = 1;
     }
+
 
     public void UpdateDamage(CharacterCTRL character, int amount)
     {
@@ -56,71 +63,84 @@ public class DamageStatisticsManager : MonoBehaviour
 
     public void RefreshDealtUI()
     {
+        // 排序
         var allyChars = allCharacters.Where(c => c.IsAlly).OrderByDescending(c => c.DealtDamageThisRound).ToList();
         var enemyChars = allCharacters.Where(c => !c.IsAlly).OrderByDescending(c => c.DealtDamageThisRound).ToList();
         float allyMax = allyChars.Any() ? allyChars.Max(c => c.DealtDamageThisRound) : 1;
         float enemyMax = enemyChars.Any() ? enemyChars.Max(c => c.DealtDamageThisRound) : 1;
 
+        // Ally
         for (int i = 0; i < allyChars.Count; i++)
         {
             var c = allyChars[i];
-            var entry = DealtAllyParent.Find(c.name);
-            if (entry)
-            {
-                entry.SetSiblingIndex(i);
-                var ui = entry.GetComponent<StatisticUIPrefab>();
-                ui.slider.maxValue = allyMax;
-                ui.slider.value = c.DealtDamageThisRound;
-                ui.amount.text = c.DealtDamageThisRound.ToString();
-            }
+            if (!dealtEntries.ContainsKey(c)) continue;
+
+            var entry = dealtEntries[c];
+            entry.SetSiblingIndex(i);
+
+            var ui = entry.GetComponent<StatisticUIPrefab>();
+            ui.slider.maxValue = allyMax;
+            ui.slider.value = c.DealtDamageThisRound;
+            ui.amount.text = c.DealtDamageThisRound.ToString();
         }
+        // Enemy
         for (int i = 0; i < enemyChars.Count; i++)
         {
             var c = enemyChars[i];
-            var entry = DealtEnemyParent.Find(c.name);
-            if (entry)
-            {
-                entry.SetSiblingIndex(i);
-                var ui = entry.GetComponent<StatisticUIPrefab>();
-                ui.slider.maxValue = enemyMax;
-                ui.slider.value = c.DealtDamageThisRound;
-                ui.amount.text = c.DealtDamageThisRound.ToString();
-            }
+            if (!dealtEntries.ContainsKey(c)) continue;
+
+            var entry = dealtEntries[c];
+            entry.SetSiblingIndex(i);
+
+            var ui = entry.GetComponent<StatisticUIPrefab>();
+            ui.slider.maxValue = enemyMax;
+            ui.slider.value = c.DealtDamageThisRound;
+            ui.amount.text = c.DealtDamageThisRound.ToString();
         }
     }
 
     public void RefreshTakenUI()
     {
-        var allyChars = allCharacters.Where(c => c.IsAlly).OrderByDescending(c => c.TakeDamageThisRound).ToList();
-        var enemyChars = allCharacters.Where(c => !c.IsAlly).OrderByDescending(c => c.TakeDamageThisRound).ToList();
+        var allyChars = allCharacters
+            .Where(c => c.IsAlly)
+            .OrderByDescending(c => c.TakeDamageThisRound)
+            .ToList();
+        var enemyChars = allCharacters
+            .Where(c => !c.IsAlly)
+            .OrderByDescending(c => c.TakeDamageThisRound)
+            .ToList();
+
         float allyMax = allyChars.Any() ? allyChars.Max(c => c.TakeDamageThisRound) : 1;
         float enemyMax = enemyChars.Any() ? enemyChars.Max(c => c.TakeDamageThisRound) : 1;
 
+        // Ally
         for (int i = 0; i < allyChars.Count; i++)
         {
             var c = allyChars[i];
-            var entry = TakenAllyParent.Find(c.name);
-            if (entry)
-            {
-                entry.SetSiblingIndex(i);
-                var ui = entry.GetComponent<StatisticUIPrefab>();
-                ui.slider.maxValue = allyMax;
-                ui.slider.value = c.TakeDamageThisRound;
-                ui.amount.text = c.TakeDamageThisRound.ToString();
-            }
+            if (!takenEntries.ContainsKey(c)) continue;
+
+            var entry = takenEntries[c];
+            entry.SetSiblingIndex(i);
+
+            var ui = entry.GetComponent<StatisticUIPrefab>();
+            ui.slider.maxValue = allyMax;
+            ui.slider.value = c.TakeDamageThisRound;
+            ui.amount.text = c.TakeDamageThisRound.ToString();
         }
+
+        // Enemy
         for (int i = 0; i < enemyChars.Count; i++)
         {
             var c = enemyChars[i];
-            var entry = TakenEnemyParent.Find(c.name);
-            if (entry)
-            {
-                entry.SetSiblingIndex(i);
-                var ui = entry.GetComponent<StatisticUIPrefab>();
-                ui.slider.maxValue = enemyMax;
-                ui.slider.value = c.TakeDamageThisRound;
-                ui.amount.text = c.TakeDamageThisRound.ToString();
-            }
+            if (!takenEntries.ContainsKey(c)) continue;
+
+            var entry = takenEntries[c];
+            entry.SetSiblingIndex(i);
+
+            var ui = entry.GetComponent<StatisticUIPrefab>();
+            ui.slider.maxValue = enemyMax;
+            ui.slider.value = c.TakeDamageThisRound;
+            ui.amount.text = c.TakeDamageThisRound.ToString();
         }
     }
 

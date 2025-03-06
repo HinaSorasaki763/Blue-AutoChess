@@ -66,6 +66,7 @@ public class GameStageManager : MonoBehaviour
     }
     public void StartBattle()
     {
+        if (CurrGamePhase == GamePhase.Battling) return;
         // 隨機選擇三個敵人波次並顯示選擇 UI
         //TODO: 根據玩家選擇決定波次，目前PVE不需要
         /*EnemySpawner.Instance.SelectRandomEnemyWaves();
@@ -196,7 +197,24 @@ public class GameStageManager : MonoBehaviour
     public void UpdateTexts()
     {
         currGamePhase.text = CurrGamePhase.ToString();
-        currCharacterLimit.text = $"Max limit character = {GetCharacterLimit()}";
+        if (CurrGamePhase == GamePhase.Battling)
+        {
+            currCharacterLimit.gameObject.SetActive(false);
+        }
+        else
+        {
+            currCharacterLimit.gameObject.SetActive(true);
+            int count = 0;
+            foreach (var item in ResourcePool.Instance.ally.childCharacters)
+            {
+                if (item.activeInHierarchy&&item.GetComponent<CharacterCTRL>().CurrentHex.IsBattlefield && !item.GetComponent<CharacterCTRL>().isObj)
+                {
+                    count++;
+                }
+            }
+            currCharacterLimit.text = $"( {count} / {GetCharacterLimit()})";
+        }
+
     }
     public void Update()
     {
