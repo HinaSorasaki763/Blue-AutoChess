@@ -42,8 +42,7 @@ public class HealPack : MonoBehaviour
     }
     public void Heal()
     {
-
-        HashSet<CharacterCTRL> c = SpawnGrid.Instance.GetCharactersWithinRadius(TargetHex,isAlly,Range,false, parent).ToHashSet();
+        List<CharacterCTRL> c = Utility.GetCharacterInrange(TargetHex, Range, parent, true);
         StringBuilder sb = new StringBuilder();
         foreach (var item in c)
         {

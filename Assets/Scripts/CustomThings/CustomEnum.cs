@@ -888,11 +888,13 @@ namespace GameEnum
         }
         public static List<CharacterCTRL> GetCharacterInrange(HexNode startNode, int range, CharacterCTRL finder, bool findingAlly)
         {
-            var characters = new HashSet<CharacterCTRL>();
+            CustomLogger.Log(finder, $"GetCharacterInrange - StartNode: {startNode.name}, Range: {range}, Finder: {finder.name}, FindingAlly: {findingAlly}");
+            var characters = new List<CharacterCTRL>();
             var nodes = GetHexInRange(startNode, range);
+            CustomLogger.Log(finder, $"GetCharacterInrange - Nodes: {string.Join(", ", nodes.Select(n => n.name))}");
             foreach (var item in nodes)
             {
-                if (item.OccupyingCharacter != null && (item.OccupyingCharacter.IsAlly == finder.IsAlly) == findingAlly && !item.OccupyingCharacter.characterStats.logistics && item.OccupyingCharacter.isAlive)
+                if (item.OccupyingCharacter != null && item.OccupyingCharacter.IsAlly ==( finder.IsAlly == findingAlly) && !item.OccupyingCharacter.characterStats.logistics && item.OccupyingCharacter.isAlive)
                 {
                     characters.Add(item.OccupyingCharacter);
                 }

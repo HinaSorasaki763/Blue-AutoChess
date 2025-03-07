@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class CharacterCTRL : MonoBehaviour
 {
@@ -386,15 +387,7 @@ public class CharacterCTRL : MonoBehaviour
     }
     public int ExecuteActiveSkill()
     {
-        CharacterCTRL target = null;
-        if (Target != null)
-        {
-            target = GetTarget().GetComponent<CharacterCTRL>();
-        }
-        else
-        {
-            CustomLogger.LogWarning(this, $"character {name} using empty target");
-        }
+        CharacterCTRL target = GetTargetCTRL();
         var skillContext = new SkillContext
         {
             Parent = this,
@@ -405,6 +398,8 @@ public class CharacterCTRL : MonoBehaviour
             duration = 2f,
             currHex = CurrentHex,
             CurrentTarget = target,
+            TargetCTRLPosition = target?.transform.position ?? Vector3.zero,
+            posRecorded = target == null ? false : true,
             CharacterLevel = 1,
             statsByStarLevel = ActiveSkill.GetCharacterLevel()
         };
@@ -540,7 +535,7 @@ public class CharacterCTRL : MonoBehaviour
         final = equipmentManager.BeforeHealing(source, final);
         return final;
     }
-    public void Heal(int amount, CharacterCTRL source)
+    public virtual void Heal(int amount, CharacterCTRL source)
     {
         amount = BeforeHealing(amount, source);
         if (AntiHeal)
@@ -843,6 +838,8 @@ public class CharacterCTRL : MonoBehaviour
             Enemies = GetEnemies(),
             Allies = GetAllies(),
             hexMap = SpawnGrid.Instance.hexNodes.Values.ToList(),
+            TargetCTRLPosition = c?.transform.position ?? Vector3.zero,
+            posRecorded = c == null ? false : true,
             Range = 5,
             duration = 2f,
             currHex = CurrentHex,
@@ -873,7 +870,6 @@ public class CharacterCTRL : MonoBehaviour
             CustomLogger.LogWarning(this, "Getting null target");
             return null;
         }
-
     }
     public GameObject GetTarget()
     {
@@ -1498,25 +1494,19 @@ public class CharacterCTRL : MonoBehaviour
     }
     public void UpdateSkillContext()
     {
-        CharacterCTRL c;
-        if (Target != null)
-        {
-            c = Target.GetComponent<CharacterCTRL>();
-        }
-        else
-        {
-            c = null;
-        }
+        CharacterCTRL target = GetTargetCTRL();
         SkillContext = new SkillContext
         {
             Parent = this,
             Enemies = GetEnemies(),
             Allies = GetAllies(),
+            TargetCTRLPosition = target?.transform.position ?? Vector3.zero,
+            posRecorded = target == null ? false : true,
             hexMap = SpawnGrid.Instance.hexNodes.Values.ToList(),
             Range = 5,
             duration = 2f,
             currHex = CurrentHex,
-            CurrentTarget = c,
+            CurrentTarget = target,
             CharacterLevel = star
         };
 

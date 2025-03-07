@@ -29,6 +29,7 @@ public class GameStageManager : MonoBehaviour
     public EnemySpawner Spawner;
     public OpponentSelectionUI opponentSelectionUI;
     public TextMeshProUGUI currGamePhase;
+    public GameObject characterLimitParent;
     public TextMeshProUGUI currCharacterLimit;
     public GameObject BarParent;
     readonly int OvertimeThreshold = 30;
@@ -199,11 +200,11 @@ public class GameStageManager : MonoBehaviour
         currGamePhase.text = CurrGamePhase.ToString();
         if (CurrGamePhase == GamePhase.Battling)
         {
-            currCharacterLimit.gameObject.SetActive(false);
+            characterLimitParent.gameObject.SetActive(false);
         }
         else
         {
-            currCharacterLimit.gameObject.SetActive(true);
+            characterLimitParent.gameObject.SetActive(true);
             int count = 0;
             foreach (var item in ResourcePool.Instance.ally.childCharacters)
             {
