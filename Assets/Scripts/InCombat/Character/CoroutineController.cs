@@ -74,35 +74,4 @@ public class CoroutineController : MonoBehaviour
             elapsedTime += interval;
         }
     }
-    public void StartRemoveCenterPointCoroutine(HexNode centerNode, float delay)
-    {
-        StartCoroutine(RemoveCenterPointAfterDelay(centerNode, delay));
-    }
-    public IEnumerator RemoveCenterPointAfterDelay(HexNode centerNode, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        RemoveCenterPoint(centerNode);
-    }
-    public void RemoveCenterPoint(HexNode node)
-    {
-        if (node.EnemyBlockingZonecenter)
-        {
-            node.TargetedEnemyzone = false;
-            foreach (var neighbor in node.Neighbors)
-            {
-                neighbor.TargetedEnemyzone = false;
-            }
-        }
-        if (node.AllyBlockingZonecenter)
-        {
-            node.TargetedAllyZone = false;
-            foreach (var neighbor in node.Neighbors)
-            {
-                neighbor.TargetedAllyZone = false;
-            }
-        }
-        node.AllyBlockingZonecenter = false;
-        node.EnemyBlockingZonecenter = false;
-        CustomLogger.Log(this, $"removing {node.name} as center , pos int = {node.Position}");
-    }
 }

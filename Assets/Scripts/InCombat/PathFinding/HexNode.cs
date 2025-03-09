@@ -4,7 +4,17 @@ using UnityEngine;
 public class HexNode : MonoBehaviour
 {
     public Vector3 Position;
-    public CharacterCTRL OccupyingCharacter;
+    public CharacterCTRL OccupyingCharacter
+    {
+        get { return occupyingCharacter; }
+        set
+        {
+            CustomLogger.Log(this, $"Setting OccupyingCharacter to {value}");
+            occupyingCharacter = value;
+        }
+    }
+    [SerializeField]
+    private CharacterCTRL occupyingCharacter;
     public List<HexNode> Neighbors = new List<HexNode>();
     public float gCost = Mathf.Infinity;
     public float hCost = Mathf.Infinity;
@@ -27,15 +37,9 @@ public class HexNode : MonoBehaviour
 
     // Burning effect fields
     public bool isBurning = false;
-    public bool AllyBlockingZonecenter { get; set; }
-    public bool EnemyBlockingZonecenter { get; set; }
-    public bool TargetedAllyZone { get; set; }
-    public bool TargetedEnemyzone { get; set; }
     public ColorState currentColorState = ColorState.Default;
     public float temporaryColorDuration = 0f;
     private Color temporaryColor = Color.yellow;
-
-    private bool isTemporarilyReserved = false;
     private List<BurningEffect> burningEffects = new List<BurningEffect>();
     public bool IsHexReserved()
     {
@@ -85,26 +89,7 @@ public class HexNode : MonoBehaviour
     public void HardResetAll()
     {
         HardRelease();
-        isTemporarilyReserved = false;
         isBurning = false;
-        TargetedEnemyzone = false;
-        TargetedAllyZone = false;
-        AllyBlockingZonecenter = false;
-        EnemyBlockingZonecenter = false;
-    }
-    public void TemporarilyReserve()
-    {
-        isTemporarilyReserved = true;
-    }
-
-    public void ClearTemporaryReservation()
-    {
-        isTemporarilyReserved = false;
-    }
-
-    public bool IsTemporarilyReserved()
-    {
-        return isTemporarilyReserved;
     }
     public void ApplyBurningEffect(float duration, int damagePerTick, float tickInterval, CharacterCTRL source)
     {
@@ -129,6 +114,15 @@ public class HexNode : MonoBehaviour
 
     private void Update()
     {
+        if (temporaryColorDuration > 0)
+        {
+            temporaryColorDuration -= Time.deltaTime;
+        }
+        else
+        {
+            temporaryColorDuration = 0;
+            SetColorState(IsHexReserved() ? ColorState.Reserved : ColorState.Default);
+        }
         if (burningEffects.Count > 0)
         {
             for (int i = burningEffects.Count - 1; i >= 0; i--)

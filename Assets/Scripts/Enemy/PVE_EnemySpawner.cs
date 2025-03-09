@@ -29,13 +29,13 @@ public class PVE_EnemySpawner : MonoBehaviour
     public void SpawnEnemiesNextStage()
     {
         CustomLogger.Log(this, "PVE_EnemySpawner SpawnEnemiesNextStage");
-        // 清理上一波敵人
         foreach (var item in enemyParent.childCharacters)
         {
             Destroy(item.GetComponent<CharacterCTRL>().characterBars);
             Destroy(item);
         }
-        // 生成新一波敵人
+        List<string> characterNames = new List<string>();
+        List<string> hexnodexNames = new List<string>();
         foreach (var slot in enemyWaves[GameStageManager.Instance.currentRound].gridSlots)
         {
             if (slot.CharacterID != -1)
@@ -44,28 +44,19 @@ public class PVE_EnemySpawner : MonoBehaviour
                 {
                     if (SpawnGrid.Instance.hexNodes.TryGetValue(cubeKey, out HexNode hexNode))
                     {
-                        int lvl = slot.Level;
-                        if (slot.Level == 0)
-                        {
-                            lvl = 1;
-                        }
+                        int lvl = slot.Level == 0 ? 1 : slot.Level;
                         Vector3 position = hexNode.Position;
                         Character characterData = ResourcePool.Instance.GetCharacterByID(slot.CharacterID);
                         GameObject characterPrefab = characterData.Model;
                         GameObject go = ResourcePool.Instance.SpawnCharacterAtPosition(
-                            characterPrefab,
-                            position,
-                            hexNode,
-                            enemyParent,
-                            isAlly: false,
-                            lvl
+                            characterPrefab, position, hexNode, enemyParent, false, lvl
                         );
-
                         CharacterCTRL characterCtrl = go.GetComponent<CharacterCTRL>();
+                        characterNames.Add(characterCtrl.name);
+                        hexnodexNames.Add(hexNode.name);
                         characterCtrl.ResetStats();
                         if (characterCtrl != null)
                         {
-                            // 為該角色裝備裝備
                             for (int i = 0; i < slot.EquipmentIDs.Length; i++)
                             {
                                 int equipmentID = slot.EquipmentIDs[i];
@@ -74,19 +65,11 @@ public class PVE_EnemySpawner : MonoBehaviour
                                     IEquipment template = EquipmentManager.Instance.GetEquipmentByID(equipmentID);
                                     if (template != null)
                                     {
-                                        // 先 Clone 一份新裝備，再給角色裝備
                                         IEquipment newEquipment = template.Clone();
                                         CharacterObserverBase c = ItemObserverFactory.GetObserverByIndex(newEquipment.Id);
-                                        if (c != null)
-                                        {
-                                            newEquipment.Observer = c;
-                                        }
+                                        if (c != null) newEquipment.Observer = c;
                                         bool equipped = characterCtrl.EquipItem(newEquipment);
-
-                                        CustomLogger.Log(
-                                            this,
-                                            $"Character {characterData.name} equipped with {newEquipment.EquipmentName}: {equipped}"
-                                        );
+                                        CustomLogger.Log(this, $"Character {characterData.name} equipped with {newEquipment.EquipmentName}: {equipped}");
                                     }
                                     else
                                     {
@@ -99,7 +82,6 @@ public class PVE_EnemySpawner : MonoBehaviour
                         {
                             CustomLogger.LogError(this, $"Character {characterData.name} has no CharacterCTRL component.");
                         }
-
                         CustomLogger.Log(this, $"Character {characterData.name} spawned at {position}");
                     }
                     else
@@ -109,34 +91,45 @@ public class PVE_EnemySpawner : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError($"No cube key found for GridIndex {slot.GridIndex}");
+                    CustomLogger.LogError(this, $"No cube key found for GridIndex {slot.GridIndex}");
                 }
             }
         }
-        SpawnLogisticCharacter(enemyWaves[GameStageManager.Instance.currentRound].logisticSlot1, ResourcePool.Instance.EnemylogisticSlotNode1);
-        SpawnLogisticCharacter(enemyWaves[GameStageManager.Instance.currentRound].logisticSlot2, ResourcePool.Instance.EnemylogisticSlotNode2);
-
+        (bool b, string s) = SpawnLogisticCharacter(enemyWaves[GameStageManager.Instance.currentRound].logisticSlot1, ResourcePool.Instance.EnemylogisticSlotNode1);
+        if (b)
+        {
+            characterNames.Add(s);
+            hexnodexNames.Add(ResourcePool.Instance.EnemylogisticSlotNode1.name);
+        }
+        (bool B, string S) = SpawnLogisticCharacter(enemyWaves[GameStageManager.Instance.currentRound].logisticSlot2, ResourcePool.Instance.EnemylogisticSlotNode2);
+        if (B)
+        {
+            characterNames.Add(S);
+            hexnodexNames.Add(ResourcePool.Instance.EnemylogisticSlotNode2.name);
+        }
+        BugReportLogger.Instance.ChooseEnemyInRound(GameStageManager.Instance.currentRound, 0, characterNames, hexnodexNames);
         ResourcePool.Instance.enemy.UpdateTraitEffects();
     }
 
-    private void SpawnLogisticCharacter(EnemyWave.GridSlotData logisticSlot, HexNode logisticSlotNode)
+    private (bool, string) SpawnLogisticCharacter(EnemyWave.GridSlotData logisticSlot, HexNode logisticSlotNode)
     {
         if (logisticSlot.CharacterID != -1)
         {
             Vector3 position = logisticSlotNode.transform.position;
             Character characterData = ResourcePool.Instance.GetCharacterByID(logisticSlot.CharacterID);
             GameObject characterPrefab = characterData.Model;
-            int lvl = logisticSlot.Level;
-            if (logisticSlot.Level == 0)
-            {
-                lvl = 1;
-            }
-            GameObject go = ResourcePool.Instance.SpawnCharacterAtPosition(characterPrefab, position, logisticSlotNode, enemyParent, isAlly: false, lvl);
+            int lvl = logisticSlot.Level == 0 ? 1 : logisticSlot.Level;
+            GameObject go = ResourcePool.Instance.SpawnCharacterAtPosition(
+                characterPrefab, position, logisticSlotNode, enemyParent, false, lvl
+            );
             go.transform.position = position;
-            int dummyIndex = logisticSlot.DummyGridIndex;
             SpawnGrid.Instance.indexToCubeKey.TryGetValue(logisticSlot.DummyGridIndex, out string cubeKey);
             SpawnGrid.Instance.hexNodes.TryGetValue(cubeKey, out HexNode h);
-            GameObject obj = Instantiate(ResourcePool.Instance.LogisticDummy, h.Position + new Vector3(0, 0.14f, 0), Quaternion.Euler(new Vector3(0, 0, 0)));
+            GameObject obj = Instantiate(
+                ResourcePool.Instance.LogisticDummy,
+                h.Position + new Vector3(0, 0.14f, 0),
+                Quaternion.Euler(Vector3.zero)
+            );
             CustomLogger.Log(this, "spawned dummy");
             obj.transform.SetParent(ResourcePool.Instance.enemy.transform);
             CharacterBars bar = ResourcePool.Instance.GetBar(h.Position).GetComponent<CharacterBars>();
@@ -146,7 +139,6 @@ public class PVE_EnemySpawner : MonoBehaviour
             StaticObject staticObj = obj.GetComponent<StaticObject>();
             CharacterCTRL c = go.GetComponent<CharacterCTRL>();
             staticObj.parent = c;
-
             ctrl.SetBarChild(bar);
             ctrl.characterBars = bar;
             CustomLogger.Log(this, $"get bar to {obj.name},bar parent = {ctrl},child = {ctrl.characterBars}");
@@ -155,7 +147,8 @@ public class PVE_EnemySpawner : MonoBehaviour
             ctrl.CurrentHex = h;
             h.OccupyingCharacter = ctrl;
             h.Reserve(ctrl);
-
+            return (true, c.name);
         }
+        return (false, "");
     }
 }

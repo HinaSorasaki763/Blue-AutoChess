@@ -132,6 +132,7 @@ public class CharacterCTRL : MonoBehaviour
     }
     public virtual void OnEnable()
     {
+        GetComponent<BoxCollider>().enabled = true;
         star = 1;
         stats = characterStats.Stats.Clone();
         ResetStats();
@@ -147,7 +148,6 @@ public class CharacterCTRL : MonoBehaviour
         {
             characterBars.gameObject.SetActive(true);
         }
-
         int characterId = characterStats.CharacterId;
         isShirokoTerror = characterId == 31;
         if (characterBehaviors.TryGetValue(characterId, out var characterBehaviorFunc))
@@ -283,8 +283,12 @@ public class CharacterCTRL : MonoBehaviour
                 CheckEveryThing();
                 foreach (var hitCollider in Physics.OverlapSphere(transform.position, 0.2f, GridLayer))
                 {
-                    CurrentHex = hitCollider.GetComponent<HexNode>();
-                    CurrentHex.SetOccupyingCharacter(this);
+                    if (isAlive)
+                    {
+                        CurrentHex = hitCollider.GetComponent<HexNode>();
+                        //CurrentHex.SetOccupyingCharacter(this);
+                    }
+
                 }
             }
         }
@@ -937,12 +941,14 @@ public class CharacterCTRL : MonoBehaviour
             CustomLogger.Log(this, $"{consumable} working");
             consumable.OnActivated();
             PopupManager.Instance.CreatePopup("觸發成功", 2);
-            return false;
+            BugReportLogger.Instance.EquipItemToCharacter(name, consumable.EquipmentName);
+            return true;
         }
         bool result = equipmentManager.EquipItem(equipment);
 
         if (result)
         {
+            BugReportLogger.Instance.EquipItemToCharacter(name, equipment.EquipmentName);
             UpdateEquipmentUI();
             ResourcePool.Instance.ally.UpdateTraitEffects();
         }
@@ -1017,6 +1023,7 @@ public class CharacterCTRL : MonoBehaviour
         HexNode startNode = CurrentHex;
         if (startNode == null)
         {
+            CustomLogger.LogWarning(this, "startNode is null");
             isFindingPath = false;
             return;
         }
@@ -1458,19 +1465,20 @@ public class CharacterCTRL : MonoBehaviour
     }
     public virtual void Die()
     {
-        SetStat(StatsType.currHealth, 0);
-        Debug.Log($"{gameObject.name} Die()");
-        SpawnGrid.Instance.RemoveCenterPoint(CurrentHex);
-        foreach (var item in observers)
-        {
-            item.OnDying(this);
-        }
+        GetComponent<BoxCollider>().enabled = false;
         IsDying = true;
         customAnimator.ForceDying();
         CurrentHex.OccupyingCharacter = null;
         isTargetable = false;
         CurrentHex.HardRelease();
         TriggerManualUpdate();
+        SetStat(StatsType.currHealth, 0);
+        Debug.Log($"{gameObject.name} Die()");
+        foreach (var item in observers)
+        {
+            item.OnDying(this);
+        }
+
     }
     public void BattleOverTime()
     {

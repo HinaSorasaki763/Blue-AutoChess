@@ -41,6 +41,7 @@ public class GameController : MonoBehaviour
         if (!isBattlefield)
         {
             MoveOrSwapCharacter(character, targetSlot);
+            BugReportLogger.Instance.MoveCharacterToTile(character.name, targetSlot.name);
             return (true, isBattlefield);
         }
         if (character.characterStats.logistics != targetSlot.IsLogistics)
@@ -62,6 +63,7 @@ public class GameController : MonoBehaviour
             return (false, isBattlefield);
         }
         MoveOrSwapCharacter(character, targetSlot);
+        BugReportLogger.Instance.MoveCharacterToTile(character.name, targetSlot.name);
         return (true, isBattlefield);
     }
 

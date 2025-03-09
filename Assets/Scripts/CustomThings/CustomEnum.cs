@@ -886,21 +886,59 @@ namespace GameEnum
             }
             return characters;
         }
-        public static List<CharacterCTRL> GetCharacterInrange(HexNode startNode, int range, CharacterCTRL finder, bool findingAlly)
+        public static List<CharacterCTRL> GetCharacterInrange(HexNode startNode, int range, CharacterCTRL finder, bool findingAlly, bool isInjured = false)
         {
             CustomLogger.Log(finder, $"GetCharacterInrange - StartNode: {startNode.name}, Range: {range}, Finder: {finder.name}, FindingAlly: {findingAlly}");
-            var characters = new List<CharacterCTRL>();
+            var characters = new HashSet<CharacterCTRL>();
             var nodes = GetHexInRange(startNode, range);
             CustomLogger.Log(finder, $"GetCharacterInrange - Nodes: {string.Join(", ", nodes.Select(n => n.name))}");
             foreach (var item in nodes)
             {
-                if (item.OccupyingCharacter != null && item.OccupyingCharacter.IsAlly ==( finder.IsAlly == findingAlly) && !item.OccupyingCharacter.characterStats.logistics && item.OccupyingCharacter.isAlive)
+                if (item.OccupyingCharacter != null && item.OccupyingCharacter.IsAlly == (finder.IsAlly == findingAlly) && !item.OccupyingCharacter.characterStats.logistics && item.OccupyingCharacter.isAlive)
                 {
                     characters.Add(item.OccupyingCharacter);
                 }
             }
             return characters.ToList();
         }
+        public static List<(CharacterCTRL character, float weight)> GetCharacterInrangeWithWeight(
+    HexNode startNode,
+    int range,
+    CharacterCTRL finder,
+    bool findingAlly,
+    bool isInjured = false)
+        {
+            // 這裡以 (CharacterCTRL, int) 形式回傳角色和其權重
+            var result = new List<(CharacterCTRL, float)>();
+            CustomLogger.Log(finder, $"GetCharacterInrangeWithWeight - StartNode: {startNode.name}, " +
+                                     $"Range: {range}, Finder: {finder.name}, FindingAlly: {findingAlly}, " +
+                                     $"isInjured: {isInjured}");
+
+            var nodes = GetHexInRange(startNode, range);
+            CustomLogger.Log(finder, $"GetCharacterInrangeWithWeight - Nodes: {string.Join(", ", nodes.Select(n => n.name))}");
+
+            foreach (var node in nodes)
+            {
+                var occupant = node.OccupyingCharacter;
+                if (occupant != null
+                    && occupant.IsAlly == (finder.IsAlly == findingAlly)
+                    && !occupant.characterStats.logistics
+                    && occupant.isAlive)
+                {
+                    float weight = 1;
+                    if (isInjured)
+                    {
+                        weight += 1 - occupant.GetHealthPercentage();
+                    }
+
+                    // 收集 (角色, 權重)
+                    result.Add((occupant, weight));
+                }
+            }
+
+            return result;
+        }
+
         public static void DealDamageInRange(HexNode startNode, int range, CharacterCTRL sourceCharacter, int dmg, string source, bool iscrit)
         {
             foreach (var item in GetCharacterInrange(startNode, range, sourceCharacter, false))

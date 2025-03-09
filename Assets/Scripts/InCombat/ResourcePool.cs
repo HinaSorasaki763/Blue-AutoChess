@@ -39,6 +39,7 @@ public class ResourcePool : MonoBehaviour
     public GameObject MisslePrefab;
     public GameObject MissleFragmentsPrefab;
     public int RandomKeyThisGame;
+    public readonly int FixedRandomKey = 1854998248;
     public Sprite RandomRewardSprite;
     public Sprite[] numberSprites;
     private void Awake()
@@ -56,6 +57,15 @@ public class ResourcePool : MonoBehaviour
     {
         StartCoroutine(InitializeAll());
         RandomKeyThisGame = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+        CustomLogger.Log(this, $"RandomKeyThisGame = {RandomKeyThisGame}");
+    }
+    public int GetRandomKey()
+    {
+        if (true)
+        {
+
+        }
+        return RandomKeyThisGame;
     }
     void LoadResources<T>(string path, ref List<T> list) where T : Object
     {

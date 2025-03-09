@@ -1,5 +1,8 @@
-﻿using System.Collections;
+﻿using GameEnum;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEditor.ShaderGraph.Legacy;
 using UnityEngine;
 
 public class AegisObserver : CharacterObserverBase
@@ -25,39 +28,19 @@ public class AegisObserver : CharacterObserverBase
     {
         base.OnCastedSkill(character);
         CustomLogger.Log(this,$"character at {character.CurrentHex.Position} casted skill");
-        SetCenterPoint(character);
-    }
-
-    public void SetCenterPoint(CharacterCTRL character)
-    {
-        HexNode centerNode = character.CurrentHex;
-        bool isAlly = character.IsAlly;
-
-        if (isAlly)
+        List<HexNode> inner = Utility.GetHexInRange(character.CurrentHex, 1);
+        List<HexNode> outer = Utility.GetHexInRange(character.CurrentHex, 2);
+        foreach (var item in inner)
         {
-            centerNode.AllyBlockingZonecenter = true;
-            centerNode.TargetedAllyZone = true;
-        }
-        else
-        {
-            centerNode.EnemyBlockingZonecenter = true;
-            centerNode.TargetedEnemyzone = true;
-        }
-        CustomLogger.Log(this, $"setting {character.name} as center , pos int = {centerNode.Position}");
-        foreach (var neighbor in centerNode.Neighbors)
-        {
-            if (isAlly)
+            foreach (var neighbor in item.Neighbors)
             {
-                neighbor.TargetedAllyZone = true;
+                if (!inner.Contains(neighbor))
+                {
+                    SpawnGrid.Instance.CreateWallIfNotExist(item, neighbor, character.IsAlly);
+                }
             }
-            else
-            {
-                neighbor.TargetedEnemyzone = true;
-            }
+
         }
-        CoroutineController coroutineController = character.GetComponent<CoroutineController>();
-        coroutineController.StartRemoveCenterPointCoroutine(centerNode,5f);
-        SpawnGrid.Instance.UpdateBlockingZoneWalls();
+
     }
-    
 }

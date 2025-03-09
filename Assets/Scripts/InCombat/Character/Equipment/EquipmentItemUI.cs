@@ -138,7 +138,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                             equipmentManager.RemoveEquipmentItem(equipmentData, gameObject);
 
                         }
-
+                        BugReportLogger.Instance.UseConsumableOnCharacter(character.name, consumableItem.EquipmentName);
                         if (gridLayoutGroup != null)
                         {
                             gridLayoutGroup.enabled = true;

@@ -18,6 +18,8 @@ public class SpawnGrid : MonoBehaviour
     public List<GameObject> activeWalls = new List<GameObject>();
     public CharacterParent allyParent;
     private readonly Vector3 offset = new Vector3(0, 0.14f, 0);
+    public HexNode LogisticNode1, LogisticNode2;
+    public CharacterCTRL Logistic1, Logistic2;
     void OnEnable()
     {
         Instance = this;
@@ -28,6 +30,7 @@ public class SpawnGrid : MonoBehaviour
                 tile.head.GetComponent<Renderer>().material.color = Color.white;
             }
         }
+
     }
     public void SavePreparationPositions()
     {
@@ -39,7 +42,24 @@ public class SpawnGrid : MonoBehaviour
                 preparationPositions[node] = node.OccupyingCharacter;
             }
         }
+        if (LogisticNode1.OccupyingCharacter != null)
+        {
+            Logistic1 = LogisticNode1.OccupyingCharacter;
+        }
+        else
+        {
+            Logistic1 = null;
+        }
+        if (LogisticNode2.OccupyingCharacter != null)
+        {
+            Logistic2 = LogisticNode2.OccupyingCharacter;
+        }
+        else
+        {
+            Logistic2 = null;
+        }
     }
+
     public void RestorePreparationPositions()
     {
         foreach (var item in preparationPositions.Keys)
@@ -54,8 +74,22 @@ public class SpawnGrid : MonoBehaviour
             pair.Value.ResetStats();
             pair.Key.Reserve(pair.Value);
             pair.Key.OccupyingCharacter = pair.Value;
-            allyParent.childCharacters.Add(pair.Value.gameObject);
-
+        }
+        if (Logistic1!= null)
+        {
+            Logistic1.transform.position = LogisticNode1.transform.position + offset;
+            Logistic1.gameObject.SetActive(true);
+            Logistic1.ResetStats();
+            LogisticNode1.Reserve(Logistic1);
+            LogisticNode1.OccupyingCharacter = Logistic1;
+        }
+        if (Logistic2 != null)
+        {
+            Logistic2.transform.position = LogisticNode2.transform.position + offset;
+            Logistic2.gameObject.SetActive(true);
+            Logistic2.ResetStats();
+            LogisticNode2.Reserve(Logistic2);
+            LogisticNode2.OccupyingCharacter = Logistic2;
         }
     }
     public void ResetAll()
@@ -66,88 +100,6 @@ public class SpawnGrid : MonoBehaviour
         {
             item.HardResetAll();
         }
-    }
-    public void RemoveCenterPoint(HexNode node)
-    {
-        if (node.EnemyBlockingZonecenter)
-        {
-            foreach (var neighbor in node.Neighbors)
-            {
-                neighbor.TargetedEnemyzone = false;
-            }
-            node.TargetedEnemyzone = false;
-        }
-        if (node.AllyBlockingZonecenter)
-        {
-            foreach (var neighbor in node.Neighbors)
-            {
-                neighbor.TargetedAllyZone = false;
-            }
-            node.TargetedAllyZone = false;
-        }
-        node.AllyBlockingZonecenter = false;
-        node.EnemyBlockingZonecenter = false;
-        CustomLogger.Log(this, $"removing {node.name} as center , pos int = {node.Position}");
-        UpdateBlockingZoneWalls();
-    }
-
-
-    public void UpdateBlockingZoneWalls()
-    {
-        ClearPreviousWalls();
-        foreach (var node in hexNodes.Values)
-        {
-            if (node.AllyBlockingZonecenter)
-            {
-                foreach (var neighbor in node.Neighbors)
-                {
-                    neighbor.TargetedAllyZone = true;
-                }
-
-            }
-            if (node.EnemyBlockingZonecenter)
-            {
-                foreach (var neighbor in node.Neighbors)
-                {
-                    neighbor.TargetedEnemyzone = true;
-                }
-
-            }
-        }
-        foreach (var node in hexNodes.Values)
-        {
-            if (node.TargetedAllyZone)
-            {
-                foreach (var neighbor in node.Neighbors)
-                {
-                    if (!neighbor.TargetedAllyZone)
-                    {
-                        CreateWallIfNotExist(node, neighbor, true);
-                    }
-                }
-            }
-            if (node.TargetedEnemyzone)
-            {
-                foreach (var neighbor in node.Neighbors)
-                {
-                    if (!neighbor.TargetedEnemyzone)
-                    {
-                        CreateWallIfNotExist(node, neighbor, false);
-                    }
-                }
-            }
-        }
-    }
-
-    private void ClearPreviousWalls()
-    {
-        foreach (var wallObj in activeWalls)
-        {
-            wallObj.SetActive(false);
-        }
-        activeWalls.Clear();
-        createdAllyWalls.Clear();
-        createdEnemyWalls.Clear();
     }
     public void SpawnMap()
     {
@@ -558,7 +510,7 @@ public class SpawnGrid : MonoBehaviour
 
 
 
-    private void CreateWallIfNotExist(HexNode node, HexNode neighbor, bool isAlly)
+    public void CreateWallIfNotExist(HexNode node, HexNode neighbor, bool isAlly)
     {
         string wallKey = GetWallKey(node, neighbor);
         HashSet<string> wallSet = isAlly ? createdAllyWalls : createdEnemyWalls;

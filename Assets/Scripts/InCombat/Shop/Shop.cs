@@ -61,25 +61,26 @@ public class Shop : MonoBehaviour
 
     public void SpawnCharacter(int index)
     {
-        var shopButton = ShopButtons[index].gameObject.GetComponent<ShopButton>();
-        GameController.Instance.AddGold(-prices[index]);
-        shopButton.SetImagesNull();
-        if (!benchManager.IsBenchFull())
+
+        if (!benchManager.IsBenchFull())//TODO:當角色可以融合時，應該要檢查是否有可以融合的角色
         {
             bool added = benchManager.AddToBench(Characters[index]);
             if (added)
             {
+                var shopButton = ShopButtons[index].gameObject.GetComponent<ShopButton>();
                 Selled.Add(index);
                 images[index].sprite = null;
                 priceSprite[index] = null;
                 images[index].color = new Color(1, 1, 1, 0);
                 ShopButtons[index].interactable = false;
+                shopButton.SetImagesNull();
                 UpdateShopUI();
+                GameController.Instance.AddGold(-prices[index]);
             }
         }
         else
         {
-            
+            PopupManager.Instance.CreatePopup("Full Board", 2);
         }
     }
 

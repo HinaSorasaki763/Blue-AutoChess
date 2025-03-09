@@ -32,6 +32,7 @@ public class BenchManager : MonoBehaviour
             Vector3 position = gridSlot.transform.position;
 
             ResourcePool.Instance.SpawnCharacterAtPosition(characterPrefab, position,gridSlot, characterParent, isAlly: true);
+            BugReportLogger.Instance.GetCharacter(characterPrefab.name);
             Debug.Log($"spawned at {position},{gridSlot.name}");
             return true;
         }

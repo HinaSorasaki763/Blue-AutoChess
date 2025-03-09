@@ -36,6 +36,7 @@ public class CharacterParent : MonoBehaviour
 
             }
         }
+        BugReportLogger.Instance.StartBattle();
         GameStageManager.Instance.ChangeGamePhase(GamePhase.Battling);
     }
     public int CheckAlliesOnBoard()

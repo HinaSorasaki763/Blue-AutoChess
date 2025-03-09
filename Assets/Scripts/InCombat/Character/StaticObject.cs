@@ -71,7 +71,6 @@ public class StaticObject : CharacterCTRL
     public override void Die()
     {
         Debug.Log($"{gameObject.name} Die()");
-        SpawnGrid.Instance.RemoveCenterPoint(CurrentHex);
         CurrentHex.OccupyingCharacter = null;
         CurrentHex.HardRelease();
         gameObject.SetActive(false);

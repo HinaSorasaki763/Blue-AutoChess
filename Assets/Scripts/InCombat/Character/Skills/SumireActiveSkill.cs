@@ -18,6 +18,8 @@ public class SumireActiveSkill : MonoBehaviour
             CustomLogger.LogWarning(this, "Parent is null. Cannot execute skill.");
             yield break;
         }
+        
+        skillContext.Parent.CurrentHex.HardRelease();
         GameObject obj = skillContext.Parent.gameObject;
         CharacterCTRL enemy = parent.Target != null ? parent.Target.GetComponent<CharacterCTRL>() : null;
         (List<HexNode> bestnodes, HexNode oppositeNode, int count, int dir)
@@ -25,12 +27,14 @@ public class SumireActiveSkill : MonoBehaviour
         if (oppositeNode == null)
         {
             CustomLogger.LogWarning(this, "OppositeNode not found. Skill aborted.");
+            skillContext.Parent.CurrentHex.Reserve(skillContext.Parent);
             yield break;
         }
         HexNode nextOppositeNode = Utility.GetNeighbor(oppositeNode, (dir + 3) % 6);
         if (nextOppositeNode == null)
         {
             CustomLogger.LogWarning(this, "NextOppositeNode not found. Skill aborted.");
+            skillContext.Parent.CurrentHex.Reserve(skillContext.Parent);
             yield break;
         }
         yield return MoveBetweenNodes(obj, obj.transform.position, nextOppositeNode.Position, 21);
@@ -38,6 +42,7 @@ public class SumireActiveSkill : MonoBehaviour
         yield return MoveBetweenNodes(obj, obj.transform.position, oppositeNode.Position, 20);
         ShootAllEnemiesInBestNodes(bestnodes, skillContext);
         yield return MoveBetweenNodes(obj, obj.transform.position, nextOppositeNode.Position, 20);
+        nextOppositeNode.Reserve(obj.GetComponent<CharacterCTRL>());
         ShootAllEnemiesInBestNodes(bestnodes, skillContext);
     }
 
@@ -57,8 +62,7 @@ public class SumireActiveSkill : MonoBehaviour
             obj.transform.position = Vector3.Lerp(startPos, endPos, t);
             yield return new WaitForSeconds(1f / 30f);
         }
-        HexNode he = Utility.GetHexOnPos(endPos);
-        he.Reserve(obj.GetComponent<CharacterCTRL>());
+
     }
 
 

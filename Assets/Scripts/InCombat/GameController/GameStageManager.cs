@@ -58,12 +58,12 @@ public class GameStageManager : MonoBehaviour
     }
     private IEnumerator ShowEndGamePopup(bool isEnemy)
     {
+        ChangeGamePhase(GamePhase.Preparing);
         yield return new WaitForSeconds(2f);
         CalculateGold();
         EndBattleModal.Instance.UpdateText(isEnemy);
         endGamePopup.SetActive(true);
-        ChangeGamePhase(GamePhase.Preparing);
-        
+
     }
     public void StartBattle()
     {
@@ -137,13 +137,22 @@ public class GameStageManager : MonoBehaviour
         }
         foreach (var item in ResourcePool.Instance.ally.childCharacters)
         {
+            CharacterCTRL c = item.GetComponent<CharacterCTRL>();
             item.SetActive(true);
-            item.GetComponent<CharacterCTRL>().ResetToBeforeBattle();
-            if (item.GetComponent<CharacterCTRL>().HexWhenBattleStart != null)
+            c.ResetToBeforeBattle();
+            if (!c.characterStats.logistics)
             {
-                item.GetComponent<CharacterCTRL>().HexWhenBattleStart.HardReserve(item.GetComponent<CharacterCTRL>());
-                item.transform.position = item.GetComponent<CharacterCTRL>().HexWhenBattleStart.Position + offset;
+                if (c.HexWhenBattleStart != null)
+                {
+                    c.HexWhenBattleStart.HardReserve(c);
+                    item.transform.position = c.HexWhenBattleStart.Position + offset;
+                }
             }
+            else
+            {
+
+            }
+
         }
         AdvanceStage();
     }
@@ -248,8 +257,8 @@ public class GameStageManager : MonoBehaviour
     {
         startBattleFlag = false;
         DamageStatisticsManager.Instance.ClearAll();
+        BugReportLogger.Instance.EndBattle();
         enteringBattleCounter = 0;
-        ChangeGamePhase(GamePhase.Preparing);
         Debug.Log(winningTeam.isEnemy ? "敵方勝利！" : "友方勝利！");
         EndBattleModal.Instance.currData = DataStackManager.Instance.GetData();
         // 判斷玩家是否陣亡
@@ -311,11 +320,11 @@ public class GameStageManager : MonoBehaviour
     {
 
         CurrentStage++;
-        allyParent.childCharacters.Clear();
         enemyParent.childCharacters.Clear();
         OnGameStageChanged?.Invoke(CurrentStage);
         SpawnGrid.Instance.ResetAll();
         SpawnGrid.Instance.RestorePreparationPositions();
+        Shop.Instance.GoldLessRefresh();
     }
     private void CalculateGold()
     {

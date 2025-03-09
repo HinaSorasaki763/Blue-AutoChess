@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 public abstract class CharacterSkillBase
@@ -42,60 +43,54 @@ public abstract class CharacterSkillBase
         return this;
     }
 
-    public HexNode FindMaxOccupiedEntityGrid(int range, List<HexNode> hexNodes, SkillContext skillContext, bool FindingAlly)
+    public HexNode FindMaxOccupiedEntityGrid(
+    int range,
+    List<HexNode> hexNodes,
+    SkillContext skillContext,
+    bool FindingAlly,
+    bool isInjured = false)
     {
-        float maxCount = 0;
+        float maxWeight = 0;  // 用來記錄最大權重
         HexNode maxNode = null;
-        List <CharacterCTRL> cs = new List<CharacterCTRL>();
-        bool IsAlly = skillContext.Parent.IsAlly;
+        // 用於暫存目前擁有最高權重的角色清單（含權重）
+        List<(CharacterCTRL character, float weight)> bestTuples = new List<(CharacterCTRL, float)>();
+
         foreach (var startNode in hexNodes)
         {
-            List<CharacterCTRL> c= Utility.GetCharacterInrange(startNode, range, skillContext.Parent, FindingAlly);
+            // 使用新的方法取得 (角色, 權重) 清單
+            var characterTuples = Utility.GetCharacterInrangeWithWeight(
+                startNode,
+                range,
+                skillContext.Parent,
+                FindingAlly,
+                isInjured
+            );
 
-            if (c.Count >= maxCount)
+            // 計算該點位所有角色權重總和
+            float totalWeight = characterTuples.Sum(t => t.weight);
+
+            // 用權重總和來判斷是否更新最大值
+            if (totalWeight >= maxWeight)
             {
-                maxCount = c.Count;
+                maxWeight = totalWeight;
                 maxNode = startNode;
-                cs.Clear();
-                cs = c;
+                bestTuples.Clear();
+                bestTuples.AddRange(characterTuples);
             }
         }
+
+        // 紀錄一下結果
         StringBuilder sb = new StringBuilder();
-        foreach (var item in cs)
+        foreach (var tupleItem in bestTuples)
         {
-            sb.AppendLine($"{item.name}:{item.CurrentHex.name}");
+            sb.AppendLine($"{tupleItem.character.name}: {tupleItem.character.CurrentHex.name}, weight = {tupleItem.weight}");
         }
-        sb.AppendLine($"max count = {maxCount},pos = {maxNode.Position},{maxNode.name}");
+        sb.AppendLine($"max weight = {maxWeight}, pos = {maxNode.Position}, {maxNode.name}");
         CustomLogger.Log(this, sb.ToString());
 
         return maxNode;
     }
-    private (float,List<HexNode>) CountOccupiedInRange(HexNode startNode, int range, bool isAlly, bool GetAlly)
-    {
-        float count = 0;
-        if (startNode.OccupyingCharacter != null)
-        {
-            if (startNode.OccupyingCharacter.IsAlly == (isAlly == GetAlly))
-            {
-                count = 1.1f;
-            }
-        }
-        List<HexNode> hexNodes = Utility.GetHexInRange(startNode, range);
-        List<HexNode> occupied = new List<HexNode>();
-        hexNodes.Remove(startNode);
-        foreach (var item in hexNodes)
-        {
-            if (item.OccupyingCharacter != null)
-            {
-                if (item.OccupyingCharacter.IsAlly == (isAlly == GetAlly)&& item.OccupyingCharacter.isAlive && item.OccupyingCharacter.gameObject.activeInHierarchy)
-                {
-                    count++;
-                    occupied.Add(item);
-                }
-            }
-        }
-        return (count,occupied);
-    }
+
 }
 public class NullSkill : CharacterSkillBase
 {
@@ -218,7 +213,7 @@ public class AyaneSkill : CharacterSkillBase//陵音(Ayane)找到一個範圍內
         Range = stats.Data3;
         base.ExecuteSkill(skillContext);
         bool IsFindingAlly = true;
-        HexNode targetHex = FindMaxOccupiedEntityGrid(Range, skillContext.hexMap, skillContext, IsFindingAlly);
+        HexNode targetHex = FindMaxOccupiedEntityGrid(Range, skillContext.hexMap, skillContext, IsFindingAlly,true);
         GameObject HealPack = ResourcePool.Instance.SpawnObject(SkillPrefab.HealPack, targetHex.Position + new Vector3(0, 3, 0), Quaternion.identity);
         HealPack.GetComponent<HealPack>().InitStats(targetHex, Range, GetAttackCoefficient(skillContext), skillContext.Parent, skillContext.Parent.IsAlly);
     }
@@ -284,7 +279,7 @@ public class HarukaSkill : CharacterSkillBase//遙香(Haruka)架起護盾，並�
         DmgRatio = stats.Data2;
         PressureRatio = stats.Data3;
         base.ExecuteSkill(skillContext);
-        HexNode hexNode = skillContext.CurrentTarget.CurrentHex;
+        HexNode hexNode = SpawnGrid.Instance.GetHexNodeByPosition(skillContext.TargetCTRLPosition);
         HexNode currentHex = skillContext.Parent.CurrentHex;
         var commonNeighbors = hexNode.Neighbors.Intersect(currentHex.Neighbors)
                                .Where(h => h != currentHex)
@@ -1230,7 +1225,7 @@ public class MineSkill : CharacterSkillBase//美彌(Mine)跳躍到敵人最多�
     }
     private IEnumerator JumpToTarget(CharacterCTRL character, HexNode targetHex, int range, SkillContext skillContext)
     {
-        yield return new WaitForSeconds(31f / 30f);
+        yield return new WaitForSeconds(10f / 30f);
         HexNode hex = character.CurrentHex;
         character.CurrentHex.HardRelease();
         Vector3 startPosition = character.transform.position;
