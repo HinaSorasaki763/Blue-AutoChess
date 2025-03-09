@@ -47,7 +47,7 @@ public class TrailedBullet : MonoBehaviour
         if (((1 << other.gameObject.layer) & HitLayer) != 0)
         {
             CharacterCTRL enemy = other.GetComponent<CharacterCTRL>();
-            if (enemy != null)
+            if (enemy != null&& !enemy.characterStats.logistics)
             {
                 HitTarget(enemy);
             }

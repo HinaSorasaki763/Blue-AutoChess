@@ -68,7 +68,7 @@ public class GameController : MonoBehaviour
 
     private void ReturnToOriginalSlot(CharacterCTRL character)
     {
-        if (character.CurrentHex != null)
+        if (character.CurrentHex != null&&!character.characterStats.logistics)
         {
             Vector3 originalPosition = new Vector3(character.CurrentHex.transform.position.x, yOffset, character.CurrentHex.transform.position.z);
             character.transform.position = originalPosition;

@@ -167,6 +167,7 @@ public class TraitController : MonoBehaviour
     public int ModifyDamageTaken(int amount, CharacterCTRL sourceCharacter,string detailedSource,bool iscrit)
     {
         sourceCharacter.traitController.OnDealtDmg(character, amount, detailedSource,iscrit);
+        DamageStatisticsManager.Instance.UpdateDamageTaken(character, amount);
         DamageStatisticsManager.Instance.UpdateDamage(sourceCharacter, amount);
         foreach (var observer in traitObservers.Values)
         {

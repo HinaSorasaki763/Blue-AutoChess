@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEditor;
 using UnityEngine;
 public abstract class CharacterSkillBase
@@ -45,43 +46,55 @@ public abstract class CharacterSkillBase
     {
         float maxCount = 0;
         HexNode maxNode = null;
+        List <CharacterCTRL> cs = new List<CharacterCTRL>();
         bool IsAlly = skillContext.Parent.IsAlly;
         foreach (var startNode in hexNodes)
         {
-            float count = CountOccupiedInRange(startNode, range, IsAlly, FindingAlly);
+            List<CharacterCTRL> c= Utility.GetCharacterInrange(startNode, range, skillContext.Parent, FindingAlly);
 
-            if (count > maxCount)
+            if (c.Count >= maxCount)
             {
-                maxCount = count;
+                maxCount = c.Count;
                 maxNode = startNode;
+                cs.Clear();
+                cs = c;
             }
         }
-        Debug.Log($"max count = {maxCount},pos = {maxNode.Position}");
+        StringBuilder sb = new StringBuilder();
+        foreach (var item in cs)
+        {
+            sb.AppendLine($"{item.name}:{item.CurrentHex.name}");
+        }
+        sb.AppendLine($"max count = {maxCount},pos = {maxNode.Position},{maxNode.name}");
+        CustomLogger.Log(this, sb.ToString());
+
         return maxNode;
     }
-    private float CountOccupiedInRange(HexNode startNode, int range, bool isAlly, bool GetAlly)
+    private (float,List<HexNode>) CountOccupiedInRange(HexNode startNode, int range, bool isAlly, bool GetAlly)
     {
         float count = 0;
         if (startNode.OccupyingCharacter != null)
         {
-            if (startNode.OccupyingCharacter.IsAlly == isAlly == GetAlly)
+            if (startNode.OccupyingCharacter.IsAlly == (isAlly == GetAlly))
             {
                 count = 1.1f;
             }
         }
         List<HexNode> hexNodes = Utility.GetHexInRange(startNode, range);
+        List<HexNode> occupied = new List<HexNode>();
         hexNodes.Remove(startNode);
         foreach (var item in hexNodes)
         {
             if (item.OccupyingCharacter != null)
             {
-                if (item.OccupyingCharacter.IsAlly == isAlly == GetAlly&& item.OccupyingCharacter.isAlive && item.OccupyingCharacter.gameObject.activeInHierarchy)
+                if (item.OccupyingCharacter.IsAlly == (isAlly == GetAlly)&& item.OccupyingCharacter.isAlive && item.OccupyingCharacter.gameObject.activeInHierarchy)
                 {
                     count++;
+                    occupied.Add(item);
                 }
             }
         }
-        return count;
+        return (count,occupied);
     }
 }
 public class NullSkill : CharacterSkillBase
@@ -173,6 +186,7 @@ public class AyaneSkill : CharacterSkillBase//陵音(Ayane)找到一個範圍內
     private Dictionary<int, StarLevelStats> statsByStarLevel;
     public int BaseHeal;
     public int HealRatio;
+    public int Range;
     public AyaneSkill()
     {
 
@@ -188,9 +202,9 @@ public class AyaneSkill : CharacterSkillBase//陵音(Ayane)找到一個範圍內
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(100,380)}, // 星級1的數據
-            {2, new StarLevelStats(130,405)}, // 星級2的數據
-            {3, new StarLevelStats(170,480)}  // 星級3的數據
+            {1, new StarLevelStats(100,380,1)}, // 星級1的數據
+            {2, new StarLevelStats(130,405,1)}, // 星級2的數據
+            {3, new StarLevelStats(170,480,2)}  // 星級3的數據
         };
         return statsByStarLevel;
     }
@@ -201,11 +215,12 @@ public class AyaneSkill : CharacterSkillBase//陵音(Ayane)找到一個範圍內
         StarLevelStats stats = GetCharacterLevel()[level];
         BaseHeal = stats.Data1;
         HealRatio = stats.Data2;
+        Range = stats.Data3;
         base.ExecuteSkill(skillContext);
         bool IsFindingAlly = true;
-        HexNode targetHex = FindMaxOccupiedEntityGrid(skillContext.Range, skillContext.hexMap, skillContext, IsFindingAlly);
+        HexNode targetHex = FindMaxOccupiedEntityGrid(Range, skillContext.hexMap, skillContext, IsFindingAlly);
         GameObject HealPack = ResourcePool.Instance.SpawnObject(SkillPrefab.HealPack, targetHex.Position + new Vector3(0, 3, 0), Quaternion.identity);
-        HealPack.GetComponent<HealPack>().InitStats(targetHex, skillContext.Range, GetAttackCoefficient(skillContext), skillContext.Parent, skillContext.Parent.IsAlly);
+        HealPack.GetComponent<HealPack>().InitStats(targetHex, Range, GetAttackCoefficient(skillContext), skillContext.Parent, skillContext.Parent.IsAlly);
     }
     public override int GetLogisticCoefficient(SkillContext skillContext)
     {
@@ -2400,6 +2415,8 @@ public class SkillContext
     public Dictionary<int, StarLevelStats> statsByStarLevel = new();
 
     public List<HexNode> SelectedHex = new();
+    public Vector3 TargetCTRLPosition;
+    public bool posRecorded = false;
     //散彈
     public int Angle;
     public int CastTimes;

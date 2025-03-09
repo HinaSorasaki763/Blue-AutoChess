@@ -47,7 +47,7 @@ public class SumireActiveSkill : MonoBehaviour
     private IEnumerator MoveBetweenNodes(GameObject obj, Vector3 startPos, Vector3 endPos, int totalFrames)
     {
         HexNode h =  Utility.GetHexOnPos(startPos);
-        h.HardRelease();
+        h.Release();
         CustomLogger.Log(this, $"character {obj} from {startPos} moving to {endPos} in {totalFrames} frames");
         if (obj == null) yield break;
         for (int i = 0; i <= totalFrames; i++)
@@ -58,7 +58,7 @@ public class SumireActiveSkill : MonoBehaviour
             yield return new WaitForSeconds(1f / 30f);
         }
         HexNode he = Utility.GetHexOnPos(endPos);
-        he.HardReserve(obj.GetComponent<CharacterCTRL>());
+        he.Reserve(obj.GetComponent<CharacterCTRL>());
     }
 
 

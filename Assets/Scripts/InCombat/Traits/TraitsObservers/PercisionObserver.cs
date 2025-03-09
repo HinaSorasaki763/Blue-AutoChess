@@ -20,6 +20,10 @@ public class PrecisionObserver : CharacterObserverBase
     public override int DamageModifier(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
         int copy = damage;
+        if (source.Target == null)
+        {
+            return damage;
+        }
         if (target.CurrentHex.Index == source.Target.GetComponent<CharacterCTRL>().CurrentHex.Index)
         {
             damage = (int)(damage * (1 + GetTraitObserverLevel()[traitLevel].Data1 * 0.01f));

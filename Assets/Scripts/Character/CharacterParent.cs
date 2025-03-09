@@ -32,8 +32,7 @@ public class CharacterParent : MonoBehaviour
             if (c.CurrentHex.IsBattlefield || c.CurrentHex.IsLogistics)
             {
                 c.EnterBattle();
-                DamageStatisticsManager.Instance.UpdateDamage(c, 0);
-                DamageStatisticsManager.Instance.UpdateDamageTaken(c, 0);
+                DamageStatisticsManager.Instance.RegisterCharacter(c);
 
             }
         }
