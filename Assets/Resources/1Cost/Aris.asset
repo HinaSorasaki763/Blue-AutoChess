@@ -65,6 +65,10 @@ MonoBehaviour:
     a bullet in that direction, \ndealing {data1} + ({data2}% \xD7 {Attack}) (Final:
     {Final}), \nwith each pierced enemy reducing the bullet's damage to {data3}%
     of the previous value."
+  EnhancedSkillTooltips:
+  - "\u611B\u9E97\u7D72\u6539\u70BA\u5411\u7576\u524D\u76EE\u6A19\u5C04\u64CA\uFF0C\u9020\u6210\u9245\u984D\u50B7\u5BB3\uFF0C\u4F46\u4E0D\u518D\u8CAB\u7A7F\u76EE\u6A19\uFF0C\u9020\u6210:
+    {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})"
+  - 
   isObj: 0
-  TestEnhanceSkill: 0
+  TestEnhanceSkill: 1
   TestBuildInvinvicble: 0

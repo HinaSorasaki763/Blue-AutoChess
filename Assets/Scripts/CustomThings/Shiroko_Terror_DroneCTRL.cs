@@ -1,3 +1,4 @@
+using GameEnum;
 using UnityEngine;
 
 public class Shiroko_Terror_DroneCTRL : MonoBehaviour
@@ -6,6 +7,7 @@ public class Shiroko_Terror_DroneCTRL : MonoBehaviour
     private string attacking = "Attacking";
     private CharacterCTRL Parent;
     public int stack;
+    private int enhanced_stack = 0;
     public void Update()
     {
         if (Parent != null && Parent.Target != null)
@@ -23,6 +25,15 @@ public class Shiroko_Terror_DroneCTRL : MonoBehaviour
         transform.LookAt(v);
         int dmg = (int)parent.GetStat(GameEnum.StatsType.Attack)*stack;
         (bool, int) tuple = parent.CalculateCrit(dmg);
+        if (GameController.Instance.GetEnhanchedCharacterIndex(parent.IsAlly) == 22)
+        {
+            enhanced_stack++;
+            if (enhanced_stack >= 3)
+            {
+                enhanced_stack -= 3;
+                Utility.DealDamageInRange(target.CurrentHex, 2, parent, tuple.Item2, "Enhanced_Shiroko_Drone", tuple.Item1);
+            }
+        }
         target.GetHit(tuple.Item2,parent,"Shiroko_Terror_Drone",tuple.Item1);
         CustomLogger.Log(this,$"Dealing {dmg}");
     }

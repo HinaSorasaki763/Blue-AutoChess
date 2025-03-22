@@ -144,6 +144,7 @@ public class CharacterParent : MonoBehaviour
     }
     private bool CombineCharacters(List<CharacterCTRL> charactersToCombine)
     {
+
         if (charactersToCombine == null || charactersToCombine.Count < 3)
         {
             CustomLogger.LogWarning(this, "需要至少三個角色來進行合成");
@@ -157,6 +158,12 @@ public class CharacterParent : MonoBehaviour
             CustomLogger.LogWarning(this, "未能找到主要角色");
             return false;
         }
+        var extraList = new List<StatsContainer>();
+        foreach (var item in charactersToCombine)
+        {
+            extraList.Add(item.ExtraPernamentStats);
+        }
+        extraList.Sort((a, b) => b.SumAllStats().CompareTo(a.SumAllStats()));
         mainCharacter.star++;
         if (mainCharacter.star > 3)
         {
@@ -171,6 +178,7 @@ public class CharacterParent : MonoBehaviour
             childCharacters.Remove(characterGameObject);
             Destroy(characterGameObject);
         }
+        mainCharacter.ExtraPernamentStats = extraList[0].Clone();
         mainCharacter.characterStats.ApplyLevelUp(mainCharacter.characterStats.Level + 1);
         mainCharacter.ResetStats();
         mainCharacter.GetSkillContext();

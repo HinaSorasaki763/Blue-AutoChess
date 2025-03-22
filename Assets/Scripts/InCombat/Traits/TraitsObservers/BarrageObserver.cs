@@ -2,6 +2,7 @@ using GameEnum;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public class BarrageObserver : CharacterObserverBase
 {
@@ -163,8 +164,13 @@ public class BarrageObserver : CharacterObserverBase
         Vector3 targetPosition = Character.transform.position + direction * maxDistance;
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, Character.FirePoint.position, Quaternion.identity);
         dmg = Character.ActiveSkill.GetAttackCoefficient(Character.GetSkillContext());
+        List<HitEffect> l = new List<HitEffect>();
+        if (GameController.Instance.GetEnhanchedCharacterIndex(Character.IsAlly) == 21 && Character.characterStats.CharacterId == 21)
+        {
+             l.Add(new NonomiSkillEffect());
+        }
         (bool iscrit, int dmg1) = Character.CalculateCrit(dmg);
-        bullet.GetComponent<NormalBullet>().Initialize(dmg1, Character.GetTargetLayer(), Character, 15f, Character.GetTarget(), false, iscrit, null, 20, true, targetPosition);
+        bullet.GetComponent<NormalBullet>().Initialize(dmg1, Character.GetTargetLayer(), Character, 15f, Character.GetTarget(), false, iscrit, l, 20, true, targetPosition);
     }
 
 }

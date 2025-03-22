@@ -159,6 +159,13 @@ public class TraitController : MonoBehaviour
         }
         character.equipmentManager.OnParentDealtDamage(character, target, dmg, detailedSource,iscrit);
     }
+    public void Dodged()
+    {
+        foreach (var item in traitObservers.Values)
+        {
+            item.OnDodged(character);
+        }
+    }
     private void Lifesteal(int dmg)
     {
         float lifesteal = character.GetStat(StatsType.Lifesteal);

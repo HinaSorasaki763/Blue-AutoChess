@@ -19,6 +19,8 @@ public class Character : ScriptableObject
     public int BarrageInitAngle;
     [TextArea(3, 10)]
     public List<string> Tooltips = new List<string>(2);
+    [TextArea(3, 10)]
+    public List<string> EnhancedSkillTooltips = new List<string>(2);
     public bool isObj;
 
     public bool TestEnhanceSkill;

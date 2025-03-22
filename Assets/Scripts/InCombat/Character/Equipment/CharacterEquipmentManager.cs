@@ -83,6 +83,13 @@ public class CharacterEquipmentManager : MonoBehaviour
             item.Observer.OnDamageDealt(source,target,damage, detailedSource,iscrit);
         }
     }
+    public void OnParentDodged()
+    {
+        foreach (var item in equippedItems)
+        {
+            item.Observer.OnDodged(Parent);
+        }
+    }
     public void OnParentAttack()
     {
         foreach (var item in equippedItems)

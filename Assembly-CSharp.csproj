@@ -125,6 +125,7 @@
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\TrinityObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\SupermacyObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\GameController\EndBattleModal.cs" />
+    <Compile Include="Assets\Scripts\UI\CharacterStatsModal.cs" />
     <Compile Include="Assets\Scripts\CustomThings\CustomEnum.cs" />
     <Compile Include="Assets\Scripts\Enemy\EnemyWave.cs" />
     <Compile Include="Assets\Scripts\InCombat\Shop\SellGrid.cs" />
@@ -162,6 +163,7 @@
     <Compile Include="Assets\Scripts\UI\Option.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitUI.cs" />
     <Compile Include="Assets\Scripts\UI\BGMManager.cs" />
+    <Compile Include="Assets\Scripts\UI\TooltipManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitController.cs" />
     <Compile Include="Assets\Scripts\InCombat\Bench\BenchManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\map\SpawnGrid.cs" />

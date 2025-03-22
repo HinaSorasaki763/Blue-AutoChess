@@ -50,7 +50,7 @@ public class EffectCTRL : MonoBehaviour
             }
             else
             {
-                if (effect.EffectType == EffectType.Positive)
+                if (effect.EffectType == EffectType.Positive && !effect.IsLogisticBuff)
                 {
                     characterCTRL.AudioManager.PlayBuffedSound();
                 }
@@ -63,7 +63,7 @@ public class EffectCTRL : MonoBehaviour
             }
 
         }
-        if (effect.EffectType == EffectType.Positive)
+        if (effect.EffectType == EffectType.Positive &&!effect.IsLogisticBuff)
         {
             characterCTRL.AudioManager.PlayBuffedSound();
         }
@@ -117,6 +117,10 @@ public class EffectCTRL : MonoBehaviour
         {
             RemoveEffect(effect);
         }
+    }
+    public bool HaveEffect(string source)
+    {
+        return activeEffects.FirstOrDefault(e => e.Source == source) != null;
     }
     public Effect GetEffect(string source)
     {
@@ -341,7 +345,11 @@ public static class EffectFactory
             (character) => character.ModifyStats(StatsType.CritChance, -critChance),
             duration,
             SpecialEffectType.None,
-            parent
+            parent,
+            false,
+            ClearEffectCondition.Never,
+            true
+
         );
     }
 
@@ -357,7 +365,10 @@ public static class EffectFactory
             (character) => character.ModifyStats(StatsType.CritRatio, -critRatio),
             duration,
             SpecialEffectType.None,
-            parent
+            parent,
+            false,
+            ClearEffectCondition.Never,
+            true
         );
     }
 
@@ -373,7 +384,10 @@ public static class EffectFactory
             (character) => character.ModifyStats(StatsType.Resistence, -resistance),
             duration,
             SpecialEffectType.None,
-            parent
+            parent,
+            false,
+            ClearEffectCondition.Never,
+            true
         );
     }
 
@@ -485,6 +499,31 @@ public static class EffectFactory
         );
 
     }
+    public static Effect CreateAkoEnhancedActiveSkillBuff(int amount, float duration, CharacterCTRL parent)
+    {
+        var modifiers = new Dictionary<StatsType, float>
+        {
+            { StatsType.CritChance, amount },
+            { StatsType.CritRatio, amount },
+        };
+
+
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            amount,
+            "AkoEnhancedSkillBuff",
+            true,
+            (character) => character.ModifyMultipleStats(modifiers, "BuffEffect"),
+            (character) => character.ModifyMultipleStats(modifiers, "BuffEffect", isRevert: true),
+            duration,
+            SpecialEffectType.None,
+            parent,
+            false,
+            ClearEffectCondition.OnSkillCastFinished
+        );
+
+    }
     public static Effect CreateAntiHealEffect(float duration, CharacterCTRL parent)
     {
 
@@ -538,6 +577,41 @@ public static class EffectFactory
             (character) => character.AddStat(StatsType.PercentageResistence, 50),
             (character) => character.AddStat(StatsType.PercentageResistence, -50),
             0,
+            SpecialEffectType.None,
+            null
+        );
+
+
+    }
+    public static Effect KazusaMark()
+    {
+
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            "KazusaMark",
+            true,
+            (character) => character.EmptyEffectFunction(),
+            (character) => character.EmptyEffectFunction(),
+            0,
+            SpecialEffectType.None,
+            null
+        );
+
+    }
+    public static Effect SerikaAddGold()
+    {
+
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            "SerikaAddGold",
+            false,
+            (character) => character.EmptyEffectFunction(),
+            (character) => character.EmptyEffectFunction(),
+            5,
             SpecialEffectType.None,
             null
         );

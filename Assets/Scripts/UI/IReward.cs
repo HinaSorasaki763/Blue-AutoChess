@@ -100,15 +100,19 @@ public class RewardEntry
 {
     public List<IReward> Rewards { get; private set; }
     public string Name { get; private set; }
-    public string Description { get; private set; }
+    public string EnglishName { get; private set; }
+    public string ChineseDescription { get; private set; }
+    public string EnglishDescription { get; set; }
     public Sprite Sprite { get; private set; }
     public int Index { get; private set; }
 
-    public RewardEntry(List<IReward> rewards,Sprite sprite,string name, string description ,int index)
+    public RewardEntry(List<IReward> rewards,Sprite sprite,string chineseName,string englishName, string chineseDescription ,string englishDescription,int index)
     {
         Rewards = rewards;
-        Name = name;
-        Description = description;
+        Name = chineseName;
+        EnglishName = englishName;
+        ChineseDescription = chineseDescription;
+        EnglishDescription = englishDescription;
         Sprite = sprite;
         Index = index;
     }

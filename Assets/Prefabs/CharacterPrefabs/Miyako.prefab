@@ -502,6 +502,7 @@ GameObject:
   - component: {fileID: 7765503890583126694}
   - component: {fileID: 2181110066908812576}
   - component: {fileID: 6516953321635017617}
+  - component: {fileID: 745245359599516375}
   m_Layer: 0
   m_Name: Miyako
   m_TagString: Character
@@ -563,6 +564,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentHex: {fileID: 0}
+  HexWhenBattleStart: {fileID: 0}
   Target: {fileID: 0}
   PreTarget: {fileID: 0}
   IsAlly: 0
@@ -632,6 +634,8 @@ MonoBehaviour:
   isCCImmune: 0
   Invincible: 0
   AntiHeal: 0
+  Overtime: 0
+  AntiHealRatio: 0
   Taunted: 0
   attackRate: 5
   WakamoMark: 0
@@ -648,7 +652,10 @@ MonoBehaviour:
   isObj: 0
   Logistic_dummy: {fileID: 0}
   equipmentManager: {fileID: 0}
+  critTransferAmount: 0
   StealManaCount: 0
+  DealtDamageThisRound: 0
+  TakeDamageThisRound: 0
 --- !u!114 &1868019748937753687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -892,6 +899,19 @@ MonoBehaviour:
   DronePrefab: {fileID: 4640192241212773708, guid: 405d52cee2b86cc45a8c39ba63faf9f9,
     type: 3}
   parent: {fileID: 0}
+--- !u!114 &745245359599516375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 818458633434032633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642bc75772efce143adab14c975c5a9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Audio: {fileID: 11400000, guid: d0768cd30ec7c1848a4d0c2eec7fdec6, type: 2}
 --- !u!1 &849132788808485728
 GameObject:
   m_ObjectHideFlags: 0

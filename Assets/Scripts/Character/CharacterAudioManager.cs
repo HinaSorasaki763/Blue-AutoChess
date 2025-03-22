@@ -25,7 +25,6 @@ public class CharacterAudioManager : MonoBehaviour
         }
         return false;
     }
-
     public float PlayClip(AudioClip clip)
     {
         if (clip == null) return 0;

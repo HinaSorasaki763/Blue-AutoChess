@@ -8,4 +8,5 @@ public class AugmentConfig : ScriptableObject
     [TextArea(3,10)]
     public string description;  // 描述
     public int augmentIndex;    // 與代碼層面類別聯繫的索引
+    public int CharacterSkillEnhanceIndex = -1;  // 與技能強化類別聯繫的索引
 }

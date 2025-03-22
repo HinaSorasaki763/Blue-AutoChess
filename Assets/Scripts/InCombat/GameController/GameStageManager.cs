@@ -1,5 +1,7 @@
 using GameEnum;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -32,6 +34,8 @@ public class GameStageManager : MonoBehaviour
     public GameObject characterLimitParent;
     public TextMeshProUGUI currCharacterLimit;
     public GameObject BarParent;
+    private Dictionary<int, Action> stageRewardMapping;
+    public RewardPopup rewardPopup;
     readonly int OvertimeThreshold = 30;
     
     public int WinStreak { get; private set; } = 0; // ³s³Ó¦¸¼Æ
@@ -50,7 +54,9 @@ public class GameStageManager : MonoBehaviour
 
         continueButton.onClick.AddListener(OnContinueButtonClicked);
         endGamePopup.SetActive(false);
+        InitializeFloorRewardMapping();
     }
+    
     public void Start()
     {
         CalculateGold();
@@ -82,6 +88,14 @@ public class GameStageManager : MonoBehaviour
     public void SimulateAdvanceRound()
     {
         currentRound++;
+        CheckGameStageReward();
+    }
+    public void CheckGameStageReward()
+    {
+        if (stageRewardMapping.ContainsKey(currentRound))
+        {
+            stageRewardMapping[currentRound]?.Invoke();
+        }
     }
     public int GetRound()
     {
@@ -131,6 +145,7 @@ public class GameStageManager : MonoBehaviour
         endGamePopup.SetActive(false);
         ResourcePool.Instance.enemy.ClearAllCharacter();
         DataStackManager.Instance.CheckDataStackRewards();
+        CheckGameStageReward();
         foreach (var item in SpawnGrid.Instance.hexNodes.Values)
         {
             item.HardRelease();
@@ -179,6 +194,9 @@ public class GameStageManager : MonoBehaviour
         GameController.Instance.SetGold(10);
         Shop.Instance.GoldLessRefresh();
         DamageStatisticsManager.Instance.ClearAll();
+
+        Dictionary<Traits, int> traitCounts = new Dictionary<Traits, int>();
+        TraitUIManager.Instance.UpdateTraitUI(traitCounts);
     }
     public void NotifyTeamDefeated(CharacterParent defeatedTeam)
     {
@@ -202,7 +220,7 @@ public class GameStageManager : MonoBehaviour
     }
     public void GainSupply()
     {
-        //
+
     }
     public void UpdateTexts()
     {
@@ -297,7 +315,7 @@ public class GameStageManager : MonoBehaviour
         {
             do
             {
-                int randomIndex = Random.Range(0, winningTeam.childCharacters.Count);
+                int randomIndex = UnityEngine.Random.Range(0, winningTeam.childCharacters.Count);
                 randomItem = winningTeam.childCharacters[randomIndex];
             } while (!randomItem.activeInHierarchy);
             CharacterCTRL characterCtrl = randomItem.GetComponent<CharacterCTRL>();
@@ -359,5 +377,67 @@ public class GameStageManager : MonoBehaviour
         }
 
         return baseLimit + additionalLimit;
+    }
+    private void InitializeFloorRewardMapping()
+    {
+        stageRewardMapping = new Dictionary<int, Action>
+    {
+        {
+            0, () =>
+            {
+                RewardContext context = Utility.BuildMixedRewards(2, 1, 1, 10);
+                rewardPopup.AddRewards(context, 1);
+            }
+        },
+        {
+            2, () =>
+            {
+                RewardContext context = Utility.BuildMixedRewards(2, 1, 1, 10);
+                rewardPopup.AddRewards(context, 1);
+            }
+        },
+        {
+            4, () =>
+            {
+                RewardContext context = Utility.BuildMixedRewards(2, 1, 1, 10);
+                rewardPopup.AddRewards(context, 2);
+            }
+        },
+        {
+            6, () =>
+            {
+                RewardContext context = Utility.BuildMixedRewards(3, 2, 2, 16);
+                rewardPopup.AddRewards(context, 2);
+            }
+        },
+        {
+            9, () =>
+            {
+                RewardContext context = Utility.BuildMixedRewards(4, 2, 2, 22);
+                rewardPopup.AddRewards(context, 2);
+            }
+        },
+        {
+            12, () =>
+            {
+                RewardContext context = Utility.BuildMixedRewards(4, 2, 2, 22);
+                rewardPopup.AddRewards(context, 2);
+            }
+        },
+        {
+            15, () =>
+            {
+                RewardContext context = Utility.BuildMixedRewards(4,2,2,22);
+                rewardPopup.AddRewards(context, 2);
+            }
+        },
+        {
+            17, () =>
+            {
+                RewardContext context = Utility.BuildMixedRewards(0,0,0,40);
+                rewardPopup.AddRewards(context, 1);
+            }
+        }
+    };
     }
 }

@@ -1079,6 +1079,7 @@ GameObject:
   - component: {fileID: 8530410110419598513}
   - component: {fileID: 1929582521436546002}
   - component: {fileID: 1573413251587868027}
+  - component: {fileID: 8586413623066779692}
   m_Layer: 0
   m_Name: Hiyori
   m_TagString: Character
@@ -1140,6 +1141,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentHex: {fileID: 0}
+  HexWhenBattleStart: {fileID: 0}
   Target: {fileID: 0}
   PreTarget: {fileID: 0}
   IsAlly: 0
@@ -1198,6 +1200,7 @@ MonoBehaviour:
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
   IsHeroicEnhanced: 0
+  FaceDirectionLock: 0
   ManaLock: 0
   enterBattle: 0
   isAlive: 1
@@ -1207,11 +1210,13 @@ MonoBehaviour:
   isMarked: 0
   isCCImmune: 0
   Invincible: 0
+  AntiHeal: 0
+  Overtime: 0
+  AntiHealRatio: 0
   Taunted: 0
   attackRate: 5
   WakamoMark: 0
   stunned: 0
-  bulletPrefab: {fileID: 0}
   FirePoint: {fileID: 7824571993393144765}
   GetHitPoint: {fileID: 3743601838702825773}
   DetectedPos: {x: 0, y: 0, z: 0}
@@ -1224,6 +1229,10 @@ MonoBehaviour:
   isObj: 0
   Logistic_dummy: {fileID: 0}
   equipmentManager: {fileID: 0}
+  critTransferAmount: 0
+  StealManaCount: 0
+  DealtDamageThisRound: 0
+  TakeDamageThisRound: 0
 --- !u!114 &2167126574950903736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1304,6 +1313,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
+  animatorSpeed: 0
+  animationLock: 0
 --- !u!114 &5945554144215593499
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1450,6 +1461,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &8586413623066779692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1387971060000428081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642bc75772efce143adab14c975c5a9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Audio: {fileID: 11400000, guid: 516df5a50e7e0da498e53ee8f263a8fd, type: 2}
 --- !u!1 &1407125976934736084
 GameObject:
   m_ObjectHideFlags: 0

@@ -4469,10 +4469,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 329520172}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -43.43222}
+  m_SizeDelta: {x: 1280, y: 806.8645}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &694821362
 MonoBehaviour:
@@ -9069,10 +9069,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 329520172}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 1280, y: 720}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1735743381
 MonoBehaviour:
@@ -9094,22 +9094,22 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "This is an unfinished version of the game with many aspects still incomplete.
-    At the moment, it only implements the basic logic for unit attacks, combat, synergies,
-    and equipment. Many features remain under development.\nThe Millennium Academy
-    setup is not yet complete, and we haven\u2019t come up with a synergy concept
-    for the Rabbit Squad. Between-round rewards are not implemented either and are
-    currently replaced by a large amount of gold.\nAs compensation, there's a \u201CDeveloper
-    Tool\u201D in the top-left corner of the battle screen, which lets you acquire
-    any tools or characters you want. You can freely test different characters and
-    also fast-forward through rounds at will (there are only 10 rounds right now).\nNaturally,
-    there might be many bugs. If you encounter one, you can open the toolbar in the
-    top-right corner of the screen and click \u201CBug Report.\u201D This copies
-    your current setup, your opponents, and the random key used in this match, so
-    I can easily reproduce the exact bug scenario. The toolbar also includes a \u201CReset\u201D
-    function, which returns the game to its initial state.\nCurrently, the only data
-    that can be saved is your chosen language option; if you close the game, all
-    other data will be lost."
+  m_text: "There are still several things left to complete the game fully: the trait
+    of the Rabbit Squad, the rationalization of each character\u2019s cost, the rationalization
+    of characters in each bond (possibly adding as few additional characters as possible),
+    augments for each academy, augments  for each character, as well as general augments
+    . Effects/UI/bug fixes, and so on.\n\nThe rewards between turns have been set
+    up temporarily, and there are corresponding icons, but the balance still needs
+    improvement.\nAs compensation, there is a \u201CDeveloper Tool\u201D at the top
+    left of the battle screen. You can obtain any tool or character, freely try out
+    various characters, and also fast-forward rounds at will (currently, the number
+    of enemy rounds only goes up to 10).\nOf course, there might be many bugs in
+    the game. If you encounter a bug, you can open the toolbox at the top right of
+    the screen and click \u201Cbug report.\u201D This will record everything you
+    did in this session, making it easy for me to replicate the situation when the
+    bug occurred. There is also a reset function in the toolbox that can reset the
+    game to the very beginning.\nCurrently, the only data the game can save is the
+    language option you selected, so once you close it, all data will be lost.\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -11210,10 +11210,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 329520172}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 900, y: 700}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2048776588
 MonoBehaviour:
@@ -11235,8 +11235,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u9019\u662F\u4E00\u500B\u672A\u5B8C\u6210\u7248\u672C\u7684\u904A\u6232\uFF0C\u5176\u4E2D\u6709\u5F88\u591A\u5730\u65B9\u90FD\u5C1A\u672A\u5B8C\u5584\uFF0C\u53EA\u662F\u66AB\u6642\u5BE6\u73FE\u4E86\u68CB\u5B50\u7684\u57FA\u790E\u653B\u64CA/\u6230\u9B25/\u7F88\u7D46/\u88DD\u5099\u7B49\u908F\u8F2F\uFF0C\u6709\u4E9B\u5730\u65B9\u90FD\u9084\u5C1A\u672A\u5B8C\u5584\u3002\n\u5343\u5E74\u79D1\u5B78\u9662\u5C1A\u672A\u8A2D\u7F6E\u5B8C\u6210\uFF0C\u5154\u5B50\u5C0F\u968A\u7684\u7F88\u7D46\u5C1A\u672A\u69CB\u601D\u597D\u3002\u56DE\u5408\u9593\u7684\u734E\u52F5\u5C1A\u672A\u8A2D\u7F6E\uFF0C\u66AB\u6642\u4EE5\u5927\u91CF\u91D1\u5E63\u4EE3\u66FF\u3002\n\u4F5C\u70BA\u88DC\u511F\uFF0C\u5728\u6230\u9B25\u7684\u5DE6\u4E0A\u89D2\u6709\"\u958B\u767C\u8005\u5DE5\u5177\"\uFF0C\u53EF\u4EE5\u7372\u53D6\u4EFB\u610F\u7684\u5DE5\u5177\u548C\u89D2\u8272\uFF0C\u53EF\u4EE5\u96A8\u610F\u5617\u8A66\u5404\u7A2E\u89D2\u8272\uFF0C\u4E26\u4E14\u4E5F\u53EF\u4EE5\u96A8\u610F\u5FEB\u8F49\u56DE\u5408(\u73FE\u5728\u56DE\u5408\u6578\u53EA\u6709\u523010)\n\u7576\u7136\uFF0C\u904A\u6232\u7684bug\u53EF\u80FD\u6703\u5F88\u591A\uFF0C\u5982\u679C\u9047\u5230\u4E86bug\uFF0C\u56E0\u6B64\u5728\u87A2\u5E55\u7684\u53F3\u4E0A\u89D2\u9EDE\u958B\u6709\u5DE5\u5177\u6B04\uFF0C\u9EDE\u64CAbug
-    report\u5C31\u53EF\u4EE5\u5C07\u4F60\u9019\u5C40\u7684\u914D\u7F6E/\u6575\u4EBA/\u672C\u5C40\u7684\u96A8\u6A5Fkey\u8907\u88FD\uFF0C\u8B93\u6211\u53EF\u4EE5\u7C21\u55AE\u7684\u8907\u88FDbug\u89F8\u767C\u6642\u7684\u60C5\u5883\u3002\u5DE5\u5177\u6B04\u4E4B\u4E2D\u9084\u6709\u91CD\u7F6E\u529F\u80FD\uFF0C\u53EF\u4EE5\u5C07\u91CD\u7F6E\u5230\u904A\u6232\u4E00\u958B\u59CB\u3002\n\u76EE\u524D\u904A\u6232\u552F\u4E00\u80FD\u5132\u5B58\u7684\u6578\u64DA\u53EA\u6709\u4F60\u9078\u64C7\u7684\u8A9E\u8A00\u9078\u9805\uFF0C\u6240\u4EE5\u4E00\u65E6\u95DC\u6389\uFF0C\u6578\u64DA\u5C31\u6703\u5168\u90E8\u4E1F\u5931\u3002"
+  m_text: "\u8DDD\u96E2\u6B64\u904A\u6232\u5B8C\u5168\u5B8C\u6210\u9084\u5DEE:\u5154\u5B50\u5C0F\u968A\u7684\u7F88\u7D46\uFF0C\u5404\u89D2\u8272\u7684\u8CBB\u7528\u5408\u7406\u5316\uFF0C\u5404\u7F88\u7D46\u7684\u89D2\u8272\u5408\u7406\u5316(\u53EF\u80FD\u6703\u76E1\u53EF\u80FD\u5C11\u7684\u88DC\u4E0A\u5E7E\u500B\u89D2\u8272)\uFF0C\u5404\u500B\u5B78\u9662\u7684\u5F37\u5316\uFF0C\u5404\u500B\u89D2\u8272\u7684\u5F37\u5316\uFF0C\u4EE5\u53CA\u901A\u7528\u7684\u5F37\u5316\u3002\u7279\u6548/UI/\u6539bug\u7B49\u7B49\u3002\n\n\u56DE\u5408\u9593\u7684\u734E\u52F5\u66AB\u6642\u8A2D\u7F6E\u597D\u4E86\uFF0C\u4E5F\u6709\u5C0D\u61C9\u7684\u5716\u6A19\u4E86\uFF0C\u4F46\u5E73\u8861\u6027\u4ECD\u6709\u5F85\u52A0\u5F37\u3002\n\u4F5C\u70BA\u88DC\u511F\uFF0C\u5728\u6230\u9B25\u7684\u5DE6\u4E0A\u89D2\u6709\"\u958B\u767C\u8005\u5DE5\u5177\"\uFF0C\u53EF\u4EE5\u7372\u53D6\u4EFB\u610F\u7684\u5DE5\u5177\u548C\u89D2\u8272\uFF0C\u53EF\u4EE5\u96A8\u610F\u5617\u8A66\u5404\u7A2E\u89D2\u8272\uFF0C\u4E26\u4E14\u4E5F\u53EF\u4EE5\u96A8\u610F\u5FEB\u8F49\u56DE(\u73FE\u5728\u6709\u6575\u4EBA\u7684\u56DE\u5408\u6578\u53EA\u6709\u523010)\u3002\n\u7576\u7136\uFF0C\u904A\u6232\u7684bug\u53EF\u80FD\u6703\u5F88\u591A\uFF0C\u5982\u679C\u9047\u5230\u4E86bug\uFF0C\u5728\u87A2\u5E55\u7684\u53F3\u4E0A\u89D2\u9EDE\u958B\u6709\u5DE5\u5177\u6B04\uFF0C\u9EDE\u64CAbug
+    report\u6703\u5C07\u4F60\u672C\u5C40\u6240\u505A\u7684\u6240\u6709\u4E8B\u60C5\u8A18\u9304\u4E0B\u4F86\uFF0C\u8B93\u6211\u53EF\u4EE5\u7C21\u55AE\u7684\u8907\u88FDbug\u89F8\u767C\u6642\u7684\u60C5\u5883\u3002\u5DE5\u5177\u6B04\u4E4B\u4E2D\u9084\u6709\u91CD\u7F6E\u529F\u80FD\uFF0C\u53EF\u4EE5\u5C07\u904A\u6232\u91CD\u7F6E\u5230\u4E00\u958B\u59CB\u3002\n\u76EE\u524D\u904A\u6232\u552F\u4E00\u80FD\u5132\u5B58\u7684\u6578\u64DA\u53EA\u6709\u4F60\u9078\u64C7\u7684\u8A9E\u8A00\u9078\u9805\uFF0C\u6240\u4EE5\u4E00\u65E6\u95DC\u6389\uFF0C\u6578\u64DA\u5C31\u6703\u5168\u90E8\u4E1F\u5931\u3002"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 12cb0d9eafb975d49b8fffbdec7d867d, type: 2}
   m_sharedMaterial: {fileID: 1476058203157640316, guid: 12cb0d9eafb975d49b8fffbdec7d867d,

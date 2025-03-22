@@ -977,6 +977,7 @@ GameObject:
   - component: {fileID: 6709386769453040634}
   - component: {fileID: 2140492005416440562}
   - component: {fileID: 7093590941821635399}
+  - component: {fileID: 396431280728043949}
   m_Layer: 0
   m_Name: Atsuko
   m_TagString: Character
@@ -1040,6 +1041,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentHex: {fileID: 0}
+  HexWhenBattleStart: {fileID: 0}
   Target: {fileID: 0}
   PreTarget: {fileID: 0}
   IsAlly: 0
@@ -1098,6 +1100,7 @@ MonoBehaviour:
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
   IsHeroicEnhanced: 0
+  FaceDirectionLock: 0
   ManaLock: 0
   enterBattle: 0
   isAlive: 1
@@ -1107,11 +1110,13 @@ MonoBehaviour:
   isMarked: 0
   isCCImmune: 0
   Invincible: 0
+  AntiHeal: 0
+  Overtime: 0
+  AntiHealRatio: 0
   Taunted: 0
   attackRate: 5
   WakamoMark: 0
   stunned: 0
-  bulletPrefab: {fileID: 0}
   FirePoint: {fileID: 4572294378649335718}
   GetHitPoint: {fileID: 3704727841398714183}
   DetectedPos: {x: 0, y: 0, z: 0}
@@ -1124,6 +1129,10 @@ MonoBehaviour:
   isObj: 0
   Logistic_dummy: {fileID: 0}
   equipmentManager: {fileID: 0}
+  critTransferAmount: 0
+  StealManaCount: 0
+  DealtDamageThisRound: 0
+  TakeDamageThisRound: 0
 --- !u!114 &7059439664336453044
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1204,6 +1213,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
+  animatorSpeed: 0
+  animationLock: 0
 --- !u!114 &467206746970435128
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1368,6 +1379,19 @@ MonoBehaviour:
   DroneAnimator: {fileID: 7417144246108194488}
   parent: {fileID: 1029013443674216442}
   characterCTRL: {fileID: 7657171954497531888}
+--- !u!114 &396431280728043949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1908422969429455888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642bc75772efce143adab14c975c5a9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Audio: {fileID: 11400000, guid: 7ad10aa8e9886ad4092dd46975e5cee9, type: 2}
 --- !u!1 &1918680471010713796
 GameObject:
   m_ObjectHideFlags: 0

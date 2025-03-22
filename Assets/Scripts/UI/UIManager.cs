@@ -5,6 +5,7 @@ using TMPro;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Text;
+using Unity.VisualScripting;
 
 
 public class UIManager : MonoBehaviour
@@ -30,6 +31,7 @@ public class UIManager : MonoBehaviour
     public Image Sprite1, Sprite2, CompleteItemSprite;
     public TextMeshProUGUI CompleteItemText;
     public Button BugReportButton;
+    public TextMeshProUGUI Attack, Accuracy, Attackspeed, CritChance, CritDamage, Def, Dodge, Lifesteal, PercentageDef;
     private void Awake()
     {
         if (Instance == null)
@@ -98,7 +100,17 @@ public class UIManager : MonoBehaviour
         int level = character.star;
         int language = PlayerSettings.SelectedDropdownValue;
         var replacements = StringPlaceholderReplacer.BuildPlaceholderDictionary(character, level, language);
-        string rawTooltip = character.characterStats.Tooltips[language];
+        bool isEnhance = character.characterStats.TestEnhanceSkill;
+        string rawTooltip;
+        if (isEnhance)
+        {
+            rawTooltip = character.characterStats.EnhancedSkillTooltips[language];
+        }
+        else
+        {
+            rawTooltip = character.characterStats.Tooltips[language];
+        }
+
         string finalTooltip = StringPlaceholderReplacer.ReplacePlaceholders(rawTooltip, replacements);
         skillContext.text = finalTooltip;
     }
@@ -109,6 +121,7 @@ public class UIManager : MonoBehaviour
         if (characterStatsPopup.activeSelf && currentCharacter != null)
         {
             UpdateCharacterStats();
+            UpdateModal();
         }
     }
     public void ReSetBattleData()
@@ -182,6 +195,19 @@ public class UIManager : MonoBehaviour
         EquipmntModal.SetActive(false);
         characterStatsPopup.SetActive(false);
         currentCharacter = null;
+    }
+    private void UpdateModal()
+    {
+        Attack.text = currentCharacter.GetStat(StatsType.Attack).ToString();
+        Accuracy.text = currentCharacter.GetStat(StatsType.Accuracy).ToString();
+        Attackspeed.text = currentCharacter.GetStat(StatsType.AttackSpeed).ToString();
+        CritChance.text = currentCharacter.GetStat(StatsType.CritChance).ToString();
+        CritDamage.text = currentCharacter.GetStat(StatsType.CritRatio).ToString();
+        Def.text = currentCharacter.GetStat(StatsType.Resistence).ToString();
+        Dodge.text = currentCharacter.GetStat(StatsType.DodgeChance).ToString();
+        Lifesteal.text = currentCharacter.GetStat(StatsType.Lifesteal).ToString();
+        PercentageDef.text = currentCharacter.GetStat(StatsType.PercentageResistence).ToString();
+
     }
 }
 public static class StringPlaceholderReplacer

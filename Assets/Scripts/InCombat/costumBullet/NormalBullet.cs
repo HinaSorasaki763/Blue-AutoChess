@@ -138,7 +138,15 @@ public class NormalBullet : MonoBehaviour
 
     private void HitTarget(CharacterCTRL enemy)
     {
-        enemy.GetHit(damage, parent, DamageSourceType.Skill.ToString(), isCrit);
+        if (isSkillBullet)
+        {
+            enemy.GetHit(damage, parent, DamageSourceType.Skill.ToString(), isCrit);
+        }
+        else
+        {
+            enemy.GetHit(damage, parent, DamageSourceType.NormalAttack.ToString(), isCrit);
+        }
+
 
         // 觸發所有效果
         foreach (var effect in hitEffects)
@@ -209,6 +217,15 @@ public class HiyoriSkillEffecct : HitEffect
         }
     }
 }
+
+public class KazusaSkillEffect : HitEffect
+{
+    public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
+    {
+        Effect effect = EffectFactory.KazusaMark();
+        target.effectCTRL.AddEffect(effect);
+    }
+}
 public class MisakiSkillEffect : HitEffect
 {
     public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
@@ -255,6 +272,16 @@ public class MisakiSkillEffect : HitEffect
         else
         {
             CustomLogger.LogWarning(this, "Source.ActiveSkill is not Misaki_Skill");
+        }
+    }
+}
+public class NonomiSkillEffect : HitEffect
+{
+    public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
+    {
+        if (Utility.GetRand(source) < 30)
+        {
+            GameController.Instance.AddGold(1);//TODO: 改為dropGold
         }
     }
 }

@@ -1,9 +1,6 @@
 ﻿using GameEnum;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEditor.ShaderGraph.Legacy;
-using UnityEngine;
+
 
 public class AegisObserver : CharacterObserverBase
 {

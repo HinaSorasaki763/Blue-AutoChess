@@ -5358,6 +5358,7 @@ GameObject:
   - component: {fileID: 3273683305641128963}
   - component: {fileID: 7351133998636325962}
   - component: {fileID: 2530914106276600116}
+  - component: {fileID: 6103978239019047794}
   m_Layer: 0
   m_Name: Miyu
   m_TagString: Character
@@ -5425,6 +5426,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentHex: {fileID: 0}
+  HexWhenBattleStart: {fileID: 0}
   Target: {fileID: 0}
   PreTarget: {fileID: 0}
   IsAlly: 0
@@ -5494,6 +5496,8 @@ MonoBehaviour:
   isCCImmune: 0
   Invincible: 0
   AntiHeal: 0
+  Overtime: 0
+  AntiHealRatio: 0
   Taunted: 0
   attackRate: 5
   WakamoMark: 0
@@ -5510,7 +5514,10 @@ MonoBehaviour:
   isObj: 0
   Logistic_dummy: {fileID: 0}
   equipmentManager: {fileID: 0}
+  critTransferAmount: 0
   StealManaCount: 0
+  DealtDamageThisRound: 0
+  TakeDamageThisRound: 0
 --- !u!114 &233629429957749383
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5739,6 +5746,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &6103978239019047794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9067541821552336369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642bc75772efce143adab14c975c5a9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Audio: {fileID: 11400000, guid: d3e6f0c0e9d041b4890befb1ac884ec2, type: 2}
 --- !u!1 &9189924815670939935
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using static Unity.VisualScripting.Member;
 
 namespace GameEnum
 {
@@ -118,6 +119,7 @@ namespace GameEnum
         public int Id { get; }
         public string EquipmentName { get; }
         public string EquipmentDetail { get; }
+        public string EquipmentDescriptionEnglish { get; }
         public Sprite Icon { get; }
         public bool IsConsumable { get; }
         public CharacterObserverBase Observer { get; set; }
@@ -136,6 +138,7 @@ namespace GameEnum
         public Sprite icon;
         public string equipmentName;
         public string equipmentDetail;
+        public string equipmentDescriptionEnglish;
         public int value;
         public bool isConsumable;
         public List<EquipmentType> combinableWith;
@@ -143,6 +146,7 @@ namespace GameEnum
         public int Id => id;
         public string EquipmentName => equipmentName;
         public string EquipmentDetail => equipmentDetail;
+        public string EquipmentDescriptionEnglish => equipmentDescriptionEnglish;
         public Sprite Icon => icon;
         public bool IsConsumable => isConsumable;
         public CharacterObserverBase observer;
@@ -158,6 +162,7 @@ namespace GameEnum
             icon = equipmentSO.icon;
             equipmentName = equipmentSO.equipmentName;
             equipmentDetail = equipmentSO.equipmentDescription;
+            equipmentDescriptionEnglish = equipmentSO.equipmentDescriptionEnglish;
             isConsumable = equipmentSO.IsConsumable;
         }
         public Dictionary<EquipmentType, int> GetStats()
@@ -177,6 +182,7 @@ namespace GameEnum
             copy.id = this.id;
             copy.equipmentName = this.equipmentName;
             copy.equipmentDetail = this.equipmentDetail;
+            copy.equipmentDescriptionEnglish = this.equipmentDescriptionEnglish;
             copy.icon = this.icon;
             copy.isConsumable = this.isConsumable;
             copy.value = this.value;
@@ -199,6 +205,7 @@ namespace GameEnum
         public BasicEquipment equipment2;
         public string equipmentName;
         public string equipmentDetail;
+        public string equipmentDescriptionEnglish;
         public Sprite icon;
         public bool isConsumable;
         public Dictionary<EquipmentType, int> combinedStats;
@@ -211,6 +218,7 @@ namespace GameEnum
         public int Id => id;
         public string EquipmentName => equipmentName;
         public string EquipmentDetail => equipmentDetail;
+        public string EquipmentDescriptionEnglish => equipmentDescriptionEnglish;
         public Sprite Icon => icon;
         public bool IsConsumable => isConsumable;
         public CharacterObserverBase Observer
@@ -226,6 +234,7 @@ namespace GameEnum
             icon = equipmentSO.icon;
             equipmentName = equipmentSO.equipmentName;
             equipmentDetail = equipmentSO.equipmentDescription;
+            equipmentDescriptionEnglish = equipmentSO.equipmentDescriptionEnglish;
             isConsumable = equipmentSO.IsConsumable;
             combinedStats = equipmentSO.combinedStats;
             Attributes = equipmentSO.Attributes;
@@ -255,6 +264,7 @@ namespace GameEnum
             copy.id = this.id;
             copy.equipmentName = this.equipmentName;
             copy.equipmentDetail = this.equipmentDetail;
+            copy.equipmentDescriptionEnglish = this.equipmentDescriptionEnglish;
             copy.icon = this.icon;
             copy.isConsumable = this.isConsumable;
             if (this.combinedStats != null)
@@ -301,6 +311,7 @@ namespace GameEnum
         public Sprite icon;
         public string equipmentName;
         public string equipmentDetail;
+        public string equipmentDescriptionEnglish;
         public List<int> value;
         public bool isSpecial;
         public bool isConsumable;
@@ -324,6 +335,7 @@ namespace GameEnum
 
         public string EquipmentName => equipmentName;
         public string EquipmentDetail => equipmentDetail;
+        public string EquipmentDescriptionEnglish => equipmentDescriptionEnglish;
         public Sprite Icon => icon;
         public bool IsConsumable => isConsumable;
 
@@ -338,6 +350,7 @@ namespace GameEnum
             icon = equipmentSO.icon;
             equipmentName = equipmentSO.equipmentName;
             equipmentDetail = equipmentSO.equipmentDescription;
+            equipmentDescriptionEnglish = equipmentSO.equipmentDescriptionEnglish;
             value = equipmentSO.Value;
             trait = equipmentSO.Traits;
             isSpecial = equipmentSO.isSpecial;
@@ -383,6 +396,7 @@ namespace GameEnum
             copy.icon = this.icon;
             copy.equipmentName = this.equipmentName;
             copy.equipmentDetail = this.equipmentDetail;
+            copy.equipmentDescriptionEnglish = this.equipmentDescriptionEnglish;
             copy.isSpecial = this.isSpecial;
             copy.isConsumable = this.isConsumable;
             copy.trait = this.trait;
@@ -430,6 +444,7 @@ namespace GameEnum
         public Sprite icon;
         public string equipmentName;
         public string equipmentDetail;
+        public string equipmentDescriptionEnglish;
         public int value;
         public bool isSpecial;
         public bool isConsumable;
@@ -449,6 +464,7 @@ namespace GameEnum
         }
         public string EquipmentName => equipmentName;
         public string EquipmentDetail => equipmentDetail;
+        public string EquipmentDescriptionEnglish => equipmentDescriptionEnglish;
         public Sprite Icon => icon;
         public bool IsSpecial => isSpecial;
         public bool IsConsumable => isConsumable;
@@ -459,6 +475,7 @@ namespace GameEnum
             icon = equipmentSO.icon;
             equipmentName = equipmentSO.equipmentName;
             equipmentDetail = equipmentSO.equipmentDescription;
+            equipmentDescriptionEnglish = equipmentSO.equipmentDescriptionEnglish;
             isSpecial = equipmentSO.isSpecial;
             isConsumable = equipmentSO.IsConsumable;
             consumableEffect = effect;
@@ -501,6 +518,7 @@ namespace GameEnum
             copy.icon = this.icon;
             copy.equipmentName = this.equipmentName;
             copy.equipmentDetail = this.equipmentDetail;
+            copy.equipmentDescriptionEnglish = this.equipmentDescriptionEnglish;
             copy.value = this.value;
             copy.isSpecial = this.isSpecial;
             copy.isConsumable = this.isConsumable;
@@ -677,6 +695,45 @@ namespace GameEnum
             stats.Add(new Stat { statType = type, value = 0 });
             return 0;
         }
+        public void AddFrom(StatsContainer other)
+        {
+            foreach (var otherStat in other.stats)
+            {
+                float currentValue = GetStat(otherStat.statType);
+                float newValue = currentValue + otherStat.value;
+                SetStat(otherStat.statType, newValue);
+            }
+        }
+        public void AddValue(StatsType type, float value)
+        {
+            Stat stat = stats.Find(s => s.statType == type);
+            if (stat != null)
+            {
+                stat.value += value;
+            }
+            else
+            {
+                stats.Add(new Stat { statType = type, value = 0 });
+                stat.value += value;
+            }
+        }
+
+        public float SumAllStats()
+        {
+            float total = 0;
+            foreach (var s in stats)
+            {
+                total += s.value;
+            }
+            return total;
+        }
+        public void Clear()
+        {
+            foreach (var stat in stats)
+            {
+                stat.value = 0;
+            }
+        }
     }
     [Serializable]
     public class Stat
@@ -745,6 +802,7 @@ namespace GameEnum
     }
     public static class Utility
     {
+
         public static Traits IsAcademy(List<Traits> traits)
         {
             foreach (var item in traits)
@@ -874,6 +932,17 @@ namespace GameEnum
             }
             return visited;
         }
+        public static CharacterCTRL GetSpecificCharacterByIndex(List<CharacterCTRL> list,int index)
+        {
+            foreach (var item in list)
+            {
+                if (item.characterStats.CharacterId == index)
+                {
+                    return item;
+                }
+            }
+            return null;
+        }   
         public static List<CharacterCTRL> GetCharacterInSet(List<HexNode> nodes, CharacterCTRL finder, bool findingAlly)
         {
             var characters = new List<CharacterCTRL>();
@@ -946,15 +1015,26 @@ namespace GameEnum
                 item.GetHit(dmg, sourceCharacter, source, iscrit);
             }
         }
+        public static int GetRand(CharacterCTRL c = null)
+        {
+            if (c != null)
+            {
+                int battleCounterInt = Mathf.FloorToInt(GameStageManager.Instance.enteringBattleCounter * 1000);
+                int i = c.IsAlly ? 1 : 0;
+                int seed = ResourcePool.Instance.RandomKeyThisGame + battleCounterInt + c.characterStats.CharacterId + i;
+                UnityEngine.Random.InitState(seed);
+                return UnityEngine.Random.Range(0, 101);
+            }
+            else
+            {
+                int battleCounterInt = Mathf.FloorToInt(GameStageManager.Instance.enteringBattleCounter * 1000);
+                UnityEngine.Random.InitState(ResourcePool.Instance.RandomKeyThisGame + battleCounterInt);
+                return UnityEngine.Random.Range(0, 101);
+            }
+        }
         public static bool Iscrit(float critChance, CharacterCTRL c)
         {
-            UnityEngine.Random.State oldState = UnityEngine.Random.state;
-            int battleCounterInt = Mathf.FloorToInt(GameStageManager.Instance.enteringBattleCounter * 1000);
-            int i = c.IsAlly ? 1 : 0;
-            int seed = ResourcePool.Instance.RandomKeyThisGame + battleCounterInt + c.characterStats.CharacterId + i;
-            UnityEngine.Random.InitState(seed);
-            int rand = UnityEngine.Random.Range(0, 101);
-            UnityEngine.Random.state = oldState;
+            int rand = GetRand(c);
             return rand <= critChance;
         }
 
@@ -974,14 +1054,14 @@ namespace GameEnum
         public static (List<HexNode> bestNodes, HexNode oppositeNode, int maxCount, int direction) FindMaxOccupantArcNode(CharacterCTRL character, bool findAlly)
         {
             int globalMaxCount = -1;
+            float globalMinDistance = int.MaxValue;
             HexNode globalBestNode = null;
             HexNode globalOppositeNode = null;
             List<HexNode> globalBestNodeList = new List<HexNode>();
             int dir = 0;
-            // 遍歷場上的所有節點
+
             foreach (var node in SpawnGrid.Instance.hexNodes.Values)
             {
-                // 收集此節點下，6 個方向(120度)中各自角色數及對應對面節點
                 List<(int occupantCount, int direction, HexNode opposite, List<HexNode> nodeset)> directionInfo
                     = new List<(int occupantCount, int direction, HexNode opposite, List<HexNode> nodeset)>();
                 for (int i = 0; i < 6; i++)
@@ -998,11 +1078,11 @@ namespace GameEnum
                     HexNode oppositeNode = GetNeighbor(node, (i + 3) % 6);
                     directionInfo.Add((occupantCount, i, oppositeNode, nodelist));
                 }
+
                 directionInfo.Sort((a, b) => b.occupantCount.CompareTo(a.occupantCount));
                 bool foundValid = false;
                 foreach (var info in directionInfo)
                 {
-
                     if (info.opposite != null && info.opposite.OccupyingCharacter == null)
                     {
                         HexNode nextNeighbor = GetNeighbor(info.opposite, (info.direction + 3) % 6);
@@ -1011,30 +1091,35 @@ namespace GameEnum
                             if (info.occupantCount > globalMaxCount)
                             {
                                 globalMaxCount = info.occupantCount;
+                                globalMinDistance = Vector3.Distance(character.CurrentHex.transform.position,node.transform.position);
                                 globalBestNode = node;
                                 dir = info.direction;
                                 globalOppositeNode = info.opposite;
                                 globalBestNodeList = info.nodeset;
                             }
+                            else if (info.occupantCount == globalMaxCount)
+                            {
+                                float dist = Vector3.Distance(character.CurrentHex.transform.position, node.transform.position);
+                                if (dist < globalMinDistance)
+                                {
+                                    globalMinDistance = dist;
+                                    globalBestNode = node;
+                                    dir = info.direction;
+                                    globalOppositeNode = info.opposite;
+                                    globalBestNodeList = info.nodeset;
+                                }
+                            }
                             foundValid = true;
                             break;
                         }
-
                     }
-                }
-
-                // 若所有方向都沒有 valid 的對面(全部 null)，就不更新 globalMax
-                if (!foundValid)
-                {
-                    // 這邊什麼都不做即可，跳到下一個 node
                 }
             }
 
-            CustomLogger.Log(globalBestNode,
-                $"Max occupant arc = {globalMaxCount}, Node = {globalBestNode?.name}, Opposite = {globalOppositeNode?.name}");
-
+            CustomLogger.Log(globalBestNode, $"Max occupant arc = {globalMaxCount}, Node = {globalBestNode?.name}, Opposite = {globalOppositeNode?.name}");
             return (globalBestNodeList, globalOppositeNode, globalMaxCount, dir);
         }
+
 
         /// <summary>
         /// 安全取得某一個節點的第 dir 個鄰居(如果超過鄰居列表範圍或者 null 就直接返回 null)。
@@ -1134,7 +1219,9 @@ namespace GameEnum
                 RewardEntry compEntry = new RewardEntry(
                     new List<IReward>() { randomComponents },
                     ResourcePool.Instance.RandomRewardSprite,
-                    $"{componentCount} random component",
+                    $"隨機組件*{componentCount} ",
+                    $"{componentCount} random components",
+                    $"隨機組件*{componentCount} ",
                     $"{componentCount} random component",
                     References.DescriptionIndex
                 );
@@ -1151,8 +1238,10 @@ namespace GameEnum
                 RewardEntry multiEquipEntry = new RewardEntry(
                     new List<IReward>() { multiEquipReward },
                     ResourcePool.Instance.RandomRewardSprite,
-                    $"隨機裝備 x {multiEquipCount}",
-                    $"一次領取 {multiEquipCount} 件隨機裝備",
+                    $"隨機裝備 *{multiEquipCount}",
+                    $"Random Equipment *{multiEquipCount}",
+                    $"隨機裝備 *{multiEquipCount}",
+                    $"Random Equipment *{multiEquipCount}",
                     References.DescriptionIndex
                 );
                 context.AddRewardEntry(multiEquipEntry);
@@ -1176,7 +1265,9 @@ namespace GameEnum
                         new List<IReward>() { singleRandom },
                         eq.Icon,
                         eq.EquipmentName,
+                        eq.EquipmentName,
                         eq.EquipmentDetail,
+                        eq.EquipmentDescriptionEnglish,
                         References.DescriptionIndex
                     );
                     context.AddRewardEntry(entry);
@@ -1188,9 +1279,11 @@ namespace GameEnum
                 References.DescriptionIndex++;
                 RewardEntry goldEntry = new RewardEntry(
                     new List<IReward>() { goldReward },
-                    null,
-                    $"金幣 x {gold}",
-                    $"直接獲得 {gold} 金幣",
+                    ResourcePool.Instance.GoldSprite,
+                    $"招募點數 *{gold}",
+                    $"recurite point *{gold}",
+                    $"招募點數 *{gold}",
+                    $"recurite point *{gold}",
                     References.DescriptionIndex
                 );
                 context.AddRewardEntry(goldEntry);
@@ -1234,6 +1327,7 @@ namespace GameEnum
         public Action<CharacterCTRL> OnRemove { get; private set; } // 當效果被移除時
         public ClearEffectCondition ClearEffectCondition { get; private set; }
         public bool Stackable { get; private set; }
+        public bool IsLogisticBuff { get; private set; }
         public Effect(
             EffectType effectType,
             ModifierType modifierType,
@@ -1246,7 +1340,8 @@ namespace GameEnum
             SpecialEffectType specialType = SpecialEffectType.None,
             CharacterCTRL parent = null,
             bool stackable = false,
-            ClearEffectCondition clearEffectCondition = ClearEffectCondition.Never
+            ClearEffectCondition clearEffectCondition = ClearEffectCondition.Never,
+            bool isLogisticBuff = false
 
         )
         {
@@ -1262,6 +1357,7 @@ namespace GameEnum
             Parent = parent;
             Stackable = stackable;
             ClearEffectCondition = clearEffectCondition;
+            IsLogisticBuff = isLogisticBuff;
         }
         public void UpdateValue(float newValue)
         {

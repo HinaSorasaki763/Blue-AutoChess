@@ -33,6 +33,7 @@ public class EquipmentSO : ScriptableObject, IEquipment
     }
     public string EquipmentDetail => equipmentDescription;
     public string EquipmentName => equipmentName;
+    public string EquipmentDescriptionEnglish => equipmentDescriptionEnglish;
     public Sprite Icon => icon;
     public bool IsSpecial => isSpecial;
     public bool IsConsumable => isConsumable;

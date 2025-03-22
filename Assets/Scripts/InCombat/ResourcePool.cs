@@ -41,6 +41,7 @@ public class ResourcePool : MonoBehaviour
     public int RandomKeyThisGame;
     public readonly int FixedRandomKey = 1854998248;
     public Sprite RandomRewardSprite;
+    public Sprite GoldSprite;
     public Sprite[] numberSprites;
     private void Awake()
     {
@@ -89,16 +90,7 @@ public class ResourcePool : MonoBehaviour
             {
                 if (!characterDictionary.ContainsKey(character.CharacterId))
                 {
-                    sb.AppendLine($"character {character.CharacterName} ,level = {character.Level}");
-                    float res = character.Stats.GetStat(StatsType.Resistence);
-                    float ratio = res/(100 + res) ;
-                    sb.AppendLine($"effective health = {character.Stats.GetStat(StatsType.Health)*(1/(1-ratio))}");
-                    sb.AppendLine($"dps = {character.Stats.GetStat(StatsType.Attack)* character.Stats.GetStat(StatsType.AttackSpeed)}");
-                    sb.AppendLine($"range = {character.Stats.GetStat(StatsType.Range)}");
-                    if (character.logistics)
-                    {
-                        sb.AppendLine($"(logistics)");
-                    }
+                    sb.AppendLine($"character {character.CharacterName} ,skill = {character.Tooltips[0]}");
                     sb.AppendLine("");
                     characterDictionary.Add(character.CharacterId, character);
                 }

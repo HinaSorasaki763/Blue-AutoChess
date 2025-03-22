@@ -3502,6 +3502,7 @@ GameObject:
   - component: {fileID: 1272746737541319589}
   - component: {fileID: 7750125673110957644}
   - component: {fileID: 197906662521984478}
+  - component: {fileID: 6918112775322899941}
   m_Layer: 0
   m_Name: Moe
   m_TagString: Character
@@ -3566,6 +3567,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentHex: {fileID: 0}
+  HexWhenBattleStart: {fileID: 0}
   Target: {fileID: 0}
   PreTarget: {fileID: 0}
   IsAlly: 0
@@ -3635,6 +3637,8 @@ MonoBehaviour:
   isCCImmune: 0
   Invincible: 0
   AntiHeal: 0
+  Overtime: 0
+  AntiHealRatio: 0
   Taunted: 0
   attackRate: 5
   WakamoMark: 0
@@ -3651,7 +3655,10 @@ MonoBehaviour:
   isObj: 0
   Logistic_dummy: {fileID: 0}
   equipmentManager: {fileID: 0}
+  critTransferAmount: 0
   StealManaCount: 0
+  DealtDamageThisRound: 0
+  TakeDamageThisRound: 0
 --- !u!114 &4681874101017538319
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3880,6 +3887,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &6918112775322899941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8788391508725314848}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 642bc75772efce143adab14c975c5a9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Audio: {fileID: 11400000, guid: 8c1c4ab36aad82247b7f62332186b61d, type: 2}
 --- !u!1 &9007653380843840980
 GameObject:
   m_ObjectHideFlags: 0

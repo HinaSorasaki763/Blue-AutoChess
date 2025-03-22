@@ -25,8 +25,6 @@ public class TwoButtonsToggle : MonoBehaviour
             SetButtonColors(firstButton, activeColor);
             // 第二個按鈕(隱藏中的)用深色
             SetButtonColors(secondButton, inactiveColor);
-
-            CustomLogger.Log(this, "第一個物體被啟用");
         });
 
         secondButton.onClick.AddListener(() =>
@@ -39,8 +37,6 @@ public class TwoButtonsToggle : MonoBehaviour
             SetButtonColors(secondButton, activeColor);
             // 第一個按鈕(隱藏中的)用深色
             SetButtonColors(firstButton, inactiveColor);
-
-            CustomLogger.Log(this, "第二個物體被啟用");
         });
 
         // 預設啟用第一個

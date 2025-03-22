@@ -1,8 +1,10 @@
 ﻿
 using GameEnum;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public abstract class CharacterObserverBase
 {
@@ -57,6 +59,10 @@ public abstract class CharacterObserverBase
 
     public virtual void OnCrit(CharacterCTRL character)
     {
+        if (GameController.Instance.GetEnhanchedCharacterIndex(character.IsAlly) == 9)
+        {
+            GameController.Instance.AddSerinaEnhancedSkill_CritCountStack(character.IsAlly);
+        }
         CustomLogger.Log(this, $"{character.characterStats.name} landed a critical hit.");
     }
     public virtual void OnHealthChanged(CharacterCTRL character)
@@ -70,7 +76,14 @@ public abstract class CharacterObserverBase
     }
     public virtual void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
-
+        if (GameController.Instance.GetEnhanchedCharacterIndex(source.IsAlly) == 39 && source.characterStats.CharacterId == 39)
+        {
+            int threshold = (int)(target.GetStat(StatsType.Health) * 15 * 0.01f);
+            if (target.GetStat(StatsType.currHealth) <= threshold)
+            {
+                target.Executed(source, detailedSource);
+            }
+        }
     }
 
     public virtual void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource)
@@ -79,11 +92,21 @@ public abstract class CharacterObserverBase
     }
     public virtual void OnKilledEnemy(CharacterCTRL character, string detailedSource ,CharacterCTRL characterDies)
     {
+        if (character.effectCTRL.GetEffect("AkoEnhancedSkillBuff") != null)
+        {
+            character.AddExtraStat(StatsType.CritChance, 1);
+            character.AddExtraStat(StatsType.CritRatio, 1);
+        }
+
         CustomLogger.Log(this, $"{character.characterStats.name} killed an enemy {characterDies} with source {detailedSource}.");
     }
 
     public virtual void OnDying(CharacterCTRL character)
     {
+        if (character.effectCTRL.HaveEffect("KazusaMark"))
+        {
+            GameController.Instance.AddExtraStat(StatsType.AttackSpeed, 0.01f);
+        }
         CustomLogger.Log(this, $"{character.characterStats.name} is dying.");
     }
 
@@ -111,6 +134,19 @@ public abstract class CharacterObserverBase
     public virtual void OnDamaging(CharacterCTRL character)
     {
         CustomLogger.Log(this, $"{character.characterStats.name} dealt damage.");
+    }
+    public virtual void OnDodged(CharacterCTRL character)
+    {
+        if (GameController.Instance.GetEnhanchedCharacterIndex(character.IsAlly) == 32)
+        {
+            Effect effect = EffectFactory.StatckableStatsEffct(5,"Atsuko",1,StatsType.DodgeChance,character,false);
+            effect.SetActions(
+                (character) => character.ModifyStats(StatsType.DodgeChance, effect.Value, effect.Source),
+                (character) => character.ModifyStats(StatsType.DodgeChance, -effect.Value, effect.Source)
+            );
+            character.effectCTRL.AddEffect(effect);
+        }
+        CustomLogger.Log(this, $"{character.characterStats.name} dodged.");
     }
     public virtual void OnLogistic(CharacterCTRL character)
     {
@@ -207,6 +243,16 @@ public class AyaneObserver : CharacterObserverBase
         }
     }
 }
+public class AzusaObserver : CharacterObserverBase
+{
+    public override void OnKilledEnemy(CharacterCTRL character, string detailedSource, CharacterCTRL characterDies)
+    {
+        if (GameController.Instance.GetEnhanchedCharacterIndex(character.IsAlly) == 13)
+        {
+            character.AddExtraStat(StatsType.Attack, 2);
+        }
+    }
+}
 public class FuukaObserver : CharacterObserverBase
 {
     public override void OnLogistic(CharacterCTRL character)
@@ -233,6 +279,20 @@ public class MikaObserver : CharacterObserverBase
             foreach (var item in Utility.GetCharacterInrange(characterDies.CurrentHex,1,character,false))
             {
                 item.GetHit(dmg1, character, DamageSourceType.Skill.ToString(), iscrit);
+            }
+        }
+    }
+}
+public class SerikaObserver : CharacterObserverBase
+{
+    public override void OnAttacking(CharacterCTRL character)
+    {
+        base.OnAttacking(character);
+        if (character.effectCTRL.GetEffect("SerikaAddGold") != null)
+        {
+            if (Utility.GetRand(character) <=50)
+            {
+                GameController.Instance.AddGold(1);//TODO: 改為dropGold
             }
         }
     }
@@ -312,6 +372,22 @@ public class IzunaObserver :CharacterObserverBase
 
         }
         base.OnAttacking(character);
+    }
+}
+public class KayokoObserver : CharacterObserverBase
+{
+    public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
+    {
+        if (detailedSource == DamageSourceType.NormalAttack.ToString())
+        {
+            if (Utility.GetRand(source) < 30+ PressureManager.Instance.GetPressure(source.IsAlly) * 0.01f)
+            {
+                List<CharacterCTRL> list = new List<CharacterCTRL>();
+                list.Add(target);
+                FearManager.Instance.ApplyFear(source, list, source.ActiveSkill.GetCharacterLevel()[source.star].Data5 + PressureManager.Instance.GetPressure(source.IsAlly) * 0.01f);
+            }
+        }
+        base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
     }
 }
 public class MisakiObserver : CharacterObserverBase
@@ -451,6 +527,10 @@ public class TsurugiObserver : CharacterObserverBase
         }
 
     }
+}
+public class SaoriObserver : CharacterObserverBase
+{
+
 }
 public class Shiroko_Terror_Observer : CharacterObserverBase
 {

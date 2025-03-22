@@ -4,9 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Mathematics;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class CharacterCTRL : MonoBehaviour
 {
@@ -29,6 +27,10 @@ public class CharacterCTRL : MonoBehaviour
     public CharacterParent allyParent;
     public CharacterParent enemyParent;
     public StatsContainer stats;
+    public StatsContainer ExtraPernamentStats = new StatsContainer();
+    public StatsContainer PercentageStats = new StatsContainer();
+    public Dictionary<string, (StatsType fromStat, StatsType toStat, int amount)> PercentageStatsDict
+    = new Dictionary<string, (StatsType fromStat, StatsType toStat, int amount)>();
     public int star;
     public ModifierCTRL modifierCTRL;
     public EffectCTRL effectCTRL;
@@ -101,7 +103,7 @@ public class CharacterCTRL : MonoBehaviour
             StopCoroutine(fearCorutine);
         }
 
-        if (customAnimator!= null)
+        if (customAnimator != null)
         {
             customAnimator.ForceIdle();
         }
@@ -241,6 +243,9 @@ public class CharacterCTRL : MonoBehaviour
         SetStat(StatsType.Attack, characterStats.Attack[star - 1]);
         SetStat(StatsType.currHealth, GetStat(StatsType.Health));
         SetStat(StatsType.Mana, 0);
+        stats.AddFrom(ExtraPernamentStats);
+        stats.AddFrom(GameController.Instance.TeamExtraStats);
+        SetStat(StatsType.currHealth, GetStat(StatsType.Health));
         CustomLogger.Log(this, $"character {characterStats.name} , health = {characterStats.Health[star - 1]} , attack = {characterStats.Attack[star - 1]}");
     }
     private void Start()
@@ -320,11 +325,11 @@ public class CharacterCTRL : MonoBehaviour
         {
             item.CharacterUpdate();
         }
-        if (traitController!= null)
+        if (traitController != null)
         {
             traitController.CharacterUpdate();
         }
-        if (equipmentManager!= null)
+        if (equipmentManager != null)
         {
             equipmentManager.CharacterUpdate();
         }
@@ -435,7 +440,7 @@ public class CharacterCTRL : MonoBehaviour
             return (iscrit, dmg);
         }
 
-        if (Utility.Iscrit(GetStat(StatsType.CritChance),this))
+        if (Utility.Iscrit(GetStat(StatsType.CritChance), this))
         {
             dmg = (int)(dmg * (1 + GetStat(StatsType.CritRatio) * 0.01f));
             CustomLogger.Log(this, $"character {name} crit");
@@ -740,7 +745,7 @@ public class CharacterCTRL : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
     }
     public float GetHealthPercentage() => GetStat(StatsType.currHealth) / (float)GetStat(StatsType.Health);
-
+    public float GetExtraStat(StatsType statsType) => ExtraPernamentStats.GetStat(statsType);
     public float GetStat(StatsType statsType) => stats.GetStat(statsType);
     public void CritCorrection()
     {
@@ -809,6 +814,38 @@ public class CharacterCTRL : MonoBehaviour
             return;
         }
         SetStat(statsType, GetStat(statsType) + amount);
+        CheckPercentageBonus();
+    }
+    public void AddPercentageBonus(StatsType fromStat, StatsType toStat, int percent, string identifier)
+    {
+        PercentageStatsDict[identifier] = (fromStat, toStat, percent);
+    }
+
+    public void RemovePercentageBonus(string identifier)
+    {
+        if (PercentageStatsDict.ContainsKey(identifier))
+            PercentageStatsDict.Remove(identifier);
+    }
+
+    public void CheckPercentageBonus()
+    {
+        if (PercentageStatsDict.Count == 0) return;
+        PercentageStats.Clear();
+        foreach (var kvp in PercentageStatsDict)
+        {
+            var (fromStat, toStat, percent) = kvp.Value;
+            if (fromStat == StatsType.Null)
+            {
+                float baseValue = GetStat(toStat);
+                float bonusValue = baseValue * (percent / 100f);
+                PercentageStats.AddValue(toStat, bonusValue);
+            }
+            else
+            {
+                float val = GetStat(fromStat) * (percent / 100f);
+                PercentageStats.AddValue(toStat, val);
+            }
+        }
     }
     public void AddAttackSpeed(float amount)
     {
@@ -827,7 +864,14 @@ public class CharacterCTRL : MonoBehaviour
         }
         SetStat(StatsType.Mana, GetStat(StatsType.Mana) + amount);
     }
-
+    public void SetExtraStat(StatsType statsType, float amount)
+    {
+        ExtraPernamentStats.SetStat(statsType, amount);
+    }
+    public void AddExtraStat(StatsType statsType, float amount)
+    {
+        SetExtraStat(statsType, GetExtraStat(statsType) + amount);
+    }
     public void SetStat(StatsType statsType, float amount) => stats.SetStat(statsType, amount);
     private int GetSkillID()
     {
@@ -1187,29 +1231,51 @@ public class CharacterCTRL : MonoBehaviour
     }
     public bool Dragable()
     {
-        return !(enterBattle||GameStageManager.Instance.CurrGamePhase == GamePhase.Battling);
+        return !(enterBattle || GameStageManager.Instance.CurrGamePhase == GamePhase.Battling);
     }
-    public virtual void GetHit(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit)
+    public bool Dodge(CharacterCTRL sourceCharacter)
     {
-        if (IsDying || (characterStats.TestEnhanceSkill && IsAlly) || characterStats.TestBuildInvinvicble) return;//TODO:正式版記得拔掉
-        if (!isAlive) return;
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
         int rand = UnityEngine.Random.Range(1, 100);
         if (GetStat(StatsType.DodgeChance) >= rand)
         {
             AudioManager.PlayDodgedSound();
             TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Miss, 0, screenPos, false);
+            foreach (var item in observers)
+            {
+                item.OnDodged(this);
+            }
+            traitController.Dodged();
+            equipmentManager.OnParentDodged();
             CustomLogger.Log(this, $"{sourceCharacter} attack got dodged");
-            return;
+            return true;
         }
+        return false;
+    }
+    public virtual void GetHit(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit)
+    {
+        if (IsDying || (characterStats.TestEnhanceSkill && IsAlly) || characterStats.TestBuildInvinvicble) return;//TODO:正式版記得拔掉
+        if (!isAlive) return;
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
+        if (Dodge(sourceCharacter)) return;
+
         int finalAmount = ObserverDamageModifier(amount, sourceCharacter, detailedSource, isCrit);
         finalAmount = BeforeDealtDmg(finalAmount, sourceCharacter, detailedSource, isCrit);
+        bool SaoriEnhanced = GameController.Instance.GetEnhanchedCharacterIndex(sourceCharacter.IsAlly) == 39 && sourceCharacter.characterStats.CharacterId == 39;
+
         float r = GetStat(StatsType.Resistence);
+        if (SaoriEnhanced)
+        {
+            r *= 0.75f;
+        }
         float ratio = r / (100 + r);
         finalAmount = (int)(finalAmount * (1 - ratio));
-        
+
         finalAmount = traitController.ModifyDamageTaken(finalAmount, sourceCharacter, detailedSource, isCrit);
-        finalAmount = (int)(finalAmount * (1 - GetStat(StatsType.PercentageResistence) / 100f));
+        if (!SaoriEnhanced)
+        {
+            finalAmount = (int)(finalAmount * (1 - GetStat(StatsType.PercentageResistence) / 100f));
+        }
         finalAmount = (int)MathF.Max(finalAmount, 1);
         bool getEffect = false;
         if (isCrit)

@@ -21,6 +21,7 @@ public class DamageStatisticsManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        gameObject.SetActive(false);
     }
 
     public void RegisterCharacter(CharacterCTRL character)

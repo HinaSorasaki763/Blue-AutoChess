@@ -4,7 +4,6 @@ using System.Text;
 using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
-using static UnityEditor.Progress;
 
 /// <summary>
 /// 這個記錄器用於統一記錄遊戲各種操作，並輸出Bug報告。
@@ -17,7 +16,7 @@ public class BugReportLogger : MonoBehaviour
 
     // 收集所有操作訊息
     private StringBuilder _logBuilder = new StringBuilder();
-
+    public TMPro.TextMeshProUGUI ShowPath;
     private void Awake()
     {
         if (Instance == null)
@@ -142,8 +141,7 @@ public class BugReportLogger : MonoBehaviour
         {
             RecordAction($"BugDesc: {bugDescriptionInput.text}");
         }
-
-        // 組出檔名
+        RecordAction($"rand key this game = {ResourcePool.Instance.GetRandomKey()}");
         string fileName = $"BugReport_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
         string filePath = Path.Combine(Application.persistentDataPath, fileName);
 
@@ -151,6 +149,7 @@ public class BugReportLogger : MonoBehaviour
         File.WriteAllText(filePath, _logBuilder.ToString());
 
         // 可顯示存檔位置提示給玩家
+        ShowPath.text = $"Exported to: {filePath}";
         CustomLogger.Log(this, $"Exported to: {filePath}");
     }
 }

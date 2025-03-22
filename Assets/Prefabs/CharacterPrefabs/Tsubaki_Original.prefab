@@ -1769,6 +1769,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentHex: {fileID: 0}
+  HexWhenBattleStart: {fileID: 0}
   Target: {fileID: 0}
   PreTarget: {fileID: 0}
   IsAlly: 0
@@ -1817,6 +1818,7 @@ MonoBehaviour:
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
   IsHeroicEnhanced: 0
+  FaceDirectionLock: 0
   ManaLock: 0
   enterBattle: 0
   isAlive: 1
@@ -1826,11 +1828,13 @@ MonoBehaviour:
   isMarked: 0
   isCCImmune: 0
   Invincible: 0
+  AntiHeal: 0
+  Overtime: 0
+  AntiHealRatio: 0
   Taunted: 0
   attackRate: 5
   WakamoMark: 0
   stunned: 0
-  bulletPrefab: {fileID: 0}
   FirePoint: {fileID: 8949077691774440629}
   GetHitPoint: {fileID: 4181517655782126054}
   DetectedPos: {x: 0, y: 0, z: 0}
@@ -1843,6 +1847,10 @@ MonoBehaviour:
   isObj: 0
   Logistic_dummy: {fileID: 0}
   equipmentManager: {fileID: 0}
+  critTransferAmount: 0
+  StealManaCount: 0
+  DealtDamageThisRound: 0
+  TakeDamageThisRound: 0
 --- !u!95 &1979912290854081022
 Animator:
   serializedVersion: 5
@@ -1898,6 +1906,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
+  animatorSpeed: 0
+  animationLock: 0
 --- !u!114 &264021731128437625
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1997,7 +2007,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 642bc75772efce143adab14c975c5a9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Audio: {fileID: 0}
+  Audio: {fileID: 11400000, guid: bfea2531006b0a84faecfc80e1cdc832, type: 2}
 --- !u!82 &1397752942375300983
 AudioSource:
   m_ObjectHideFlags: 0

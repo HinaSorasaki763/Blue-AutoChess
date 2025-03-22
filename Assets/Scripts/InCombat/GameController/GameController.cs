@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using GameEnum;
+using TMPro;
 using UnityEngine;
 
 public class GameController : MonoBehaviour
@@ -7,10 +8,15 @@ public class GameController : MonoBehaviour
     private int gold;
     public CharacterParent CharacterParent;
     public TextMeshProUGUI GoldText;
+    public int AllyEnhancedCharacterIndex = -1;
+    public int EnemyEnhancedCharacterIndex = -1;
+    public StatsContainer TeamExtraStats = new StatsContainer();
+    private int SerinaEnhancedSkill_CritCount;
+    private bool triggerSerinaEnhancedSkill = false;
     readonly float yOffset = 0.23f;
     private void Update()
     {
-        GoldText.text = $"gold : {gold}";
+        GoldText.text = $":{gold}";
     }
     private void Awake()
     {
@@ -24,6 +30,41 @@ public class GameController : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    public int GetEnhanchedCharacterIndex(bool isAlly)
+    {
+        return isAlly ? AllyEnhancedCharacterIndex : EnemyEnhancedCharacterIndex;
+    }
+    public void SetExtraStat(StatsType statsType, float amount)
+    {
+        TeamExtraStats.SetStat(statsType, amount);
+    }
+    public void AddExtraStat(StatsType statsType, float amount)
+    {
+        SetExtraStat(statsType, GetExtraStat(statsType) + amount);
+    }
+    public void AddSerinaEnhancedSkill_CritCountStack(bool isAlly)
+    {
+        SerinaEnhancedSkill_CritCount++;
+        CharacterParent characterParent = isAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+        CharacterCTRL c = Utility.GetSpecificCharacters(characterParent.GetBattleFieldCharacter(), StatsType.currHealth, true, 1, false)[0];
+        CharacterCTRL serina = Utility.GetSpecificCharacterByIndex(characterParent.GetBattleFieldCharacter(), 9);
+        c.Heal((int)(0.01f * c.GetStat(StatsType.Health)), c);
+        if (!triggerSerinaEnhancedSkill && SerinaEnhancedSkill_CritCount >= 30)
+        {
+            triggerSerinaEnhancedSkill = true;
+
+            foreach (var item in characterParent.GetBattleFieldCharacter())
+            {
+                Effect effect = EffectFactory.StatckableStatsEffct(0, "SerinaEnhancedSkill", 50, StatsType.CritRatio, item, true);
+                effect.SetActions(
+                    (character) => character.ModifyStats(StatsType.CritRatio, effect.Value, effect.Source),
+                    (character) => character.ModifyStats(StatsType.CritRatio, -effect.Value, effect.Source)
+                );
+                item.effectCTRL.AddEffect(effect);
+            }
+        }
+    }
+    public float GetExtraStat(StatsType statstype) => TeamExtraStats.GetStat(statstype);
     public (bool, bool) TryMoveCharacter(CharacterCTRL character, HexNode targetSlot)
     {
         if (!targetSlot)
@@ -32,7 +73,7 @@ public class GameController : MonoBehaviour
             return (false, false);
         }
         bool isBattlefield = targetSlot.IsBattlefield;
-        if (targetSlot.Index >= 32|| !targetSlot.isAllyHex)
+        if (targetSlot.Index >= 32 || !targetSlot.isAllyHex)
         {
             PopupManager.Instance.CreatePopup("enemy territory", 2);
             ReturnToOriginalSlot(character);
@@ -70,7 +111,7 @@ public class GameController : MonoBehaviour
 
     private void ReturnToOriginalSlot(CharacterCTRL character)
     {
-        if (character.CurrentHex != null&&!character.characterStats.logistics)
+        if (character.CurrentHex != null && !character.characterStats.logistics)
         {
             Vector3 originalPosition = new Vector3(character.CurrentHex.transform.position.x, yOffset, character.CurrentHex.transform.position.z);
             character.transform.position = originalPosition;
@@ -120,7 +161,7 @@ public class GameController : MonoBehaviour
     }
     private void MoveCharacterToSlot(CharacterCTRL character, HexNode targetSlot)
     {
-        
+
         if (character.CurrentHex != null)
         {
             character.CurrentHex.SetOccupyingCharacter(null);
@@ -152,14 +193,14 @@ public class GameController : MonoBehaviour
         slot2.GetComponent<HexNode>().Reserve(character1);
         character2.CurrentHex = slot1;
         slot1.GetComponent<HexNode>().Reserve(character2);
-        CheckSlot(character1,slot2);
-        CheckSlot(character2,slot1);
+        CheckSlot(character1, slot2);
+        CheckSlot(character2, slot1);
         character1.transform.position = new Vector3(slot2.transform.position.x, yOffset, slot2.transform.position.z);
         character2.transform.position = new Vector3(slot1.transform.position.x, yOffset, slot1.transform.position.z);
 
         Debug.Log($"Swapped {character1.name} and {character2.name} between slots {slot1.name} and {slot2.name}");
     }
-    public void CheckSlot(CharacterCTRL c,HexNode hexNode)
+    public void CheckSlot(CharacterCTRL c, HexNode hexNode)
     {
         if (!hexNode.IsBattlefield)
         {

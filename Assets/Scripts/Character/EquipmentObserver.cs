@@ -103,7 +103,6 @@ public class Amulet_CapObserver : CharacterObserverBase
             (character) => character.ModifyStats(StatsType.Attack, -effect.Value, effect.Source)
         );
         character.effectCTRL.AddEffect(effect);
-        base.OnCastedSkill(character);
     }
 }
 public class Amulet_GlovesObserver : CharacterObserverBase

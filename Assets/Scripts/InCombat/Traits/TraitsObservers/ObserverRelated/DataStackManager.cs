@@ -29,7 +29,6 @@ public class DataStackManager : MonoBehaviour
             Destroy(gameObject);
         }
         InitializeFloorRewardMapping();
-        StartCoroutine(Temp());
     }
 
     public void ResetData()
@@ -58,11 +57,6 @@ public class DataStackManager : MonoBehaviour
             }
         }
     }
-
-    public IEnumerator Temp()
-    {
-        yield return new WaitForSeconds(3);
-    }
     private void InitializeFloorRewardMapping()
     {
         floorRewardMapping = new Dictionary<int, Action>
@@ -71,105 +65,105 @@ public class DataStackManager : MonoBehaviour
             100, () =>
             {
                 RewardContext context = Utility.BuildMixedRewards(2, 1, 1, 10);
-                rewardPopup.ShowRewards(context, 1);
+                rewardPopup.AddRewards(context, 1);
             }
         },
         {
             200, () =>
             {
                 RewardContext context = Utility.BuildMixedRewards(2, 1, 1, 10);
-                rewardPopup.ShowRewards(context, 1);
+                rewardPopup.AddRewards(context, 1);
             }
         },
         {
             300, () =>
             {
                 RewardContext context = Utility.BuildMixedRewards(2, 1, 1, 10);
-                rewardPopup.ShowRewards(context, 2);
+                rewardPopup.AddRewards(context, 2);
             }
         },
         {
             400, () =>
             {
                 RewardContext context = Utility.BuildMixedRewards(3, 2, 2, 16);
-                rewardPopup.ShowRewards(context, 1);
+                rewardPopup.AddRewards(context, 1);
             }
         },
         {
             500, () =>
             {
                 RewardContext context = Utility.BuildMixedRewards(4, 2, 2, 16);
-                rewardPopup.ShowRewards(context, 1);
+                rewardPopup.AddRewards(context, 1);
             }
         },
         {
             600, () =>
             {
                 RewardContext context = Utility.BuildMixedRewards(4, 2, 2, 16);
-                rewardPopup.ShowRewards(context, 2);
+                rewardPopup.AddRewards(context, 2);
             }
         },
         {
             700, () =>
             {
                 RewardContext context = Utility.BuildMixedRewards(4,2,2,16);
-                rewardPopup.ShowRewards(context, 2);
+                rewardPopup.AddRewards(context, 2);
             }
         },
         {
             800, () =>
             {
                 RewardContext context = Utility.BuildMixedRewards(0,0,0,40);
-                rewardPopup.ShowRewards(context, 1);
+                rewardPopup.AddRewards(context, 1);
             }
         },
         {
             900, () =>
             {
                 RewardContext context = Utility.BuildMixedRewards(5, 3, 0, 40);
-                rewardPopup.ShowRewards(context, 2);
+                rewardPopup.AddRewards(context, 2);
             }
         },
         {
             1000, () =>
             {
                 RewardContext context = Utility.BuildMixedRewards(1, 0, 2, 10);
-                rewardPopup.ShowRewards(context, 2);
+                rewardPopup.AddRewards(context, 2);
             }
         },
         {
             1100, () =>
             {
                 RewardContext context = Utility.BuildMixedRewards(3, 0, 1, 20);
-                rewardPopup.ShowRewards(context, 2);
+                rewardPopup.AddRewards(context, 2);
             }
         },
         {
             1200, () =>
             {
                 RewardContext context = Utility.BuildMixedRewards(0, 0, 3, 100);
-                rewardPopup.ShowRewards(context, 3);
+                rewardPopup.AddRewards(context, 3);
             }
         },
         {
             1300, () =>
             {
                 RewardContext context = Utility.BuildMixedRewards(1, 0, 2, 10);
-                rewardPopup.ShowRewards(context, 2);
+                rewardPopup.AddRewards(context, 2);
             }
         },
         {
             1400, () =>
             {
                 RewardContext context = Utility.BuildMixedRewards(3, 0, 1, 20);
-                rewardPopup.ShowRewards(context, 2);
+                rewardPopup.AddRewards(context, 2);
             }
         },
         {
             1500, () =>
             {
                 RewardContext context = Utility.BuildMixedRewards(0, 0, 3, 100);
-                rewardPopup.ShowRewards(context, 3);
+                rewardPopup.AddRewards(context, 3);
             }
         },
     };

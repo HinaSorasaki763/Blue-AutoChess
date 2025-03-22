@@ -1,6 +1,6 @@
 using GameEnum;
 using System.Collections.Generic;
-using System.Linq;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,116 +8,136 @@ using UnityEngine.UI;
 public class RewardPopup : MonoBehaviour
 {
     [Header("UI 設定")]
-    public GameObject rewardEntryPrefab;    // 預製物件，內含 RewardEntryView 與 Option 組件
-    public Transform entriesContainer;      // 放置 RewardEntryView 的容器
-    public Button confirmButton;            // 確認按鈕
-    public GameObject rewardPanel;          // 整個獎勵面板
-
-    [Header("其他參照")]
-    public EquipmentManager equipmentManager; // 可取得所有可用裝備
-
+    public GameObject rewardEntryPrefab;
+    public Transform entriesContainer;
+    public Button confirmButton;
+    public GameObject rewardPanel;
+    public GameObject Description;
+    public TextMeshProUGUI limit;
+    public Button Inventory;
     [Header("選取限制")]
-    public int maxSelectable = 1;  // 限制最多可選取的 toggle 數
-
-    private RewardContext rewardContext;                // 管理所有 RewardEntry
-    private List<RewardEntry> selectedRewardEntries = new List<RewardEntry>();
+    public int maxSelectable = 1;
+    private Queue<Rewards> pendingRewardQueue = new Queue<Rewards>();
+    private Rewards currentContext;
+    private List<RewardEntry> selectedRewards = new List<RewardEntry>();    
     private Dictionary<RewardEntry, RewardEntryView> entryViewDict = new Dictionary<RewardEntry, RewardEntryView>();
 
     void Start()
     {
-        
         confirmButton.interactable = false;
         confirmButton.onClick.AddListener(OnConfirmButtonClicked);
         rewardPanel.SetActive(false);
     }
-    public void ShowRewards(RewardContext context, int maxSelect)
+    public void Update()
     {
-        // 用你原本的 RewardPopup 欄位
-        rewardPanel.SetActive(true);
-        this.rewardContext = context;
-        selectedRewardEntries.Clear();
-        maxSelectable = maxSelect;
-
-        PopulateRewardUI(); // 生成UI
+        Inventory.gameObject.SetActive(pendingRewardQueue.Count > 0);
     }
-    /// <summary>
-    /// 輔助方法：給定範圍，從 equipmentManager 裡抽取多件裝備，並回傳對應的 IReward 清單
-    /// </summary>
-    /// 
-    
-
-    /// <summary>
-    /// 根據 rewardContext 內的 RewardEntry 建立 UI 項目
-    /// </summary>
-    private void PopulateRewardUI()
+    public void AddRewards(RewardContext context, int maxSelect)
     {
+        Rewards rewards = new Rewards();
+        rewards.RewardEntries = context.RewardEntries;
+        rewards.MaxSelectable = maxSelect;
+        pendingRewardQueue.Enqueue(rewards);
+        CustomLogger.Log(this, $"新增獎勵批次，共 {rewards.RewardEntries.Count} 項，最多選取 {rewards.MaxSelectable} 項");
+        if (!rewardPanel.activeSelf)
+        {
+            ShowNextRewardBatch();
+        }
+    }
+    private void ShowNextRewardBatch()
+    {
+        if (pendingRewardQueue.Count == 0)
+        {
+            // 已經沒有任何未領取獎勵
+            Description.SetActive(false);
+            rewardPanel.SetActive(false);
+            return;
+        }
+        // 這裡只 Peek，不 Dequeue
+        currentContext = pendingRewardQueue.Peek();
+        maxSelectable = currentContext.MaxSelectable;
+        selectedRewards.Clear();
+        entryViewDict.Clear();
+        RebuildUI(currentContext.RewardEntries, maxSelectable);
+        rewardPanel.SetActive(true);
+    }
+    private void RebuildUI(List<RewardEntry> rewards, int maxSelect)
+    {
+        // 清空 Container
         foreach (Transform child in entriesContainer)
         {
             Destroy(child.gameObject);
         }
-        entryViewDict.Clear();
-
-        foreach (var entry in rewardContext.RewardEntries)
+        limit.text = $"choose {maxSelect} ";
+        foreach (var reward in rewards)
         {
             GameObject entryObj = Instantiate(rewardEntryPrefab, entriesContainer);
-            Option option = entryObj.GetComponent<Option>();
-            if (option != null)
-            {
-                option.Image.sprite = entry.Sprite;
-                option.Description = entry.Description;
-                option.optionIndex = entry.Index;
-            }
-
-            RewardEntryView view = entryObj.GetComponent<RewardEntryView>();
+            var view = entryObj.GetComponent<RewardEntryView>();
             if (view != null)
             {
-                view.Setup(entry, OnRewardEntrySelected);
-                entryViewDict.Add(entry, view);
+                view.Setup(reward, OnRewardSelected);
+                entryViewDict.Add(reward, view);
+            }
+
+            var option = entryObj.GetComponent<Option>();
+            if (option != null)
+            {
+                option.Image.sprite = reward.Sprite;
+                if (PlayerSettings.SelectedDropdownValue == 0)
+                {
+                    option.Description = reward.ChineseDescription;
+                }
+                else
+                {
+                    option.Description = reward.EnglishDescription;
+                }
+                option.optionIndex = reward.Index;
             }
         }
+        confirmButton.interactable = false;
     }
 
-    /// <summary>
-    /// 當 RewardEntryView 的 Toggle 狀態改變時，更新選取列表
-    /// 超過 maxSelectable 時，會自動取消最早的選取項目
-    /// </summary>
-    void OnRewardEntrySelected(RewardEntry entry, bool isSelected)
+    private void OnRewardSelected(RewardEntry entry, bool isSelected)
     {
         if (isSelected)
         {
-            if (selectedRewardEntries.Count >= maxSelectable)
+            if (selectedRewards.Count >= maxSelectable)
             {
-                RewardEntry earliest = selectedRewardEntries[0];
-                if (entryViewDict.TryGetValue(earliest, out RewardEntryView earliestView))
+                var earliest = selectedRewards[0];
+                if (entryViewDict.TryGetValue(earliest, out var earliestView))
                 {
                     earliestView.selectToggle.isOn = false;
                     CustomLogger.Log(this, $"自動取消: {earliest.GetName()}");
                 }
             }
-            if (!selectedRewardEntries.Contains(entry))
-                selectedRewardEntries.Add(entry);
+            if (!selectedRewards.Contains(entry))
+                selectedRewards.Add(entry);
         }
         else
         {
-            if (selectedRewardEntries.Contains(entry))
-                selectedRewardEntries.Remove(entry);
+            if (selectedRewards.Contains(entry))
+                selectedRewards.Remove(entry);
         }
 
-        // 這行決定「幾個時候可以按下確認」
-        confirmButton.interactable = (selectedRewardEntries.Count == maxSelectable);
+        confirmButton.interactable = (selectedRewards.Count == maxSelectable);
     }
 
-    /// <summary>
-    /// 按下確認後，發放所有被選取的 RewardEntry
-    /// </summary>
-    void OnConfirmButtonClicked()
+    private void OnConfirmButtonClicked()
     {
-        foreach (var entry in selectedRewardEntries)
+        // 對 currentContext 中被選的 RewardEntry 做領取
+        foreach (var reward in selectedRewards)
         {
-            CustomLogger.Log(this, $"玩家選擇獎勵: {entry.GetName()}");
-            entry.AwardAll();
+            CustomLogger.Log(this, $"玩家選擇獎勵: {reward.GetName()}");
+            reward.AwardAll();
         }
-        rewardPanel.SetActive(false);
+        // 領完後才把這批獎勵從 queue 移除
+        pendingRewardQueue.Dequeue();
+        // 嘗試顯示下一批
+        ShowNextRewardBatch();
     }
-
+}
+public class Rewards
+{
+    public List<RewardEntry> RewardEntries;
+    public int MaxSelectable;
 }
