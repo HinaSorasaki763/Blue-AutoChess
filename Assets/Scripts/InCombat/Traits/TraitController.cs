@@ -149,6 +149,10 @@ public class TraitController : MonoBehaviour
     public void OnDealtDmg(CharacterCTRL target, int dmg,string detailedSource, bool iscrit)
     {
         Lifesteal(dmg);
+        foreach (var item in character.observers)
+        {
+            item.OnDamageDealt(character, target, dmg, detailedSource, iscrit);
+        }
         foreach (var item in traitObservers.Values)
         {
             item.OnDamageDealt(character, target, dmg, detailedSource, iscrit);
@@ -164,6 +168,13 @@ public class TraitController : MonoBehaviour
         foreach (var item in traitObservers.Values)
         {
             item.OnDodged(character);
+        }
+    }
+    public void OnCrit()
+    {
+        foreach (var item in traitObservers.Values)
+        {
+            item.OnCrit(character);
         }
     }
     private void Lifesteal(int dmg)
@@ -205,7 +216,7 @@ public class TraitController : MonoBehaviour
     {
         foreach (var observer in traitObservers.Values)
         {
-            observer.GetHit(character, source, amount, isCrit,detailedSource);
+            observer.GetHit(character, source, amount, isCrit,detailedSource, true);
         }
 
     }
@@ -219,7 +230,13 @@ public class TraitController : MonoBehaviour
         }
         return (finallength, finaleffectiveness);
     }
-
+    public void OnHealing()
+    {
+        foreach (var item in traitObservers.Values)
+        {
+            item.OnHealing(character);
+        }
+    }
     public void CharacterUpdate()
     {
         foreach (var item in traitObservers.Values)

@@ -1,4 +1,5 @@
 using GameEnum;
+using System;
 using UnityEngine;
 
 public abstract class Augment
@@ -16,6 +17,24 @@ public abstract class Augment
     public virtual void Apply()
     {
 
+    }
+}
+public class CharacterEnhanceAugment : Augment
+{
+    public CharacterEnhanceAugment(AugmentConfig config) : base(config) 
+    {
+        
+    }
+    public override void Apply()
+    {
+        int characterIndex = config.CharacterSkillEnhanceIndex;
+        if (config.CharacterSkillEnhanceIndex == 4)
+        {
+            characterIndex += 500;
+        }
+        ResourcePool.Instance.GetRandCharacterPrefab(new Vector3(0, 0, 0), characterIndex);
+        CustomLogger.Log(this, $"CharacterEnhanceAugment applying character {characterIndex}");
+        ResourcePool.Instance.ally.AddEnhancedSkill(characterIndex);
     }
 }
 public class SpeedBoostAugment : Augment

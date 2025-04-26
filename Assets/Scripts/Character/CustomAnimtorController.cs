@@ -62,6 +62,34 @@ public class CustomAnimatorController : MonoBehaviour
             return (null, 0);
         }
     }
+    public List<(string, float)> GetAllClipInfos()
+    {
+        List<(string, float)> results = new List<(string, float)>();
+
+        RuntimeAnimatorController controller = animator.runtimeAnimatorController;
+        List<AnimationClip> clips = new List<AnimationClip>();
+
+        if (controller is AnimatorOverrideController overrideController)
+        {
+            List<KeyValuePair<AnimationClip, AnimationClip>> overrideClips = new List<KeyValuePair<AnimationClip, AnimationClip>>();
+            overrideController.GetOverrides(overrideClips);
+            foreach (var clipPair in overrideClips)
+            {
+                clips.Add(clipPair.Value ?? clipPair.Key);
+            }
+        }
+        else
+        {
+            clips.AddRange(controller.animationClips);
+        }
+
+        foreach (var clip in clips)
+        {
+            results.Add((clip.name, clip.length));
+        }
+
+        return results;
+    }
     public void ExitBattle()
     {
         if (animationLock) return;

@@ -1,4 +1,5 @@
 using GameEnum;
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -8,7 +9,8 @@ public class StaticObject : CharacterCTRL
     private float lastShakeTime = 0f; // 上次旋轉效果觸發的時間
     private float shakeCooldown = 0.7f; // 旋轉效果的冷卻時間（秒）
     public CharacterCTRL parent;
-
+    public int MaxHealth_StaticObj;
+    public int Resistance_StaticObj;
     public override void OnEnable()
     {
         star = 1;
@@ -16,7 +18,6 @@ public class StaticObject : CharacterCTRL
         isTargetable = true;
         IsAlly = true;
         gameObject.layer = IsAlly ? 8 : 9;
-        stats = characterStats.Stats.Clone();
         effectCTRL = GetComponent<EffectCTRL>();
         modifierCTRL = GetComponent<ModifierCTRL>();
         traitController = GetComponent<TraitController>();
@@ -24,11 +25,12 @@ public class StaticObject : CharacterCTRL
         equipmentManager.SetParent(this);
         AudioManager = GetComponent<CharacterAudioManager>();
         ActiveSkill = characterSkills[0]();
-
+        GlobalBaseObserver globalObserver = new GlobalBaseObserver();
+        AddObserver(globalObserver);
         originalRotation = transform.rotation;
         initStats();
     }
-    public override void GetHit(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit)
+    public override void GetHit(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit,bool recursion = true)
     {
         if (!isAlive) return;
         base.GetHit(amount, sourceCharacter, detailedSource, isCrit);
@@ -37,14 +39,10 @@ public class StaticObject : CharacterCTRL
             lastShakeTime = Time.time;
             StartCoroutine(ShakeRotation());
         }
-
-    }
-    public void Start()
-    {
-
     }
     public void initStats()
     {
+        RecalculateStats();
         SetStat(StatsType.Health, GetStat(StatsType.Health));
         SetStat(StatsType.currHealth, GetStat(StatsType.Health));
     }
@@ -56,12 +54,40 @@ public class StaticObject : CharacterCTRL
         SetStats();
         characterBars.InitBars();
     }
+    public void InitNoParentDummy( int maxhealth,int resistence,bool isAlly)
+    {
+        parent = null;
+        IsAlly = isAlly;
+        gameObject.layer = IsAlly ? 8 : 9;
+        SetStat(StatsType.Health, maxhealth);
+        MaxHealth_StaticObj = maxhealth;
+        SetStat(StatsType.currHealth, maxhealth);
+        SetStat(StatsType.Resistence, 35);
+        Resistance_StaticObj = 35;
+        SetStat(StatsType.PercentageResistence, 0);
+        characterBars.InitBars();
+    }
+    public void InitStaticObjStats(CharacterCTRL c,int maxhealth)
+    {
+        parent = c;
+        IsAlly = c.IsAlly;
+        gameObject.layer = IsAlly ? 8 : 9;
+        SetStat(StatsType.Health, maxhealth);
+        MaxHealth_StaticObj = maxhealth;
+        SetStat(StatsType.currHealth, maxhealth);
+        SetStat(StatsType.Resistence, 35);
+        Resistance_StaticObj = 35;
+        SetStat(StatsType.PercentageResistence, 0);
+        characterBars.InitBars();
+    }
     public void SetStats()
     {
         var observer = parent.traitController.GetObserverForTrait(Traits.logistic) as LogisticObserver;
         float ratio = observer.GetCurrStat() * 0.01f;
         int health = (int)(parent.GetStat(StatsType.Health) * ratio);
+        MaxHealth_StaticObj = health;
         int def = (int)(parent.GetStat(StatsType.Resistence) * ratio);
+        Resistance_StaticObj = def;
         int percentageResistance = (int)(parent.GetStat(StatsType.PercentageResistence) * ratio);
         SetStat(StatsType.Health, health);
         SetStat(StatsType.currHealth, health);
@@ -70,6 +96,17 @@ public class StaticObject : CharacterCTRL
     }
     public override void Die()
     {
+        if (Undying)
+        {
+            SetStat(StatsType.currHealth, 0);
+            isTargetable = false;
+            return;
+        }
+        foreach (var item in observers)
+        {
+            item.OnDying(this);
+        }
+        traitController.NotifyOnDying();
         Debug.Log($"{gameObject.name} Die()");
         CurrentHex.OccupyingCharacter = null;
         CurrentHex.HardRelease();
@@ -95,5 +132,35 @@ public class StaticObject : CharacterCTRL
             yield return null;
         }
         transform.rotation = originalRotation;
+    }
+    public override void RecalculateStats()
+    {
+        int currHealth = (int)GetStat(StatsType.currHealth);
+        int currMana = (int)GetStat(StatsType.Mana);
+        stats.SetStat(StatsType.Health, MaxHealth_StaticObj);
+        stats.AddFrom(ExtraPernamentStats);
+        stats.AddFrom(GameController.Instance.TeamExtraStats);
+        if (effectCTRL.GetStatsEffects().Count > 0)
+        {
+            foreach (var item in effectCTRL.GetStatsEffects())
+            {
+                item.OnApply.Invoke(this);
+            }
+        }
+        stats.AddFrom(GetPercentageBonus());
+        if (GameStageManager.Instance.CurrGamePhase == GamePhase.Battling)
+        {
+            stats.SetStat(StatsType.currHealth, currHealth);
+            stats.SetStat(StatsType.Mana, currMana);
+        }
+
+        if (GameStageManager.Instance.CurrGamePhase != GamePhase.Battling)
+        {
+            SetStat(StatsType.currHealth, GetStat(StatsType.Health, false));
+        }
+        if (GetStat(StatsType.currHealth) > GetStat(StatsType.Health))
+        {
+            SetStat(StatsType.currHealth, GetStat(StatsType.Health));
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using static Unity.VisualScripting.Member;
@@ -74,6 +75,15 @@ namespace GameEnum
         Burning,
         Reserved,
         TemporaryYellow // 新增一個暫時的顏色狀態
+    }
+    public enum CollectionRewardType
+    {
+        None,
+        Gold,
+        RandComponent,
+        RandCompleteItem,
+        Character,
+        Others
     }
     public enum EffectType
     {
@@ -704,6 +714,15 @@ namespace GameEnum
                 SetStat(otherStat.statType, newValue);
             }
         }
+        public void RemoveFrom(StatsContainer other)
+        {
+            foreach (var otherStat in other.stats)
+            {
+                float currentValue = GetStat(otherStat.statType);
+                float newValue = currentValue - otherStat.value;
+                SetStat(otherStat.statType, newValue);
+            }
+        }
         public void AddValue(StatsType type, float value)
         {
             Stat stat = stats.Find(s => s.statType == type);
@@ -763,7 +782,9 @@ namespace GameEnum
         PenetrateTrailedBullet,
         HealPack,
         NormalTrailedBullet,
-
+        MissleFragmentsPrefab,
+        SmallPenetrateTrailedBullet,
+        Missle
     }
     public enum ModifierType
     {
@@ -811,6 +832,8 @@ namespace GameEnum
                     item == Traits.Gehenna ||
                     item == Traits.Hyakkiyako ||
                     item == Traits.Millennium ||
+                    item == Traits.SRT ||
+                    item == Traits.Arius ||
                     item == Traits.Trinity) return item;
             }
             return Traits.None;
@@ -862,6 +885,82 @@ namespace GameEnum
                 return null;
             }
         }
+        public static HexNode FindFarthestNode(CharacterCTRL c, int minDistance)
+        {
+            bool isAlly = c.IsAlly;
+            List<HexNode> enemyNodes = new List<HexNode>();
+            foreach (var node in SpawnGrid.Instance.hexNodes.Values)
+            {
+                if (node.OccupyingCharacter != null && node.OccupyingCharacter.IsAlly != isAlly)
+                {
+                    enemyNodes.Add(node);
+                }
+            }
+            if (enemyNodes.Count == 0)
+            {
+                return null;
+            }
+
+            Dictionary<HexNode, int> distanceMap = new Dictionary<HexNode, int>();
+            Queue<HexNode> queue = new Queue<HexNode>();
+            foreach (var eNode in enemyNodes)
+            {
+                distanceMap[eNode] = 0;
+                queue.Enqueue(eNode);
+            }
+
+            while (queue.Count > 0)
+            {
+                HexNode current = queue.Dequeue();
+                int currentDist = distanceMap[current];
+
+                foreach (var neighbor in current.Neighbors)
+                {
+                    if (!distanceMap.ContainsKey(neighbor))
+                    {
+                        distanceMap[neighbor] = currentDist + 1;
+                        queue.Enqueue(neighbor);
+                    }
+                }
+            }
+
+            HexNode farthestNode = null;
+            int maxDist = -1;
+            foreach (var kvp in distanceMap)
+            {
+                var node = kvp.Key;
+                int dist = kvp.Value;
+
+                if (node.OccupyingCharacter == null && dist <= minDistance)
+                {
+                    if (dist > maxDist)
+                    {
+                        maxDist = dist;
+                        farthestNode = node;
+                    }
+                    else if (dist == maxDist && farthestNode != null)
+                    {
+                        if (isAlly)
+                        {
+                            if (node.Index < farthestNode.Index)
+                            {
+                                farthestNode = node;
+                            }
+                        }
+                        else
+                        {
+                            if (node.Index > farthestNode.Index)
+                            {
+                                farthestNode = node;
+                            }
+                        }
+                    }
+                }
+            }
+            return farthestNode;
+        }
+
+
 
         private static Vector3Int PositionToCubeCoordinates(Vector3 position)
         {
@@ -932,17 +1031,29 @@ namespace GameEnum
             }
             return visited;
         }
-        public static CharacterCTRL GetSpecificCharacterByIndex(List<CharacterCTRL> list,int index)
+        public static CharacterCTRL GetSpecificCharacterByIndex(List<CharacterCTRL> list, int index)
         {
+            CharacterCTRL bestMatch = null;
+            float highestAttack = float.MinValue;
             foreach (var item in list)
             {
                 if (item.characterStats.CharacterId == index)
                 {
-                    return item;
+                    float currentAttack = item.GetAttack();
+                    if (currentAttack > highestAttack)
+                    {
+                        highestAttack = currentAttack;
+                        bestMatch = item;
+                    }
                 }
             }
-            return null;
-        }   
+            if (bestMatch != null)
+            {
+                CustomLogger.Log(bestMatch, $"Selected with highest attack: {highestAttack}");
+            }
+            return bestMatch;
+        }
+
         public static List<CharacterCTRL> GetCharacterInSet(List<HexNode> nodes, CharacterCTRL finder, bool findingAlly)
         {
             var characters = new List<CharacterCTRL>();
@@ -951,6 +1062,7 @@ namespace GameEnum
                 if (item.OccupyingCharacter != null && (item.OccupyingCharacter.IsAlly == finder.IsAlly) == findingAlly && !item.OccupyingCharacter.characterStats.logistics)
                 {
                     characters.Add(item.OccupyingCharacter);
+                    CustomLogger.Log(item,$"[GetCharacterInSet]Add {item.OccupyingCharacter} to set");
                 }
             }
             return characters;
@@ -1015,23 +1127,51 @@ namespace GameEnum
                 item.GetHit(dmg, sourceCharacter, source, iscrit);
             }
         }
-        public static int GetRand(CharacterCTRL c = null)
+        public static bool TryAssign(CharacterCTRL character,HashSet<HexNode> visited,Dictionary<CharacterCTRL, List<HexNode>> adjacency,ref Dictionary<HexNode, CharacterCTRL> matchNode)
         {
+            if (!adjacency.ContainsKey(character)) return false;
+            var nodes = adjacency[character];
+
+            foreach (var node in nodes)
+            {
+                if (visited.Contains(node)) continue;
+                visited.Add(node);
+                if (matchNode[node] == null || TryAssign(matchNode[node], visited, adjacency, ref matchNode))
+                {
+                    matchNode[node] = character;
+                    return true;
+                }
+            }
+            return false;
+        }
+        public static int GetRand(CharacterCTRL c = null, int randKey = 0)
+        {
+            int battleCounterInt = Mathf.FloorToInt(GameStageManager.Instance.enteringBattleCounter * 1000);
+            int seed = ResourcePool.Instance.RandomKeyThisGame + battleCounterInt;
+
             if (c != null)
             {
-                int battleCounterInt = Mathf.FloorToInt(GameStageManager.Instance.enteringBattleCounter * 1000);
                 int i = c.IsAlly ? 1 : 0;
-                int seed = ResourcePool.Instance.RandomKeyThisGame + battleCounterInt + c.characterStats.CharacterId + i;
-                UnityEngine.Random.InitState(seed);
-                return UnityEngine.Random.Range(0, 101);
+                seed += c.characterStats.CharacterId + i + randKey;
             }
-            else
-            {
-                int battleCounterInt = Mathf.FloorToInt(GameStageManager.Instance.enteringBattleCounter * 1000);
-                UnityEngine.Random.InitState(ResourcePool.Instance.RandomKeyThisGame + battleCounterInt);
-                return UnityEngine.Random.Range(0, 101);
-            }
+
+            UnityEngine.Random.InitState(seed);
+            return UnityEngine.Random.Range(0, 101);
         }
+
+        public static float GetRandfloat(CharacterCTRL c = null, int randKey = 0)
+        {
+            int battleCounterInt = Mathf.FloorToInt(GameStageManager.Instance.enteringBattleCounter * 1000);
+            int seed = ResourcePool.Instance.RandomKeyThisGame + battleCounterInt;
+            if (c != null)
+            {
+                int i = c.IsAlly ? 1 : 0;
+                seed += c.characterStats.CharacterId + i + randKey;
+            }
+            UnityEngine.Random.InitState(seed);
+            return UnityEngine.Random.Range(0f, 1f);
+        }
+
         public static bool Iscrit(float critChance, CharacterCTRL c)
         {
             int rand = GetRand(c);
@@ -1080,7 +1220,6 @@ namespace GameEnum
                 }
 
                 directionInfo.Sort((a, b) => b.occupantCount.CompareTo(a.occupantCount));
-                bool foundValid = false;
                 foreach (var info in directionInfo)
                 {
                     if (info.opposite != null && info.opposite.OccupyingCharacter == null)
@@ -1109,7 +1248,6 @@ namespace GameEnum
                                     globalBestNodeList = info.nodeset;
                                 }
                             }
-                            foundValid = true;
                             break;
                         }
                     }
@@ -1174,6 +1312,35 @@ namespace GameEnum
             }
             return matchedCharacters;
         }
+        /// <summary>
+        /// 
+        /// 取得最近的友軍(沒有其他友軍會傳回自己)
+        /// </summary>
+        public static CharacterCTRL GetNearestAlly(CharacterCTRL c)
+        {
+            CharacterParent characterParent = c.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+            CharacterCTRL t = null;
+            float dist = float.MaxValue;
+
+            foreach (var item in characterParent.childCharacters)
+            {
+                CharacterCTRL cTRL = item.GetComponent<CharacterCTRL>();
+
+                if (cTRL == null || cTRL == c) continue; // 排除自己
+
+                if (cTRL.isAlive && !cTRL.characterStats.logistics && cTRL.enterBattle && cTRL.gameObject.activeInHierarchy)
+                {
+                    float d = Vector3.Distance(c.transform.position, cTRL.transform.position);
+                    if (d < dist)
+                    {
+                        dist = d;
+                        t = cTRL;
+                    }
+                }
+            }
+            return t != null ? t : c;
+        }
+
         public static CharacterCTRL GetNearestEnemy(CharacterCTRL c)
         {
             CharacterParent characterParent = c.IsAlly ? ResourcePool.Instance.enemy : ResourcePool.Instance.ally;
@@ -1185,7 +1352,7 @@ namespace GameEnum
                 if (d < dist)
                 {
                     CharacterCTRL cTRL = item.GetComponent<CharacterCTRL>();
-                    if (cTRL.isAlive && !cTRL.characterStats.logistics && cTRL.enterBattle)
+                    if (cTRL.isAlive && !cTRL.characterStats.logistics && cTRL.enterBattle && cTRL.gameObject.activeInHierarchy)
                     {
                         dist = d;
                         t = cTRL;
@@ -1292,7 +1459,7 @@ namespace GameEnum
             return context;
         }
 
-        private static (List<IReward>, List<IEquipment>) GetMultipleRandomEquipRewards(int count, int minId, int maxId)
+        public static (List<IReward>, List<IEquipment>) GetMultipleRandomEquipRewards(int count, int minId, int maxId)
         {
             List<IReward> result = new List<IReward>();
             List<IEquipment> eqs = new List<IEquipment>();
@@ -1328,6 +1495,7 @@ namespace GameEnum
         public ClearEffectCondition ClearEffectCondition { get; private set; }
         public bool Stackable { get; private set; }
         public bool IsLogisticBuff { get; private set; }
+        public bool StatsEffect { get; private set; } = false;
         public Effect(
             EffectType effectType,
             ModifierType modifierType,
@@ -1341,8 +1509,8 @@ namespace GameEnum
             CharacterCTRL parent = null,
             bool stackable = false,
             ClearEffectCondition clearEffectCondition = ClearEffectCondition.Never,
-            bool isLogisticBuff = false
-
+            bool isLogisticBuff = false,
+            bool statsEffect = false
         )
         {
             EffectType = effectType;
@@ -1358,9 +1526,11 @@ namespace GameEnum
             Stackable = stackable;
             ClearEffectCondition = clearEffectCondition;
             IsLogisticBuff = isLogisticBuff;
+            StatsEffect = statsEffect;
         }
-        public void UpdateValue(float newValue)
+        public void UpdateValue(float newValue,CharacterCTRL c)
         {
+            Parent = c;
             Value = newValue;
             OnApply.Invoke(Parent);
         }
@@ -1416,5 +1586,104 @@ public class CustomLogger
     {
         string callerType = caller.GetType().Name;
         Debug.LogWarning($"[{callerType}] TODO: 尚未完成的功能，未來需實作{message}");
+    }
+}
+[System.Serializable]
+public class EnemyWaveData
+{
+    [System.Serializable]
+    public class GridSlotData
+    {
+        public int GridIndex;
+        public int CharacterID;
+        public int Level;
+        public int[] EquipmentIDs;
+        public int DummyGridIndex;
+    }
+    public string EnemyName;
+    public List<GridSlotData> gridSlots = new List<GridSlotData>();
+    public GridSlotData logisticSlot1 = new();
+    public GridSlotData logisticSlot2 = new();
+    public int Pressurestack;
+}
+public static class EnemyWaveConverter
+{
+    // 把 ScriptableObject(EnemyWave) 轉成普通資料結構(EnemyWaveData)
+    public static EnemyWaveData ToData(EnemyWave wave)
+    {
+        var data = new EnemyWaveData();
+        data.EnemyName = wave.EnemyName;
+        data.gridSlots = new List<EnemyWaveData.GridSlotData>();
+
+        // 轉換各欄位
+        foreach (var slot in wave.gridSlots)
+        {
+            data.gridSlots.Add(new EnemyWaveData.GridSlotData
+            {
+                GridIndex = slot.GridIndex,
+                CharacterID = slot.CharacterID,
+                Level = slot.Level,
+                EquipmentIDs = slot.EquipmentIDs,
+                DummyGridIndex = slot.DummyGridIndex
+            });
+        }
+
+        // logisticSlot1
+        data.logisticSlot1 = new EnemyWaveData.GridSlotData
+        {
+            GridIndex = wave.logisticSlot1.GridIndex,
+            CharacterID = wave.logisticSlot1.CharacterID,
+            Level = wave.logisticSlot1.Level,
+            EquipmentIDs = wave.logisticSlot1.EquipmentIDs,
+            DummyGridIndex = wave.logisticSlot1.DummyGridIndex
+        };
+
+        // logisticSlot2
+        data.logisticSlot2 = new EnemyWaveData.GridSlotData
+        {
+            GridIndex = wave.logisticSlot2.GridIndex,
+            CharacterID = wave.logisticSlot2.CharacterID,
+            Level = wave.logisticSlot2.Level,
+            EquipmentIDs = wave.logisticSlot2.EquipmentIDs,
+            DummyGridIndex = wave.logisticSlot2.DummyGridIndex
+        };
+
+        data.Pressurestack = wave.Pressurestack;
+
+        return data;
+    }
+    public static EnemyWave FromData(EnemyWaveData data)
+    {
+        var wave = new EnemyWave();
+        wave.EnemyName = data.EnemyName;
+        wave.gridSlots.Clear();
+
+        foreach (var slotData in data.gridSlots)
+        {
+            var slot = new EnemyWave.GridSlotData
+            {
+                GridIndex = slotData.GridIndex,
+                CharacterID = slotData.CharacterID,
+                Level = slotData.Level,
+                EquipmentIDs = slotData.EquipmentIDs,
+                DummyGridIndex = slotData.DummyGridIndex
+            };
+            wave.gridSlots.Add(slot);
+        }
+
+        wave.logisticSlot1.GridIndex = data.logisticSlot1.GridIndex;
+        wave.logisticSlot1.CharacterID = data.logisticSlot1.CharacterID;
+        wave.logisticSlot1.Level = data.logisticSlot1.Level;
+        wave.logisticSlot1.EquipmentIDs = data.logisticSlot1.EquipmentIDs;
+        wave.logisticSlot1.DummyGridIndex = data.logisticSlot1.DummyGridIndex;
+
+        wave.logisticSlot2.GridIndex = data.logisticSlot2.GridIndex;
+        wave.logisticSlot2.CharacterID = data.logisticSlot2.CharacterID;
+        wave.logisticSlot2.Level = data.logisticSlot2.Level;
+        wave.logisticSlot2.EquipmentIDs = data.logisticSlot2.EquipmentIDs;
+        wave.logisticSlot2.DummyGridIndex = data.logisticSlot2.DummyGridIndex;
+
+        wave.Pressurestack = data.Pressurestack;
+        return wave;
     }
 }

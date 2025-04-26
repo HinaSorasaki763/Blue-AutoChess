@@ -55,7 +55,7 @@ public class CharacterEquipmentManager : MonoBehaviour
     {
         foreach (var item in equippedItems)
         {
-            item.Observer.GetHit(character, source, amount, isCrit,detailedSource);
+            item.Observer.GetHit(character, source, amount, isCrit,detailedSource, true);
         }
     }
     public void OnParentKilledEnemy(string detailedSource,CharacterCTRL characterDies)
@@ -98,6 +98,13 @@ public class CharacterEquipmentManager : MonoBehaviour
 
         }
     }
+    public void OnCrit()
+    {
+        foreach (var item in equippedItems)
+        {
+            item.Observer.OnCrit(Parent);
+        }
+    }
     public (float, float) BeforeApplyingNegetiveEffect(float length, float effectiveness)
     {
         float finallength = length;
@@ -131,6 +138,13 @@ public class CharacterEquipmentManager : MonoBehaviour
             reduced += item.Observer.BeforeDealtDmg(sourceCharacter, target, amount, detailedSource, isCrit);
         }
         return reduced;
+    }
+    public void OnHealing()
+    {
+        foreach (var item in equippedItems)
+        {
+            item.Observer.OnHealing(Parent);
+        }
     }
     public int BeforeHealing(CharacterCTRL character,int amount)
     {

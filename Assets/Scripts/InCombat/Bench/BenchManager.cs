@@ -5,7 +5,18 @@ public class BenchManager : MonoBehaviour
 {
     public List<GameObject> benchSlots = new();
     public CharacterParent characterParent;
-
+    public static BenchManager Instance { get; private set; }
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
     public bool IsBenchFull()
     {
         foreach (var slot in benchSlots)

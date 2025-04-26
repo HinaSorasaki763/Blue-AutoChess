@@ -11,7 +11,7 @@ public class EnemyWave : ScriptableObject
         public int GridIndex;
         public int CharacterID;
         public int Level;
-        public int[] EquipmentIDs = new int[3] { -1, -1, -1 }; // 預設為 -1，表示沒有裝備
+        public int[] EquipmentIDs = new int[3] { -1, -1, -1 };
         public int DummyGridIndex;
     }
 

@@ -54,7 +54,7 @@ public class PVE_EnemySpawner : MonoBehaviour
                         CharacterCTRL characterCtrl = go.GetComponent<CharacterCTRL>();
                         characterNames.Add(characterCtrl.name);
                         hexnodexNames.Add(hexNode.name);
-                        characterCtrl.ResetStats();
+                        characterCtrl.RecalculateStats();
                         if (characterCtrl != null)
                         {
                             for (int i = 0; i < slot.EquipmentIDs.Length; i++)

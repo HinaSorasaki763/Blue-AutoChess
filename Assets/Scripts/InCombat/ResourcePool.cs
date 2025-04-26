@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public class ResourcePool : MonoBehaviour
 {
@@ -20,6 +21,8 @@ public class ResourcePool : MonoBehaviour
     public Transform penetrateBulletParent;
     public Transform healPackParent;
     public Transform normalBulletParent;
+    public Transform MissleFragmentsParent;
+    public Transform MissleParent;
     public GameObject PenetrateTrailedBullet;
     public GameObject HealPack;
     public GameObject NormalTrailBullet;
@@ -34,15 +37,21 @@ public class ResourcePool : MonoBehaviour
 
     private Dictionary<int, Character> characterDictionary = new Dictionary<int, Character>();
     public CombinationRouteSO combinationRoute;
+    public GameObject DropGoldPrefab;
+    public GameObject DropRewardPrefab;
 
     public BenchManager BenchManager;
     public GameObject MisslePrefab;
     public GameObject MissleFragmentsPrefab;
+    public GameObject SmallPenetrateTrailedBulletPrefab;
+    public Transform SmallPenetrateTrailedBulletParent;
     public int RandomKeyThisGame;
     public readonly int FixedRandomKey = 1854998248;
     public Sprite RandomRewardSprite;
     public Sprite GoldSprite;
     public Sprite[] numberSprites;
+    public Sprite WakamosSprite;
+    public Canvas EffectCanva;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -90,7 +99,7 @@ public class ResourcePool : MonoBehaviour
             {
                 if (!characterDictionary.ContainsKey(character.CharacterId))
                 {
-                    sb.AppendLine($"character {character.CharacterName} ,skill = {character.Tooltips[0]}");
+                    sb.AppendLine($"character {character.CharacterName} ,skill = {character.EnhancedSkillTooltips[0]}");
                     sb.AppendLine("");
                     characterDictionary.Add(character.CharacterId, character);
                 }
@@ -105,7 +114,7 @@ public class ResourcePool : MonoBehaviour
         foreach (var character in characterDictionary)
         {
 
-            Sb.AppendLine($"character tooltips chinese : {character.Value.Tooltips[0]}  \n english : {character.Value.Tooltips[1]}");
+            Sb.AppendLine($"character tooltips chinese : {character.Value.EnhancedSkillTooltips[0]}");
 
         }
         Debug.Log(Sb.ToString());
@@ -179,7 +188,31 @@ public class ResourcePool : MonoBehaviour
     {
         return GetObject(FloatingTextPrefab, FloatingTextParent, textPool, pos);
     }
-
+    public void GetGoldPrefab(Vector3 pos)
+    {
+        float randx = Random.Range(-0.5f, 0.5f);
+        float randz = Random.Range(-0.5f, 0.5f);
+        Vector3 p = pos + new Vector3(randx, 0.75f, randz);
+        GameObject obj = Instantiate(DropGoldPrefab, p, Quaternion.identity);
+        obj.GetComponent<GoldRotate>().rewardType = CollectionRewardType.Gold;
+    }
+    public void GetRandRewardPrefab(Vector3 pos)
+    {
+        float randx = Random.Range(-0.5f, 0.5f);
+        float randz = Random.Range(-0.5f, 0.5f);
+        Vector3 p = pos + new Vector3(randx, 0.75f, randz);
+        GameObject obj = Instantiate(DropRewardPrefab, p, Quaternion.identity);
+        obj.GetComponent<GoldRotate>().rewardType = CollectionRewardType.RandComponent;
+    }
+    public void GetRandCharacterPrefab(Vector3 pos,int index)
+    {
+        float randx = Random.Range(-0.5f, 0.5f);
+        float randz = Random.Range(-0.5f, 0.5f);
+        Vector3 p = pos + new Vector3(randx, 0.75f, randz);
+        GameObject obj = Instantiate(DropRewardPrefab, p, Quaternion.identity);
+        obj.GetComponent<GoldRotate>().rewardType = CollectionRewardType.Character;
+        obj.GetComponent<GoldRotate>().CharacterIndex = index;
+    }
     public GameObject GetBar(Vector3 pos)
     {
         foreach (var item in barPool)
@@ -257,7 +290,7 @@ public class ResourcePool : MonoBehaviour
         characterParent.AddChild(obj);
         obj.transform.SetParent(characterParent.transform, false);
         ctrl.IsAlly = isAlly;
-
+        ctrl.GetSkill();
         return obj;
     }
 
@@ -278,6 +311,18 @@ public class ResourcePool : MonoBehaviour
             case SkillPrefab.NormalTrailedBullet:
                 prefab = NormalTrailBullet;
                 parent = normalBulletParent;
+                break;
+            case SkillPrefab.MissleFragmentsPrefab:
+                prefab = MissleFragmentsPrefab;
+                parent = MissleFragmentsParent;
+                break;
+            case SkillPrefab.SmallPenetrateTrailedBullet:
+                prefab = SmallPenetrateTrailedBulletPrefab;
+                parent = SmallPenetrateTrailedBulletParent;
+                break;
+            case SkillPrefab.Missle:
+                prefab = MisslePrefab;
+                parent = MissleParent;
                 break;
         }
 

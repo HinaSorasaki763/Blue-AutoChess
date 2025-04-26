@@ -17,6 +17,8 @@ GameObject:
   - component: {fileID: 6251576936792179130}
   - component: {fileID: 4783180386992401758}
   - component: {fileID: 6507023919684515182}
+  - component: {fileID: 8807029445072555843}
+  - component: {fileID: 5519061182702586442}
   m_Layer: 0
   m_Name: Shizuko_Original_Teahouse_Idle
   m_TagString: Untagged
@@ -104,7 +106,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CurrentHex: {fileID: 0}
   HexWhenBattleStart: {fileID: 0}
-  Target: {fileID: 0}
   PreTarget: {fileID: 0}
   IsAlly: 0
   allyLayer:
@@ -156,6 +157,94 @@ MonoBehaviour:
       value: 0
     - statType: 16
       value: 0
+  ExtraPernamentStats:
+    stats:
+    - statType: 0
+      value: 0
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 0
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 0
+    - statType: 5
+      value: 0
+    - statType: 6
+      value: 0
+    - statType: 7
+      value: 0
+    - statType: 8
+      value: 0
+    - statType: 9
+      value: 0
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 0
+    - statType: 12
+      value: 0
+    - statType: 13
+      value: 0
+    - statType: 14
+      value: 0
+    - statType: 15
+      value: 0
+    - statType: 16
+      value: 0
+    - statType: 17
+      value: 0
+    - statType: 18
+      value: 0
+    - statType: 19
+      value: 0
+    - statType: 20
+      value: 0
+  PercentageStats:
+    stats:
+    - statType: 0
+      value: 0
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 0
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 0
+    - statType: 5
+      value: 0
+    - statType: 6
+      value: 0
+    - statType: 7
+      value: 0
+    - statType: 8
+      value: 0
+    - statType: 9
+      value: 0
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 0
+    - statType: 12
+      value: 0
+    - statType: 13
+      value: 0
+    - statType: 14
+      value: 0
+    - statType: 15
+      value: 0
+    - statType: 16
+      value: 0
+    - statType: 17
+      value: 0
+    - statType: 18
+      value: 0
+    - statType: 19
+      value: 0
+    - statType: 20
+      value: 0
   star: 0
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
@@ -176,6 +265,7 @@ MonoBehaviour:
   Taunted: 0
   attackRate: 5
   WakamoMark: 0
+  dmgRecivedOnWakamoMarked: 0
   stunned: 0
   FirePoint: {fileID: 0}
   GetHitPoint: {fileID: 0}
@@ -189,7 +279,12 @@ MonoBehaviour:
   isObj: 0
   Logistic_dummy: {fileID: 0}
   equipmentManager: {fileID: 0}
+  critTransferAmount: 0
   StealManaCount: 0
+  DealtDamageThisRound: 0
+  TakeDamageThisRound: 0
+  AkoAddedCrit: 0
+  SpecialSkillStack: 0
   parent: {fileID: 0}
 --- !u!114 &7572091158710221031
 MonoBehaviour:
@@ -254,3 +349,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1f0e333457e9f7448f7a6f0ff11015b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!65 &8807029445072555843
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2508619662423299920}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.00913474, y: 0.014530658, z: 0.017135257}
+  m_Center: {x: -0.0000000011641532, y: -0.00034703044, z: 0.008593892}
+--- !u!114 &5519061182702586442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2508619662423299920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474cbecd7e839924089d8f2f18c85380, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PreSelectedGrid: {fileID: 0}

@@ -84,7 +84,7 @@ public class Amulet_BagObserver : CharacterObserverBase
     {
         trigger = false;
     }
-    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource)
+    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource, bool recursion)
     {
         if (character.GetHealthPercentage() <= 0.6f && !trigger)
         {
@@ -102,7 +102,7 @@ public class Amulet_CapObserver : CharacterObserverBase
             (character) => character.ModifyStats(StatsType.Attack, effect.Value, effect.Source),
             (character) => character.ModifyStats(StatsType.Attack, -effect.Value, effect.Source)
         );
-        character.effectCTRL.AddEffect(effect);
+        character.effectCTRL.AddEffect(effect, character);
     }
 }
 public class Amulet_GlovesObserver : CharacterObserverBase
@@ -116,7 +116,7 @@ public class Amulet_GlovesObserver : CharacterObserverBase
 }
 public class Amulet_HairbandObserver : CharacterObserverBase
 {
-    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource)
+    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource, bool recursion)
     {
 
         int manaAmount = (int)(5 * (amount / (amount + 10)));//TODO: ½Õ¾ã¼Æ­È
@@ -136,7 +136,7 @@ public class Bag_BagObserver : CharacterObserverBase
     {
         count = 20;
     }
-    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource)
+    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource, bool recursion)
     {
         int healamount = (int)(character.GetStat(StatsType.Health) * 0.02f);
         if (character.GetHealthPercentage() <= 0.4f && count > 0)
@@ -154,7 +154,7 @@ public class Bag_CapObserver : CharacterObserverBase
     {
         trigger = false;
     }
-    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource = "default")
+    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource = "default",bool recursion = true)
     {
         int threshold = (int)(character.GetStat(StatsType.Health)*0.5f);
         if (!trigger && character.GetStat(StatsType.currHealth) <= threshold)
@@ -165,7 +165,7 @@ public class Bag_CapObserver : CharacterObserverBase
                 (character) => character.ModifyStats(StatsType.PercentageResistence, effect.Value, effect.Source),
                 (character) => character.ModifyStats(StatsType.PercentageResistence, -effect.Value, effect.Source)
             );
-            character.effectCTRL.AddEffect(effect);
+            character.effectCTRL.AddEffect(effect, character);
         }
     }
 }
@@ -182,7 +182,7 @@ public class Bag_GlovesObserver : CharacterObserverBase
 }
 public class Bag_HairbandObserver : CharacterObserverBase
 {
-    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource = "default")
+    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource = "default",bool recursion = true)
     {
         if (isCrit)
         {
@@ -195,7 +195,7 @@ public class Bag_WatchObserver : CharacterObserverBase
     public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
         Effect effect = EffectFactory.CreateAntiHealEffect(5, target);
-        target.effectCTRL.AddEffect(effect);
+        target.effectCTRL.AddEffect(effect,target);
         base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
     }
 }
@@ -235,7 +235,7 @@ public class Cap_HairbandObserver : CharacterObserverBase
     {
         trigger = false;
     }
-    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource)
+    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource, bool recursion)
     {
         if (character.GetHealthPercentage() <= 0.6f && !trigger)
         {
@@ -246,7 +246,7 @@ public class Cap_HairbandObserver : CharacterObserverBase
                 (character) => character.ModifyStats(StatsType.Attack, effect.Value, effect.Source),
                 (character) => character.ModifyStats(StatsType.Attack, -effect.Value, effect.Source)
             );
-            character.effectCTRL.AddEffect(effect);
+            character.effectCTRL.AddEffect(effect, character);
         }
     }
 }
@@ -261,7 +261,7 @@ public class Cap_WatchObserver : CharacterObserverBase
                 (character) => character.ModifyStats(StatsType.CritRatio, effect.Value, effect.Source),
                 (character) => character.ModifyStats(StatsType.CritRatio, -effect.Value, effect.Source)
             );
-            source.effectCTRL.AddEffect(effect);
+            source.effectCTRL.AddEffect(effect,source);
         }
         base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
     }
@@ -275,7 +275,7 @@ public class Gloves_GlovesObserver : CharacterObserverBase
             (character) => character.ModifyStats(StatsType.AttackSpeed, effect.Value, effect.Source),
             (character) => character.ModifyStats(StatsType.AttackSpeed, -effect.Value, effect.Source)
         );
-        character.effectCTRL.AddEffect(effect);
+        character.effectCTRL.AddEffect(effect, character);
         base.OnKilledEnemy(character, detailedSource, characterDies);
     }
 }
@@ -300,7 +300,7 @@ public class Gloves_WatchObserver : CharacterObserverBase
                     (character) => character.ModifyStats(StatsType.AttackSpeed, effect.Value, effect.Source),
                     (character) => character.ModifyStats(StatsType.AttackSpeed, -effect.Value, effect.Source)
                 );
-                source.effectCTRL.AddEffect(effect);
+                source.effectCTRL.AddEffect(effect,source);
 
             }
         }
@@ -311,7 +311,7 @@ public class Hairband_HairbandObserver : CharacterObserverBase
 {
     public float time;
     readonly int cooldown = 1;
-    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource = "default")
+    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource = "default",bool recursion = true)
     {
         if (Time.time - time > cooldown)
         {
@@ -337,7 +337,7 @@ public class Hairband_WatchObserver : CharacterObserverBase
         }
         base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
     }
-    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource = "default")
+    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource = "default", bool recursion = true)
     {
         if (count > 0)
         {

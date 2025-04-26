@@ -5,9 +5,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEditor;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
+using static Unity.VisualScripting.Member;
+using static UnityEngine.GraphicsBuffer;
 public abstract class CharacterSkillBase
 {
     public virtual Dictionary<int, StarLevelStats> GetCharacterLevel()
@@ -42,7 +47,10 @@ public abstract class CharacterSkillBase
     {
         return this;
     }
-
+    public virtual bool Barrage_penetrate()
+    {
+        return false;
+    }
     public HexNode FindMaxOccupiedEntityGrid(
     int range,
     List<HexNode> hexNodes,
@@ -155,7 +163,7 @@ public class ArisEnhancedSkill : CharacterSkillBase
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(0,475,100)}, // 星級1的數據
+            {1, new StarLevelStats(150,475,100)}, // 星級1的數據
             {2, new StarLevelStats(0,600,100)}, // 星級2的數據
             {3, new StarLevelStats(0,900,100)}  // 星級3的數據
         };
@@ -273,12 +281,10 @@ public class HarukaSkill : CharacterSkillBase//遙香(Haruka)架起護盾，並�
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
         BaseDmg = stats.Data1;
         DmgRatio = stats.Data2;
         PressureRatio = stats.Data3;
-        base.ExecuteSkill(skillContext);
         HexNode hexNode = SpawnGrid.Instance.GetHexNodeByPosition(skillContext.TargetCTRLPosition);
         HexNode currentHex = skillContext.Parent.CurrentHex;
         var commonNeighbors = hexNode.Neighbors.Intersect(currentHex.Neighbors)
@@ -294,7 +300,7 @@ public class HarukaSkill : CharacterSkillBase//遙香(Haruka)架起護盾，並�
                 (bool, int) tuple = skillContext.Parent.CalculateCrit(dmg);
                 neighbor.OccupyingCharacter.GetHit(tuple.Item2, skillContext.Parent, "HarukaSkill", tuple.Item1);
                 Effect effect = EffectFactory.CreateHarukaMinusAtkEffect(5, 5, neighbor.OccupyingCharacter);
-                neighbor.OccupyingCharacter.effectCTRL.AddEffect(effect);
+                neighbor.OccupyingCharacter.effectCTRL.AddEffect(effect,neighbor.OccupyingCharacter);
             }
         }
     }
@@ -304,7 +310,7 @@ public class HarukaSkill : CharacterSkillBase//遙香(Haruka)架起護盾，並�
     }
 
 }
-public class HarukaEnhancedSkill : CharacterSkillBase
+public class HarukaEnhancedSkill : CharacterSkillBase//
 {
     private HarukaSkill originalSkill;
     public HarukaEnhancedSkill(HarukaSkill originalSkill)
@@ -323,9 +329,28 @@ public class HarukaEnhancedSkill : CharacterSkillBase
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Haruka Skill");
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        int PressureRatio = stats.Data3;
+        HexNode hexNode = SpawnGrid.Instance.GetHexNodeByPosition(skillContext.TargetCTRLPosition);
+        HexNode currentHex = skillContext.Parent.CurrentHex;
+        var commonNeighbors = hexNode.Neighbors.Intersect(currentHex.Neighbors)
+                               .Where(h => h != currentHex)
+                               .ToList();
+        commonNeighbors.Add(hexNode);
+        bool isAlly = skillContext.Parent.IsAlly;
+        foreach (var neighbor in commonNeighbors)
+        {
+            if (neighbor.OccupyingCharacter != null && neighbor.OccupyingCharacter.IsAlly != isAlly)
+            {
+                int dmg = BaseDmg + (int)skillContext.Parent.GetStat(StatsType.Attack) * DmgRatio / 100 + PressureRatio * PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly);
+                (bool, int) tuple = skillContext.Parent.CalculateCrit(dmg);
+                neighbor.OccupyingCharacter.GetHit(tuple.Item2, skillContext.Parent, "HarukaSkill", tuple.Item1);
+                Effect effect = EffectFactory.CreateHarukaMinusAtkEffect(5, 5, neighbor.OccupyingCharacter);
+                neighbor.OccupyingCharacter.effectCTRL.AddEffect(effect,neighbor.OccupyingCharacter);
+            }
+        }
     }
 }
 public class HarunaSkill : CharacterSkillBase//羽留奈(Haruna)朝著當前生命值最低的敵人進行狙擊
@@ -372,7 +397,6 @@ public class HarunaSkill : CharacterSkillBase//羽留奈(Haruna)朝著當前生�
 public class HarunaEnhancedSkill : CharacterSkillBase//在半徑兩格區域內造成爆炸，每施放第三次，對三個區域造成爆炸
 {
     private HarunaSkill originalSkill;
-    private int Count;
     private Dictionary<int, StarLevelStats> statsByStarLevel;
     public int BaseDmg;
     public int DmgRatio;
@@ -394,10 +418,10 @@ public class HarunaEnhancedSkill : CharacterSkillBase//在半徑兩格區域內�
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
-        Count++;
-        if (Count >= 3)
+        skillContext.Parent.SpecialSkillStack++;
+        if (skillContext.Parent.SpecialSkillStack >= 3)
         {
-            Count -= 3;
+            skillContext.Parent.SpecialSkillStack -= 3;
             Transform parentTransform = skillContext.Parent.transform;
             List<Transform> enemyTransforms = skillContext.Enemies.Select(e => e.transform).ToList();
             var sortedTargets = enemyTransforms
@@ -426,7 +450,7 @@ public class HarunaEnhancedSkill : CharacterSkillBase//在半徑兩格區域內�
             return;
         }
         Explosion(skillContext.Parent.Target, skillContext);
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Haruna Skill,count = {Count}");
+        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Haruna Skill,count = {skillContext.Parent.SpecialSkillStack}");
     }
     public void Explosion(GameObject target, SkillContext skillContext)
     {
@@ -492,19 +516,43 @@ public class MichiruSkill : CharacterSkillBase//滿(Michiru)對當前目標發�
         return new MichiruEnhancedSkill(this);
     }
 }
-public class MichiruEnhancedSkill : CharacterSkillBase
+public class MichiruEnhancedSkill : CharacterSkillBase//火焰範圍擴大，且會使得友軍攻擊速度提升/回復血量
 {
     private MichiruSkill originalSkill;
     public MichiruEnhancedSkill(MichiruSkill originalSkill)
     {
         this.originalSkill = originalSkill;
     }
-
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(30,155,30,75)}, // 星級1的數據
+            {2, new StarLevelStats(50,230,45,115)}, // 星級2的數據
+            {3, new StarLevelStats(70,390,75,175)}  // 星級3的數據
+        };
+        return statsByStarLevel;
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
-        //想不到
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Michiru Skill");
+        LayerMask layer = skillContext.Parent.GetTargetLayer();
+        CharacterCTRL target = skillContext.CurrentTarget;
+        GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
+        int dmg = GetAttackCoefficient(skillContext);
+        (bool, int) tuple = skillContext.Parent.CalculateCrit(dmg);
+        bullet.GetComponent<NormalBullet>().Initialize(tuple.Item2, layer, skillContext.Parent, 20f, target.gameObject, true, tuple.Item1);
+        HexNode targetHex = target.CurrentHex;
+        float burningDuration = 10f;
+        int damagePerTick = dmg / 2;
+        float tickInterval = 1f;
+        targetHex.ApplyBurningEffect(burningDuration, damagePerTick, tickInterval, skillContext.Parent);
+        foreach (HexNode item in Utility.GetHexInRange(targetHex,2))
+        {
+            item.ApplyBurningEffect(burningDuration, damagePerTick, tickInterval, skillContext.Parent);
+            FloorEffect floorEffect = new MichiruFloorBuff(burningDuration, skillContext.Parent);
+            item.AddFloorEffect(floorEffect);
+        }
     }
 }
 public class NatsuSkill : CharacterSkillBase//夏(Natsu)治癒自己一定血量，架起護盾，一定時間內免疫負面狀態
@@ -540,25 +588,43 @@ public class NatsuSkill : CharacterSkillBase//夏(Natsu)治癒自己一定血量
         int heal = GetAttackCoefficient(skillContext);
         skillContext.Parent.Heal(heal, skillContext.Parent);
         Effect effect = EffectFactory.ClarityEffect(GetCharacterLevel()[skillContext.Parent.star].Data5, skillContext.Parent);
-        skillContext.Parent.effectCTRL.AddEffect(effect);
+        skillContext.Parent.effectCTRL.AddEffect(effect,skillContext.Parent);
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
     {
         return new NatsuEnhancedSkill(this);
     }
 }
-public class NatsuEnhancedSkill : CharacterSkillBase        //如果施放技能時解除了負面效果，永久獲得生命值。如果施放技能時沒有負面效果可以解除，永久獲得攻擊力。
+public class NatsuEnhancedSkill : CharacterSkillBase//如果施放技能時解除了負面效果，永久獲得生命值。如果施放技能時沒有負面效果可以解除，永久獲得攻擊力。
 {
     private NatsuSkill originalSkill;
     public NatsuEnhancedSkill(NatsuSkill originalSkill)
     {
         this.originalSkill = originalSkill;
     }
-
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(10,75,25,5,2)},
+            {2, new StarLevelStats(20,150,45,7,2.5f)},
+            {3, new StarLevelStats(30,325,65,10,4)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
-
+        int heal = GetAttackCoefficient(skillContext);
+        skillContext.Parent.Heal(heal, skillContext.Parent);
+        Effect effect = EffectFactory.ClarityEffect(GetCharacterLevel()[skillContext.Parent.star].Data5, skillContext.Parent);
+        skillContext.Parent.effectCTRL.AddEffect(effect,skillContext.Parent);
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Natsu Skill");
     }
 }
@@ -585,11 +651,9 @@ public class NoaSkill : CharacterSkillBase//乃愛(Noa)對生命值上限最低�
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         int level = skillContext.CharacterLevel;
         StarLevelStats stats = GetCharacterLevel()[level];
-        int amount = stats.Data1;
-        base.ExecuteSkill(skillContext);
+        int amount = -stats.Data1;
         CharacterCTRL weakestEnemy = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.Health, false, 1, true)[0];
         if (weakestEnemy.isMarked)
         {
@@ -598,13 +662,17 @@ public class NoaSkill : CharacterSkillBase//乃愛(Noa)對生命值上限最低�
                 (character) => character.ModifyStats(StatsType.PercentageResistence, DmgEffect.Value, DmgEffect.Source),
                 (character) => character.ModifyStats(StatsType.PercentageResistence, -DmgEffect.Value, DmgEffect.Source)
             );
-            weakestEnemy.effectCTRL.AddEffect(DmgEffect);
+            weakestEnemy.effectCTRL.AddEffect(DmgEffect,weakestEnemy);
         }
         else
         {
             Effect effect = EffectFactory.CreateMarkedEffect(weakestEnemy);
-            weakestEnemy.effectCTRL.AddEffect(effect);
+            weakestEnemy.effectCTRL.AddEffect(effect,weakestEnemy);
             CustomLogger.Log(this, $"Marking weakestEnemy {weakestEnemy}");
+        }
+        foreach (var item in Utility.GetCharacterInrange(skillContext.Parent.CurrentHex,2,skillContext.Parent,true))
+        {
+            item.AddStat(StatsType.Range,1);
         }
         foreach (var item in skillContext.Parent.GetAllies())
         {
@@ -626,12 +694,52 @@ public class NoaEnhancedSkill : CharacterSkillBase
     {
         this.originalSkill = originalSkill;
     }
-
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(10)},
+            {2, new StarLevelStats(15)},
+            {3, new StarLevelStats(20)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        return skillContext.Parent.GetAttack();
+    }
     public override void ExecuteSkill(SkillContext skillContext)//現在被標記就會賦予受到傷害提升的debuff，並且當被標記的敵人如果在擁有標記期間死去，一個新的敵人獲得"標記"，其完全等效於原技能
     {
-        base.ExecuteSkill(skillContext);
-
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Noa Skill");
+        int level = skillContext.CharacterLevel;
+        StarLevelStats stats = GetCharacterLevel()[level];
+        int amount = -stats.Data1;
+        CharacterCTRL weakestEnemy = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.Health, false, 1, true)[0];
+        if (weakestEnemy.isMarked)
+        {
+            Effect DmgEffect = EffectFactory.StatckableStatsEffct(0, "Noa Skill", amount, StatsType.PercentageResistence, skillContext.Parent, true);
+            DmgEffect.SetActions(
+                (character) => character.ModifyStats(StatsType.PercentageResistence, DmgEffect.Value, DmgEffect.Source),
+                (character) => character.ModifyStats(StatsType.PercentageResistence, -DmgEffect.Value, DmgEffect.Source)
+            );
+            weakestEnemy.effectCTRL.AddEffect(DmgEffect, weakestEnemy);
+        }
+        else
+        {
+            Effect effect = EffectFactory.CreateMarkedEffect(weakestEnemy);
+            weakestEnemy.effectCTRL.AddEffect(effect, weakestEnemy);
+            CustomLogger.Log(this, $"Marking weakestEnemy {weakestEnemy}");
+        }
+        foreach (var item in Utility.GetCharacterInrange(skillContext.Parent.CurrentHex, 2, skillContext.Parent, true))
+        {
+            item.AddStat(StatsType.Range, 1);
+        }
+        foreach (var item in skillContext.Parent.GetAllies())
+        {
+            if (item.CheckEnemyIsInrange(weakestEnemy))
+            {
+                item.ForceChangeTarget(weakestEnemy);
+            }
+        }
     }
 }
 public class SerikaSkill : CharacterSkillBase//茜香(Serika)施放技能後獲得攻擊速度和物理攻擊。
@@ -657,7 +765,7 @@ public class SerikaSkill : CharacterSkillBase//茜香(Serika)施放技能後獲�
         StarLevelStats stats = GetCharacterLevel()[level];
         base.ExecuteSkill(skillContext);
         Effect effect = EffectFactory.CreateSerikaRageEffect(10, 5, skillContext.Parent);
-        skillContext.Parent.effectCTRL.AddEffect(effect);
+        skillContext.Parent.effectCTRL.AddEffect(effect, skillContext.Parent);
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
     {
@@ -689,8 +797,8 @@ public class SerikaEnhancedSkill : CharacterSkillBase//施放技能後的該段�
         base.ExecuteSkill(skillContext);
         Effect effect = EffectFactory.CreateSerikaRageEffect(10, 5, skillContext.Parent);
         Effect effect1 = EffectFactory.SerikaAddGold();
-        skillContext.Parent.effectCTRL.AddEffect(effect);
-        skillContext.Parent.effectCTRL.AddEffect(effect1);
+        skillContext.Parent.effectCTRL.AddEffect(effect, skillContext.Parent);
+        skillContext.Parent.effectCTRL.AddEffect(effect1,skillContext.Parent);
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Serika Skill");
     }
 }
@@ -743,7 +851,7 @@ public class SerinaSkill : CharacterSkillBase//serina治癒生命值最低的友
         return new SerinaEnhancedSkill(this);
     }
 }
-public class SerinaEnhancedSkill : CharacterSkillBase//我方每一次爆擊時，獲得微量治癒，總計爆擊了(後勤也算)若干次時，本回合暫時增加爆擊傷害
+public class SerinaEnhancedSkill : CharacterSkillBase//我方每一次爆擊時，獲得微量治癒，每回合爆擊了(後勤也算)若干次時，本回合暫時增加爆擊傷害
 {
     private SerinaSkill originalSkill;
     public SerinaEnhancedSkill(SerinaSkill originalSkill)
@@ -753,8 +861,7 @@ public class SerinaEnhancedSkill : CharacterSkillBase//我方每一次爆擊時�
 
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Serina Skill");
+        
     }
 }
 public class ShizukoSkill : CharacterSkillBase//靜子(shizuko)在角色(無論敵我)最多的空格子放置一台餐車，該餐車"架起護盾"，且護盾範圍+2的範圍內的友軍增加命中率
@@ -778,7 +885,6 @@ public class ShizukoSkill : CharacterSkillBase//靜子(shizuko)在角色(無論�
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         int range1 = GetCharacterLevel()[skillContext.Parent.star].Data3;
         int range2 = GetCharacterLevel()[skillContext.Parent.star].Data4;
         HexNode hex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent, range1, false, true, skillContext.Parent.CurrentHex);
@@ -790,7 +896,7 @@ public class ShizukoSkill : CharacterSkillBase//靜子(shizuko)在角色(無論�
         foreach (var item in Utility.GetCharacterInrange(hex, range2, skillContext.Parent, true))
         {
             Effect effect = EffectFactory.CreateShizukoEffect(30, 10, skillContext.Parent);
-            item.effectCTRL.AddEffect(effect);
+            item.effectCTRL.AddEffect(effect,item);
         }
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
@@ -798,17 +904,54 @@ public class ShizukoSkill : CharacterSkillBase//靜子(shizuko)在角色(無論�
         return new ShizukoEnhancedSkill(this);
     }
 }
-public class ShizukoEnhancedSkill : CharacterSkillBase//餐車不會被破壞，但歸零時會失去特效。第一次施放技能後的技能改為增加餐車的最大生命(當前生命隨著最大生命的增加量而增加)，現在餐車還會賦予周圍友軍自身生命%數的治療
+public class ShizukoEnhancedSkill : CharacterSkillBase//餐車不會被破壞，但歸零時會失去特效。第一次施放技能後的技能改為恢復餐車，溢出量轉化為最大生命，現在餐車還會賦予周圍友軍自身生命%數的治療
 {
     private ShizukoSkill originalSkill;
     public ShizukoEnhancedSkill(ShizukoSkill originalSkill)
     {
         this.originalSkill = originalSkill;
     }
-
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(150,350,3,5)},
+            {2, new StarLevelStats(250,475,3,5)},
+            {3, new StarLevelStats(400,585,4,6)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
+        ShizukoActiveSkill shizukoActiveSkill = skillContext.Parent.GetComponent<ShizukoActiveSkill>();
+        if (shizukoActiveSkill.Reference == null)
+        {
+            int range1 = GetCharacterLevel()[skillContext.Parent.star].Data3;
+            int range2 = range1 + 2;
+            HexNode hex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent, range1, false, true, skillContext.Parent.CurrentHex);
+            skillContext.Parent.GetComponent<ShizukoActiveSkill>().SpawnTruck(hex, skillContext.Parent);
+            foreach (var item in Utility.GetCharacterInrange(hex, range1, skillContext.Parent, true))
+            {
+                item.AddShield(100, 5f, skillContext.Parent);
+            }
+            foreach (var item in Utility.GetCharacterInrange(hex, range2, skillContext.Parent, true))
+            {
+                Effect effect = EffectFactory.CreateShizukoEffect(30, 10, skillContext.Parent);
+                item.effectCTRL.AddEffect(effect, item);
+            }
+        }
+        else
+        {
+            shizukoActiveSkill.ReinforceTruck();
+        }
+        
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Shizuko Skill");
     }
 }
@@ -855,11 +998,29 @@ public class SumireEnhancedSkill : CharacterSkillBase//每施放一次技能就�
     {
         this.originalSkill = originalSkill;
     }
-
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(50,115,5)},
+            {2, new StarLevelStats(80,160,7)},
+            {3, new StarLevelStats(135,195,10)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        int healthRatio = stats.Data3;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack()+(int)(healthRatio*0.01f*skillContext.Parent.GetStat(StatsType.Health)));
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
         skillContext.Parent.AddPercentageBonus(StatsType.Health, StatsType.Attack, 5, "SumireActiveSkill");//TODO: 應該要在"選擇強化效果時增加"，而非增加在此處
         skillContext.Parent.AddExtraStat(StatsType.Health, 100);
+        GameController.Instance.SumireAddedHealth += 100;
         var sumireActiveSkill = skillContext.Parent.GetComponent<SumireActiveSkill>();
         if (sumireActiveSkill == null)
         {
@@ -895,7 +1056,8 @@ public class AkoSkill : CharacterSkillBase
     {
 
         Effect effect = EffectFactory.CreateAkoActiveSkillBuff(GetCharacterLevel()[skillContext.Parent.star].Data1, 0, skillContext.Parent);
-        DamageStatisticsManager.Instance.GetTopDamageDealer(skillContext.Parent.IsAlly).effectCTRL.AddEffect(effect);
+        CharacterCTRL c = DamageStatisticsManager.Instance.GetTopDamageDealer(skillContext.Parent.IsAlly);
+        c.effectCTRL.AddEffect(effect,c);
         CustomLogger.Log(this, $"{DamageStatisticsManager.Instance.GetTopDamageDealer(skillContext.Parent.IsAlly)} getting buff {effect.GetType()}");
         base.ExecuteSkill(skillContext);
     }
@@ -915,9 +1077,8 @@ public class AkoEnhancedSkill : CharacterSkillBase//若被賦予buff的友軍在
     public override void ExecuteSkill(SkillContext skillContext)
     {
         Effect effect = EffectFactory.CreateAkoEnhancedActiveSkillBuff(GetCharacterLevel()[skillContext.Parent.star].Data1, 0, skillContext.Parent);
-        DamageStatisticsManager.Instance.GetTopDamageDealer(skillContext.Parent.IsAlly).effectCTRL.AddEffect(effect);
-        CustomLogger.Log(this, $"{DamageStatisticsManager.Instance.GetTopDamageDealer(skillContext.Parent.IsAlly)} getting buff {effect.GetType()}");
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Ako Skill");
+        CharacterCTRL c = DamageStatisticsManager.Instance.GetTopDamageDealer(skillContext.Parent.IsAlly);
+        c.effectCTRL.AddEffect(effect, c);
     }
 }
 public class AzusaSkill : CharacterSkillBase//梓(Azusa)對當前目標狙擊，短暫延遲後，小範圍內爆炸
@@ -942,10 +1103,9 @@ public class AzusaSkill : CharacterSkillBase//梓(Azusa)對當前目標狙擊，
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         CharacterCTRL c = skillContext.Parent.Target.GetComponent<CharacterCTRL>();
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
-        int dmg = (int)skillContext.Parent.GetStat(StatsType.Attack);
+        int dmg = GetAttackCoefficient(skillContext);
         (bool iscrit, int dmg1) = skillContext.Parent.CalculateCrit(dmg);
         List<HitEffect> hitEffect = new List<HitEffect> { new AzusaSkillEffect() };
         bullet.GetComponent<NormalBullet>().Initialize(dmg1, skillContext.Parent.GetTargetLayer(), skillContext.Parent, 15f, c.gameObject, true, iscrit, hitEffect);
@@ -962,10 +1122,33 @@ public class AzusaEnhancedSkill : CharacterSkillBase//若目標因為梓(任意�
     {
         this.originalSkill = originalSkill;
     }
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(100,380)}, // 星級1的數據
+            {2, new StarLevelStats(150,450)}, // 星級2的數據
+            {3, new StarLevelStats(225,780)}  // 星級3的數據
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = skillContext.Parent.ActiveSkill.GetCharacterLevel()[skillContext.Parent.star];
+        int BaseDamage = stats.Data1;
+        int DamageRatio = stats.Data2;
+        int dmg = BaseDamage + (int)(DamageRatio / 100f * skillContext.Parent.GetStat(StatsType.Attack));
+        return dmg;
+    }
 
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
+        CharacterCTRL c = skillContext.Parent.Target.GetComponent<CharacterCTRL>();
+        GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
+        int dmg = GetAttackCoefficient(skillContext)*100;
+        (bool iscrit, int dmg1) = skillContext.Parent.CalculateCrit(dmg);
+        List<HitEffect> hitEffect = new List<HitEffect> { new AzusaSkillEffect() };
+        bullet.GetComponent<NormalBullet>().Initialize(dmg1, skillContext.Parent.GetTargetLayer(), skillContext.Parent, 15f, c.gameObject, true, iscrit, hitEffect);
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Azusa Skill");
     }
 }
@@ -1004,6 +1187,24 @@ public class ChiseSkill : CharacterSkillBase//知世(Chise)對範圍內的格子
 public class ChiseEnhancedSkill : CharacterSkillBase//還會降低攻擊速度，惡寒期間，百鬼夜行所屬學生會盡可能地攻擊範圍內可攻擊的惡寒敵對學生
 {
     private ChiseSkill originalSkill;
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(20,40,0,25,5)}, // 星級1的數據
+            {2, new StarLevelStats(40,60,0,30,5)}, // 星級2的數據
+            {3, new StarLevelStats(80,90,0,45,5)}  // 星級3的數據
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = skillContext.Parent.ActiveSkill.GetCharacterLevel()[skillContext.Parent.star];
+        int BaseDamage = stats.Data1;
+        int DamageRatio = stats.Data2;
+        int dmg = BaseDamage + (int)(DamageRatio / 100f * skillContext.Parent.GetStat(StatsType.Attack));
+        return dmg;
+    }
     public ChiseEnhancedSkill(ChiseSkill originalSkill)
     {
         this.originalSkill = originalSkill;
@@ -1011,7 +1212,51 @@ public class ChiseEnhancedSkill : CharacterSkillBase//還會降低攻擊速度�
 
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
+        HexNode targetHex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent, 3, true, false, skillContext.currHex);
+        int level = skillContext.CharacterLevel;
+        StarLevelStats stats = GetCharacterLevel()[level];
+        int BaseDamage = stats.Data1;
+        int DamageRatio = stats.Data2;
+        float slowRatio = stats.Data4*0.01f;
+        float time = stats.Data5;
+        int dmg = GetAttackCoefficient(skillContext);
+        foreach (var item in Utility.GetHexInRange(targetHex, 3))
+        {
+
+            item.ApplyBurningEffect(time, dmg, 0.5f, skillContext.Parent);
+        }
+        foreach (var item in Utility.GetCharacterInSet(Utility.GetHexInRange(targetHex, 3), skillContext.Parent, false))
+        {
+            Effect effect = EffectFactory.StatckableStatsEffct(3, "ChiseEnhancedSkill", -slowRatio, StatsType.AttackSpeed, skillContext.Parent, false);
+            effect.SetActions(
+                (character) => character.ModifyStats(StatsType.AttackSpeed, effect.Value, effect.Source),
+                (character) => character.ModifyStats(StatsType.AttackSpeed, -effect.Value, effect.Source)
+            );
+            item.effectCTRL.AddEffect(effect,item);
+        }
+        CharacterParent allycharacterParent = skillContext.Parent.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+        CharacterParent enemycharacterParent = skillContext.Parent.IsAlly ? ResourcePool.Instance.enemy : ResourcePool.Instance.ally;
+        List<CharacterCTRL> affectedCharacters = new List<CharacterCTRL>();
+        foreach (var item in enemycharacterParent.GetBattleFieldCharacter())
+        {
+            if (item.effectCTRL.GetEffect("ChiseEnhancedSkill") != null)
+            {
+                affectedCharacters.Add(item);
+            }
+        }
+        foreach (var item in allycharacterParent.GetBattleFieldCharacter())
+        {
+            if (item.traitController.GetAcademy() == Traits.Hyakkiyako)
+            {
+                foreach (var affectedCharacter in affectedCharacters)
+                {
+                    if (item.CheckEnemyIsInrange(affectedCharacter))
+                    {
+                        item.ForceChangeTarget(affectedCharacter);
+                    }
+                }
+            }
+        }
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Chise Skill");
     }
 }
@@ -1041,7 +1286,7 @@ public class FuukaSkill : CharacterSkillBase//風華(Fukka)找到一個範圍內
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
+        Dictionary<HexNode, CharacterCTRL> matchNode = new();
         int level = skillContext.CharacterLevel;
         StarLevelStats stats = GetCharacterLevel()[level];
         base.ExecuteSkill(skillContext);
@@ -1049,6 +1294,40 @@ public class FuukaSkill : CharacterSkillBase//風華(Fukka)找到一個範圍內
         int DamageRatio = stats.Data2;
         int healAmount = (int)(skillContext.Parent.GetAttack() * DamageRatio * 0.01f) + BaseDamage;
         HexNode targetHex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent, 3, false, false, skillContext.currHex, true);
+        List<HexNode> firstRingNodes = targetHex.Neighbors;
+        List<HexNode> secondRingNodes = firstRingNodes
+        .SelectMany(node => node.Neighbors)
+        .Where(node => !firstRingNodes.Contains(node) && node != targetHex)
+        .Distinct()
+        .ToList();
+        var charactersInSecondRing = Utility.GetCharacterInSet(secondRingNodes, skillContext.Parent, true);
+        var adjacency = new Dictionary<CharacterCTRL, List<HexNode>>();
+        var firstRingSet = new HashSet<HexNode>(firstRingNodes);
+        foreach (var c in charactersInSecondRing)
+        {
+            var possibleMoves = c.CurrentHex.Neighbors.Where(n => firstRingSet.Contains(n)).ToList();
+            adjacency[c] = possibleMoves;
+        }
+        matchNode = new Dictionary<HexNode, CharacterCTRL>();
+        foreach (var node in firstRingNodes)
+        {
+            matchNode[node] = node.OccupyingCharacter;
+        }
+        foreach (var c in charactersInSecondRing)
+        {
+            var visited = new HashSet<HexNode>();
+            Utility.TryAssign(c, visited, adjacency, ref matchNode);
+        }
+        foreach (var kvp in matchNode)
+        {
+            HexNode node = kvp.Key;
+            CharacterCTRL c = kvp.Value;
+            if (c == null) continue;
+            c.CurrentHex.HardRelease();
+            c.transform.position = node.Position + new Vector3(0, 0.14f, 0);
+            node.HardReserve(c);
+            CustomLogger.Log(this, $"Moving {c.name} from {c.CurrentHex.name} to {node.name}");
+        }
         GameObject HealPack = ResourcePool.Instance.SpawnObject(SkillPrefab.HealPack, targetHex.Position, Quaternion.Euler(-90, 0, 0));
         HealPack.GetComponent<HealPack>().InitStats(targetHex, 3, healAmount, skillContext.Parent, skillContext.Parent.IsAlly);
     }
@@ -1064,11 +1343,32 @@ public class FuukaEnhancedSkill : CharacterSkillBase//每X次成功治癒友軍�
     {
         this.originalSkill = originalSkill;
     }
-
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(20,40,25,20)}, // 星級1的數據
+            {2, new StarLevelStats(40,60,35,17)}, // 星級2的數據
+            {3, new StarLevelStats(80,90,50,15)}  // 星級3的數據
+        };
+        return statsByStarLevel;
+    }
+    public override int GetLogisticCoefficient(SkillContext skillContext)
+    {
+        return (int)(skillContext.Parent.GetStat(StatsType.Attack) * GetCharacterLevel()[skillContext.Parent.star].Data3 * 0.01f);
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Fukka Skill");
+        int level = skillContext.CharacterLevel;
+        StarLevelStats stats = GetCharacterLevel()[level];
+        base.ExecuteSkill(skillContext);
+        int BaseDamage = stats.Data1;
+        int DamageRatio = stats.Data2;
+        int healAmount = (int)(skillContext.Parent.GetAttack() * DamageRatio * 0.01f) + BaseDamage;
+        HexNode targetHex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent, 3, false, false, skillContext.currHex, true);
+        GameObject HealPack = ResourcePool.Instance.SpawnObject(SkillPrefab.HealPack, targetHex.Position, Quaternion.Euler(-90, 0, 0));
+        HealPack.GetComponent<HealPack>().InitStats(targetHex, 3, healAmount, skillContext.Parent, skillContext.Parent.IsAlly);
     }
 }
 public class IzunaSkill : CharacterSkillBase//伊樹菜(Izuna)沒有主動技能，將第六次普通攻擊替換為"對圓形範圍內敵人造成傷害"
@@ -1146,8 +1446,7 @@ public class KayokoSkill : CharacterSkillBase//佳代子(Kayoko)對大範圍敵�
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
-        List<CharacterCTRL> characters = SpawnGrid.Instance.GetCharactersWithinRadius(skillContext.currHex, true, 6, true, skillContext.Parent);
+        List<CharacterCTRL> characters = SpawnGrid.Instance.GetCharactersWithinRadius(skillContext.currHex, true, 6, true, skillContext.Parent).Item1;
         FearManager.Instance.ApplyFear(skillContext.Parent, characters, GetCharacterLevel()[skillContext.CharacterLevel].Data5);
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
@@ -1169,6 +1468,14 @@ public class KayokoEnhancedSkill : CharacterSkillBase//恐懼時長將隨著威�
         };
         return statsByStarLevel;
     }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        int PressureRatio = stats.Data3;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack()) + PressureRatio * PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly);
+    }
     public KayokoEnhancedSkill(KayokoSkill originalSkill)
     {
         this.originalSkill = originalSkill;
@@ -1176,7 +1483,7 @@ public class KayokoEnhancedSkill : CharacterSkillBase//恐懼時長將隨著威�
 
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        List<CharacterCTRL> characters = SpawnGrid.Instance.GetCharactersWithinRadius(skillContext.currHex, true, 6, true, skillContext.Parent);
+        List<CharacterCTRL> characters = SpawnGrid.Instance.GetCharactersWithinRadius(skillContext.currHex, true, 6, true, skillContext.Parent).Item1;
         FearManager.Instance.ApplyFear(skillContext.Parent, characters, GetCharacterLevel()[skillContext.CharacterLevel].Data5 + PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly) * 0.01f);
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Kayoko Skill");
     }
@@ -1208,7 +1515,7 @@ public class KazusaSkill : CharacterSkillBase//和紗(Kazusa)增加一定攻擊�
             (character) => character.ModifyStats(StatsType.Attack, kazusaAttackEffect.Value, kazusaAttackEffect.Source),
             (character) => character.ModifyStats(StatsType.Attack, -kazusaAttackEffect.Value, kazusaAttackEffect.Source)
         );
-        skillContext.Parent.effectCTRL.AddEffect(kazusaAttackEffect);
+        skillContext.Parent.effectCTRL.AddEffect(kazusaAttackEffect, skillContext.Parent);
         CharacterCTRL lowestHpenemy = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true)[0];
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
         int dmg = GetAttackCoefficient(skillContext);
@@ -1227,7 +1534,23 @@ public class KazusaEnhancedSkill : CharacterSkillBase//被此技能擊中的敵�
     {
         this.originalSkill = originalSkill;
     }
-
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(150,12000,1,1)},
+            {2, new StarLevelStats(250,475,1,1)},
+            {3, new StarLevelStats(400,585,2,2)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
         Effect kazusaAttackEffect = EffectFactory.StatckableStatsEffct(5, "Kazusa", 50, StatsType.Attack, skillContext.Parent, false);
@@ -1235,7 +1558,7 @@ public class KazusaEnhancedSkill : CharacterSkillBase//被此技能擊中的敵�
             (character) => character.ModifyStats(StatsType.Attack, kazusaAttackEffect.Value, kazusaAttackEffect.Source),
             (character) => character.ModifyStats(StatsType.Attack, -kazusaAttackEffect.Value, kazusaAttackEffect.Source)
         );
-        skillContext.Parent.effectCTRL.AddEffect(kazusaAttackEffect);
+        skillContext.Parent.effectCTRL.AddEffect(kazusaAttackEffect, skillContext.Parent);
         CharacterCTRL lowestHpenemy = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true)[0];
 
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
@@ -1315,7 +1638,7 @@ public class MineSkill : CharacterSkillBase//美彌(Mine)跳躍到敵人最多�
             {
 
                 Effect stunEffect = EffectFactory.CreateStunEffect(duration, neighbor.OccupyingCharacter);
-                neighbor.OccupyingCharacter.effectCTRL.AddEffect(stunEffect);
+                neighbor.OccupyingCharacter.effectCTRL.AddEffect(stunEffect,neighbor.OccupyingCharacter);
                 neighbor.OccupyingCharacter.AudioManager.PlayCrowdControlledSound();
             }
             neighbor.SetColorState(ColorState.TemporaryYellow, .5f);
@@ -1326,7 +1649,7 @@ public class MineSkill : CharacterSkillBase//美彌(Mine)跳躍到敵人最多�
         return new MineEnhancedSkill(this);
     }
 }
-public class MineEnhancedSkill : CharacterSkillBase        //不再擊暈它們，改為在落地時，施放一次小技能，對周圍兩格內敵人造成一次震擊，減少它們的攻擊速度
+public class MineEnhancedSkill : CharacterSkillBase//不再擊暈它們，改為在落地時，施放一次小技能，對周圍兩格內敵人造成一次震擊，減少它們的攻擊速度
 {
     private MineSkill originalSkill;
     public override Dictionary<int, StarLevelStats> GetCharacterLevel()
@@ -1344,14 +1667,24 @@ public class MineEnhancedSkill : CharacterSkillBase        //不再擊暈它們�
 
         this.originalSkill = originalSkill;
     }
-
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
-        base.ExecuteSkill(skillContext);
         StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
         int range = stats.Data3;
+        MineActiveSkill mineActiveSkill = skillContext.Parent.GetComponent<MineActiveSkill>();
+        mineActiveSkill.Context = skillContext;
+        mineActiveSkill.range =range;
+        mineActiveSkill.Parent = skillContext.Parent;
+
         HexNode targetHex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent, range, true, true, skillContext.currHex);
+        mineActiveSkill.HexNode = targetHex;
         if (targetHex != null)
         {
             skillContext.Parent.StartCoroutine(JumpToTarget(skillContext.Parent, targetHex, range, skillContext));
@@ -1383,24 +1716,26 @@ public class MineEnhancedSkill : CharacterSkillBase        //不再擊暈它們�
         {
             hex.HardRelease();
         }
-        HitEnemiesAroundHex(targetHex, range, skillContext);
+        StunEnemiesAroundHex(targetHex, range, skillContext);
     }
-    private void HitEnemiesAroundHex(HexNode targetHex, int range, SkillContext skillContext)
+    private void StunEnemiesAroundHex(HexNode targetHex, int range, SkillContext skillContext)
     {
         bool isAlly = skillContext.Parent.IsAlly;
         StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
         int duration = stats.Data3;
-        var l =  Utility.GetCharacterInSet(SpawnGrid.Instance.GetHexNodesWithinRange(targetHex, range),skillContext.Parent,false);
-        foreach (CharacterCTRL Character in l)
+        foreach (HexNode neighbor in SpawnGrid.Instance.GetHexNodesWithinRange(targetHex, range))
         {
-            Effect minusAttackEffect = EffectFactory.StatckableStatsEffct(5, "MineEnhancedSkill", -50, StatsType.Attack, Character, false);
-            minusAttackEffect.SetActions(
-                (character) => character.ModifyStats(StatsType.Attack, minusAttackEffect.Value, minusAttackEffect.Source),
-                (character) => character.ModifyStats(StatsType.Attack, -minusAttackEffect.Value, minusAttackEffect.Source)
-            );
-            Character.effectCTRL.AddEffect(minusAttackEffect);
+            if (neighbor.OccupyingCharacter != null && neighbor.OccupyingCharacter.IsAlly != isAlly)
+            {
+
+                Effect stunEffect = EffectFactory.CreateStunEffect(duration, neighbor.OccupyingCharacter);
+                neighbor.OccupyingCharacter.effectCTRL.AddEffect(stunEffect, skillContext.Parent);
+                neighbor.OccupyingCharacter.AudioManager.PlayCrowdControlledSound();
+            }
+            neighbor.SetColorState(ColorState.TemporaryYellow, .5f);
         }
     }
+
 }
 public class MomoiSkill : CharacterSkillBase//桃井(Momoi)尋找可包含最多敵人的角度，且進行一次掃射
 {
@@ -1468,8 +1803,6 @@ public class NonomiSkill : CharacterSkillBase//野乃美(Nonomi)以當前目標�
     public override void ExecuteSkill(SkillContext skillContext)
     {
 
-        base.ExecuteSkill(skillContext);
-        //Finished in Barrage observer 
     }
 
     public override CharacterSkillBase GetHeroicEnhancedSkill()
@@ -1487,7 +1820,6 @@ public class NonomiEnhancedSkill : CharacterSkillBase//此技能將會有機率�
 
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Nonomi Skill");
     }
 }
@@ -1532,7 +1864,7 @@ public class ShirokoSkill : CharacterSkillBase//白子(shiroko)招喚一個無�
         return new ShirokoEnhancedSkill(this);
     }
 }
-public class ShirokoEnhancedSkill : CharacterSkillBase//無人機每攻擊若干次，就會造成一次範圍傷害
+public class ShirokoEnhancedSkill : CharacterSkillBase//無人機現在會賦予白子護盾，且無人機每三次攻擊會造成一次範圍傷害
 {
     private ShirokoSkill originalSkill;
     public ShirokoEnhancedSkill(ShirokoSkill originalSkill)
@@ -1579,10 +1911,7 @@ public class TsubakiSkill : CharacterSkillBase//樁(tsubaki)嘲諷所有敵人�
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         int level = skillContext.CharacterLevel;
-        base.ExecuteSkill(skillContext);
-
         foreach (var item in skillContext.Parent.GetEnemies())
         {
             if (item.CheckEnemyIsInrange(skillContext.Parent))
@@ -1590,7 +1919,7 @@ public class TsubakiSkill : CharacterSkillBase//樁(tsubaki)嘲諷所有敵人�
                 Effect effect = EffectFactory.CreateTsubakiTauntEffct(0, 5, item);
 
                 item.ForceChangeTarget(skillContext.Parent);
-                item.effectCTRL.AddEffect(effect);
+                item.effectCTRL.AddEffect(effect,item);
             }
         }
     }
@@ -1606,11 +1935,35 @@ public class TsubakiEnhancedSkill : CharacterSkillBase//生命值掉落到40%以
     {
         this.originalSkill = originalSkill;
     }
-
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(150,350)},
+            {2, new StarLevelStats(250,475)},
+            {3, new StarLevelStats(400,585)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Tsubaki Skill");
+        int level = skillContext.CharacterLevel;
+        foreach (var item in skillContext.Parent.GetEnemies())
+        {
+            if (item.CheckEnemyIsInrange(skillContext.Parent))
+            {
+                Effect effect = EffectFactory.CreateTsubakiTauntEffct(0, 5, item);
+                item.ForceChangeTarget(skillContext.Parent);
+                item.effectCTRL.AddEffect(effect, item);
+            }
+        }
     }
 }
 public class YuukaSkill : CharacterSkillBase//優香(yuuka)跳到三格內友軍最多的格子，給予他們基於自己最大生命值的護盾。
@@ -1634,7 +1987,6 @@ public class YuukaSkill : CharacterSkillBase//優香(yuuka)跳到三格內友軍
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         int range = GetCharacterLevel()[skillContext.Parent.star].Data3;
         HexNode targetHex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent, range + 1, false, true, skillContext.currHex);
 
@@ -1686,18 +2038,78 @@ public class YuukaSkill : CharacterSkillBase//優香(yuuka)跳到三格內友軍
         return new YuukaEnhancedSkill(this);
     }
 }
-public class YuukaEnhancedSkill : CharacterSkillBase//改為跳到敵人中央。閃避值上升，並且每一次的閃避都會填充魔力條
+public class YuukaEnhancedSkill : CharacterSkillBase//改為跳到敵人中央，誘導他們更改目標且閃避值上升，並且每一次的閃避都會填充魔力條
 {
     private YuukaSkill originalSkill;
     public YuukaEnhancedSkill(YuukaSkill originalSkill)
     {
         this.originalSkill = originalSkill;
     }
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(50,80,2)},
+            {2, new StarLevelStats(75,125,2)},
+            {3, new StarLevelStats(125,250,3)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseShield = stats.Data1;
+        int ShieldRatio = stats.Data2;
+        return BaseShield + (int)(ShieldRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
 
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Yuuka Skill");
+        int range = GetCharacterLevel()[skillContext.Parent.star].Data3;
+        HexNode targetHex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent, range + 1, false, true, skillContext.currHex);
+
+        if (targetHex != null)
+        {
+            skillContext.Parent.StartCoroutine(JumpToTarget(skillContext.Parent, targetHex, range, skillContext));
+        }
+    }
+    private IEnumerator JumpToTarget(CharacterCTRL character, HexNode targetHex, int range, SkillContext skillContext)
+    {
+        HexNode hex = character.CurrentHex;
+        character.CurrentHex.HardRelease();
+
+        Vector3 startPosition = character.transform.position;
+        Vector3 targetPosition = targetHex.Position;
+
+        float jumpDuration = 25f / 30f;
+        float elapsedTime = 0f;
+        while (elapsedTime < jumpDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / jumpDuration;
+            Vector3 nextPosition = Vector3.Lerp(startPosition, targetPosition, t);
+            character.transform.position = nextPosition;
+            yield return null;
+        }
+
+        character.transform.position = targetPosition;
+        targetHex.HardReserve(character);
+        if (targetHex != hex)
+        {
+            hex.HardRelease();
+        }
+        int shield = GetAttackCoefficient(skillContext);
+        foreach (var enemy in Utility.GetCharacterInrange(targetHex, range, skillContext.Parent, true))
+        {
+            enemy.ForceChangeTarget(character);
+        }
+        Effect effect = EffectFactory.StatckableStatsEffct(5,"YuukaSkill",50,StatsType.DodgeChance,character,false);
+        effect.SetActions(
+            (character) => character.ModifyStats(StatsType.DodgeChance, effect.Value, effect.Source),
+            (character) => character.ModifyStats(StatsType.DodgeChance, -effect.Value, effect.Source)
+        );
+        character.effectCTRL.AddEffect(effect,character);
+        skillContext.Parent.AddShield(shield, 1.0f, skillContext.Parent);
     }
 }
 public class HinaSkill : CharacterSkillBase//陽奈(Hina)朝著能夠覆蓋最多敵人的地方發射可以穿透敵人的彈幕
@@ -1737,9 +2149,32 @@ public class HinaSkill : CharacterSkillBase//陽奈(Hina)朝著能夠覆蓋最�
         return new HinaEnhancedSkill(this);
     }
 }
-public class HinaEnhancedSkill : CharacterSkillBase//子彈可以穿過單位，傷害比原技能低，但是施加標記，格黑娜學院的學生(非陽奈)造成傷害時將會造成額外傷害(根據威壓)，帶有標記的單位死去時，將會根據觸發標記的次數的固定比例額外獲得"威壓"
+public class HinaEnhancedSkill : CharacterSkillBase//子彈可以穿過單位，傷害比原技能低，但是施加標記，格黑娜學院的學生造成傷害時將會造成額外傷害(根據威壓)，帶有標記的單位死去時，將會根據觸發標記的次數的固定比例額外獲得"威壓"
 {
     private HinaSkill originalSkill;
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            //基礎傷害,攻擊力係數,威壓係數,印記觸發的威壓係數,彈幕間隔時間
+            {1, new StarLevelStats(40,8,1,20,0.25f)},
+            {2, new StarLevelStats(60,8,1,25,0.25f)},
+            {3, new StarLevelStats(999,219,10,99,0.25f)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        int PressureRatio = stats.Data3;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack()) + PressureRatio * PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly);
+    }
+    public override bool Barrage_penetrate()
+    {
+        return true;
+    }
     public HinaEnhancedSkill(HinaSkill originalSkill)
     {
         this.originalSkill = originalSkill;
@@ -1753,9 +2188,18 @@ public class HinaEnhancedSkill : CharacterSkillBase//子彈可以穿過單位，
 }
 public class HoshinoSkill : CharacterSkillBase//星野(Hoshino)架起護盾，往前方一格以及左右兩格造成數波傷害
 {
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(0,0)},
+            {2, new StarLevelStats(0,0)},
+            {3, new StarLevelStats(0,0)}
+        };
+        return statsByStarLevel;
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         HashSet<CharacterCTRL> enemies = new HashSet<CharacterCTRL>();
         Dictionary<HexNode, int> directionEnemyCount = new Dictionary<HexNode, int>();
         foreach (var neighbor in skillContext.Parent.CurrentHex.Neighbors)
@@ -1807,11 +2251,65 @@ public class HoshinoEnhancedSkill : CharacterSkillBase//常駐防禦力上升，
     {
         this.originalSkill = originalSkill;
     }
-
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(40,70,3,20,1.5f)},
+            {2, new StarLevelStats(60,105,4,25,2f)},
+            {3, new StarLevelStats(999,999,10,99,15f)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Hoshino Skill");
+        HashSet<CharacterCTRL> enemies = new HashSet<CharacterCTRL>();
+        Dictionary<HexNode, int> directionEnemyCount = new Dictionary<HexNode, int>();
+        foreach (var neighbor in skillContext.Parent.CurrentHex.Neighbors)
+        {
+            if (neighbor.OccupyingCharacter != null && neighbor.OccupyingCharacter.IsAlly != skillContext.Parent.IsAlly)
+            {
+                enemies.Add(neighbor.OccupyingCharacter);
+            }
+        }
+        foreach (HexNode neighbor in skillContext.Parent.CurrentHex.Neighbors)
+        {
+            int enemyCount = 0;
+            if (neighbor.OccupyingCharacter != null && enemies.Contains(neighbor.OccupyingCharacter))
+            {
+                enemyCount++;
+            }
+            foreach (HexNode subNeighbor in neighbor.Neighbors)
+            {
+                if (subNeighbor.OccupyingCharacter != null && enemies.Contains(subNeighbor.OccupyingCharacter))
+                {
+                    enemyCount++;
+                }
+            }
+
+            directionEnemyCount[neighbor] = enemyCount;
+        }
+        var bestDirection = directionEnemyCount.OrderByDescending(kv => kv.Value).First().Key;
+        int range = GetCharacterLevel()[skillContext.Parent.star].Data3;
+        foreach (var item in Utility.GetCharacterInrange(skillContext.Parent.CurrentHex, range, skillContext.Parent,false))
+        {
+            skillContext.Parent.ForceChangeTarget(item);
+        }
+        int amount = (int)(skillContext.Parent.GetStat(StatsType.Health) * 0.1f);
+        skillContext.Parent.AddShield(amount, 5.0f, skillContext.Parent);
+        var bestDirectionNeighbors = new HashSet<HexNode>(bestDirection.Neighbors);
+        var currentHexNeighbors = new HashSet<HexNode>(skillContext.Parent.CurrentHex.Neighbors);
+        bestDirectionNeighbors.Add(bestDirection);
+        skillContext.SelectedHex = bestDirectionNeighbors.Intersect(currentHexNeighbors).ToList();
+        CustomLogger.Log(this, $"Hoshino skillContext.SelectedHex = {skillContext.SelectedHex.Count}");
+        skillContext.Parent.GetComponent<HoshinoShotgunSkill>().skillContext = skillContext;
     }
 }
 public class MikaSkill : CharacterSkillBase//被動:彌香(mika)的傷害總是會爆擊，且所有爆擊率轉為爆擊數值。主動:對一個人狙擊。此次攻擊必定爆擊，若此技能擊殺了敵人，會以相同傷害在一格之內爆炸(可無限循環)。
@@ -1839,9 +2337,9 @@ public class MikaSkill : CharacterSkillBase//被動:彌香(mika)的傷害總是�
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
-        if (Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.Health, false, 1, true).Count > 0)
+        if (Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true).Count > 0)
         {
-            CharacterCTRL C = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.Health, false, 1, true)[0];
+            CharacterCTRL C = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true)[0];
             GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
             List<HitEffect> hitEffect = new List<HitEffect> { new MikaSkillEffect() };
             (bool iscrit, int dmg1) = skillContext.Parent.CalculateCrit(GetAttackCoefficient(skillContext));
@@ -1857,6 +2355,16 @@ public class MikaSkill : CharacterSkillBase//被動:彌香(mika)的傷害總是�
 public class MikaEnhancedSkill : CharacterSkillBase//施放技能時，盡可能將半徑三格內的敵人往兩格之內位移，且根據托拽數量而定，立刻在脫拽的中心投入若干顆"聖三一"羈絆的砲擊。
 {
     private MikaSkill originalSkill;
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(100,250)},
+            {2, new StarLevelStats(375,405)},
+            {3, new StarLevelStats(999,9999)}
+        };
+        return statsByStarLevel;
+    }
     public MikaEnhancedSkill(MikaSkill originalSkill)
     {
         this.originalSkill = originalSkill;
@@ -1864,8 +2372,14 @@ public class MikaEnhancedSkill : CharacterSkillBase//施放技能時，盡可能
 
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Mika Skill");
+        if (Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.Health, false, 1, true).Count > 0)
+        {
+            CharacterCTRL C = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true)[0];
+            GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
+            List<HitEffect> hitEffect = new List<HitEffect> { new MikaEnhanceskillEffect() };
+            (bool iscrit, int dmg1) = skillContext.Parent.CalculateCrit(GetAttackCoefficient(skillContext));
+            bullet.GetComponent<NormalBullet>().Initialize(dmg1, skillContext.Parent.GetTargetLayer(), skillContext.Parent, 15f, C.gameObject, true, iscrit, hitEffect);
+        }
     }
 }
 public class NeruSkill : CharacterSkillBase//寧瑠(Neru)以超多段傷害攻擊當前目標，會觸發多次的命中(on-hit)效果
@@ -1889,9 +2403,7 @@ public class NeruSkill : CharacterSkillBase//寧瑠(Neru)以超多段傷害攻�
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         skillContext.Parent.ManaLock = true;
-        //在動畫事件內完成了
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
     {
@@ -1905,11 +2417,26 @@ public class NeruEnhancedSkill : CharacterSkillBase//每當命中時，在本回
     {
         this.originalSkill = originalSkill;
     }
-
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(50,70,1)},
+            {2, new StarLevelStats(75,85,2)},
+            {3, new StarLevelStats(999,500,3)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Neru Skill");
+        skillContext.Parent.ManaLock = true;
     }
 }
 public class TsurugiSkill : CharacterSkillBase//鶴城(tsurugi)將接下來若干次的普通攻擊替換為範圍傷害，並且獲取高額的吸血
@@ -1933,29 +2460,45 @@ public class TsurugiSkill : CharacterSkillBase//鶴城(tsurugi)將接下來若�
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         TsurugiActiveSkill T = skillContext.Parent.GetComponent<TsurugiActiveSkill>();
         T.SpecialAttackCount = 5;
         T.ChangeToSpecialAttack();
-
-        //在專屬代碼內完成了。
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
     {
         return new TsurugiEnhancedSkill(this);
     }
 }
-public class TsurugiEnhancedSkill : CharacterSkillBase//恢復造成傷害100%的生命值，每一次將要死亡時，生命值不會低於1。且若在五秒內將生命值恢復到最大值，將不會死亡，否則死亡。
+public class TsurugiEnhancedSkill : CharacterSkillBase//總是恢復造成傷害100%的生命值。每回合第一次將要死亡時，恢復50%最大生命值的血量，並且無敵一秒
 {
     private TsurugiSkill originalSkill;
     public TsurugiEnhancedSkill(TsurugiSkill originalSkill)
     {
         this.originalSkill = originalSkill;
     }
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(150,350)},
+            {2, new StarLevelStats(250,475)},
+            {3, new StarLevelStats(400,585)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
 
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
+        TsurugiActiveSkill T = skillContext.Parent.GetComponent<TsurugiActiveSkill>();
+        T.SpecialAttackCount = 5;
+        T.ChangeToSpecialAttack();
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Tsurugi Skill");
     }
 }
@@ -1980,13 +2523,12 @@ public class WakamoSkill : CharacterSkillBase//若藻(wakamo)對當前目標狙�
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         CharacterCTRL c = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true)[0];
         if (c != null)
         {
             Effect effect = EffectFactory.CreateWakamoEffect(0, 5, skillContext.Parent);
-            c.effectCTRL.AddEffect(effect);
-            List<HitEffect> hitEffect = new List<HitEffect> { new WakamoSkillEffecct() };
+            c.effectCTRL.AddEffect(effect,c);
+            List<HitEffect> hitEffect = new List<HitEffect> { new WakamoEnhancedSkillEffect() };
             GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
             int dmg = (int)skillContext.Parent.GetStat(StatsType.Attack);
             (bool iscrit, int dmg1) = skillContext.Parent.CalculateCrit(dmg);
@@ -2009,8 +2551,15 @@ public class WakamoEnhancedSkill : CharacterSkillBase//對尚未被此角色傷�
 
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Aris Skill");
+        CharacterCTRL c = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true)[0];
+        if (c != null)
+        {
+            List<HitEffect> hitEffect = new List<HitEffect> { new WakamoEnhancedSkillEffect() };
+            GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
+            int dmg = (int)skillContext.Parent.GetStat(StatsType.Attack);
+            (bool iscrit, int dmg1) = skillContext.Parent.CalculateCrit(dmg);
+            bullet.GetComponent<NormalBullet>().Initialize(dmg1, skillContext.Parent.GetTargetLayer(), skillContext.Parent, 15f, c.gameObject, true, iscrit, hitEffect);
+        }
     }
 }
 public class Shiroko_TerrorSkill : CharacterSkillBase//黑子(Shiroko_Terror)將會從很多技能之中挑選合適的施放。
@@ -2078,15 +2627,37 @@ public class Atsuko_Skill : CharacterSkillBase//亞津子(Atsuko)召喚給大範
 public class AtsukoEnhancedSkill : CharacterSkillBase//現在無人機還會在回血時，給友軍增加暫時的迴避數值。我方隊伍每一次的成功迴避都會給迴避的單位增加攻擊速度。
 {
     private Atsuko_Skill originalSkill;
+    public GameObject Drone;
+    public Atsuko_Drone Atsuko_DroneRef;
     public AtsukoEnhancedSkill(Atsuko_Skill originalSkill)
     {
         this.originalSkill = originalSkill;
     }
-
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(20,160)}, // 星級1的數據
+            {2, new StarLevelStats(30,180)}, // 星級2的數據
+            {3, new StarLevelStats(45,220)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseHeal = stats.Data1;
+        int HealRatio = stats.Data2;
+        return BaseHeal + (int)(HealRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
         base.ExecuteSkill(skillContext);
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Atsuko Skill");
+        Atsuko_DroneRef = skillContext.Parent.GetComponent<Atsuko_Drone>();
+        Drone = Atsuko_DroneRef.DroneRef;
+        Drone.SetActive(true);
+        Atsuko_DroneRef.GetDrone(10);
     }
 }
 public class Hiyori_Skill : CharacterSkillBase//日和(Hiyori)對當前目標發射子彈，命中第一個敵人之後在2格範圍內爆炸並降低防禦
@@ -2095,9 +2666,9 @@ public class Hiyori_Skill : CharacterSkillBase//日和(Hiyori)對當前目標發
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(100,115)},
-            {2, new StarLevelStats(150,130)},
-            {3, new StarLevelStats(225,185)}
+            {1, new StarLevelStats(100,115,30)},
+            {2, new StarLevelStats(150,130,35)},
+            {3, new StarLevelStats(225,185,45)}
         };
         return statsByStarLevel;
     }
@@ -2107,22 +2678,32 @@ public class Hiyori_Skill : CharacterSkillBase//日和(Hiyori)對當前目標發
         var bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
         var bulletComponent = bullet.GetComponent<NormalBullet>();
         CharacterCTRL lowestEnemy = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true)[0];
+
         StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
         int BaseDmg = stats.Data1;
         int DmgRatio = stats.Data2;
         int dmg = BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetStat(StatsType.Attack));
         (bool iscrit, int dmg1) = skillContext.Parent.CalculateCrit(dmg);
-        List<HitEffect> hitEffect = new List<HitEffect> { new HiyoriSkillEffecct() };
-        bulletComponent.Initialize(dmg1, skillContext.Parent.GetTargetLayer(), skillContext.Parent, 20, lowestEnemy.gameObject, true, iscrit, hitEffect);
+        bulletComponent.Initialize(dmg1, skillContext.Parent.GetTargetLayer(), skillContext.Parent, 20, lowestEnemy.gameObject, true, iscrit, null);
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
     {
         return new HiyoriEnhancedSkill(this);
     }
 }
-public class HiyoriEnhancedSkill : CharacterSkillBase //第二段的範圍傷害結算時，每一次都有機率再造成小型的爆炸，機率依爆擊率而成長。
+public class HiyoriEnhancedSkill : CharacterSkillBase //射出五發子彈。在同一次技能施放時，每一次命中到同一個單位時，傷害都會增加
 {
     private Hiyori_Skill originalSkill;
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(100,115,30)},
+            {2, new StarLevelStats(150,130,35)},
+            {3, new StarLevelStats(225,185,45)}
+        };
+        return statsByStarLevel;
+    }
     public HiyoriEnhancedSkill(Hiyori_Skill originalSkill)
     {
         this.originalSkill = originalSkill;
@@ -2130,15 +2711,17 @@ public class HiyoriEnhancedSkill : CharacterSkillBase //第二段的範圍傷害
 
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Hiyori Skill");
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        int dmg = BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetStat(StatsType.Attack));
+        CoroutineController coroutineController = skillContext.Parent.GetComponent<CoroutineController>();
+        CharacterCTRL lowestEnemy = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true)[0];
+        coroutineController.StartHiyoriShooting(skillContext.Parent, dmg, lowestEnemy);
     }
 }
 public class Misaki_Skill : CharacterSkillBase//被動:美咲(Misaki)普通攻擊為很慢的大砲，無法受益於攻擊速度增益，將會被等比例轉換為攻擊力，且普通攻擊會在地上留下碎片。主動:射出一大波彈藥碎片，然後引爆所有彈藥碎片。(碎片應該要盡可能的"智能")
 {
-    public List<GameObject> Fragments = new List<GameObject>();
-    public Dictionary<GameObject, HexNode> FragmentNodes = new Dictionary<GameObject, HexNode>();
-
     public override Dictionary<int, StarLevelStats> GetCharacterLevel()
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
@@ -2158,7 +2741,7 @@ public class Misaki_Skill : CharacterSkillBase//被動:美咲(Misaki)普通攻�
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
+        MisakiObserver misakiObserver = skillContext.Parent.characterObserver as MisakiObserver;
         HexNode centerNode = skillContext.Parent.Target.GetComponent<CharacterCTRL>().CurrentHex;
         int dmg = GetAttackCoefficient(skillContext);
         (bool iscrit, int dmgFinal) = skillContext.Parent.CalculateCrit(dmg);
@@ -2167,21 +2750,16 @@ public class Misaki_Skill : CharacterSkillBase//被動:美咲(Misaki)普通攻�
         int extraFragmentsCount = stats.Data4;
         List<HexNode> candidateNodes = Utility.GetHexInRange(centerNode, 5)
             .Where(node =>
-                !FragmentNodes.Values.Contains(node) &&
+                !misakiObserver.FragmentNodes.Values.Contains(node) &&
                 node.OccupyingCharacter == null
             )
             .ToList();
         var selectedForFragments = candidateNodes.Take(extraFragmentsCount);
         foreach (var node in selectedForFragments)
         {
-            GameObject fragment = GameObject.Instantiate(
-                ResourcePool.Instance.MissleFragmentsPrefab,
-                node.transform.position,
-                Quaternion.identity
-            );
-            Fragments.Add(fragment);
-            FragmentNodes.Add(fragment, node);
-
+            GameObject fragment = ResourcePool.Instance.SpawnObject(SkillPrefab.MissleFragmentsPrefab, node.transform.position, Quaternion.identity);
+            misakiObserver.FragmentNodes.Add(fragment, node);
+            misakiObserver.Fragments.Add(fragment);
             CustomLogger.Log(this, $"ExecuteSkill: Spawned extra fragment at node {node.name}");
         }
     }
@@ -2191,20 +2769,58 @@ public class Misaki_Skill : CharacterSkillBase//被動:美咲(Misaki)普通攻�
         return new MisakiEnhancedSkill(this);
     }
 }
-public class MisakiEnhancedSkill : CharacterSkillBase//爆炸後的破片在回合結束前不會消失，傷害和破甲效果上升。
+public class MisakiEnhancedSkill : CharacterSkillBase//這些碎片現在有機率不會消失，並且
 {
     private Misaki_Skill originalSkill;
+
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(100,75,2,4)},
+            {2, new StarLevelStats(130,85,2,4)},
+            {3, new StarLevelStats(170,115,3,6)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
+
     public MisakiEnhancedSkill(Misaki_Skill originalSkill)
     {
         this.originalSkill = originalSkill;
     }
-
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Misaki Skill");
+        HexNode centerNode = skillContext.Parent.Target.GetComponent<CharacterCTRL>().CurrentHex;
+        int dmg = GetAttackCoefficient(skillContext);
+        (bool iscrit, int dmgFinal) = skillContext.Parent.CalculateCrit(dmg);
+        Utility.DealDamageInRange(centerNode, 2, skillContext.Parent, dmgFinal, DamageSourceType.Skill.ToString(), iscrit);
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int extraFragmentsCount = stats.Data4;
+        List<HexNode> candidateNodes = Utility.GetHexInRange(centerNode, 5)
+            .Where(node => node.OccupyingCharacter == null)
+            .ToList();
+        var selectedForFragments = candidateNodes.Take(extraFragmentsCount);
+        foreach (var node in selectedForFragments)
+        {
+            GameObject fragment = ResourcePool.Instance.SpawnObject(SkillPrefab.MissleFragmentsPrefab, node.transform.position, Quaternion.identity);
+            if (skillContext.Parent.characterObserver is MisakiObserver s)
+            {
+                s.FragmentNodes.Add(fragment, node);
+                s.Fragments.Add(fragment);
+            }
+            CustomLogger.Log(this, $"ExecuteSkill(Enhanced): Spawned extra fragment at node {node.name} (allow stacking)");
+        }
     }
 }
+
 public class Miyako_Skill : CharacterSkillBase//宮子(Miyako)招喚無人機，朝著當前目標移動並且在碰到第一個敵軍時自爆。可以進行單體暈眩，且削減護甲
 {
     public override Dictionary<int, StarLevelStats> GetCharacterLevel()
@@ -2236,18 +2852,36 @@ public class Miyako_Skill : CharacterSkillBase//宮子(Miyako)招喚無人機，
         return new MiyakoEnhancedSkill(this);
     }
 }
-public class MiyakoEnhancedSkill : CharacterSkillBase//無人機現在不會在施放技能後消失，每一次施放技能，不同的無人機會瞄準不同的目標。
+public class MiyakoEnhancedSkill : CharacterSkillBase//造成傷害增加，大範圍內造成暈眩，傷害外圍遞減。
 {
     private Miyako_Skill originalSkill;
     public MiyakoEnhancedSkill(Miyako_Skill originalSkill)
     {
         this.originalSkill = originalSkill;
     }
-
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(50,115,2)},
+            {2, new StarLevelStats(70,150,2)},
+            {3, new StarLevelStats(125,230,3)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
+        Miyako_DroneCTRL miyako_DroneCTRL = skillContext.Parent.GetComponent<Miyako_DroneCTRL>();
+        miyako_DroneCTRL.parent = skillContext.Parent;
+        miyako_DroneCTRL.GetDrone();
         base.ExecuteSkill(skillContext);
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Miyako Skill");
     }
 }
 public class Miyu_Skill : CharacterSkillBase//被動:美遊(Miyu)不會被任何目標鎖定，但是會被範圍技能傷害，其餘友軍已經死亡時，美遊將恢復被可以鎖定的狀態。主動:對本局造成最多傷害的敵人進行狙擊，無法被任何形式阻擋。
@@ -2284,18 +2918,39 @@ public class Miyu_Skill : CharacterSkillBase//被動:美遊(Miyu)不會被任何
         return new MiyuEnhancedSkill(this);
     }
 }
-public class MiyuEnhancedSkill : CharacterSkillBase//當場上只剩下美遊時，在隨機位置出現三個垃圾桶，美遊將出現在其中之一，其餘三個為會爆炸的垃圾桶。
+public class MiyuEnhancedSkill : CharacterSkillBase//被動不變，主動新增:還會對於敵人施加"弱點觀察(敵人受到傷害時，會額外受到美遊攻擊力%的傷害)"，並且強迫其成為目標內友軍的目標
 {
     private Miyu_Skill originalSkill;
     public MiyuEnhancedSkill(Miyu_Skill originalSkill)
     {
         this.originalSkill = originalSkill;
     }
-
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(150,350)},
+            {2, new StarLevelStats(250,475)},
+            {3, new StarLevelStats(400,585)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Miyu Skill");
+        skillContext.Parent.ForceChangeTarget(DamageStatisticsManager.Instance.GetTopDamageDealer(!skillContext.Parent.IsAlly));
+        GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
+        int dmg = GetAttackCoefficient(skillContext);
+        (bool iscrit, int dmg1) = skillContext.Parent.CalculateCrit(dmg);
+        List<HitEffect> hitEffect = new List<HitEffect> { new MiyuEnhancedSkillEffect() };
+
+        bullet.GetComponent<NormalBullet>().Initialize(dmg1, skillContext.Parent.GetTargetLayer(), skillContext.Parent, 20f, skillContext.Parent.GetTarget(), true, iscrit, hitEffect);
     }
 }
 public class Moe_Skill : CharacterSkillBase //萌(Moe)對矩形範圍內造成dot傷害
@@ -2331,25 +2986,50 @@ public class Moe_Skill : CharacterSkillBase //萌(Moe)對矩形範圍內造成do
                 item.OccupyingCharacter.GetHit(dmg1, skillContext.Parent, DamageSourceType.Skill.ToString(), iscrit);
             }
         }
-        base.ExecuteSkill(skillContext);
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
     {
         return new MoeEnhancedSkill(this);
     }
 }
-public class MoeEnhancedSkill : CharacterSkillBase//普通攻擊替換為攻擊並灼燒該格，如果所有目標的格子都已經被點燃，則重複點燃(傷害和ex會累加計算)
+public class MoeEnhancedSkill : CharacterSkillBase//普通攻擊替換為攻擊並灼燒當前目標腳下的格子(傷害和ex會累加計算)
 {
     private Moe_Skill originalSkill;
     public MoeEnhancedSkill(Moe_Skill originalSkill)
     {
         this.originalSkill = originalSkill;
     }
-
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(50,115)},
+            {2, new StarLevelStats(70,150)},
+            {3, new StarLevelStats(125,230)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
-        CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Moe Skill");
+        int dmg = GetAttackCoefficient(skillContext);
+        foreach (var item in SpawnGrid.Instance.FindBestEnemyRectangle(4, skillContext.Parent.IsAlly))
+        {
+            item.ApplyBurningEffect(5, dmg / 10, 0.5f, skillContext.Parent);
+            if (item.OccupyingCharacter != null
+                && item.OccupyingCharacter.IsAlly != skillContext.Parent.IsAlly
+                && item.OccupyingCharacter.isTargetable)
+            {
+                (bool iscrit, int dmg1) = skillContext.Parent.CalculateCrit(dmg);
+                item.OccupyingCharacter.GetHit(dmg1, skillContext.Parent, DamageSourceType.Skill.ToString(), iscrit);
+            }
+        }
     }
 }
 public class Saki_Skill : CharacterSkillBase//咲(Saki)對當前目標的鄰格一格範圍內造成傷害&暈眩
@@ -2376,7 +3056,7 @@ public class Saki_Skill : CharacterSkillBase//咲(Saki)對當前目標的鄰格�
         foreach (var item in Utility.GetCharacterInrange(skillContext.Parent.Target.GetComponent<CharacterCTRL>().CurrentHex, 1, skillContext.Parent, false))
         {
             Effect effect = EffectFactory.CreateStunEffect(2, skillContext.Parent);
-            item.effectCTRL.AddEffect(effect);
+            item.effectCTRL.AddEffect(effect, item);
             (bool iscrit, int dmg1) = skillContext.Parent.CalculateCrit(GetAttackCoefficient(skillContext));
             item.GetHit(dmg1, skillContext.Parent, DamageSourceType.Skill.ToString(), iscrit);
         }
@@ -2427,7 +3107,7 @@ public class Saori_Skill : CharacterSkillBase//紗織(Saori)開一槍，不會�
         skillContext.Parent.transform.LookAt(target.transform);
 
         GameObject bullet = ResourcePool.Instance.SpawnObject(
-            SkillPrefab.PenetrateTrailedBullet,
+            SkillPrefab.SmallPenetrateTrailedBullet,
             skillContext.Parent.FirePoint.position,
             Quaternion.identity
         );
@@ -2443,7 +3123,6 @@ public class Saori_Skill : CharacterSkillBase//紗織(Saori)開一槍，不會�
             skillContext.Parent,
             false
         );
-        base.ExecuteSkill(skillContext);
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
     {
@@ -2457,10 +3136,43 @@ public class SaoriEnhancedSkill : CharacterSkillBase//來源自紗織的傷害�
     {
         this.originalSkill = originalSkill;
     }
-
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(50,185,20)},
+            {2, new StarLevelStats(75,270,10)},
+            {3, new StarLevelStats(125,410,0)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
+        CharacterCTRL target = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true)[0];
+        skillContext.Parent.transform.LookAt(target.transform);
+
+        GameObject bullet = ResourcePool.Instance.SpawnObject(
+            SkillPrefab.SmallPenetrateTrailedBullet,
+            skillContext.Parent.FirePoint.position,
+            Quaternion.identity
+        );
+        bullet.transform.position = skillContext.Parent.FirePoint.position;
+        float decayFactor = GetCharacterLevel()[target.star].Data3;
+        bullet.GetComponent<TrailedBullet>().Initialized(
+            target.transform.position,
+            skillContext.Parent.ActiveSkill.GetAttackCoefficient(skillContext),
+            decayFactor,
+            skillContext.Parent.GetTargetLayer(),
+            skillContext.Parent,
+            false
+        );
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Saori Skill");
     }
 }

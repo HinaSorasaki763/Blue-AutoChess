@@ -1,10 +1,12 @@
 ﻿using GameEnum;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 public class HexNode : MonoBehaviour
 {
     public Vector3 Position;
+    public bool EditMode = false;
     public CharacterCTRL OccupyingCharacter
     {
         get { return occupyingCharacter; }
@@ -42,6 +44,8 @@ public class HexNode : MonoBehaviour
     public float temporaryColorDuration = 0f;
     private Color temporaryColor = Color.yellow;
     private List<BurningEffect> burningEffects = new List<BurningEffect>();
+    private List<FloorEffect> floorEffects = new List<FloorEffect>();
+    private float effectCountDown = 1f;
     public bool IsHexReserved()
     {
         return reservedBy != null;
@@ -55,6 +59,7 @@ public class HexNode : MonoBehaviour
         CustomLogger.Log(this, $"character {character}HardReserve");
         reservedBy = character;
         OccupyingCharacter = character;
+        character.CurrentHex = this;
         SetColorState(ColorState.Reserved);
     }
     public void Reserve(CharacterCTRL character)
@@ -87,6 +92,17 @@ public class HexNode : MonoBehaviour
         CameFrom = null;
         SetColorState(isBurning ? ColorState.Burning : ColorState.Default);
     }
+    public bool IsBurnedBy(CharacterCTRL c)
+    {
+        foreach (BurningEffect effect in burningEffects)
+        {
+            if (effect.Source == c)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     public void HardResetAll()
     {
         HardRelease();
@@ -115,6 +131,11 @@ public class HexNode : MonoBehaviour
 
     private void Update()
     {
+        if (!EditMode)
+        {
+            UpdateFloorEffect();
+        }
+
         if (temporaryColorDuration > 0)
         {
             temporaryColorDuration -= Time.deltaTime;
@@ -141,7 +162,7 @@ public class HexNode : MonoBehaviour
                         if (OccupyingCharacter.IsAlly != effect.Source.IsAlly)
                         {
                             (bool, int) tuple = effect.Source.CalculateCrit(effect.DamagePerTick);
-                            if (GameController.Instance.GetEnhanchedCharacterIndex(effect.Source.IsAlly) == 14)
+                            if (GameController.Instance.CheckCharacterEnhance(14, effect.Source.IsAlly))
                             {
                                 if (effect.Source.characterStats.CharacterId == 14)
                                 {
@@ -172,11 +193,41 @@ public class HexNode : MonoBehaviour
             }
         }
     }
+    public void AddFloorEffect(FloorEffect floorEffect)
+    {
+        floorEffects.Add(floorEffect);
+    }
+    public void UpdateFloorEffect()
+    {
+        effectCountDown -= Time.deltaTime;
+        List<FloorEffect> removeList = new List<FloorEffect>();
+        foreach (var item in floorEffects)
+        {
+            if (occupyingCharacter != null)
+            {
+                if (!item.Update(occupyingCharacter, item.source))
+                {
+                    removeList.Add(item);
+                }
+            }
+        }
+        foreach (var item in removeList)
+        {
+            floorEffects.Remove(item);
+        }
+        if (effectCountDown <= 0)
+        {
+            foreach (FloorEffect effect in floorEffects)
+            {
+                effect.ApplyEffect(OccupyingCharacter, effect.source);
+            }
+            effectCountDown = 1f;
+        }
+    }
 
     public void UpdateTileColor()
     {
-        if (!IsBattlefield) return;
-
+        if (!IsBattlefield||EditMode) return;
         Renderer renderer = head.GetComponent<Renderer>();
         if (renderer != null)
         {
@@ -219,7 +270,16 @@ public class HexNode : MonoBehaviour
 
         UpdateTileColor();
     }
-
+    public void SetColor(Color color)
+    {
+        Renderer renderer = head.GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            Material tileMaterial = renderer.material;
+            tileMaterial.color = color;
+            renderer.material = tileMaterial;
+        }
+    }
 
     public void AddNeighbor(HexNode neighbor)
     {
@@ -290,6 +350,52 @@ public class HexNode : MonoBehaviour
             TickInterval = tickInterval;
             Timer = duration;
             TickTimer = tickInterval;
+        }
+    }
+}
+public abstract class FloorEffect
+{
+    private float duration;
+    public CharacterCTRL source { get;private set; }
+    public FloorEffect(float duration,CharacterCTRL character)
+    {
+
+        this.duration = duration;
+        this.source = character;
+    }
+    public bool Update(CharacterCTRL target, CharacterCTRL source)
+    {
+        duration -= Time.deltaTime;
+        if (duration <= 0)
+        {
+            duration = 0;
+            ApplyEffect(target, source);
+            return false;
+        }
+        return true;
+    }
+    public abstract void ApplyEffect(CharacterCTRL target, CharacterCTRL source);
+}
+public class MichiruFloorBuff : FloorEffect
+{
+    public MichiruFloorBuff(float duration, CharacterCTRL character) : base(duration, character)
+    {
+
+    }
+    public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
+    {
+        if (target == null || source == null) return;
+        if (target.IsAlly == source.IsAlly)
+        {
+            Effect effect = EffectFactory.StatckableStatsEffct(3, "MichiruAtkSpeedBuff", 0.3f, StatsType.AttackSpeed, source, false);
+            effect.SetActions(
+                (character) => character.ModifyStats(StatsType.AttackSpeed, effect.Value, effect.Source),
+                (character) => character.ModifyStats(StatsType.AttackSpeed, -effect.Value, effect.Source)
+            );
+            target.effectCTRL.AddEffect(effect,target);
+            StarLevelStats stats = source.ActiveSkill.GetCharacterLevel()[source.star];
+            int amount = (int)(stats.Data1+stats.Data4*0.01f*source.GetAttack());
+            target.Heal(amount,source);
         }
     }
 }

@@ -74,12 +74,12 @@ public class EnemySpawner : MonoBehaviour
         }
 
         chosenWave = selectedEnemyWaves[waveIndex];
-        SpawnEnemiesNextStage();
+        SpawnEnemiesNextStage(chosenWave);
     }
 
-    public void SpawnEnemiesNextStage()
+    public void SpawnEnemiesNextStage(EnemyWave enemyWave)
     {
-        if (chosenWave == null)
+        if (enemyWave == null)
         {
             Debug.LogError("No wave chosen. Please select a wave first.");
             return;
@@ -93,7 +93,7 @@ public class EnemySpawner : MonoBehaviour
         }
 
         // 生成新一波敵人
-        foreach (var slot in chosenWave.gridSlots)
+        foreach (var slot in enemyWave.gridSlots)
         {
             if (slot.CharacterID != -1)
             {
@@ -110,10 +110,15 @@ public class EnemySpawner : MonoBehaviour
                             hexNode,
                             enemyParent,
                             isAlly: false,
-                            slot.Level
+                            1
                         );
 
                         CharacterCTRL characterCtrl = go.GetComponent<CharacterCTRL>();
+                        if (slot.CharacterID == 999)
+                        {
+                            StaticObject staticObject = go.GetComponent<StaticObject>();
+                            staticObject.InitNoParentDummy(10000,35,false);
+                        }
                         if (characterCtrl != null)
                         {
                             // 為該角色裝備裝備
@@ -166,8 +171,8 @@ public class EnemySpawner : MonoBehaviour
         }
 
         // 為 Logistic 角色配置裝備 (如果需要)
-        SpawnLogisticCharacter(chosenWave.logisticSlot1, ResourcePool.Instance.EnemylogisticSlotNode1);
-        SpawnLogisticCharacter(chosenWave.logisticSlot2, ResourcePool.Instance.EnemylogisticSlotNode2);
+        SpawnLogisticCharacter(enemyWave.logisticSlot1, ResourcePool.Instance.EnemylogisticSlotNode1);
+        SpawnLogisticCharacter(enemyWave.logisticSlot2, ResourcePool.Instance.EnemylogisticSlotNode2);
 
         ResourcePool.Instance.enemy.UpdateTraitEffects();
     }

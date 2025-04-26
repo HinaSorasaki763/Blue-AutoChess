@@ -24,8 +24,6 @@ public class FearManager : MonoBehaviour
 
     private Dictionary<CharacterCTRL, FearData> fearedCharacters = new Dictionary<CharacterCTRL, FearData>();
 
-    private CustomLogger logger = new CustomLogger();
-
     public void ApplyFear(CharacterCTRL fearSource, List<CharacterCTRL> targets, float duration)
     {
         (float length, float effectiveness) = fearSource.BeforeApplyingNegetiveEffect(duration, 0);
@@ -41,6 +39,7 @@ public class FearManager : MonoBehaviour
                     fearEndTime = endTime,
                     fearMovementCoroutine = null
                 }); 
+                CustomLogger.Log(this, $"角色 {t.name} 被恐懼影響,結束時間: {endTime},恐懼來源: {fearSource.name}");
             }
             else
             {
@@ -118,9 +117,12 @@ public class FearManager : MonoBehaviour
             var c = item.character;
             if (!fearedCharacters.ContainsKey(c))
                 continue;
+            if (c.customAnimator != null)
+            {
+                c.customAnimator.ChangeState(GameEnum.CharacterState.Moving);
+                ExecuteFearMove(c, fearedCharacters[c]);
+            }
 
-            c.customAnimator.ChangeState(GameEnum.CharacterState.Moving);
-            ExecuteFearMove(c, fearedCharacters[c]);
         }
     }
 

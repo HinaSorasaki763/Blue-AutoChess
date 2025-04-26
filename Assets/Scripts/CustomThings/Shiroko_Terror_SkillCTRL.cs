@@ -74,7 +74,7 @@ public class Shiroko_Terror_SkillCTRL : MonoBehaviour
         HexNode bestNode = SpawnGrid.Instance.FindBestHexNode(parent, 2, true, false, centerNode);
 
         Debug.Log($"[Shiroko_Terror_SkillCTRL] 執行 Choose 方法, 父角色: {parent.name}, 中心節點: {centerNode.name}");
-        if (SpawnGrid.Instance.GetCharactersWithinRadius(centerNode, isAlly, 2, true, parent).Count >= 2)
+        if (SpawnGrid.Instance.GetCharactersWithinRadius(centerNode, isAlly, 2, true, parent).Item1.Count >= 2)
         {
             Debug.Log("[Shiroko_Terror_SkillCTRL] 條件達成: 中心節點附近角色數量 >= 2，選擇技能 ID: 5");
             return 5;
@@ -84,7 +84,7 @@ public class Shiroko_Terror_SkillCTRL : MonoBehaviour
             Debug.Log("[Shiroko_Terror_SkillCTRL] 條件達成: 敵人數量 >= 5，選擇技能 ID: 7");
             return 7;
         }
-        if (SpawnGrid.Instance.GetCharactersWithinRadius(bestNode, isAlly, 2, true, parent).Count >= 3)
+        if (SpawnGrid.Instance.GetCharactersWithinRadius(bestNode, isAlly, 2, true, parent).Item1.Count >= 3)
         {
             skillContext.TargetHex = bestNode;
             Debug.Log("[Shiroko_Terror_SkillCTRL] 條件達成: 最佳節點附近角色數量 >= 3，選擇技能 ID: 2");

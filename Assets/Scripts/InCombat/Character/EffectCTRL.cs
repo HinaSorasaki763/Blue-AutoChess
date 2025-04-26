@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.TextCore.LowLevel;
 
 public class EffectCTRL : MonoBehaviour
 {
@@ -25,7 +24,7 @@ public class EffectCTRL : MonoBehaviour
     }
 
     // 添加效果
-    public void AddEffect(Effect effect)
+    public void AddEffect(Effect effect,CharacterCTRL c)
     {
         if (effect.EffectType == EffectType.Negative)
         {
@@ -39,11 +38,11 @@ public class EffectCTRL : MonoBehaviour
             {
                 if (existingEffect.Stackable)
                 {
-                    existingEffect.AddValue(effect.Value);
+                    existingEffect.UpdateValue(existingEffect.Value + effect.Value,c);
                 }
                 if (effect.Value > existingEffect.Value && !existingEffect.Stackable)
                 {
-                    existingEffect.UpdateValue(effect.Value);
+                    existingEffect.UpdateValue(effect.Value,c);
                     UpdateEffectNames();
                 }
                 return;
@@ -57,13 +56,16 @@ public class EffectCTRL : MonoBehaviour
 
                 float newDuration = Mathf.Max(existingEffect.Duration, effect.Duration);
                 CustomLogger.Log(this, $"Updated duration of {effect.Source} to {newDuration:F2} seconds.");
-                existingEffect.Duration = newDuration;
+                if (existingEffect.Source != "WakamoEnhancedMark")
+                {
+                    existingEffect.Duration = newDuration;
+                }
                 UpdateEffectNames();
                 return;
             }
 
         }
-        if (effect.EffectType == EffectType.Positive &&!effect.IsLogisticBuff)
+        if (effect.EffectType == EffectType.Positive && !effect.IsLogisticBuff)
         {
             characterCTRL.AudioManager.PlayBuffedSound();
         }
@@ -80,8 +82,9 @@ public class EffectCTRL : MonoBehaviour
     public void RemoveEffect(Effect effect)
     {
         CustomLogger.Log(this, $"try removing {gameObject.name}'s {effect.SpecialType} effect");
-        effect.OnRemove.Invoke(characterCTRL);
         activeEffects.Remove(effect);
+        effect.OnRemove.Invoke(characterCTRL);
+
         UpdateEffectNames();
 
         if (effect.SpecialType == SpecialEffectType.None)
@@ -101,13 +104,14 @@ public class EffectCTRL : MonoBehaviour
             RemoveEffect(effect);
         }
     }
-    public void ClearEffects(EffectType effectType)
+    public int ClearEffects(EffectType effectType)
     {
         var effectsToRemove = activeEffects.Where(e => e.EffectType == effectType).ToList();
         foreach (var effect in effectsToRemove)
         {
             RemoveEffect(effect);
         }
+        return effectsToRemove.Count;
     }
 
     public void ClearEffects(SpecialEffectType effectType)
@@ -158,6 +162,11 @@ public class EffectCTRL : MonoBehaviour
             RemoveEffect(effect);
         }
     }
+    public List<Effect> GetStatsEffects()
+    {
+        return activeEffects.Where(e => e.StatsEffect).ToList();
+    }
+
     private void Update()
     {
         List<Effect> expiredEffects = new List<Effect>();
@@ -196,6 +205,9 @@ public static class EffectFactory
             duration,
             SpecialEffectType.None,
             parent,
+            true,
+            ClearEffectCondition.Never,
+            false,
             true
         );
     }
@@ -215,6 +227,9 @@ public static class EffectFactory
             duration,
             SpecialEffectType.None,
             parent,
+            true,
+            ClearEffectCondition.Never,
+            false,
             true
         );
     }
@@ -308,7 +323,7 @@ public static class EffectFactory
             ModifierType.None,
             0,
             "InvincibleSkill",
-            true,
+            false,
             (character) => character.SetInvincible(true),
             (character) => character.SetInvincible(false),
             duration,
@@ -348,8 +363,8 @@ public static class EffectFactory
             parent,
             false,
             ClearEffectCondition.Never,
+            true,
             true
-
         );
     }
 
@@ -368,6 +383,7 @@ public static class EffectFactory
             parent,
             false,
             ClearEffectCondition.Never,
+            true,
             true
         );
     }
@@ -387,6 +403,7 @@ public static class EffectFactory
             parent,
             false,
             ClearEffectCondition.Never,
+            true,
             true
         );
     }
@@ -583,6 +600,57 @@ public static class EffectFactory
 
 
     }
+    public static Effect HinaEffect()
+    {
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            "HinaMark",
+            true,
+            (character) => character.EmptyEffectFunction(),
+            (character) => character.EmptyEffectFunction(),
+            0,
+            SpecialEffectType.None,
+            null
+        );
+    }
+    public static Effect HiyoriEffect()
+    {
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            "HiyoriMark",
+            true,
+            (character) => character.EmptyEffectFunction(),
+            (character) => character.EmptyEffectFunction(),
+            0,
+            SpecialEffectType.None,
+            null
+        );
+    }
+    public static Effect IzunaAttackSpeedBuff()
+    {
+
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            3,
+            "IzunaAttackSpeedBuff",
+            true,
+            (character) => character.AddStat(StatsType.AttackSpeed, 0.5f),
+            (character) => character.EmptyEffectFunction(),
+            0,
+            SpecialEffectType.None,
+            null,
+            true,
+            ClearEffectCondition.Never,
+            false,
+            true
+        );
+
+    }
     public static Effect KazusaMark()
     {
 
@@ -608,6 +676,24 @@ public static class EffectFactory
             ModifierType.None,
             0,
             "SerikaAddGold",
+            true,
+            (character) => character.EmptyEffectFunction(),
+            (character) => character.EmptyEffectFunction(),
+            5,
+            SpecialEffectType.None,
+            null
+        );
+
+    }
+
+    public static Effect MiyuEnhancedSkillEffect()
+    {
+
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            5,
+            "MiyuEnhancedSkillEffect",
             false,
             (character) => character.EmptyEffectFunction(),
             (character) => character.EmptyEffectFunction(),
@@ -616,6 +702,36 @@ public static class EffectFactory
             null
         );
 
+    }
+    public static Effect TsurugiEnhancedSkill(CharacterCTRL parent, int ratio)
+    {
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            "TsurugiEnhancedSkill",
+            true,
+            (character) => character.EmptyEffectFunction(),//這裡有錯
+            (character) => character.EmptyEffectFunction(),
+            0,
+            SpecialEffectType.None,
+            null
+        );
+    }
+    public static Effect WakamoEnhancedMark(CharacterCTRL parent, int ratio)
+    {
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            "WakamoEnhancedMark",
+            false,
+            (character) => character.SetWakamoMark(ratio, parent),
+            (character) => character.OnWakamoEnhancedMarkEnd(),
+            5,
+            SpecialEffectType.None,
+            null
+        );
     }
     public static Effect OverTimeEffect()
     {

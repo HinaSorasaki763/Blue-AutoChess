@@ -64,6 +64,14 @@ MonoBehaviour:
   - "Fires a single shot that cannot be blocked, dealing {data1} + ({data2}% \xD7
     ATK) (Final: {Final}). \nEach enemy pierced reduces the shot's damage to {data3}%
     of the previous, \ndown to a minimum of 60% of the original damage."
+  EnhancedSkillTooltips:
+  - "\u88AB\u52D5:\u4F86\u6E90\u81EA\u6B64\u89D2\u8272\u7684\u50B7\u5BB3\u7E3D\u662F\u7121\u8996\u4E00\u90E8\u4EFD\u9632\u79A6\uFF0C%\u6578\u7684\u50B7\u5BB3\u6E1B\u514D\u5C0D\u65BC\u6C99\u7E54\u7121\u6548\uFF0C\u4E14\u8655\u6C7A15%\u751F\u547D\u503C\u4EE5\u4E0B\u7684\u6575\u4EBA\u3002\n\u4E3B\u52D5:\u958B\u4E00\u69CD\uFF0C\u4E0D\u6703\u88AB\u4EFB\u4F55\u7269\u9AD4\u963B\u64CB\uFF0C\u9020\u6210
+    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\uFF0C\n\u6BCF\u7A7F\u900F\u4E00\u540D\u6575\u4EBA\u5F8C\u50B7\u5BB3\u8870\u6E1B\u81F3
+    {data3}%\uFF0C\u6700\u4F4E\u4E0D\u4F4E\u65BC\u539F\u50B7\u5BB3\u7684 60%\u3002"
+  - "Passive: All damage ignores part of enemy defense. Percent-based mitigation
+    has no effect. Executes enemies below 15% HP.\nActive: Fires a shot that cannot
+    be blocked: {data1} + ({data2}% \xD7 Attack) (Final: {Final}).\nDamage reduces
+    to {data3}% per pierce, but not below 60%."
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

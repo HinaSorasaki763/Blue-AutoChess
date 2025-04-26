@@ -8,12 +8,13 @@ public class GameController : MonoBehaviour
     private int gold;
     public CharacterParent CharacterParent;
     public TextMeshProUGUI GoldText;
-    public int AllyEnhancedCharacterIndex = -1;
-    public int EnemyEnhancedCharacterIndex = -1;
     public StatsContainer TeamExtraStats = new StatsContainer();
-    private int SerinaEnhancedSkill_CritCount;
+    public int SerinaEnhancedSkill_CritCount;
     private bool triggerSerinaEnhancedSkill = false;
     readonly float yOffset = 0.23f;
+    public int SumireAddedHealth = 0;
+    public int AzusaAddAttack = 0;
+    public int AkoAddedCrit = 0;
     private void Update()
     {
         GoldText.text = $":{gold}";
@@ -23,16 +24,11 @@ public class GameController : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
         }
-    }
-    public int GetEnhanchedCharacterIndex(bool isAlly)
-    {
-        return isAlly ? AllyEnhancedCharacterIndex : EnemyEnhancedCharacterIndex;
     }
     public void SetExtraStat(StatsType statsType, float amount)
     {
@@ -41,6 +37,10 @@ public class GameController : MonoBehaviour
     public void AddExtraStat(StatsType statsType, float amount)
     {
         SetExtraStat(statsType, GetExtraStat(statsType) + amount);
+        foreach (var item in ResourcePool.Instance.ally.GetBattleFieldCharacter())
+        {
+            item.RecalculateStats();
+        }
     }
     public void AddSerinaEnhancedSkill_CritCountStack(bool isAlly)
     {
@@ -49,7 +49,7 @@ public class GameController : MonoBehaviour
         CharacterCTRL c = Utility.GetSpecificCharacters(characterParent.GetBattleFieldCharacter(), StatsType.currHealth, true, 1, false)[0];
         CharacterCTRL serina = Utility.GetSpecificCharacterByIndex(characterParent.GetBattleFieldCharacter(), 9);
         c.Heal((int)(0.01f * c.GetStat(StatsType.Health)), c);
-        if (!triggerSerinaEnhancedSkill && SerinaEnhancedSkill_CritCount >= 30)
+        if (!triggerSerinaEnhancedSkill && SerinaEnhancedSkill_CritCount >= 1)
         {
             triggerSerinaEnhancedSkill = true;
 
@@ -60,7 +60,7 @@ public class GameController : MonoBehaviour
                     (character) => character.ModifyStats(StatsType.CritRatio, effect.Value, effect.Source),
                     (character) => character.ModifyStats(StatsType.CritRatio, -effect.Value, effect.Source)
                 );
-                item.effectCTRL.AddEffect(effect);
+                item.effectCTRL.AddEffect(effect,item);
             }
         }
     }
@@ -75,7 +75,7 @@ public class GameController : MonoBehaviour
         bool isBattlefield = targetSlot.IsBattlefield;
         if (targetSlot.Index >= 32 || !targetSlot.isAllyHex)
         {
-            PopupManager.Instance.CreatePopup("enemy territory", 2);
+            
             ReturnToOriginalSlot(character);
             return (false, isBattlefield);
         }
@@ -87,15 +87,14 @@ public class GameController : MonoBehaviour
         }
         if (character.characterStats.logistics != targetSlot.IsLogistics)
         {
-            Debug.Log(character.characterStats.logistics
-                ? $"後勤角色只能放置在後勤格子"
-                : $"前線角色不能放置在後勤格子");
+            string s = character.characterStats.logistics ? "後勤" : "前線";
+            PopupManager.Instance.CreatePopup($"{s}角色只能放置在{s}格子", 2);
             ReturnToOriginalSlot(character);
             return (false, isBattlefield);
         }
         int characterLimit = GameStageManager.Instance.GetCharacterLimit();
         CustomLogger.Log(this, $"GameStageManager.Instance.GetCharacterLimit() = {characterLimit}");
-        if (ResourcePool.Instance.ally.GetBattleFieldCharacter().Count >= characterLimit &&
+        if (ResourcePool.Instance.ally.GetCount() >= characterLimit &&
             !character.CurrentHex.IsBattlefield &&
             targetSlot.OccupyingCharacter == null)
         {
@@ -111,7 +110,7 @@ public class GameController : MonoBehaviour
 
     private void ReturnToOriginalSlot(CharacterCTRL character)
     {
-        if (character.CurrentHex != null && !character.characterStats.logistics)
+        if (character.CurrentHex != null )
         {
             Vector3 originalPosition = new Vector3(character.CurrentHex.transform.position.x, yOffset, character.CurrentHex.transform.position.z);
             character.transform.position = originalPosition;
@@ -223,5 +222,16 @@ public class GameController : MonoBehaviour
     public int GetGoldAmount()
     {
         return gold;
+    }    
+    public bool CheckCharacterEnhance(int index,bool absoluteAlly)
+    {
+        if (absoluteAlly)
+        {
+            return ResourcePool.Instance.ally.enhancedSkillCharacters.Contains(index);
+        }
+        else
+        {
+            return ResourcePool.Instance.enemy.enhancedSkillCharacters.Contains(index);
+        }
     }
 }

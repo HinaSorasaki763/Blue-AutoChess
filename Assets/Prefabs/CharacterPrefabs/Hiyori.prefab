@@ -1080,6 +1080,7 @@ GameObject:
   - component: {fileID: 1929582521436546002}
   - component: {fileID: 1573413251587868027}
   - component: {fileID: 8586413623066779692}
+  - component: {fileID: 283924343658105967}
   m_Layer: 0
   m_Name: Hiyori
   m_TagString: Character
@@ -1195,6 +1196,94 @@ MonoBehaviour:
     - statType: 16
       value: 0
     - statType: 17
+      value: 0
+  ExtraPernamentStats:
+    stats:
+    - statType: 0
+      value: 0
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 0
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 0
+    - statType: 5
+      value: 0
+    - statType: 6
+      value: 0
+    - statType: 7
+      value: 0
+    - statType: 8
+      value: 0
+    - statType: 9
+      value: 0
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 0
+    - statType: 12
+      value: 0
+    - statType: 13
+      value: 0
+    - statType: 14
+      value: 0
+    - statType: 15
+      value: 0
+    - statType: 16
+      value: 0
+    - statType: 17
+      value: 0
+    - statType: 18
+      value: 0
+    - statType: 19
+      value: 0
+    - statType: 20
+      value: 0
+  PercentageStats:
+    stats:
+    - statType: 0
+      value: 0
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 0
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 0
+    - statType: 5
+      value: 0
+    - statType: 6
+      value: 0
+    - statType: 7
+      value: 0
+    - statType: 8
+      value: 0
+    - statType: 9
+      value: 0
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 0
+    - statType: 12
+      value: 0
+    - statType: 13
+      value: 0
+    - statType: 14
+      value: 0
+    - statType: 15
+      value: 0
+    - statType: 16
+      value: 0
+    - statType: 17
+      value: 0
+    - statType: 18
+      value: 0
+    - statType: 19
+      value: 0
+    - statType: 20
       value: 0
   star: 0
   modifierCTRL: {fileID: 0}
@@ -1474,6 +1563,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Audio: {fileID: 11400000, guid: 516df5a50e7e0da498e53ee8f263a8fd, type: 2}
+--- !u!114 &283924343658105967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1387971060000428081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e860924d89807f429035c29055ee9a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1407125976934736084
 GameObject:
   m_ObjectHideFlags: 0

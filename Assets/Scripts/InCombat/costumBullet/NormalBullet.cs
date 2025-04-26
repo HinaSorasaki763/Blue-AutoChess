@@ -1,7 +1,6 @@
 using GameEnum;
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
 using UnityEngine;
 
 public class NormalBullet : MonoBehaviour
@@ -21,6 +20,9 @@ public class NormalBullet : MonoBehaviour
     private List<HitEffect> hitEffects = new List<HitEffect>();
     private bool isBarrage;
     private Vector3 targetPos;
+    private bool IsNormalAttack;
+    private bool penetrate;
+    private string detailedSource;
     void Awake()
     {
         attackId = nextId++;
@@ -35,9 +37,17 @@ public class NormalBullet : MonoBehaviour
         }
     }
 
-    public void Initialize(int damage, LayerMask hitLayer, CharacterCTRL parent, float maxDistance, GameObject Target, bool isSkillBullet, bool iscrit, List<HitEffect> effects = null, int speed = 20, bool barrage = false, Vector3 v = default)
+    public void Initialize(int damage, LayerMask hitLayer, CharacterCTRL parent, float maxDistance, GameObject Target, bool isSkillBullet, bool iscrit, List<HitEffect> effects = null, int speed = 20, bool barrage = false, Vector3 v = default, bool penetrate = false, string detailedSource = null, bool neru = false, Vector3 neruInitPos = default)
     {
-        transform.position = parent.FirePoint.transform.position;
+        if (!neru)
+        {
+            transform.position = parent.FirePoint.transform.position;
+        }
+        else
+        {
+            transform.position = neruInitPos;
+        }
+
         this.damage = damage;
         this.parent = parent;
         this.hitLayer = hitLayer;
@@ -54,6 +64,8 @@ public class NormalBullet : MonoBehaviour
         {
             hitEffects = effects;
         }
+        this.penetrate = penetrate;
+        this.detailedSource = detailedSource;
     }
 
     void OnTriggerEnter(Collider other)
@@ -62,15 +74,25 @@ public class NormalBullet : MonoBehaviour
         {
             CustomLogger.Log(this, "hitWall");
             DisableBullet();
-            
+
         }
         if (IsInHitLayer(other))
         {
+
             var enemy = other.GetComponent<CharacterCTRL>();
-            if (enemy != null)
+            if (enemy != null && !isSkillBullet && enemy == Target.GetComponent<CharacterCTRL>())
             {
                 HitTarget(enemy);
                 DisableBullet();
+            }
+            if (enemy != null && isSkillBullet)
+            {
+                HitTarget(enemy);
+                if (!penetrate)
+                {
+                    DisableBullet();
+                }
+
             }
         }
     }
@@ -101,7 +123,7 @@ public class NormalBullet : MonoBehaviour
     {
         if (Target != null && Target.activeInHierarchy)
         {
-            if (!isBarrage)
+            if (!isBarrage )
             {
                 Vector3 targetPosWithFixedY = new Vector3(Target.transform.position.x, transform.position.y, Target.transform.position.z);
                 transform.position += speed * Time.deltaTime * (targetPosWithFixedY - transform.position).normalized;
@@ -126,7 +148,7 @@ public class NormalBullet : MonoBehaviour
             else
             {
                 DisableBullet();
-            }    
+            }
 
         }
     }
@@ -138,9 +160,21 @@ public class NormalBullet : MonoBehaviour
 
     private void HitTarget(CharacterCTRL enemy)
     {
+        // 觸發所有效果
+        foreach (var effect in hitEffects)
+        {
+            effect.ApplyEffect(enemy, parent);
+        }
         if (isSkillBullet)
         {
-            enemy.GetHit(damage, parent, DamageSourceType.Skill.ToString(), isCrit);
+            if (detailedSource != null)
+            {
+                enemy.GetHit(damage, parent, detailedSource, isCrit);
+            }
+            else
+            {
+                enemy.GetHit(damage, parent, DamageSourceType.Skill.ToString(), isCrit);
+            }
         }
         else
         {
@@ -148,11 +182,7 @@ public class NormalBullet : MonoBehaviour
         }
 
 
-        // 觸發所有效果
-        foreach (var effect in hitEffects)
-        {
-            effect.ApplyEffect(enemy, parent);
-        }
+
         DisableBullet();
     }
     private void CheckMaxDistance()
@@ -165,10 +195,14 @@ public class NormalBullet : MonoBehaviour
     }
     public void HiyoriExplosion()
     {
-        foreach (var item in Utility.GetCharacterInrange(parent.CurrentHex,2,parent,false))
+        foreach (var item in Utility.GetCharacterInrange(parent.CurrentHex, 2, parent, false))
         {
             Effect effect = EffectFactory.UnStatckableStatsEffct(5, "HiyoriExplosion", -20, StatsType.Resistence, parent, false);
-            item.effectCTRL.AddEffect(effect);
+            effect.SetActions(
+                (character) => character.ModifyStats(StatsType.Resistence, effect.Value, effect.Source),
+                (character) => character.ModifyStats(StatsType.Resistence, -effect.Value, effect.Source)
+            );
+            item.effectCTRL.AddEffect(effect, item);
             item.GetHit(damage, parent, "default", isCrit);
         }
     }
@@ -190,6 +224,65 @@ public class MikaSkillEffect : HitEffect
         source.StartCoroutine(target.Explosion(dmg1, 2, target.CurrentHex, source, 100 / 30f, DamageSourceType.Skill.ToString(), iscrit));
     }
 }
+public class MikaEnhanceskillEffect : HitEffect
+{
+    public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
+    {
+        Dictionary<HexNode, CharacterCTRL> matchNode = new();
+        StarLevelStats stats = source.ActiveSkill.GetCharacterLevel()[target.star];
+        int BaseDamage = stats.Data1;
+        int DamageRatio = stats.Data2;
+        int dmg = source.ActiveSkill.GetAttackCoefficient(source.GetSkillContext());
+        (bool iscrit, int dmg1) = source.CalculateCrit(dmg);
+        source.StartCoroutine(
+            target.Explosion(dmg1, 1, target.CurrentHex, source, 100 / 30f, DamageSourceType.Skill.ToString(), iscrit)
+        );
+        HexNode centerNode = target.CurrentHex;
+        List<HexNode> firstRingNodes = centerNode.Neighbors;
+        List<HexNode> secondRingNodes = firstRingNodes
+            .SelectMany(node => node.Neighbors)
+            .Where(node => !firstRingNodes.Contains(node) && node != centerNode)
+            .Distinct()
+            .ToList();
+        var charactersInSecondRing = Utility.GetCharacterInSet(secondRingNodes, source, false);
+        var adjacency = new Dictionary<CharacterCTRL, List<HexNode>>();
+        var firstRingSet = new HashSet<HexNode>(firstRingNodes);
+
+        foreach (var c in charactersInSecondRing)
+        {
+            var possibleMoves = c.CurrentHex.Neighbors.Where(n => firstRingSet.Contains(n)).ToList();
+            adjacency[c] = possibleMoves;
+        }
+        matchNode = new Dictionary<HexNode, CharacterCTRL>();
+        foreach (var node in firstRingNodes)
+        {
+            matchNode[node] = node.OccupyingCharacter;
+        }
+        foreach (var c in charactersInSecondRing)
+        {
+            var visited = new HashSet<HexNode>();
+            Utility.TryAssign(c, visited, adjacency, ref matchNode);
+        }
+        List<CharacterCTRL> cList = new List<CharacterCTRL>();
+        foreach (var kvp in matchNode)
+        {
+            HexNode node = kvp.Key;
+            CharacterCTRL c = kvp.Value;
+            if (c == null) continue;
+            c.CurrentHex.HardRelease();
+            c.transform.position = node.Position + new Vector3(0, 0.14f, 0);
+            node.HardReserve(c);
+            cList.Add(c);
+            CustomLogger.Log(this, $"Moving {c.name} from {c.CurrentHex.name} to {node.name}");
+        }
+        foreach (var item in cList)
+        {
+            TrinityManager.Instance.TriggerComet(centerNode.Position, "MikaEnhancedskill", centerNode, source);
+        }
+
+    }
+
+}
 public class AzusaSkillEffect : HitEffect
 {
     public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
@@ -199,37 +292,20 @@ public class AzusaSkillEffect : HitEffect
         source.StartCoroutine(target.Explosion(dmg1, 1, target.CurrentHex, source, 45 / 30f, DamageSourceType.Skill.ToString(), iscrit));
     }
 }
-public class HiyoriSkillEffecct : HitEffect
-{
-    public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
-    {
-        int dmg = source.ActiveSkill.GetAttackCoefficient(source.GetSkillContext());
-        (bool iscrit, int dmg1) = source.CalculateCrit(dmg);
-        source.StartCoroutine(target.Explosion(dmg1, 2, target.CurrentHex, source, 0, DamageSourceType.Skill.ToString(), iscrit));
-        foreach (var item in Utility.GetCharacterInrange(target.CurrentHex,2,source,false))
-        {
-            Effect effect = EffectFactory.StatckableStatsEffct(5, "Hiyori_Skill", -20, StatsType.Resistence, source, false);
-            effect.SetActions(
-                (character) => character.ModifyStats(StatsType.Resistence, effect.Value, effect.Source),
-                (character) => character.ModifyStats(StatsType.Resistence, -effect.Value, effect.Source)
-            );
-            item.effectCTRL.AddEffect(effect);
-        }
-    }
-}
 
 public class KazusaSkillEffect : HitEffect
 {
     public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
     {
         Effect effect = EffectFactory.KazusaMark();
-        target.effectCTRL.AddEffect(effect);
+        target.effectCTRL.AddEffect(effect, target);
     }
 }
 public class MisakiSkillEffect : HitEffect
 {
     public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
     {
+        MisakiObserver misakiObserver = source.characterObserver as MisakiObserver;
         StarLevelStats stats = source.ActiveSkill.GetCharacterLevel()[source.star];
         int amount = stats.Data3;
         bool isally = source.IsAlly;
@@ -247,49 +323,103 @@ public class MisakiSkillEffect : HitEffect
             }
             nodeCounts.Add((node, count));
         }
-        if (source.ActiveSkill is Misaki_Skill misakiSkill)
+        nodeCounts = nodeCounts
+                        .Where(x => !misakiObserver.FragmentNodes.Values.Contains(x.node))
+                        .Where(x => x.node.OccupyingCharacter == null)
+                        .ToList();
+        nodeCounts.Sort((a, b) => b.count.CompareTo(a.count));
+        var selectedNodes = nodeCounts.Take(amount).ToList();
+        foreach (var selected in selectedNodes)
         {
-            nodeCounts = nodeCounts
-                .Where(x => !misakiSkill.FragmentNodes.Values.Contains(x.node))
-                .Where(x => x.node.OccupyingCharacter == null)
-                .ToList();
-            nodeCounts.Sort((a, b) => b.count.CompareTo(a.count));
-            var selectedNodes = nodeCounts.Take(amount).ToList();
-            foreach (var selected in selectedNodes)
-            {
-                GameObject fragment = GameObject.Instantiate(
-                    ResourcePool.Instance.MissleFragmentsPrefab,
-                    selected.node.transform.position,
-                    Quaternion.identity
-                );
-                misakiSkill.Fragments.Add(fragment);
-                misakiSkill.FragmentNodes.Add(fragment, selected.node);
+            GameObject fragment = ResourcePool.Instance.SpawnObject(SkillPrefab.MissleFragmentsPrefab, selected.node.transform.position, Quaternion.identity);
+            misakiObserver.Fragments.Add(fragment);
+            misakiObserver.FragmentNodes.Add(fragment, selected.node);
 
-                CustomLogger.Log(this,
-                    $"Spawned fragment at node {selected.node.name} with neighborCount={selected.count}");
-            }
+            CustomLogger.Log(this,
+                $"Spawned fragment at node {selected.node.name} with neighborCount={selected.count}");
         }
-        else
-        {
-            CustomLogger.LogWarning(this, "Source.ActiveSkill is not Misaki_Skill");
-        }
+    }
+}
+public class MiyuEnhancedSkillEffect : HitEffect
+{
+    public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
+    {
+        Effect effect = EffectFactory.MiyuEnhancedSkillEffect();
+        target.effectCTRL.AddEffect(effect, target);
     }
 }
 public class NonomiSkillEffect : HitEffect
 {
     public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
     {
-        if (Utility.GetRand(source) < 30)
+        int critChance = (int)source.GetStat(StatsType.CritChance);
+        if (Utility.GetRandfloat(source) < (30 + critChance / 2) * 0.0001f)
         {
-            GameController.Instance.AddGold(1);//TODO: 改為dropGold
+            ResourcePool.Instance.GetGoldPrefab(target.transform.position);
         }
     }
 }
-public class WakamoSkillEffecct : HitEffect
+public class HinaSkillEffect : HitEffect
+{
+    public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
+    {
+        Effect effect = EffectFactory.HinaEffect();
+        target.effectCTRL.AddEffect(effect, target);
+    }
+}
+public class HiyoriSkillEffect : HitEffect
+{
+    public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
+    {
+        Effect effect = EffectFactory.HiyoriEffect();
+        target.effectCTRL.AddEffect(effect, target);
+    }
+}
+public class NeruSkillEffect : HitEffect
+{
+    public NeruSkillEffect(CharacterCTRL c)
+    {
+        Target = c;
+    }
+    private CharacterCTRL Target;
+    public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
+    {
+        CharacterCTRL c = Utility.GetNearestAlly(Target);
+        if (c != Target)
+        {
+            var bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, target.transform.position, Quaternion.identity);
+            var bulletComponent = bullet.GetComponent<NormalBullet>();
+            int dmg = (int)(source.ActiveSkill.GetAttackCoefficient(source.GetSkillContext()) * 0.2f);
+            (bool, int) tuple = source.CalculateCrit(dmg);
+            bool iscrit = tuple.Item1;
+            dmg = tuple.Item2;
+            bulletComponent.Initialize(dmg, source.GetTargetLayer(), source, 20, c.gameObject, true, iscrit, null, 20, false, default, false, null, true, target.GetHitPoint.position);
+        }
+        else
+        {
+            int dmg = (int)(source.ActiveSkill.GetAttackCoefficient(source.GetSkillContext()) * 0.2f);
+            (bool, int) tuple = source.CalculateCrit(dmg);
+            bool iscrit = tuple.Item1;
+            dmg = tuple.Item2;
+            c.GetHit(dmg, source, DamageSourceType.Skill.ToString(), iscrit);
+        }
+    }
+}
+
+public class WakamoSkillEffect : HitEffect
 {
     public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
     {
         Effect effect = EffectFactory.CreateWakamoEffect(30, 5, source);
-        target.effectCTRL.AddEffect(effect);
+        target.effectCTRL.AddEffect(effect, target);
     }
 }
+public class WakamoEnhancedSkillEffect : HitEffect
+{
+    public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
+    {
+        Effect effect = EffectFactory.WakamoEnhancedMark(source, 20);
+        target.effectCTRL.AddEffect(effect, target);
+    }
+}
+

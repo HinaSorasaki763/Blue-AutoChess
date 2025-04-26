@@ -68,7 +68,7 @@ public class HyakkiyakoObserver : CharacterObserverBase
         int attackPowerIncrease = GetTraitObserverLevel()[traitLevel].Data1;
         float healthThreshold = GetTraitObserverLevel()[traitLevel].Data3 * 0.01f;
         var effect = EffectFactory.CreateHyakkiyakoObserverEffct(attackPowerIncrease, 0, character);
-        character.effectCTRL.AddEffect(effect);
+        character.effectCTRL.AddEffect(effect,character);
         CustomLogger.Log(this, $"[HyakkiyakoObserver] {character.characterStats.name} 生命值高于 {healthThreshold * 100}%，攻击力提升。");
     }
 
@@ -84,7 +84,7 @@ public class HyakkiyakoObserver : CharacterObserverBase
     {
         CustomLogger.Log(this, $"试图将 {source.characterStats.name} 转移目标");
         Effect unTargetableEffect = EffectFactory.CreateUnTargetableEffect(3f, character);
-        character.effectCTRL.AddEffect(unTargetableEffect);
+        character.effectCTRL.AddEffect(unTargetableEffect,character);
         source.Target = null;
     }
 }

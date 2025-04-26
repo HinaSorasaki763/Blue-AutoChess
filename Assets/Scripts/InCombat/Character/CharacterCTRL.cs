@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CharacterCTRL : MonoBehaviour
@@ -12,7 +13,24 @@ public class CharacterCTRL : MonoBehaviour
     // Grid and Target-related Fields
     public HexNode CurrentHex;
     public HexNode HexWhenBattleStart;
-    public GameObject Target;
+    private GameObject _target;
+    public GameObject Target
+    {
+        get
+        {
+            return _target;
+        }
+        set
+        {
+            string oldName = _target != null ? _target.name : "null";
+            string oldHex = _target != null ? _target.GetComponent<CharacterCTRL>()?.CurrentHex?.ToString() : "null";
+            string newName = value != null ? value.name : "null";
+            string newHex = value != null ? value.GetComponent<CharacterCTRL>()?.CurrentHex?.ToString() : "null";
+            CustomLogger.Log(this, $"[Setter] Target 由 `{oldName}` at {oldHex} 改為 `{newName}` at {newHex}");
+            _target = value;
+        }
+
+    }
     public GameObject PreTarget;
 
     // Team and Layer-related Fields
@@ -58,7 +76,7 @@ public class CharacterCTRL : MonoBehaviour
     private float attackSpeed = 1.0f;
     public bool WakamoMark = false;
     private float wakamoMarkRatio;
-    private int dmgRecivedOnWakamoMarked;
+    public int dmgRecivedOnWakamoMarked;
     private CharacterCTRL WakamoMarkParent;
     public bool stunned = false;
     public Transform FirePoint;
@@ -69,7 +87,6 @@ public class CharacterCTRL : MonoBehaviour
     public CharacterAudioManager AudioManager;
     // Traits and Effects-related Fields
     public TraitController traitController;
-    private TraitEffectApplier traitEffectApplier = new TraitEffectApplier();
     public List<CharacterObserverBase> observers = new List<CharacterObserverBase>();
     // Animator-related Fields
     public CustomAnimatorController customAnimator;
@@ -94,6 +111,10 @@ public class CharacterCTRL : MonoBehaviour
     public Coroutine fearCorutine;
     public int DealtDamageThisRound;
     public int TakeDamageThisRound;
+    public int AkoAddedCrit;
+    public int SpecialSkillStack;
+    public CharacterObserverBase characterObserver;
+    public bool Undying;
     #endregion
     #region Unity Lifecycle Methods
     public void ResetToBeforeBattle()
@@ -136,8 +157,6 @@ public class CharacterCTRL : MonoBehaviour
     {
         GetComponent<BoxCollider>().enabled = true;
         star = 1;
-        stats = characterStats.Stats.Clone();
-        ResetStats();
 
         allyParent = ResourcePool.Instance.ally;
         enemyParent = ResourcePool.Instance.enemy;
@@ -145,6 +164,8 @@ public class CharacterCTRL : MonoBehaviour
         effectCTRL = GetComponent<EffectCTRL>();
         effectCTRL.characterCTRL = GetComponent<CharacterCTRL>();
         traitController = GetComponent<TraitController>();
+        RecalculateStats();
+
         IsDying = false;
         if (characterBars != null)
         {
@@ -156,6 +177,7 @@ public class CharacterCTRL : MonoBehaviour
         {
             var observer = characterBehaviorFunc();
             AddObserver(observer);
+            characterObserver = observer;
         }
         GlobalBaseObserver globalObserver = new GlobalBaseObserver();
         AddObserver(globalObserver);
@@ -163,7 +185,7 @@ public class CharacterCTRL : MonoBehaviour
         {
             CustomLogger.Log(this, $"characterId {characterId} getting {characterSkillFunc} TestEnhanceSkill");
             var baseSkill = characterSkillFunc();
-            if (characterStats.TestEnhanceSkill || characterId >= 500)
+            if (GameController.Instance.CheckCharacterEnhance(characterStats.CharacterId, IsAlly))
             {
                 CustomLogger.Log(this, $"characterId {characterId} getting {characterSkillFunc} TestEnhanceSkill");
                 ActiveSkill = baseSkill.GetHeroicEnhancedSkill();
@@ -181,7 +203,33 @@ public class CharacterCTRL : MonoBehaviour
         equipmentManager = GetComponent<CharacterEquipmentManager>();
         equipmentManager.SetParent(this);
         AudioManager = GetComponent<CharacterAudioManager>();
-
+        if (GameController.Instance.CheckCharacterEnhance(19, true) && characterId == 19)
+        {
+            GetComponent<SkillAnimationReplacer>().SwitchToEnhancedSkill();
+        }
+        foreach (var item in observers)
+        {
+            item.OncharacterEnabled(this);
+        }
+        RecalculateStats();
+    }
+    public void GetSkill()
+    {
+        int characterId = characterStats.CharacterId;
+        if (characterSkills.TryGetValue(characterId, out var characterSkillFunc))
+        {
+            CustomLogger.Log(this, $"characterId {characterId} getting {characterSkillFunc} TestEnhanceSkill");
+            var baseSkill = characterSkillFunc();
+            if (GameController.Instance.CheckCharacterEnhance(characterId, IsAlly))
+            {
+                CustomLogger.Log(this, $"characterId {characterId} getting {characterSkillFunc} TestEnhanceSkill");
+                ActiveSkill = baseSkill.GetHeroicEnhancedSkill();
+            }
+            else
+            {
+                ActiveSkill = baseSkill;
+            }
+        }
     }
     public void OnDisable()
     {
@@ -219,7 +267,7 @@ public class CharacterCTRL : MonoBehaviour
                     Effect effect = EffectFactory.CreateAbydosEffect(isAbydos, AbydosManager.Instance.level);
                     CustomLogger.Log(this, $"isabydos = {isAbydos}, effect = {effect.Source}");
 
-                    effectCTRL.AddEffect(effect);
+                    effectCTRL.AddEffect(effect, this);
                 }
             }
 
@@ -236,17 +284,6 @@ public class CharacterCTRL : MonoBehaviour
         transform.LookAt(Target.transform.position);
         FaceDirectionLock = false;
         CustomLogger.Log(this, $"character {characterStats.name} released ,time = {Time.time}");
-    }
-    public void ResetStats()
-    {
-        SetStat(StatsType.Health, characterStats.Health[star - 1]);
-        SetStat(StatsType.Attack, characterStats.Attack[star - 1]);
-        SetStat(StatsType.currHealth, GetStat(StatsType.Health));
-        SetStat(StatsType.Mana, 0);
-        stats.AddFrom(ExtraPernamentStats);
-        stats.AddFrom(GameController.Instance.TeamExtraStats);
-        SetStat(StatsType.currHealth, GetStat(StatsType.Health));
-        CustomLogger.Log(this, $"character {characterStats.name} , health = {characterStats.Health[star - 1]} , attack = {characterStats.Attack[star - 1]}");
     }
     private void Start()
     {
@@ -266,6 +303,7 @@ public class CharacterCTRL : MonoBehaviour
 
     public virtual void Update()
     {
+
         if (tempDirectionLock != FaceDirectionLock)
         {
             CustomLogger.Log(this, $"character {characterStats.name} lockDirection = {FaceDirectionLock} , time = {Time.time}");
@@ -280,7 +318,7 @@ public class CharacterCTRL : MonoBehaviour
             {
                 DetectedPos = CurrentHex.transform.position + new Vector3(0, 0.3f, 0);
 
-                if (!(stunned || IsFeared))
+                if (!(stunned || IsFeared || customAnimator.animator.GetBool("CastSkill")))
                 {
                     HandleTargetFinding();
                     HandleAttack(canAttack);
@@ -396,6 +434,7 @@ public class CharacterCTRL : MonoBehaviour
     }
     public int ExecuteActiveSkill()
     {
+        GetSkill();
         CharacterCTRL target = GetTargetCTRL();
         var skillContext = new SkillContext
         {
@@ -450,6 +489,7 @@ public class CharacterCTRL : MonoBehaviour
     }
     public void Attack()
     {
+        CustomLogger.Log(this, $"character {characterStats.CharacterName} Attack()");
         if (Target != null && Vector3.Distance(Target.transform.position, transform.position) > GetStat(StatsType.Range) + 0.1f)
         {
             FindTarget();
@@ -463,19 +503,22 @@ public class CharacterCTRL : MonoBehaviour
             return;
         }
         HandleAttacking();
-
-
         SetAnimatorStateToAttack();
         if (characterStats.CharacterId != 34)
         {
             var bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, FirePoint.position, Quaternion.identity);
+            List<HitEffect> hitEffect = new List<HitEffect> { };
+            if (GameController.Instance.CheckCharacterEnhance(30, true) && characterStats.CharacterId == 30)
+            {
+                hitEffect.Add(new WakamoEnhancedSkillEffect());
+            }
             var bulletComponent = bullet.GetComponent<NormalBullet>();
-            if (!Target) return;
+            // if (!Target) return;
             int damage = (int)(GetStat(StatsType.Attack) * (1 + modifierCTRL.GetTotalStatModifierValue(ModifierType.DamageDealt) * 0.01f));
             (bool, int) tuple = CalculateCrit(damage);
             bool iscrit = tuple.Item1;
             damage = tuple.Item2;
-            bulletComponent.Initialize(damage, GetTargetLayer(), this, 20, Target, false, iscrit);
+            bulletComponent.Initialize(damage, GetTargetLayer(), this, 20, Target, false, iscrit, hitEffect);
 
         }
 
@@ -544,6 +587,39 @@ public class CharacterCTRL : MonoBehaviour
         final = equipmentManager.BeforeHealing(source, final);
         return final;
     }
+    public int GetHealAmount(int amount, CharacterCTRL source)
+    {
+        amount = BeforeHealing(amount, source);
+        if (AntiHeal)
+        {
+            amount = (int)(amount * (1 - AntiHealRatio));
+        }
+        if (amount <= 1)
+        {
+            return 0;
+        }
+        return amount;
+    }
+    public void HealToFull(CharacterCTRL source)
+    {
+        int amount = (int)(GetStat(StatsType.Health) - GetStat(StatsType.currHealth));
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
+        TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.None, amount, screenPos, false, true);
+        foreach (var item in source.observers)
+        {
+            item.OnHealing(source);
+        }
+        if (traitController != null)
+        {
+            source.traitController.OnHealing();
+        }
+        if (equipmentManager != null)
+        {
+            source.equipmentManager.OnHealing();
+        }
+        AudioManager.PlayHpRestoredSound();
+        AddStat(StatsType.currHealth, amount);
+    }
     public virtual void Heal(int amount, CharacterCTRL source)
     {
         amount = BeforeHealing(amount, source);
@@ -558,6 +634,18 @@ public class CharacterCTRL : MonoBehaviour
         CustomLogger.Log(this, $"{source} heal {name} of {amount}");
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
         TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.None, amount, screenPos, false, true);
+        foreach (var item in source.observers)
+        {
+            item.OnHealing(source);
+        }
+        if (traitController != null)
+        {
+            source.traitController.OnHealing();
+        }
+        if (equipmentManager != null)
+        {
+            source.equipmentManager.OnHealing();
+        }
         if (GetStat(StatsType.currHealth) + amount >= GetStat(StatsType.Health))
         {
             SetStat(StatsType.currHealth, GetStat(StatsType.Health));
@@ -599,6 +687,7 @@ public class CharacterCTRL : MonoBehaviour
     }
     public void SetTaunt(bool b)
     {
+        if (!Taunted && isCCImmune) return;
         Taunted = b;
     }
     public void AbydosBuff(bool isAbydos, int data2, int data3, bool start)
@@ -718,7 +807,7 @@ public class CharacterCTRL : MonoBehaviour
         CustomLogger.Log(this, $"{characterStats.CharacterName}CastSkill()");
         IsCastingAbility = true;
         int i = GetSkillID();
-        int animationIndex = 6;
+        int animationIndex = 7;
         if (isShirokoTerror)
         {
             animationIndex = i + 8;
@@ -729,7 +818,13 @@ public class CharacterCTRL : MonoBehaviour
             sec1 /= GetStat(StatsType.AttackSpeed);
         }
         float sec = sec1 / 3f;
-        Debug.Log($"[CharacterCTRL] index = {animationIndex} name = {customAnimator.GetAnimationClipInfo(animationIndex).Item1}  length = {customAnimator.GetAnimationClipInfo(animationIndex).Item2}");
+        var clipInfoList = customAnimator.GetAllClipInfos();
+
+        for (int j = 0; j < clipInfoList.Count; j++)
+        {
+            var (name, length) = clipInfoList[j];
+            CustomLogger.Log(this, $"index = {j}, name = {name}, length = {length}");
+        }
         StartCoroutine(CastSkillWaitTime(sec));
     }
     public IEnumerator CastSkillWaitTime(float sec)
@@ -746,7 +841,10 @@ public class CharacterCTRL : MonoBehaviour
     }
     public float GetHealthPercentage() => GetStat(StatsType.currHealth) / (float)GetStat(StatsType.Health);
     public float GetExtraStat(StatsType statsType) => ExtraPernamentStats.GetStat(statsType);
-    public float GetStat(StatsType statsType) => stats.GetStat(statsType);
+    public float GetStat(StatsType statsType, bool check = true)
+    {
+        return stats.GetStat(statsType);
+    }
     public void CritCorrection()
     {
         int currentCritChance = (int)GetStat(StatsType.CritChance);
@@ -801,8 +899,12 @@ public class CharacterCTRL : MonoBehaviour
             }
         }
     }
-    public void AddStat(StatsType statsType, float amount)
+    public void AddStat(StatsType statsType, float amount, bool refresh = true)
     {
+        if (statsType == StatsType.PercentageResistence)
+        {
+            CustomLogger.Log(this, $"modify StatsType.PercentageResistence for {amount}");
+        }
         if (statsType == StatsType.Mana)
         {
             Addmana((int)amount);
@@ -814,7 +916,41 @@ public class CharacterCTRL : MonoBehaviour
             return;
         }
         SetStat(statsType, GetStat(statsType) + amount);
-        CheckPercentageBonus();
+        if (refresh)
+        {
+            RecalculateStats();
+        }
+
+    }
+    public virtual void RecalculateStats()
+    {
+        int currHealth = (int)GetStat(StatsType.currHealth);
+        int currMana = (int)GetStat(StatsType.Mana);
+        int maxHealth = characterStats.Health[star - 1];
+        int Attack = characterStats.Attack[star - 1];
+        stats = characterStats.Stats.Clone();
+        stats.SetStat(StatsType.Health, maxHealth);
+        stats.SetStat(StatsType.Attack, Attack);
+        stats.AddFrom(ExtraPernamentStats);
+        stats.AddFrom(GameController.Instance.TeamExtraStats);
+        if (effectCTRL.GetStatsEffects().Count > 0)
+        {
+            foreach (var item in effectCTRL.GetStatsEffects())
+            {
+                item.OnApply.Invoke(this);
+            }
+        }
+        stats.AddFrom(GetPercentageBonus());
+        if (GameStageManager.Instance.CurrGamePhase == GamePhase.Battling)
+        {
+            stats.SetStat(StatsType.currHealth, currHealth);
+            stats.SetStat(StatsType.Mana, currMana);
+        }
+
+        if (GameStageManager.Instance.CurrGamePhase != GamePhase.Battling)
+        {
+            SetStat(StatsType.currHealth, GetStat(StatsType.Health, false));
+        }
     }
     public void AddPercentageBonus(StatsType fromStat, StatsType toStat, int percent, string identifier)
     {
@@ -827,10 +963,10 @@ public class CharacterCTRL : MonoBehaviour
             PercentageStatsDict.Remove(identifier);
     }
 
-    public void CheckPercentageBonus()
+    public StatsContainer GetPercentageBonus()
     {
-        if (PercentageStatsDict.Count == 0) return;
         PercentageStats.Clear();
+        if (PercentageStatsDict.Count == 0) return PercentageStats;
         foreach (var kvp in PercentageStatsDict)
         {
             var (fromStat, toStat, percent) = kvp.Value;
@@ -846,6 +982,7 @@ public class CharacterCTRL : MonoBehaviour
                 PercentageStats.AddValue(toStat, val);
             }
         }
+        return PercentageStats;
     }
     public void AddAttackSpeed(float amount)
     {
@@ -867,12 +1004,18 @@ public class CharacterCTRL : MonoBehaviour
     public void SetExtraStat(StatsType statsType, float amount)
     {
         ExtraPernamentStats.SetStat(statsType, amount);
+        RecalculateStats();
     }
     public void AddExtraStat(StatsType statsType, float amount)
     {
         SetExtraStat(statsType, GetExtraStat(statsType) + amount);
     }
-    public void SetStat(StatsType statsType, float amount) => stats.SetStat(statsType, amount);
+    public void SetStat(StatsType statsType, float amount)
+    {
+
+        stats.SetStat(statsType, amount);
+    }
+
     private int GetSkillID()
     {
         CharacterCTRL c = null;
@@ -1007,6 +1150,24 @@ public class CharacterCTRL : MonoBehaviour
     #region Targeting and Pathfinding
     public bool FindTarget()
     {
+        //
+        if (characterStats.CharacterId == 30 && GameController.Instance.CheckCharacterEnhance(30, true))
+        {
+            CharacterParent characterParent = IsAlly ? ResourcePool.Instance.enemy : ResourcePool.Instance.ally;
+            CustomLogger.Log(this, $"[WakamoObserver] enemy count = {characterParent.GetBattleFieldCharacter().Count} ");
+            foreach (var item in characterParent.GetBattleFieldCharacter())
+            {
+                CustomLogger.Log(this, $"[WakamoObserver] {item} in {item.CurrentHex} get effect {item.effectCTRL.GetEffect("WakamoEnhancedMark")} ");
+                if (item.effectCTRL.GetEffect("WakamoEnhancedMark") == null)
+                {
+                    PreTarget = null;
+                    Target = item.gameObject;
+                    CustomLogger.Log(this, $"[WakamoObserver] Change Target to {item.gameObject.name} in {item.CurrentHex}");
+                    return true;
+                }
+            }
+
+        }
         var hitColliders = Physics.OverlapSphere(transform.position, 50, GetTargetLayer());
         GameObject closestTarget = null;
         float closestDistance = Mathf.Infinity;
@@ -1141,10 +1302,14 @@ public class CharacterCTRL : MonoBehaviour
         }
         transform.position = targetPos;
     }
-
+    public bool CheckDist(CharacterCTRL enemy)
+    {
+        float dist = Vector3.Distance(transform.position, enemy.transform.position);
+        return dist <= GetStat(StatsType.Range) + 0.1f;
+    }
     public void ForceChangeTarget(CharacterCTRL newTarget)
     {
-        if (Taunted) return;
+        if (Taunted || !CheckDist(newTarget)) return;
         Target = newTarget.gameObject;
         PreTarget = null;
         transform.LookAt(Target.transform.position);
@@ -1218,7 +1383,7 @@ public class CharacterCTRL : MonoBehaviour
         }
         foreach (var item in observers)
         {
-            item.GetHit(this, sourceCharacter, amount, isCrit, detailedSource);
+            item.GetHit(this, sourceCharacter, amount, isCrit, detailedSource, true);
         }
         traitController.NotifyGetHit(this, sourceCharacter, amount, isCrit, detailedSource);
         equipmentManager.OnParentGethit(this, sourceCharacter, amount, isCrit, detailedSource);
@@ -1231,7 +1396,7 @@ public class CharacterCTRL : MonoBehaviour
     }
     public bool Dragable()
     {
-        return !(enterBattle || GameStageManager.Instance.CurrGamePhase == GamePhase.Battling);
+        return !(enterBattle || GameStageManager.Instance.CurrGamePhase == GamePhase.Battling || !IsAlly);
     }
     public bool Dodge(CharacterCTRL sourceCharacter)
     {
@@ -1252,7 +1417,17 @@ public class CharacterCTRL : MonoBehaviour
         }
         return false;
     }
-    public virtual void GetHit(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit)
+    public void OnCrit()
+    {
+        foreach (var item in observers)
+        {
+            CustomLogger.Log(this, $"observer = {item.GetType()}");
+            item.OnCrit(this);
+        }
+        traitController.OnCrit();
+        equipmentManager.OnCrit();
+    }
+    public virtual void GetHit(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit, bool recursion = true)
     {
         if (IsDying || (characterStats.TestEnhanceSkill && IsAlly) || characterStats.TestBuildInvinvicble) return;//TODO:正式版記得拔掉
         if (!isAlive) return;
@@ -1261,7 +1436,7 @@ public class CharacterCTRL : MonoBehaviour
 
         int finalAmount = ObserverDamageModifier(amount, sourceCharacter, detailedSource, isCrit);
         finalAmount = BeforeDealtDmg(finalAmount, sourceCharacter, detailedSource, isCrit);
-        bool SaoriEnhanced = GameController.Instance.GetEnhanchedCharacterIndex(sourceCharacter.IsAlly) == 39 && sourceCharacter.characterStats.CharacterId == 39;
+        bool SaoriEnhanced = GameController.Instance.CheckCharacterEnhance(39, sourceCharacter.IsAlly) && sourceCharacter.characterStats.CharacterId == 39;
 
         float r = GetStat(StatsType.Resistence);
         if (SaoriEnhanced)
@@ -1287,7 +1462,14 @@ public class CharacterCTRL : MonoBehaviour
         {
             dmgRecivedOnWakamoMarked += (int)(finalAmount * wakamoMarkRatio);
         }
-        CustomLogger.Log(this, $"{name} get hit by {sourceCharacter}'s {detailedSource} with {amount} iscrit:{isCrit}");
+        CustomLogger.Log(this, $"{name} get hit by {sourceCharacter}'s {detailedSource} with {amount} iscrit:{isCrit} as {detailedSource}");
+        foreach (var item in observers)
+        {
+            CustomLogger.Log(this, $"observer = {item.GetType()}");
+            item.GetHit(this, sourceCharacter, finalAmount, isCrit, detailedSource, true);
+        }
+        traitController.NotifyGetHit(this, sourceCharacter, finalAmount, isCrit, detailedSource);
+        equipmentManager.OnParentGethit(this, sourceCharacter, finalAmount, isCrit, detailedSource);
         while (finalAmount > 0 && shields.Count > 0)
         {
             Shield shield = shields[0];
@@ -1312,12 +1494,7 @@ public class CharacterCTRL : MonoBehaviour
             if (!getEffect) TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.None, finalAmount, screenPos, true);
             AddStat(StatsType.currHealth, -finalAmount);
         }
-        foreach (var item in observers)
-        {
-            item.GetHit(this, sourceCharacter, finalAmount, isCrit, detailedSource);
-        }
-        traitController.NotifyGetHit(this, sourceCharacter, finalAmount, isCrit, detailedSource);
-        equipmentManager.OnParentGethit(this, sourceCharacter, finalAmount, isCrit, detailedSource);
+
         if (CheckDeath() && !IsDying)
         {
             sourceCharacter.traitController.NotifyOnKilledEnemy(detailedSource, this);
@@ -1413,6 +1590,7 @@ public class CharacterCTRL : MonoBehaviour
     {
         CustomLogger.Log(this, $"{characterStats.name} getting stuuned : {s}");
         if (isObj) return;
+        if (!stunned && isCCImmune) return;
         stunned = s;
         if (stunned)
         {
@@ -1427,6 +1605,9 @@ public class CharacterCTRL : MonoBehaviour
     }
     public void SetWakamoMark(int ratio, CharacterCTRL wakamo)
     {
+
+        EffectCanvas.Instance.GetOrCreateWakamoImage(this, ResourcePool.Instance.WakamosSprite);
+        EffectCanvas.Instance.FadeToRedOverFiveSeconds(this);
         WakamoMark = true;
         wakamoMarkRatio = ratio * 0.01f;
         WakamoMarkParent = wakamo;
@@ -1438,11 +1619,33 @@ public class CharacterCTRL : MonoBehaviour
         GetHit(dmgRecivedOnWakamoMarked, WakamoMarkParent, DamageSourceType.Skill.ToString(), false);
         WakamoMarkParent = null;
         dmgRecivedOnWakamoMarked = 0;
-
+        EffectCanvas.Instance.ResetImage(this, true);
+    }
+    public void OnWakamoEnhancedMarkEnd()
+    {
+        GetHit(dmgRecivedOnWakamoMarked, WakamoMarkParent, DamageSourceType.Skill.ToString(), false);
+        dmgRecivedOnWakamoMarked = 0;
+        CustomLogger.Log(this, "OnWakamoEnhancedMarkEnd()");
+        EffectCanvas.Instance.ResetImage(this, false);
+        Effect effect = EffectFactory.WakamoEnhancedMark(this, 20);
+        effectCTRL.AddEffect(effect, this);
     }
     public void Clarity()
     {
-        effectCTRL.ClearEffects(EffectType.Negative);
+        int count = effectCTRL.ClearEffects(EffectType.Negative);
+        if (GameController.Instance.CheckCharacterEnhance(6, IsAlly) && characterStats.CharacterId == 6)
+        {
+            int attack =  ActiveSkill.GetCharacterLevel()[star].Data4;
+            int health = ActiveSkill.GetCharacterLevel()[star].Data3;
+            if (count == 0)
+            {
+                AddExtraStat(StatsType.Attack, attack);
+            }
+            else
+            {
+                AddExtraStat(StatsType.Health, health * count);
+            }
+        }
         isCCImmune = true;
     }
     public void SetCCImmune(bool immune)
@@ -1451,13 +1654,25 @@ public class CharacterCTRL : MonoBehaviour
     }
     public void SetMarked(bool marked)
     {
-
+        bool preMarked = isMarked;
         isMarked = marked;
         Debug.Log($"{name} is {(isMarked ? "marked" : "no longer marked")}.");
+        if (GameController.Instance.CheckCharacterEnhance(7, !IsAlly))
+        {
+            CharacterParent characterParent = IsAlly ? ResourcePool.Instance.enemy : ResourcePool.Instance.ally;
+            CharacterCTRL noa = Utility.GetSpecificCharacterByIndex(characterParent.GetBattleFieldCharacter(),7);
+            Effect Effect = EffectFactory.StatckableStatsEffct(0, "Noa Enhanced Skill", -20, StatsType.PercentageResistence, noa, true);
+            Effect.SetActions(
+                (character) => character.ModifyStats(StatsType.PercentageResistence, Effect.Value, Effect.Source),
+                (character) => character.ModifyStats(StatsType.PercentageResistence, -Effect.Value, Effect.Source)
+            );
+            effectCTRL.AddEffect(Effect, this);
+        }
         if (marked)
         {
             foreach (var item in GetEnemies())
             {
+
                 if ((item.transform.position - transform.position).magnitude <= item.GetStat(StatsType.Range) + 2 && !item.characterStats.logistics)
                 {
                     item.UpdateTarget(gameObject, (item.transform.position - transform.position).magnitude);
@@ -1467,11 +1682,7 @@ public class CharacterCTRL : MonoBehaviour
     }
     public void ModifyStats(StatsType statsType, float amount, string source = null)
     {
-        AddStat(statsType, amount);
-        if (source != null)
-        {
-            CustomLogger.Log(this, $"source = {source} , modifing {statsType} to {GetStat(statsType)} by added {amount}");
-        }
+        AddStat(statsType, amount, false);
     }
     public void ModifyMultipleStats(Dictionary<StatsType, float> statsModifiers, string source = null, bool isRevert = false)
     {
@@ -1531,6 +1742,24 @@ public class CharacterCTRL : MonoBehaviour
     }
     public virtual void Die()
     {
+        if (Undying)
+        {
+            SetStat(StatsType.currHealth, 0);
+            isTargetable = false;
+            return;
+        }
+        foreach (var item in observers)
+        {
+            if (item.BeforeDying())
+            {
+                return;
+            }
+        }
+        foreach (var item in observers)
+        {
+            item.OnDying(this);
+        }
+        traitController.NotifyOnDying();
         GetComponent<BoxCollider>().enabled = false;
         IsDying = true;
         customAnimator.ForceDying();
@@ -1540,10 +1769,7 @@ public class CharacterCTRL : MonoBehaviour
         TriggerManualUpdate();
         SetStat(StatsType.currHealth, 0);
         Debug.Log($"{gameObject.name} Die()");
-        foreach (var item in observers)
-        {
-            item.OnDying(this);
-        }
+
 
     }
     public void BattleOverTime()
@@ -1631,23 +1857,51 @@ public class CharacterCTRL : MonoBehaviour
 
     #region Behavior and Skill Management
     public Dictionary<int, Func<CharacterObserverBase>> characterBehaviors = new()
-    {
-        {  2, () => new AyaneObserver()},
-        {  9, () => new SerinaObserver()},
-        { 10, () => new ShizukoObserver()},
-        { 12, () => new AkoObserver()},
-        { 15, () => new AyaneObserver()},
-        { 16, () => new IzunaObserver()},
-        { 22, () => new ShirokoObserver()},
+{
+    {  0, () => new NullObserver() },
+    {  1, () => new ArisObserver() },
+    {  2, () => new AyaneObserver() },
+    {  3, () => new NullObserver() },
+    {  4, () => new NullObserver() },
+    {  5, () => new NullObserver() },
+    {  6, () => new NullObserver() },
+    {  7, () => new NullObserver() },
+    {  8, () => new SerikaObserver() },
+    {  9, () => new SerinaObserver() },
+    { 10, () => new ShizukoObserver() },
+    { 11, () => new NullObserver() },
+    { 12, () => new AkoObserver() },
+    { 13, () => new AzusaObserver() },
+    { 14, () => new NullObserver() },
+    { 15, () => new FuukaObserver() }, // 重複 Ayane
+    { 16, () => new IzunaObserver() },
+    { 17, () => new KayokoObserver() },
+    { 18, () => new NullObserver() },
+    { 19, () => new NullObserver() },
+    { 20, () => new NullObserver() },
+    { 21, () => new NullObserver() },
+    { 22, () => new ShirokoObserver() },
+    { 23, () => new TsubakiObserver() },
+    { 24, () => new YuukaObserver() },
+    { 25, () => new HinaObserver() },
+    { 26, () => new HoshinoObserver() },
+    { 27, () => new MikaObserver() },
+    { 28, () => new NullObserver() },
+    { 29, () => new TsurugiObserver() },
+    { 30, () => new WakamoObserver() },
+    { 31, () => new Shiroko_Terror_Observer() },
+    { 32, () => new NullObserver() },
+    { 33, () => new HiyoriObserver() },
+    { 34, () => new MisakiObserver() },
+    { 35, () => new NullObserver() },
+    { 36, () => new MiyuObserver() },
+    { 37, () => new MoeObserver() },
+    { 38, () => new NullObserver() },
+    { 39, () => new SaoriObserver() },
+    { 40, () => new NullObserver() },
+    {504, () => new NullObserver() },
+};
 
-        { 25, () => new HinaObserver()},
-        { 26, () => new HoshinoObserver()},
-        { 27,() => new MikaObserver()},
-        { 29, () => new TsurugiObserver()},
-        { 31, () => new Shiroko_Terror_Observer()},
-        { 34,() => new MisakiObserver()},
-        { 36,()=> new MiyuObserver()}
-    };
 
     public Dictionary<int, Func<CharacterSkillBase>> characterSkills = new()
     {

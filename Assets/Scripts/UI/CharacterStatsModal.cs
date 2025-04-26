@@ -21,8 +21,6 @@ public class CharacterStatsModal : MonoBehaviour, IPointerEnterHandler, IPointer
 
         // 設定背景物件的寬度，維持高度不變
         bgRect.sizeDelta = new Vector2(newWidth, bgRect.sizeDelta.y);
-
-        CustomLogger.Log(this, "Update background width to: " + newWidth);
     }
     public void OnPointerEnter(PointerEventData eventData)
     {

@@ -62,6 +62,12 @@ MonoBehaviour:
     {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\u3002"
   - "Summons a drone that periodically heals allies in five hexs for \n{data1} +
     ({data2}% \xD7 ATK) (Final: {Final})."
+  EnhancedSkillTooltips:
+  - "\u53EC\u559A\u4E00\u500B\u7121\u4EBA\u6A5F\uFF0C\u6BCF\u79D2\u6301\u7E8C\u70BA\u4E94\u683C\u5167\u7684\u53CB\u8ECD\u56DE\u5FA9
+    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\u3002\n\u73FE\u5728\u7121\u4EBA\u6A5F\u9084\u6703\u5728\u56DE\u8840\u6642\uFF0C\u7D66\u53CB\u8ECD\u589E\u52A0\u66AB\u6642\u7684\u8FF4\u907F\u6578\u503C\u3002\u6211\u65B9\u968A\u4F0D\u6BCF\u4E00\u6B21\u7684\u6210\u529F\u8FF4\u907F\u90FD\u6703\u7D66\u8FF4\u907F\u7684\u55AE\u4F4D\u589E\u52A0\u653B\u64CA\u901F\u5EA6\u3002"
+  - "Summons drone that heals allies within 5 tiles every second: {data1} + ({data2}%
+    \xD7 Attack) (Final: {Final}).\nDrone also grants temporary dodge. Every successful
+    dodge increases attack speed for that unit."
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

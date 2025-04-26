@@ -91,8 +91,8 @@ public class CharacterBars : MonoBehaviour
     void UpdateUIs()
     {
         starImage.sprite = StarSprites[CharacterCTRL.star - 1];
-        HealthSlider.UpdateValue(CharacterCTRL.GetStat(StatsType.currHealth));
-        ManaSlider.UpdateValue(CharacterCTRL.GetStat(StatsType.Mana));
+        HealthSlider.UpdateValue(CharacterCTRL.GetStat(StatsType.currHealth, false));
+        ManaSlider.UpdateValue(CharacterCTRL.GetStat(StatsType.Mana, false));
     }
 
     // 更新"最強"標誌

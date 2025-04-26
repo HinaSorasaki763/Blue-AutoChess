@@ -28,12 +28,12 @@ public class RapidfireObserver : CharacterObserverBase
             (character) => character.ModifyStats(StatsType.AttackSpeed, effect.Value, effect.Source),
             (character) => character.ModifyStats(StatsType.AttackSpeed, -effect.Value, effect.Source)
         );
-        parent.effectCTRL.AddEffect(effect);
+        parent.effectCTRL.AddEffect(effect,parent);
         RapidfireObserverEffect = effect;
     }
     public override void OnBattleEnd(bool isVictory)
     {
-        RapidfireObserverEffect.UpdateValue(0);
+        RapidfireObserverEffect.UpdateValue(0,parent);
     }
     public override void OnAttacking(CharacterCTRL character)
     {

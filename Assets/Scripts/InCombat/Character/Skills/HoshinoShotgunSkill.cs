@@ -11,15 +11,20 @@ public class HoshinoShotgunSkill : MonoBehaviour
     public Transform Shield;
     public void HoshinoSingleshot()
     {
-        int dmg = (int)skillContext.Parent.GetStat(GameEnum.StatsType.Attack);
+        int dmg = skillContext.Parent.ActiveSkill.GetAttackCoefficient(skillContext);
         (bool,int) tuple = skillContext.Parent.CalculateCrit(dmg);
         foreach (var item in skillContext.SelectedHex)
         {
             if (item.OccupyingCharacter != null)
             {
                 item.OccupyingCharacter.GetHit(tuple.Item2, skillContext.Parent, "HoshinoSingleshot()", tuple.Item1);
-                Effect effect = EffectFactory.CreateStunEffect(1, skillContext.Parent);
-                item.OccupyingCharacter.effectCTRL.AddEffect(effect);
+
+                if (GameController.Instance.CheckCharacterEnhance(26,true))
+                {
+                    float duration = skillContext.Parent.ActiveSkill.GetCharacterLevel()[skillContext.CharacterLevel].Data5;
+                    Effect stunEffect = EffectFactory.CreateStunEffect(duration, item.OccupyingCharacter);
+                    item.OccupyingCharacter.effectCTRL.AddEffect(stunEffect,item.OccupyingCharacter);
+                }
             }
         }
     }

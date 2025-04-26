@@ -63,8 +63,13 @@ MonoBehaviour:
   - "Deals {data1} (Final: {Final}) damage to enemies in a large area \nand inflicts
     Fear for {data5} seconds."
   EnhancedSkillTooltips:
-  - 
-  - 
+  - "\u5C0D\u5927\u7BC4\u570D\u6575\u4EBA\u9020\u6210 {data1} (\u6700\u7D42: {Final})\u50B7\u5BB3\uFF0C\u4E26\u65BD\u52A0\u6050\u61FC
+    {data5} \u79D2\u3002\n\u6050\u61FC\u6642\u9577\u5C07\u96A8\u8457\u5A01\u58D3\u8B8A\u5316\uFF0C\u73FE\u5728\u666E\u901A\u653B\u64CA\u4E5F\u6709\u6A5F\u7387\u4F7F\u5F97\u6575\u4EBA\u6050\u61FC\uFF0C\u6A5F\u7387\u548C\u6642\u9593\u540C\u6A23\u53D7\u76CA\u65BC\u5A01\u58D3"
+  - 'Deals {data1} (Final: {Final}) to a large area, inflicting Fear for {data5}
+    seconds.
+
+    Duration scales with Suppression. Normal attacks may also cause
+    Fear, influenced by Suppression.'
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

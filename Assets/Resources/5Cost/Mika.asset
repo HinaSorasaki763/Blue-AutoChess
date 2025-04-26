@@ -64,10 +64,19 @@ MonoBehaviour:
   Tooltips:
   - "\u88AB\u52D5: \u50B7\u5BB3\u7E3D\u662F\u7206\u64CA\uFF0C\u4E14\u6240\u6709\u7206\u64CA\u7387\u8F49\u70BA\u7206\u64CA\u50B7\u5BB3\u3002\n\u4E3B\u52D5:
     \u72D9\u64CA\u55AE\u4E00\u6575\u4EBA\uFF0C\u9020\u6210 {data1}+{data2}%*{Attack}(\u6700\u7D42:
-    {Final})\u3002\u82E5\u64CA\u6BBA\u76EE\u6A19\uFF0C\u6703\u5728\u5176\u5468\u570D1\u683C\u7206\u70B8\uFF0C\u4E26\u53EF\u7121\u9650\u9023\u9396\u3002\u3002"
+    {Final})\u3002\u82E5\u64CA\u6BBA\u76EE\u6A19\uFF0C\u6703\u5728\u5176\u5468\u570D1\u683C\u7206\u70B8\uFF0C\u4E26\u53EF\u7121\u9650\u9023\u9396\u3002"
   - "Passive: Always critically strikes, converting all crit chance into crit damage.\nActive:
     Snipes a single enemy for {data1}+{data2}%*{Attack}(Final: {Final}). If it kills
     the target, \nit explodes in a 1-tile radius for the same damage, chaining indefinitely."
+  EnhancedSkillTooltips:
+  - "\u88AB\u52D5: \u50B7\u5BB3\u7E3D\u662F\u7206\u64CA\uFF0C\u4E14\u6240\u6709\u7206\u64CA\u7387\u8F49\u70BA\u7206\u64CA\u50B7\u5BB3\u3002\n\u4E3B\u52D5:
+    \u72D9\u64CA\u55AE\u4E00\u6575\u4EBA\uFF0C\u9020\u6210 {data1}+{data2}%*{Attack}(\u6700\u7D42:
+    {Final})\u3002\u82E5\u64CA\u6BBA\u76EE\u6A19\uFF0C\u6703\u5728\u5176\u5468\u570D1\u683C\u7206\u70B8\uFF0C\u4E26\u53EF\u7121\u9650\u9023\u9396\u3002\n\u65BD\u653E\u6280\u80FD\u6642\uFF0C\u76E1\u53EF\u80FD\u5C07\u534A\u5F91\u4E09\u683C\u5167\u7684\u6575\u4EBA\u5F80\u5169\u683C\u4E4B\u5167\u4F4D\u79FB\uFF0C\u4E14\u6839\u64DA\u6258\u62FD\u6578\u91CF\u800C\u5B9A\uFF0C\u7ACB\u523B\u5728\u812B\u62FD\u7684\u4E2D\u5FC3\u6295\u5165\u82E5\u5E72\u9846\"\u8056\u4E09\u4E00\"\u7F88\u7D46\u7684\u7832\u64CA\u3002\r"
+  - "Passive: Always crits. Crit rate is converted to crit damage.\nActive: Snipes
+    single enemy: {data1} + {data2}% \xD7 {Attack} (Final: {Final}). On kill, explodes
+    in 1-tile AoE and chains infinitely.\nPulls enemies within 3 tiles to 2 tiles
+    if possible; depending on number pulled, calls in bombardments from \u201CTrinity\u201D
+    allies."
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

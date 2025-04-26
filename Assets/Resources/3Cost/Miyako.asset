@@ -59,10 +59,20 @@ MonoBehaviour:
   BarrageInitAngle: 0
   Tooltips:
   - "\u53EC\u559A\u7121\u4EBA\u6A5F\uFF0C\u671D\u7576\u524D\u76EE\u6A19\u79FB\u52D5\u4E26\u5728\u78B0\u5230\u7B2C\u4E00\u500B\u6575\u8ECD\u6642\u81EA\u7206\uFF0C\n\u9020\u6210
-    {data1} (\u6700\u7D42: {Final})\uFF0C\u55AE\u9AD4\u6688\u7729 {data5} \u79D2\uFF0C\u4E26\u524A\u6E1B\u8B77\u7532\u3002"
+    {data1} (\u6700\u7D42: {Final})\u50B7\u5BB3\uFF0C\u55AE\u9AD4\u6688\u7729 {data5}
+    \u79D2\uFF0C\u4E26\u524A\u6E1B\u8B77\u7532\u3002"
   - "Summons a drone that moves toward the current target and self-destructs upon
     hitting the first enemy, \ndealing {data1} (Final: {Final}), stunning for {data5}
     seconds, and reducing armor."
+  EnhancedSkillTooltips:
+  - "\u53EC\u559A\u7121\u4EBA\u6A5F\uFF0C\u671D\u7576\u524D\u76EE\u6A19\u79FB\u52D5\u4E26\u5728\u78B0\u5230\u7B2C\u4E00\u500B\u6575\u8ECD\u6642\u81EA\u7206\uFF0C\u5C0D\u65BC{data2}\u683C\u7BC4\u570D\u5167\u9020\u6210
+    {data1}+{data2}%*{Attack} (\u6700\u7D42: {Final})\u50B7\u5BB3,\u5C0D\u65BC\u7BC4\u570D\u5167\u6240\u6709\u6575\u4EBA\u6688\u7729
+    {data5} \u79D2\u3001\u524A\u6E1B\u8B77\u7532\u4E26\u9020\u6210\u50B7\u5BB3\uFF0C\u4F46\u662F\u50B7\u5BB3\u96A8\u8DDD\u96E2\u6E1B\u5C11"
+  - 'Summons drone that moves toward current target and explodes on first enemy hit.
+
+    Deals
+    {data1} (Final: {Final}) in {data2}-tile AoE, stuns for {data5} seconds, reduces
+    armor. Damage decreases with distance.'
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

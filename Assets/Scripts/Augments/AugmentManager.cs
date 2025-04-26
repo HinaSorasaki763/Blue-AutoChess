@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.TextCore.Text;
 
 public class AugmentManager : MonoBehaviour
 {
@@ -15,10 +16,12 @@ public class AugmentManager : MonoBehaviour
     private Augment[] currentAugments;             // 當前顯示的強化選項
 
     public Button refreshButton; // 新增的刷新按鈕
-
+    public List<int> DisableAugmentsIndex = new List<int>();
+    private Queue<int> recentAugments = new Queue<int>();
+    private Dictionary<int, int> augmentHistoryCount = new Dictionary<int, int>();
     private void OnEnable()
     {
-        allAugments = Resources.LoadAll<AugmentConfig>("Augments");
+        allAugments = Resources.LoadAll<AugmentConfig>("Augments/SkillAugments");
     }
 
     private void Start()
@@ -39,49 +42,85 @@ public class AugmentManager : MonoBehaviour
     // 隨機生成 3 個強化選項
     private void GenerateNewOptions()
     {
-        // 每次生成新選項時，重置 availableAugments
         availableAugments = new List<AugmentConfig>(allAugments);
-
+        availableAugments.RemoveAll(item => DisableAugmentsIndex.Contains(item.augmentIndex));
         if (availableAugments.Count < optionButtons.Length)
         {
-            Debug.LogWarning("可用的強化選項不足！");
+            CustomLogger.LogWarning(this, "可用的強化選項不足！");
             return;
         }
 
-        // 清理按鈕的監聽器和狀態
         for (int i = 0; i < optionButtons.Length; i++)
         {
             optionButtons[i].interactable = true;
             optionButtons[i].onClick.RemoveAllListeners();
         }
 
-        // 隨機選取新的強化選項
         List<int> selectedIndices = new List<int>();
         for (int i = 0; i < optionButtons.Length; i++)
         {
-            int randomIndex;
-            do
-            {
-                randomIndex = Random.Range(0, availableAugments.Count);
-            } while (selectedIndices.Contains(randomIndex)); // 確保同一組內無重複
+            int selectedIndex = GetWeightedRandomIndex(availableAugments, selectedIndices);
+            selectedIndices.Add(selectedIndex);
 
-            selectedIndices.Add(randomIndex);
-            AugmentConfig config = availableAugments[randomIndex];
-            currentAugments[i] = AugmentFactory.CreateAugment(config); // 創建 Augment 實例
+            var config = availableAugments[selectedIndex];
+            currentAugments[i] = AugmentFactory.CreateAugment(config);
             optionIcons[i].sprite = config.augmentIcon;
             optionDescriptions[i].text = config.description;
 
-            int index = i; // 防止閉包問題
+            recentAugments.Enqueue(config.augmentIndex);
+            if (recentAugments.Count > 10)
+            {
+                int removed = recentAugments.Dequeue();
+                augmentHistoryCount[removed]--;
+            }
+
+            if (!augmentHistoryCount.ContainsKey(config.augmentIndex))
+                augmentHistoryCount[config.augmentIndex] = 0;
+            augmentHistoryCount[config.augmentIndex]++;
+
+            int index = i;
             optionButtons[i].onClick.AddListener(() => SelectAugment(index));
         }
     }
 
-    // 選擇強化
+    private int GetWeightedRandomIndex(List<AugmentConfig> pool, List<int> alreadySelected)
+    {
+        List<float> weights = new List<float>();
+        float totalWeight = 0f;
+        for (int i = 0; i < pool.Count; i++)
+        {
+            if (alreadySelected.Contains(i))
+            {
+                weights.Add(0f);
+                continue;
+            }
+            int augmentIndex = pool[i].augmentIndex;
+            int seenCount = augmentHistoryCount.ContainsKey(augmentIndex) ? augmentHistoryCount[augmentIndex] : 0;
+            float weight = 1f / (1 + seenCount);
+            weights.Add(weight);
+            totalWeight += weight;
+        }
+
+        float randomValue = Random.Range(0f, totalWeight);
+        for (int i = 0; i < weights.Count; i++)
+        {
+            if (randomValue < weights[i])
+                return i;
+            randomValue -= weights[i];
+        }
+        return 0;
+    }
     private void SelectAugment(int index)
     {
         if (currentAugments[index] == null) return;
-        currentAugments[index].Apply();
-        Debug.Log($"選擇了強化：{currentAugments[index].Name}");
+        if (currentAugments[index].config.CharacterSkillEnhanceIndex!= -1)
+        {
+            ResourcePool.Instance.ally.AddEnhancedSkill(currentAugments[index].config.CharacterSkillEnhanceIndex);
+            SelectedAugments.Instance.AddAugment(currentAugments[index]);
+
+            currentAugments[index].Apply();
+            Debug.Log($"選擇了強化：{currentAugments[index].Name}");
+        }
         Parent.SetActive(false);
     }
 }

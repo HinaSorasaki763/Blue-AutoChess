@@ -36,8 +36,6 @@ public class TrailedBullet : MonoBehaviour
         HitLayer = hitLayer;
         Parent = parent;
         startPosition = transform.position;
-
-        // 初始化移動方向（忽略Y軸高度差的話，就固定自己的Y或直接帶入transform.position.y）
         Vector3 targetPosWithFixedY = new Vector3(targetPosition.x, transform.position.y, targetPosition.z);
         moveDirection = (targetPosWithFixedY - transform.position).normalized;
     }

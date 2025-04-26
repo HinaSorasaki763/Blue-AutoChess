@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\CustomThings\HideOnClickOutside.cs" />
+    <Compile Include="Assets\Scripts\UnitTest_.cs" />
     <Compile Include="Assets\Scripts\InCombat\costumBullet\HealPack.cs" />
     <Compile Include="Assets\Scripts\UI\RewardPopup.cs" />
     <Compile Include="Assets\Scripts\UI\OpponentSelectionUI.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="Assets\Scripts\GameEvent\GameEvent.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\ArisActiveSkill.cs" />
     <Compile Include="Assets\Scripts\Enemy\EnemyTraitRelated.cs" />
+    <Compile Include="Assets\Scripts\UI\EnemyWaveLoader.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\ObserverRelated\AriusManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\FearManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\GameController\PopupManager.cs" />
@@ -78,6 +80,9 @@
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\ShirokoActiveSkill.cs" />
     <Compile Include="Assets\Scripts\Character\CharacterAudioManager.cs" />
     <Compile Include="Assets\Scripts\UI\Battle_Number\TextEffectPool.cs" />
+    <Compile Include="Assets\Scripts\Character\SkillAnimationReplacer.cs" />
+    <Compile Include="Assets\Scripts\Enemy\EnemyWaveRuntimeEditor.cs" />
+    <Compile Include="Assets\Scripts\InCombat\Character\Skills\AtsukoDroneController.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\GehennaObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitData\TraitDescriptionData.cs" />
     <Compile Include="Assets\Scripts\Character\CustomAnimtorController.cs" />
@@ -126,17 +131,23 @@
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\SupermacyObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\GameController\EndBattleModal.cs" />
     <Compile Include="Assets\Scripts\UI\CharacterStatsModal.cs" />
+    <Compile Include="Assets\Scripts\Player\RewardCollecting.cs" />
     <Compile Include="Assets\Scripts\CustomThings\CustomEnum.cs" />
     <Compile Include="Assets\Scripts\Enemy\EnemyWave.cs" />
     <Compile Include="Assets\Scripts\InCombat\Shop\SellGrid.cs" />
     <Compile Include="Assets\Scripts\InCombat\GameController\MessagePopup.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\Aegis\WallFade.cs" />
+    <Compile Include="Assets\Scripts\UI\EffectCanvas.cs" />
     <Compile Include="Assets\Scripts\Enemy\EnemyWaveEditor.cs" />
     <Compile Include="Assets\Scripts\UI\StartMenuController.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\SumireActiveSkill.cs" />
+    <Compile Include="Assets\Scripts\Enemy\Editor_CharacterButton.cs" />
+    <Compile Include="Assets\Scripts\InCombat\Character\Skills\MineActiveSkill.cs" />
     <Compile Include="Assets\Scripts\Character\CharacterParent.cs" />
+    <Compile Include="Assets\Scripts\UI\SelectedAugments.cs" />
     <Compile Include="Assets\Scripts\DeveloperTool\DeveloperTool.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\Atsuko_Drone.cs" />
+    <Compile Include="Assets\Scripts\CustomThings\GoldRotate.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\ShizukoActiveSkill.cs" />
     <Compile Include="Assets\Scripts\InCombat\Bench\GridSlots.cs" />
     <Compile Include="Assets\Scripts\UI\References.cs" />
@@ -155,6 +166,7 @@
     <Compile Include="Assets\Scripts\UI\HandleObject.cs" />
     <Compile Include="Assets\Scripts\Player\Player.cs" />
     <Compile Include="Assets\Scripts\Augments\AugmentEventHandler.cs" />
+    <Compile Include="Assets\Scripts\Enemy\Editor_HexTile.cs" />
     <Compile Include="Assets\Scripts\UI\IReward.cs" />
     <Compile Include="Assets\Scripts\InCombat\Hexagon\IHexagon.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\TsurugiActiveSkill.cs" />
@@ -183,6 +195,7 @@
     <Compile Include="Assets\Scripts\UI\WarningPanel.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\ObserverRelated\PressureManager.cs" />
     <Compile Include="Assets\Scripts\UI\BugReportLogger.cs" />
+    <Compile Include="Assets\Scripts\InCombat\Character\Skills\HiyoriEnhancedSkill_EffectCounter.cs" />
     <Compile Include="Assets\Scripts\UI\UIManager.cs" />
     <Compile Include="Assets\Scripts\Augments\AugmentConfig.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\NeruActiveSkill.cs" />
@@ -196,6 +209,7 @@
     <Compile Include="Assets\Scripts\InCombat\Character\Equipment\EquipmentItemUI.cs" />
     <Compile Include="Assets\Scripts\UI\TraitsText.cs" />
     <Compile Include="Assets\Scripts\CustomThings\Shiroko_Terror_DroneCTRL.cs" />
+    <Compile Include="Assets\Scripts\UI\WaveButtonPrefab.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

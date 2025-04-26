@@ -63,8 +63,12 @@ MonoBehaviour:
   - "Summons a drone that attacks several times, \neach hit dealing {data1} + ({data2}%
     \xD7 ATK) (Final: {Final}).)."
   EnhancedSkillTooltips:
-  - 
-  - 
+  - "\u62DB\u559A\u4E00\u500B\u7121\u4EBA\u6A5F\uFF0C\u5C0D\u6575\u4EBA\u9032\u884C\u82E5\u5E72\u6B21\u653B\u64CA\uFF0C\n\u6BCF\u6B21\u9020\u6210
+    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\u3002\n\u7121\u4EBA\u6A5F\u73FE\u5728\u6703\u8CE6\u4E88\u767D\u5B50\u8B77\u76FE\uFF0C\u5728\u8B77\u76FE\u88AB\u7834\u58DE\u6642\uFF0C\u7121\u4EBA\u6A5F\u5931\u6548\uFF0C\u4E14\u671D\u9130\u8FD1\u6575\u4EBA\u9020\u6210\u4E00\u6B21\u7BC4\u570D\u50B7\u5BB3//\u5C1A\u672A\u5B8C\u6210"
+  - "Summons a drone that attacks enemies multiple times, each dealing: {data1} +
+    ({data2}% \xD7 Attack) (Final: {Final}).\nDrone gives Shiroko a shield. If shield
+    is broken, drone is destroyed and deals AoE damage to nearby enemies. //Partially
+    incomplete"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

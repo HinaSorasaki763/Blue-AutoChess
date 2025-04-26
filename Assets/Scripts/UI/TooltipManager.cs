@@ -52,7 +52,8 @@ public class TooltipManager : MonoBehaviour
 
             // 設定背景物件的寬度，維持高度不變
             bgRect.sizeDelta = new Vector2(newWidth, bgRect.sizeDelta.y);
-            tooltipRect.anchoredPosition = Caller.GetComponent<RectTransform>().anchoredPosition+new Vector2();
+            tooltipRect.anchoredPosition = new Vector2(750, -200);
+
         }
 
     }

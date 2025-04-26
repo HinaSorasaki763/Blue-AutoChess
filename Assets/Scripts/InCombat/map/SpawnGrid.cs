@@ -71,7 +71,7 @@ public class SpawnGrid : MonoBehaviour
             GameController.Instance.TryMoveCharacter(pair.Value, pair.Key);
             pair.Value.transform.position = pair.Key.transform.position +offset;
             pair.Value.gameObject.SetActive(true);
-            pair.Value.ResetStats();
+            pair.Value.RecalculateStats();
             pair.Key.Reserve(pair.Value);
             pair.Key.OccupyingCharacter = pair.Value;
         }
@@ -79,7 +79,7 @@ public class SpawnGrid : MonoBehaviour
         {
             Logistic1.transform.position = LogisticNode1.transform.position + offset;
             Logistic1.gameObject.SetActive(true);
-            Logistic1.ResetStats();
+            Logistic1.RecalculateStats();
             LogisticNode1.Reserve(Logistic1);
             LogisticNode1.OccupyingCharacter = Logistic1;
         }
@@ -87,7 +87,7 @@ public class SpawnGrid : MonoBehaviour
         {
             Logistic2.transform.position = LogisticNode2.transform.position + offset;
             Logistic2.gameObject.SetActive(true);
-            Logistic2.ResetStats();
+            Logistic2.RecalculateStats();
             LogisticNode2.Reserve(Logistic2);
             LogisticNode2.OccupyingCharacter = Logistic2;
         }
@@ -264,55 +264,74 @@ public class SpawnGrid : MonoBehaviour
         Debug.LogError($"No position found for GridIndex {index}");
         return Vector3.zero;
     }
-    public HexNode FindBestHexNode(CharacterCTRL character, int radius, bool findEnemies, bool requireEmpty, HexNode currHex, bool isLogistic = false)
+    public HexNode FindBestHexNode(
+        CharacterCTRL character,
+        int radius,
+        bool findEnemies,
+        bool requireEmpty,
+        HexNode currHex,
+        bool isLogistic = false
+    )
     {
-        HexNode bestHexNode = null;
-        int maxCount = int.MinValue;
-        List<HexNode> candidates = new List<HexNode>();
-
-        Debug.Log($"Starting FindBestHexNode for character {character.name}, radius: {radius}, findEnemies: {findEnemies}, requireEmpty: {requireEmpty}");
-
-        // 篩選符合條件的節點並找到最大鄰居數
+        // 儲存所有符合條件的節點中，擁有最多可攻擊或可支援角色數 (maxCount)
+        float maxCount = int.MinValue;
+        List<HexNode> occupiedCandidates = new List<HexNode>();
+        List<HexNode> emptyCandidates = new List<HexNode>();
+        CustomLogger.Log(this, $"Starting FindBestHexNode for character {character.name}, " +
+                               $"radius: {radius}, findEnemies: {findEnemies}, requireEmpty: {requireEmpty}");
         foreach (var node in hexNodes.Values)
         {
+            // 如果不是戰場格 或 (需要空格時，但該格被佔據)，就略過
             if (!node.IsBattlefield || (requireEmpty && node.OccupyingCharacter != null))
                 continue;
 
-            int count = GetCharactersWithinRadius(node, character.IsAlly, radius, findEnemies, character).Count;
-
+            float count = GetCharactersWithinRadius(node, character.IsAlly, radius, findEnemies, character).Item2;
+            CustomLogger.Log(this, $"node {node} = {count}");
             if (count > maxCount)
             {
                 maxCount = count;
             }
         }
+
+        // 找出符合 maxCount 的節點並分到佔據/空節點清單
         foreach (var node in hexNodes.Values)
         {
             if (!node.IsBattlefield || (requireEmpty && node.OccupyingCharacter != null))
                 continue;
 
-            int count = GetCharactersWithinRadius(node, character.IsAlly, radius, findEnemies, character).Count;
-
+            float count = GetCharactersWithinRadius(node, character.IsAlly, radius, findEnemies, character).Item2;
             if (count == maxCount)
             {
-                candidates.Add(node);
+                if (node.OccupyingCharacter != null)
+                    occupiedCandidates.Add(node);
+                else
+                    emptyCandidates.Add(node);
             }
         }
-        // 如果是後勤模式，直接返回找到的最佳節點
+
+        // 若只單純做 Logistic，不做更細的距離或比對
         if (isLogistic)
-            return candidates.FirstOrDefault();
-
-        // 比較當前格子與最佳候選節點
-        int currentNeighborsCount = GetCharactersWithinRadius(currHex, character.IsAlly, radius, findEnemies, character).Count;
-
+        {
+            // 若 requireEmpty == false，先回傳有角色的格子；否則只能回傳空格子
+            if (!requireEmpty && occupiedCandidates.Count > 0)
+                return occupiedCandidates.FirstOrDefault();
+            return emptyCandidates.FirstOrDefault();
+        }
+        float currentNeighborsCount = GetCharactersWithinRadius(currHex, character.IsAlly, radius, findEnemies, character).Item2;
         if (currentNeighborsCount >= maxCount)
         {
-            Debug.Log($"Current hex {currHex.name} has same or higher neighbor count as best candidates. Keeping current hex.");
+            CustomLogger.Log(this, $"maxCount = {maxCount}, currentNeighborsCount = {currentNeighborsCount}. " +
+                                   $"Current hex {currHex.name} has same or higher neighbor count as best candidates. Keeping current hex.");
             return currHex;
         }
-
-        // 從候選節點中選擇距離當前格子最近的
+        List<HexNode> finalCandidates;
+        if (!requireEmpty && occupiedCandidates.Count > 0)
+            finalCandidates = occupiedCandidates;
+        else
+            finalCandidates = emptyCandidates;
+        HexNode bestHexNode = null;
         int minDistance = int.MaxValue;
-        foreach (var node in candidates)
+        foreach (var node in finalCandidates)
         {
             int distance = Mathf.Abs(currHex.Index - node.Index);
             if (distance < minDistance)
@@ -322,35 +341,46 @@ public class SpawnGrid : MonoBehaviour
             }
         }
 
-        Debug.Log($"Best node selected: {bestHexNode.name}");
+        if (bestHexNode != null)
+        {
+            CustomLogger.Log(this, $"Best node selected: {bestHexNode.name}");
+        }
+        else
+        {
+            CustomLogger.LogWarning(this, "No best node found, returning current hex by default.");
+            bestHexNode = currHex;
+        }
+
         return bestHexNode;
     }
 
 
 
-    public List<CharacterCTRL> GetCharactersWithinRadius(HexNode centerNode, bool isAlly, int radius, bool findEnemies, CharacterCTRL character)
+
+    public (List<CharacterCTRL>, float) GetCharactersWithinRadius(HexNode centerNode, bool isAlly, int radius, bool findEnemies, CharacterCTRL character)
     {
-        int count = 0;
+        int characterCount = 0;
+        float weightSum = 0f;
         HashSet<HexNode> visited = new HashSet<HexNode> { centerNode };
         List<HexNode> currentLayer = new List<HexNode> { centerNode };
-        List<CharacterCTRL> c = new List<CharacterCTRL> { };
-        for (int i = 0; i < radius; i++)
+        List<CharacterCTRL> foundCharacters = new List<CharacterCTRL>();
+
+        for (int distance = 0; distance < radius; distance++)
         {
             List<HexNode> nextLayer = new List<HexNode>();
             foreach (HexNode node in currentLayer)
             {
-                // 檢查該格子是否有角色佔領
                 if (node.OccupyingCharacter != null)
                 {
                     bool isEnemy = node.OccupyingCharacter.IsAlly != isAlly;
-                    if (findEnemies == isEnemy && node.OccupyingCharacter != character && node.OccupyingCharacter.gameObject.activeInHierarchy&& !node.OccupyingCharacter.isObj)
+                    if (findEnemies == isEnemy && node.OccupyingCharacter != character && node.OccupyingCharacter.gameObject.activeInHierarchy)
                     {
-                        count++;
-                        c.Add(node.OccupyingCharacter);
+                        characterCount++;
+                        foundCharacters.Add(node.OccupyingCharacter);
+                        float weight = 1f / (distance + 1f);
+                        weightSum += weight;
                     }
                 }
-
-                // 遍歷該格子的鄰居，將未訪問過的加入下一層
                 foreach (HexNode neighbor in node.Neighbors)
                 {
                     if (!visited.Contains(neighbor))
@@ -362,8 +392,10 @@ public class SpawnGrid : MonoBehaviour
             }
             currentLayer = nextLayer;
         }
-        return c;
+
+        return (foundCharacters, weightSum);
     }
+
 
     public List<HexNode> GetHexNodesWithinRange(HexNode centerNode, int range)
     {

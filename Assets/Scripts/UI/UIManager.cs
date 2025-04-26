@@ -1,11 +1,10 @@
 using GameEnum;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Text;
-using Unity.VisualScripting;
 
 
 public class UIManager : MonoBehaviour
@@ -31,7 +30,7 @@ public class UIManager : MonoBehaviour
     public Image Sprite1, Sprite2, CompleteItemSprite;
     public TextMeshProUGUI CompleteItemText;
     public Button BugReportButton;
-    public TextMeshProUGUI Attack, Accuracy, Attackspeed, CritChance, CritDamage, Def, Dodge, Lifesteal, PercentageDef;
+    public TextMeshProUGUI Attack, Accuracy, Attackspeed, CritChance, CritDamage, Def, Dodge, Lifesteal, HealEffectiveness, PercentageDef;
     private void Awake()
     {
         if (Instance == null)
@@ -64,7 +63,7 @@ public class UIManager : MonoBehaviour
         EquipmentName.text = equipment.EquipmentName;
         EquipmentDetail.text = equipment.EquipmentDetail;
     }
-    public void ShowEquipmentPreComposing(IEquipment eq1,IEquipment eq2,IEquipment result)
+    public void ShowEquipmentPreComposing(IEquipment eq1, IEquipment eq2, IEquipment result)
     {
         EquipmentPreComposingModal.SetActive(true);
         EquipmentPreComposingModal.transform.position = Input.mousePosition;
@@ -100,7 +99,7 @@ public class UIManager : MonoBehaviour
         int level = character.star;
         int language = PlayerSettings.SelectedDropdownValue;
         var replacements = StringPlaceholderReplacer.BuildPlaceholderDictionary(character, level, language);
-        bool isEnhance = character.characterStats.TestEnhanceSkill;
+        bool isEnhance = GameController.Instance.CheckCharacterEnhance(character.characterStats.CharacterId, character);
         string rawTooltip;
         if (isEnhance)
         {
@@ -156,7 +155,7 @@ public class UIManager : MonoBehaviour
                 stringBuilder.AppendLine(item.EquipmentName);
             }
         }
-        CustomLogger.Log(this,stringBuilder.ToString());
+        CustomLogger.Log(this, stringBuilder.ToString());
         GUIUtility.systemCopyBuffer = stringBuilder.ToString();
     }
     public void ResumeTime()
@@ -171,7 +170,7 @@ public class UIManager : MonoBehaviour
     {
         // 根據 currentCharacter 更新彈窗中的數據
         characterNameText.text = currentCharacter.characterStats.CharacterName;
-        healthText.text = $"Health: {currentCharacter.GetStat(StatsType.currHealth)} / {currentCharacter.GetStat(StatsType.Health)}";
+        healthText.text = $"Health:{currentCharacter.GetStat(StatsType.currHealth)}/{currentCharacter.GetStat(StatsType.Health)}";
         shieldText.text = $"Shield: {currentCharacter.GetStat(StatsType.Shield)}";
         manaText.text = $"Mana: {currentCharacter.GetStat(StatsType.Mana)}";
         for (int i = 0; i < currentCharacter.equipmentManager.equippedItems.Count; i++)
@@ -200,7 +199,7 @@ public class UIManager : MonoBehaviour
     {
         Attack.text = currentCharacter.GetStat(StatsType.Attack).ToString();
         Accuracy.text = currentCharacter.GetStat(StatsType.Accuracy).ToString();
-        Attackspeed.text = currentCharacter.GetStat(StatsType.AttackSpeed).ToString();
+        Attackspeed.text = currentCharacter.GetStat(StatsType.AttackSpeed).ToString("F2");
         CritChance.text = currentCharacter.GetStat(StatsType.CritChance).ToString();
         CritDamage.text = currentCharacter.GetStat(StatsType.CritRatio).ToString();
         Def.text = currentCharacter.GetStat(StatsType.Resistence).ToString();
@@ -224,7 +223,7 @@ public static class StringPlaceholderReplacer
             // 若replacements裡有這個key，就替換；否則原樣返回
             if (replacements.TryGetValue(key, out string value))
             {
-                CustomLogger.Log(value,$"getting {key} key , returing {value } value");
+                CustomLogger.Log(value, $"getting {key} key , returing {value} value");
                 return value;
             }
             else
@@ -234,7 +233,7 @@ public static class StringPlaceholderReplacer
             }
         });
     }
-    public static Dictionary<string, string> BuildPlaceholderDictionary(CharacterCTRL character, int level,int language)
+    public static Dictionary<string, string> BuildPlaceholderDictionary(CharacterCTRL character, int level, int language)
     {
         StarLevelStats stats = character.ActiveSkill.GetCharacterLevel()[level];
         bool isChinese = (language == 0);
@@ -246,9 +245,13 @@ public static class StringPlaceholderReplacer
         {"data4", stats.Data4.ToString()},
         {"data5", stats.Data5.ToString("F1")},
         {"Attack", isChinese? $"攻擊力 ({character.GetStat(StatsType.Attack)})" : $"Atk({character.GetStat(StatsType.Attack)}) "},
-        {"Health", isChinese? $"攻擊力 ({character.GetStat(StatsType.Health)})" : $"Atk({character.GetStat(StatsType.Health)}) "},
+        {"Health", isChinese? $"生命 ({character.GetStat(StatsType.Health)})" : $"Health({character.GetStat(StatsType.Health)}) "},
         {"Final", character.ActiveSkill.GetAttackCoefficient(character.GetSkillContext()).ToString()},
-        {"Logistic",character.ActiveSkill.GetLogisticCoefficient(character.GetSkillContext()).ToString() }
+        {"Logistic",character.ActiveSkill.GetLogisticCoefficient(character.GetSkillContext()).ToString() },
+        {"SumireAddedHealth",GameController.Instance.SumireAddedHealth.ToString() },
+        {"AzusaAddedAttack",GameController.Instance.AzusaAddAttack.ToString() },
+        {"AkoAddedCrit",character.AkoAddedCrit.ToString() },
+        {"Pressure",isChinese? $"壓力 ({PressureManager.Instance.GetPressure(character.IsAlly)})" : $"pressure({PressureManager.Instance.GetPressure(character.IsAlly)}) " }
     };
     }
 

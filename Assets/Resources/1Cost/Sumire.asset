@@ -63,8 +63,11 @@ MonoBehaviour:
   - "Rolls to the best position, then fires once at her current target \nfor {data1}
     + ({data2}% \xD7 {Attack}) (Final: {Final})."
   EnhancedSkillTooltips:
-  - 
-  - 
+  - "\u7FFB\u6EFE\u5230\u6700\u4F73\u4F4D\u7F6E\uFF0C\u5C0D\u7576\u524D\u76EE\u6A19\u5C04\u64CA\u4E00\u6B21\uFF0C\n\u9020\u6210:
+    {data1} + ({data2}% \xD7 {Attack})+({data3}% \xD7{Health} ) (\u6700\u7D42: {Final})\u3002\n\u4E14\u6BCF\u65BD\u653E\u4E00\u6B21\u6280\u80FD\u5C31\u6703\u6C38\u4E45\u589E\u52A0\u6700\u5927\u751F\u547D\u503C\uFF0C\u81EA\u8EAB\u7684\u653B\u64CA\u529B\u96A8\u8457\u6700\u5927\u751F\u547D\u503C\u4E0A\u5347\u3002\n\u76EE\u524D\u589E\u52A0\u751F\u547D\u503C:{SumireAddedHealth}"
+  - "Rolls to optimal position and shoots current target, dealing: {data1} + ({data2}%
+    \xD7 {Attack}) (Final: {Final}). Each cast permanently increases max HP; attack
+    scales with max HP."
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

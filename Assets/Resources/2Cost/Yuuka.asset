@@ -66,8 +66,12 @@ MonoBehaviour:
     allies within {data1} tiles a shield equal to {data2} + ({data3}% of her max
     HP) (Final: {Final})."
   EnhancedSkillTooltips:
-  - 
-  - 
+  - "\u8DF3\u5230\u4E09\u683C\u5167\u6575\u4EBA\u6700\u591A\u7684\u683C\u5B50\uFF0C\u8A98\u5C0E\u4ED6\u5011\u66F4\u6539\u76EE\u6A19\u4E14\u9583\u907F\u503C\u4E0A\u5347\uFF0C\u4E26\u4E14\u6BCF\u4E00\u6B21\u7684\u9583\u907F\u90FD\u6703\u586B\u51451%\u6700\u5927\u9B54\u529B\u3002\u5C0D\u8A72\u683C\u5468\u570D
+    {data1} \u683C\u5167\u7684\u6575\u4EBA\u9020\u6210{data2} + ({data3}% \xD7 \u81EA\u8EAB\u6700\u5927\u751F\u547D)
+    (\u6700\u7D42: {Final})\u50B7\u5BB3\u3002"
+  - "Leaps to the tile with most enemies within 3 tiles, redirects their targeting,
+    and increases dodge. Each dodge restores 1% max MP.\nDeals {data2} + ({data3}%
+    \xD7 max HP) (Final: {Final}) to enemies within {data1} tiles of the target tile."
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

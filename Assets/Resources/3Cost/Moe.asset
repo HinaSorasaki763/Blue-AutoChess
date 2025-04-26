@@ -62,6 +62,12 @@ MonoBehaviour:
     (\u6700\u7D42: {Final}) \u7684\u6301\u7E8C\u50B7\u5BB3\uFF0C\n\u4E26\u5728\u8A72\u5340\u57DF\u7559\u4E0B\u4E00\u6BB5\u707C\u71D2\u6548\u679C\u3002"
   - "Deals {data1} + ({data2}% \xD7 ATK) (Final: {Final}) damage over time in a rectangular
     area,leaving a scorched effect."
+  EnhancedSkillTooltips:
+  - "\u5F8C\u52E4\u6548\u679C:\u707C\u71D2\u7576\u524D\u76EE\u6A19\u8173\u4E0B\u7684\u683C\u5B50(\u707C\u71D2\u50B7\u5BB3\u53EF\u4EE5\u7D2F\u52A0\u8A08\u7B97)\n\u4E3B\u52D5\u6280\u80FD:\u5C0D\u77E9\u5F62\u7BC4\u570D\u5167\u9020\u6210
+    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final}) \u7684\u6301\u7E8C\u50B7\u5BB3\uFF0C\u4E26\u5728\u8A72\u5340\u57DF\u7559\u4E0B\u4E00\u6BB5\u707C\u71D2\u6548\u679C\u3002"
+  - "Logistic:Burns the tile beneath the current target (burn damage stacks).\nActive:
+    Deals continuous damage to a rectangular area: {data1} + ({data2}% \xD7 Attack)
+    (Final: {Final}), and leaves burning ground."
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

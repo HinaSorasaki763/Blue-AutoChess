@@ -13,11 +13,12 @@ public class CharacterParent : MonoBehaviour
     public bool IsBattling = false;
     private List<GameObject> totems = new List<GameObject>();
     private Dictionary<CharacterCTRL, GameObject> logisticsDummies = new Dictionary<CharacterCTRL, GameObject>();
-
+    public HashSet<int> enhancedSkillCharacters = new HashSet<int>();
     public void Start()
     {
 
     }
+
     public void OnStartBattle()
     {
         IsBattling = true;
@@ -62,6 +63,10 @@ public class CharacterParent : MonoBehaviour
         }
 
         return uniqueCharacterIds.Count;
+    }
+    public void AddEnhancedSkill(int index)
+    {
+        enhancedSkillCharacters.Add(index);
     }
 
     public void CheckAndCombineCharacters()
@@ -180,7 +185,7 @@ public class CharacterParent : MonoBehaviour
         }
         mainCharacter.ExtraPernamentStats = extraList[0].Clone();
         mainCharacter.characterStats.ApplyLevelUp(mainCharacter.characterStats.Level + 1);
-        mainCharacter.ResetStats();
+        mainCharacter.RecalculateStats();
         mainCharacter.GetSkillContext();
         mainCharacter.AudioManager.PlayOnStarUp();
         CustomLogger.Log(this, $"{mainCharacter.name} 已升級至 {mainCharacter.star} 星");
@@ -257,7 +262,7 @@ public class CharacterParent : MonoBehaviour
 
         foreach (var item in childCharacters)
         {
-            if (item.activeInHierarchy && !item.GetComponent<CharacterCTRL>().CurrentHex.IsLogistics)
+            if (item.activeInHierarchy && !item.GetComponent<CharacterCTRL>().CurrentHex.IsLogistics&& !item.GetComponent<CharacterCTRL>().Undying)
             {
                 allDisabled = false;
                 break;
@@ -350,10 +355,8 @@ public class CharacterParent : MonoBehaviour
                     CharacterCTRL ctrl = obj.GetComponent<CharacterCTRL>();
                     StaticObject staticObj = obj.GetComponent<StaticObject>();
                     staticObj.parent = character;
-
                     ctrl.SetBarChild(bar);
                     ctrl.characterBars = bar;
-                    CustomLogger.Log(this, $"get bar to {obj.name},bar parent = {ctrl},child = {ctrl.characterBars}");
                     bar.SetBarsParent(obj.transform);
                     staticObj.RefreshDummy(character);
                     logisticsDummies[character] = obj;
@@ -453,6 +456,20 @@ public class CharacterParent : MonoBehaviour
         }
         return L;
     }
+    public int GetCount()
+    {
+        List<CharacterCTRL> battlefieldCharacters = new List<CharacterCTRL>();
+        foreach (var item in childCharacters)
+        {
+            if (!item.activeInHierarchy) continue;
+            CharacterCTRL character = item.GetComponent<CharacterCTRL>();
+            if (character.CurrentHex.IsBattlefield && !character.characterStats.logistics)
+            {
+                battlefieldCharacters.Add(character);
+            }
+        }
+        return battlefieldCharacters.Count;
+    }
     public List<CharacterCTRL> GetBattleFieldCharacter()
     {
 
@@ -461,7 +478,7 @@ public class CharacterParent : MonoBehaviour
         {
             if (!item.activeInHierarchy) continue;
             CharacterCTRL character = item.GetComponent<CharacterCTRL>();
-            if (character.CurrentHex.IsBattlefield && !character.isObj)
+            if (character.CurrentHex.IsBattlefield )
             {
                 battlefieldCharacters.Add(character);
             }

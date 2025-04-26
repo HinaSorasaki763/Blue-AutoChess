@@ -59,12 +59,15 @@ MonoBehaviour:
   BarrageInitAngle: 0
   Tooltips:
   - "\u671D\u8457\u7576\u524D\u751F\u547D\u503C\u6700\u4F4E\u7684\u6575\u4EBA\u9032\u884C\u72D9\u64CA\uFF0C\n\u9020\u6210:
-    {data1} + ({data2}% \xD7 {Attack}) +\u5A01\u58D3* {data3}% (\u6700\u7D42: {Final})\u3002"
+    {data1} + ({data2}% \xD7 {Attack}) +{Pressure}* {data3}% (\u6700\u7D42: {Final})\u3002"
   - "Snipes the enemy with the lowest current HP, dealing {data1} + ({data2}% \xD7
-    {Attack}) + Pressure*{data3} (Final: {Final})."
+    {Attack}) + {Pressure}*{data3} (Final: {Final})."
   EnhancedSkillTooltips:
-  - 
-  - 
+  - "\u5728\u76EE\u6A19\u534A\u5F91\u4E00\u683C\u7BC4\u570D\u5167\u9020\u6210\u7206\u70B8\uFF0C\u9020\u6210:
+    {data1} + ({data2}% \xD7 {Attack}) +{Pressure}* {data3}% (\u6700\u7D42: {Final}\u50B7\u5BB3\uFF0C\u6BCF\u65BD\u653E\u7B2C\u4E09\u6B21\uFF0C\u6539\u70BA\u5C0D\u4E09\u500B\u5340\u57DF\u9020\u6210\u7206\u70B8"
+  - "Explodes within 1 tile radius of the target, dealing: {data1} + ({data2}% \xD7
+    {Attack}) + {Pressure} * {data3}% (Final: {Final}). Every third cast changes
+    to explode in three areas."
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

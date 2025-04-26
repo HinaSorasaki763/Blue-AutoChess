@@ -78,12 +78,17 @@ public class GameStageManager : MonoBehaviour
         //TODO: 根據玩家選擇決定波次，目前PVE不需要
         /*EnemySpawner.Instance.SelectRandomEnemyWaves();
         opponentSelectionUI.Show(EnemySpawner.Instance.selectedEnemyWaves);*/
+        GameController.Instance.SerinaEnhancedSkill_CritCount = 0;
         PVE_EnemySpawner.Instance.SpawnEnemiesNextStage();
         opponentSelectionUI.Hide();
         StartCoroutine(StartBattleCorutine());
         EndBattleModal.Instance.lastPressure = PressureManager.Instance.GetPressure(true);
         EndBattleModal.Instance.lastData = DataStackManager.Instance.GetData();
         SpawnGrid.Instance.SavePreparationPositions();
+    }
+    public void StartBattleWithoutSpawnEnemy()
+    {
+        StartCoroutine(StartBattleCorutine());
     }
     public void SimulateAdvanceRound()
     {
@@ -256,12 +261,12 @@ public class GameStageManager : MonoBehaviour
                 foreach (var item in Utility.GetAllBattlingCharacter(ResourcePool.Instance.ally))
                 {
                     Effect effect = EffectFactory.OverTimeEffect();
-                    item.effectCTRL.AddEffect(effect);
+                    item.effectCTRL.AddEffect(effect, item);
                 }
                 foreach (var item in Utility.GetAllBattlingCharacter(ResourcePool.Instance.enemy))
                 {
                     Effect effect = EffectFactory.OverTimeEffect();
-                    item.effectCTRL.AddEffect(effect);
+                    item.effectCTRL.AddEffect(effect, item);
                 }
             }
         }

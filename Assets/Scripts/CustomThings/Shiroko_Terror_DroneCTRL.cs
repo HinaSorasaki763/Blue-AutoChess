@@ -20,12 +20,12 @@ public class Shiroko_Terror_DroneCTRL : MonoBehaviour
         Parent = parent;
         Animator.SetBool(attacking, true);
 
-        Animator.speed = parent.GetStat(GameEnum.StatsType.AttackSpeed);
+        Animator.speed = parent.GetStat(StatsType.AttackSpeed);
         Vector3 v = target.transform.position;
         transform.LookAt(v);
-        int dmg = (int)parent.GetStat(GameEnum.StatsType.Attack)*stack;
+        int dmg = (int)parent.GetStat(StatsType.Attack)*stack;
         (bool, int) tuple = parent.CalculateCrit(dmg);
-        if (GameController.Instance.GetEnhanchedCharacterIndex(parent.IsAlly) == 22)
+        if (GameController.Instance.CheckCharacterEnhance(22, parent.IsAlly))
         {
             enhanced_stack++;
             if (enhanced_stack >= 3)

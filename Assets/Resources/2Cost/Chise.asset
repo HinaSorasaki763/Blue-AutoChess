@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CharacterName: Chise
   CharacterId: 14
-  Level: 2
+  Level: 4
   Sprite: {fileID: 21300000, guid: 8f07945072e4de5459ce7476fa78e244, type: 3}
   Model: {fileID: 8831952233120978722, guid: 8b60e3aa906f3f74db9b8adda0aa42f2, type: 3}
   logistics: 0
@@ -58,14 +58,18 @@ MonoBehaviour:
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
-  - "\u5C0D\u7BC4\u570D\u5167\u7684\u683C\u5B50\u7051\u6BD2\uFF0C\u5728 {data5} \u79D2\u5167\u5C0D\u5176\u4E0A\u7684\u6575\u4EBA\u6301\u7E8C\u9020\u6210\u50B7\u5BB3\uFF0C\n\u7E3D\u8A08\u7D04\u70BA
+  - "\u5C0D\u7BC4\u570D\u5167\u7684\u683C\u5B50\u7051\u6BD2\uFF0C\u5728 {data5} \u79D2\u5167\u5C0D\u5176\u4E0A\u7684\u6575\u4EBA\u6301\u7E8C\u9020\u6210\u50B7\u5BB3\uFF0C\n\u7E3D\u8A08\u70BA
     {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\u3002"
   - "Scatters poison over tiles in an area for {data5} seconds, \ndealing a total
     of {data1} + ({data2}% \xD7 ATK) (Final: {Final}) \nover time to enemies on those
     tiles."
   EnhancedSkillTooltips:
-  - 
-  - 
+  - "\u5C0D\u7BC4\u570D\u5167\u7684\u683C\u5B50\u7051\u6BD2\uFF0C\u5728 {data5} \u79D2\u5167\u5C0D\u5176\u4E0A\u7684\u6575\u4EBA\u6301\u7E8C\u9020\u6210\u50B7\u5BB3\uFF0C\n\u7E3D\u8A08\u70BA
+    {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\u3002\n\u9084\u6703\u964D\u4F4E\u653B\u64CA\u901F\u5EA6{data4}%\uFF0C\u60E1\u5BD2\u671F\u9593\uFF0C\u540C\u5C6C\"\u767E\u9B3C\u591C\u884C\"\u4E4B\u5B78\u751F\u6703\u76E1\u53EF\u80FD\u5730\u653B\u64CA\u7BC4\u570D\u5167\u53EF\u653B\u64CA\u7684\u60E1\u5BD2\u6575\u5C0D\u5B78\u751F"
+  - "Poisons tiles in an area, dealing continuous damage over {data5} seconds to
+    enemies on them,\ntotal damage: {data1} + ({data2}% \xD7 {Attack}) (Final: {Final}).\nAlso
+    reduces their attack speed. During the \u201CChill\u201D effect, fellow \u201CHyakki
+    Yakou\u201D students will prioritize attacking chilled enemies in range."
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

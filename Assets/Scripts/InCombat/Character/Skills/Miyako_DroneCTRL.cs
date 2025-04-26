@@ -1,5 +1,7 @@
 ﻿using GameEnum;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Miyako_DroneCTRL : MonoBehaviour
@@ -122,22 +124,65 @@ public class Miyako_DroneCTRL : MonoBehaviour
             yield return null;
         }
         CustomLogger.Log(this, "Frame51：抵達敵人高度，即將爆炸");
-
-        if (parent.Target != null) // 再次檢查目標是否仍存在
+        int finalDmg = 0;
+        bool finalIscrit = false;
+        if (GameController.Instance.CheckCharacterEnhance(35, parent.IsAlly))
         {
-            int dmg = parent.ActiveSkill.GetAttackCoefficient(parent.GetSkillContext());
-            (bool iscrit, int dmg1) = parent.CalculateCrit(dmg);
-            parent.Target.GetComponent<CharacterCTRL>().GetHit(dmg1, parent, DamageSourceType.Skill.ToString(), iscrit);
-            StarLevelStats stats = parent.ActiveSkill.GetCharacterLevel()[parent.star];
-            Effect effect = EffectFactory.CreateStunEffect(stats.Data3, parent);
-            Effect effect1 = EffectFactory.StatckableStatsEffct(5, "Miyako_Skill", -20, StatsType.Resistence, parent, false);
-            effect1.SetActions(
-                (character) => character.ModifyStats(StatsType.Resistence, effect1.Value, effect1.Source),
-                (character) => character.ModifyStats(StatsType.Resistence, -effect1.Value, effect1.Source)
-            );
-            parent.Target.GetComponent<CharacterCTRL>().effectCTRL.AddEffect(effect);
-            parent.Target.GetComponent<CharacterCTRL>().effectCTRL.AddEffect(effect1);
+            HexNode centerNode = parent.Target.GetComponent<CharacterCTRL>().CurrentHex;
+            List<HexNode> firstRingNodes = centerNode.Neighbors;
+            List<HexNode> secondRingNodes = firstRingNodes
+                .SelectMany(node => node.Neighbors)
+                .Where(node => !firstRingNodes.Contains(node) && node != centerNode)
+                .Distinct()
+                .ToList();
+            foreach (var item in Utility.GetCharacterInSet(firstRingNodes, parent, false))
+            {
+                StarLevelStats s = parent.ActiveSkill.GetCharacterLevel()[parent.star];
+                Effect e = EffectFactory.CreateStunEffect(s.Data3, parent);
+                Effect e1 = EffectFactory.StatckableStatsEffct(5, "Miyako_Skill", -20, StatsType.Resistence, parent, false);
+                e1.SetActions(
+                    (character) => character.ModifyStats(StatsType.Resistence, e1.Value, e1.Source),
+                    (character) => character.ModifyStats(StatsType.Resistence, -e1.Value, e1.Source)
+                );
+                item.effectCTRL.AddEffect(e,item);
+                item.effectCTRL.AddEffect(e1,item);
+                int dmg = parent.ActiveSkill.GetAttackCoefficient(parent.GetSkillContext());
+                (bool iscrit, int dmg1) = parent.CalculateCrit(dmg);
+                finalDmg = dmg1;
+                finalIscrit = iscrit;
+                item.GetHit((int)(dmg1*0.8f),parent,"MiyakoEnhancedSkill",iscrit);
+            }
+            foreach (var item in Utility.GetCharacterInSet(secondRingNodes, parent, false))
+            {
+                StarLevelStats s = parent.ActiveSkill.GetCharacterLevel()[parent.star];
+                Effect e = EffectFactory.CreateStunEffect(s.Data3, parent);
+                Effect e1 = EffectFactory.StatckableStatsEffct(5, "Miyako_Skill", -20, StatsType.Resistence, parent, false);
+                e1.SetActions(
+                    (character) => character.ModifyStats(StatsType.Resistence, e1.Value, e1.Source),
+                    (character) => character.ModifyStats(StatsType.Resistence, -e1.Value, e1.Source)
+                );
+                item.effectCTRL.AddEffect(e,item);
+                item.effectCTRL.AddEffect(e1,item);
+                int dmg = parent.ActiveSkill.GetAttackCoefficient(parent.GetSkillContext());
+                (bool iscrit, int dmg1) = parent.CalculateCrit(dmg);
+                finalDmg = dmg1;
+                finalIscrit = iscrit;
+                item.GetHit((int)(dmg1 * 0.64f), parent, "MiyakoEnhancedSkill", iscrit);
+            }
         }
+
+        parent.Target.GetComponent<CharacterCTRL>().GetHit(finalDmg, parent, DamageSourceType.Skill.ToString(), finalIscrit);
+        StarLevelStats stats = parent.ActiveSkill.GetCharacterLevel()[parent.star];
+        Effect effect = EffectFactory.CreateStunEffect(stats.Data3, parent);
+        Effect effect1 = EffectFactory.StatckableStatsEffct(5, "Miyako_Skill", -20, StatsType.Resistence, parent, false);
+        effect1.SetActions(
+            (character) => character.ModifyStats(StatsType.Resistence, effect1.Value, effect1.Source),
+            (character) => character.ModifyStats(StatsType.Resistence, -effect1.Value, effect1.Source)
+        );
+        CharacterCTRL c = parent.Target.GetComponent<CharacterCTRL>();
+        c.effectCTRL.AddEffect(effect,c);
+        c.effectCTRL.AddEffect(effect1,c);
+
         DroneRef.SetActive(false);
     }
 }

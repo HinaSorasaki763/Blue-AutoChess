@@ -62,6 +62,14 @@ MonoBehaviour:
     {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\uFF0C\u4E26\u7372\u5F97\u9AD8\u984D\u5438\u8840\u3002"
   - "For the next {data3} basic attacks, they become AoE, \ndealing {data1} + ({data2}%
     \xD7 ATK) (Final: {Final}), and granting high lifesteal."
+  EnhancedSkillTooltips:
+  - "\u88AB\u52D5:\u7372\u5F97100%\u5438\u8840\uFF0C\u6B64\u89D2\u8272\u5C0D\u65BC\u8D85\u904E100%\u7684\u5438\u8840\u6536\u76CA\u5C07\u6703\u88AB\u8F49\u5316\u70BA\u76F8\u61C9%\u6578\u7684\u50B7\u5BB3\u589E\u5E45\u3002\n\u6BCF\u56DE\u5408\u7B2C\u4E00\u6B21\u5C07\u8981\u6B7B\u4EA1\u6642\uFF0C\u6062\u5FA950%\u6700\u5927\u751F\u547D\u503C\u7684\u8840\u91CF\uFF0C\u4E26\u4E14\u7121\u6575\u4E00\u79D2\n\u4E3B\u52D5:\u5C07\u63A5\u4E0B\u4F86
+    {data3} \u6B21\u666E\u901A\u653B\u64CA\u66FF\u63DB\u70BA\u7BC4\u570D\u50B7\u5BB3\uFF0C\n\u9020\u6210
+    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\uFF0C\u4E26\u4E14\u7372\u5F97\u9AD8\u984D\u5438\u8840"
+  - "Gains 100% lifesteal. Excess lifesteal converts into bonus damage. First death
+    per turn restores 50% HP and grants 1s invincibility.\nActive: Replaces next
+    {data3} normal attacks with AoE: {data1} + ({data2}% \xD7 Attack) (Final: {Final}),
+    with high lifesteal."
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

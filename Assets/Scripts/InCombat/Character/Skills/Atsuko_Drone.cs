@@ -48,7 +48,7 @@ public class Atsuko_Drone : MonoBehaviour
             {
                 LastedTime = 0;
                 counter = 0;
-                DroneAnimator.SetBool("Exit", true);
+                SetAnimatorClip(AnimatorType.Exit);
                 isCasting = false;
             }
         }
@@ -83,6 +83,16 @@ public class Atsuko_Drone : MonoBehaviour
         int healAmount = characterCTRL.ActiveSkill.GetAttackCoefficient(characterCTRL.GetSkillContext());
         foreach (var target in characters)
         {
+            CustomLogger.Log(this, "Heal Target: " + target.name);
+            if (GameController.Instance.CheckCharacterEnhance(12, characterCTRL.IsAlly))
+            {
+                int amount = (int)(characterCTRL.GetStat(StatsType.DodgeChance) * 0.0025f);//25%
+                Effect effect = EffectFactory.UnStatckableStatsEffct(1.5f, "AtsukoEnhancedSkill", amount, StatsType.DodgeChance, characterCTRL, false);
+                effect.SetActions(
+                    (character) => character.ModifyStats(StatsType.DodgeChance, effect.Value, effect.Source),
+                    (character) => character.ModifyStats(StatsType.DodgeChance, -effect.Value, effect.Source)
+                );
+            }
             target.Heal(healAmount, characterCTRL);
         }
     }
@@ -92,11 +102,13 @@ public class Atsuko_Drone : MonoBehaviour
         isCasting = true;
         if (LastedTime > 0)
         {
+            DroneRef.SetActive(true);
             LastedTime += time;
             DroneAnimator.SetBool("Idle", true);
         }
         else
         {
+            DroneRef.SetActive(true);
             LastedTime = time;
             DroneAnimator.SetBool("Appear", true);
         }

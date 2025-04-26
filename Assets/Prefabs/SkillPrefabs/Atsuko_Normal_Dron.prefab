@@ -289,6 +289,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9181574953680771967}
   - component: {fileID: 4599575534115144811}
+  - component: {fileID: 5626264588996335151}
   m_Layer: 0
   m_Name: Atsuko_Normal_Dron
   m_TagString: Untagged
@@ -334,6 +335,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &5626264588996335151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4091513671584769906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c77b5dcd4914ff04b94316809089dc25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4393172194021663083
 GameObject:
   m_ObjectHideFlags: 0

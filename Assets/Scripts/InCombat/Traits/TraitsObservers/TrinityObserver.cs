@@ -16,7 +16,7 @@ public class TrinityObserver : CharacterObserverBase
     {
         Dictionary<int, TraitLevelStats> statsByStarLevel = new Dictionary<int, TraitLevelStats>()
         {
-            {0, new TraitLevelStats(0,0,0)},
+            {0, new TraitLevelStats(300,0,30)},
             {1, new TraitLevelStats(300,5,30)},
             {2, new TraitLevelStats(500,10,40)},
             {3, new TraitLevelStats(1000,15,50)}

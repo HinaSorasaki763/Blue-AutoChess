@@ -63,6 +63,14 @@ MonoBehaviour:
   - "Attacks the current target with multiple rapid hits, \neach dealing {data1}
     + ({data2}% \xD7 ATK) (Final: {Final}), \ntriggering on-hit effects multiple
     times."
+  EnhancedSkillTooltips:
+  - "\u5C0D\u7576\u524D\u76EE\u6A19\u767C\u52D5\u591A\u6BB5\u653B\u64CA\uFF0C\u6BCF\u7576\u547D\u4E2D\u6642\uFF0C\u5728\u672C\u56DE\u5408\u589E\u52A0\u653B\u64CA\u529B\u3002\n\u6BCF\u6BB5\u9020\u6210
+    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\uFF0C\n\u53EF\u89F8\u767C\u591A\u6B21\u547D\u4E2D\u6548\u679C\u3002\n\u6BCF\u4E00\u6BB5\u9084\u6703\u5F48\u5C04\u5230\u9130\u8FD1\u6575\u4EBA\u4E00\u6B21(\u76E1\u53EF\u80FD\u5F48\u5C04\u5230\u4E0D\u540C\u6575\u4EBA)\uFF0C\u9020\u6210{data3}%\u7684\u539F\u59CB\u50B7\u5BB3\uFF0C\u4F46\u89F8\u767C\u5168\u984D\u547D\u4E2D\u6548\u679C\uFF0C\u82E5\u7121\u5176\u9918\u6575\u4EBA\u5247\u5C0D\u65BC\u540C\u4E00\u4EBA\u7D50\u7B97\u3002//\u5C1A\u672A\u5B8C\u6210"
+  - "Multi-hit attack on current target. Each hit increases Attack this turn.\nEach
+    hit deals: {data1} + ({data2}% \xD7 Attack) (Final: {Final}).\nEach hit bounces
+    once to nearby enemies (prioritizing different ones), dealing {data3}% of base
+    damage but full on-hit effect. If no other enemies, hits same target again. //Not
+    fully complete"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

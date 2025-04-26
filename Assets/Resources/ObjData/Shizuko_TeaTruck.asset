@@ -23,7 +23,7 @@ MonoBehaviour:
     - statType: 0
       value: 1000
     - statType: 1
-      value: 0
+      value: 1000
     - statType: 2
       value: 0
     - statType: 3
@@ -54,8 +54,17 @@ MonoBehaviour:
       value: 0
     - statType: 16
       value: 0
+  Health: 000000000000000000000000
+  Attack: 000000000000000000000000
   Traits: 
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
-  skillTooltip: 
+  Tooltips:
+  - null
+  - null
+  EnhancedSkillTooltips:
+  - null
+  - null
   isObj: 1
+  TestEnhanceSkill: 0
+  TestBuildInvinvicble: 0

@@ -56,12 +56,12 @@ public class BarrageObserver : CharacterObserverBase
             if (skillID == 7)
             {
                 float animationTime = character.customAnimator.GetAnimationClipInfo(15).Item2;
-                coroutineController.SetNextSkill(this, animationTime, 0.1f, bestAngle, GetAngle());
+                coroutineController.SetNextSkill(this, animationTime, 0.1f, bestAngle, GetAngle(),false);
                 return;
             }
         }
         float time = character.customAnimator.GetAnimationClipInfo(7).Item2;
-        coroutineController.SetNextSkill(this, time, 0.1f, bestAngle, GetAngle());
+        coroutineController.SetNextSkill(this, time, 0.1f, bestAngle, GetAngle(), character.ActiveSkill.Barrage_penetrate());
         CastTimes++;
     }
     public float GetAngle()
@@ -165,12 +165,16 @@ public class BarrageObserver : CharacterObserverBase
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, Character.FirePoint.position, Quaternion.identity);
         dmg = Character.ActiveSkill.GetAttackCoefficient(Character.GetSkillContext());
         List<HitEffect> l = new List<HitEffect>();
-        if (GameController.Instance.GetEnhanchedCharacterIndex(Character.IsAlly) == 21 && Character.characterStats.CharacterId == 21)
+        if (GameController.Instance.CheckCharacterEnhance(21, Character.IsAlly))
         {
              l.Add(new NonomiSkillEffect());
         }
+        if (GameController.Instance.CheckCharacterEnhance(25, Character.IsAlly))
+        {
+            l.Add(new HinaSkillEffect());
+        }
         (bool iscrit, int dmg1) = Character.CalculateCrit(dmg);
-        bullet.GetComponent<NormalBullet>().Initialize(dmg1, Character.GetTargetLayer(), Character, 15f, Character.GetTarget(), false, iscrit, l, 20, true, targetPosition);
+        bullet.GetComponent<NormalBullet>().Initialize(dmg1, Character.GetTargetLayer(), Character, 15f, Character.GetTarget(), true, iscrit, l, 20, true, targetPosition);
     }
 
 }

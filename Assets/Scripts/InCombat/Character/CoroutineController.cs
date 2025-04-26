@@ -1,4 +1,6 @@
+using GameEnum;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CoroutineController : MonoBehaviour
@@ -10,6 +12,7 @@ public class CoroutineController : MonoBehaviour
     private float bestAngle;
     private float fireAngle;
     private Coroutine shootingCoroutine;
+    private bool penetrate; 
     public void OnEnable()
     {
         parent = gameObject.GetComponent<CharacterCTRL>();
@@ -31,13 +34,15 @@ public class CoroutineController : MonoBehaviour
             shootingCoroutine = null;
         }
     }
-    public void SetNextSkill(BarrageObserver observer, float duration, float interval, float angle, float fireAngle)
+    public void SetNextSkill(BarrageObserver observer, float duration, float interval, float angle, float fireAngle,bool penetrate)
     {
         currentObserver = observer;
         skillDuration = duration;
         skillInterval = interval;
         bestAngle = angle;
         this.fireAngle = fireAngle;
+
+        this.penetrate = penetrate;
     }
 
     // 透過動畫事件觸發的公開方法
@@ -53,6 +58,25 @@ public class CoroutineController : MonoBehaviour
         else
         {
             Debug.LogWarning("No skill set for shooting. Please call SetNextSkill first.");
+        }
+    }
+    public void StartHiyoriShooting(CharacterCTRL parent, int dmg, CharacterCTRL target)
+    {
+        StartCoroutine(HiyoriShooting(parent, parent.ActiveSkill.GetCharacterLevel()[parent.star].Data1, target));
+    }
+    private IEnumerator HiyoriShooting(CharacterCTRL parent,int dmg,CharacterCTRL target)
+    {
+
+        for (int i = 0; i < 5; i++)
+        {
+            float interval = 0.2f;
+            var bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, parent.FirePoint.position, Quaternion.identity);
+            Vector3 v = target.transform.position + (target.transform.position - parent.transform.position).normalized * 10;
+            var bulletComponent = bullet.GetComponent<NormalBullet>();
+            (bool iscrit, int dmg1) = parent.CalculateCrit(dmg);
+            List<HitEffect> hitEffects = new List<HitEffect>() { new HiyoriSkillEffect()};
+            bulletComponent.Initialize(dmg1, parent.GetTargetLayer(), parent, 20, target.gameObject, true, iscrit, hitEffects, 20, true, v,false,"HiyoriSkill");
+            yield return new WaitForSeconds(interval);
         }
     }
 

@@ -16,7 +16,7 @@ public class AriusObserver : CharacterObserverBase
     public override void ActivateTrait()
     {
         Effect effect = EffectFactory.CreateAriusEffect();
-        parent.effectCTRL.AddEffect(effect);
+        parent.effectCTRL.AddEffect(effect,parent);
         isactive = true;
         AriusManager.Instance.GetSelector();
     }
@@ -37,7 +37,7 @@ public class AriusObserver : CharacterObserverBase
         };
         return statsByStarLevel;
     }
-    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource)
+    public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource, bool recursion = true)
     {
         CustomLogger.Log(this, $"GetHit invoked. Character: {character.name}, Source: {source.name}, Amount: {amount}, IsCrit: {isCrit}, Detail: {detailedSource}");
 
