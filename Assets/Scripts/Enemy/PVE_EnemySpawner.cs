@@ -31,9 +31,11 @@ public class PVE_EnemySpawner : MonoBehaviour
         CustomLogger.Log(this, "PVE_EnemySpawner SpawnEnemiesNextStage");
         foreach (var item in enemyParent.childCharacters)
         {
-            Destroy(item.GetComponent<CharacterCTRL>().characterBars);
+            item.GetComponent<CharacterCTRL>().characterBars.ResetBars();
+            item.GetComponent<CharacterCTRL>().characterBars.gameObject.SetActive(false);
             Destroy(item);
         }
+        enemyParent.childCharacters.Clear();
         List<string> characterNames = new List<string>();
         List<string> hexnodexNames = new List<string>();
         foreach (var slot in enemyWaves[GameStageManager.Instance.currentRound].gridSlots)

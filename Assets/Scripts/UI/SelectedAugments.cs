@@ -1,8 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using TMPro.EditorUtilities;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -48,6 +45,8 @@ public class SelectedAugments : MonoBehaviour
     public void ShowAugment(int index)
     {
         panels[index].SetActive(true);
-        descriptions[index].text = selectedAugments[index].Description;
+        int language = PlayerSettings.SelectedDropdownValue;
+        string description = language == 0 ? selectedAugments[index].Description : selectedAugments[index].DescriptionEnglish;
+        descriptions[index].text = description;
     }
 }

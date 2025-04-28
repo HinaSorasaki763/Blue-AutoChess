@@ -58,16 +58,18 @@ MonoBehaviour:
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
-  - "\u5C0D\u77E9\u5F62\u7BC4\u570D\u5167\u9020\u6210 {data1} + ({data2}% \xD7 \u653B\u64CA\u529B)
-    (\u6700\u7D42: {Final}) \u7684\u6301\u7E8C\u50B7\u5BB3\uFF0C\n\u4E26\u5728\u8A72\u5340\u57DF\u7559\u4E0B\u4E00\u6BB5\u707C\u71D2\u6548\u679C\u3002"
-  - "Deals {data1} + ({data2}% \xD7 ATK) (Final: {Final}) damage over time in a rectangular
-    area,leaving a scorched effect."
+  - "\u5F8C\u52E4\u6548\u679C:\u840C(Moe)\u6E1B\u5C11\u7576\u524D\u76EE\u6A195\u9EDE\u9632\u79A6\n\u4E3B\u52D5\u6280\u80FD:\u707C\u71D2\u77E9\u5F62\u7BC4\u570D\uFF0C\u6BCF0.5\u79D2\u9020\u6210{data1}
+    + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\u50B7\u5BB3\uFF0C \u6301\u7E8C5\u79D2\u3002"
+  - "Logistics Effect: Moe reduces the current target's Defense by 5.\r\n\r\nActive
+    Skill: Burns a rectangular area, dealing {data1} + ({data2}% \xD7 {Attack}) damage
+    (Final: {Final}) every 0.5 seconds, \r\nlasting for 5 seconds.\r\n"
   EnhancedSkillTooltips:
-  - "\u5F8C\u52E4\u6548\u679C:\u707C\u71D2\u7576\u524D\u76EE\u6A19\u8173\u4E0B\u7684\u683C\u5B50(\u707C\u71D2\u50B7\u5BB3\u53EF\u4EE5\u7D2F\u52A0\u8A08\u7B97)\n\u4E3B\u52D5\u6280\u80FD:\u5C0D\u77E9\u5F62\u7BC4\u570D\u5167\u9020\u6210
-    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final}) \u7684\u6301\u7E8C\u50B7\u5BB3\uFF0C\u4E26\u5728\u8A72\u5340\u57DF\u7559\u4E0B\u4E00\u6BB5\u707C\u71D2\u6548\u679C\u3002"
-  - "Logistic:Burns the tile beneath the current target (burn damage stacks).\nActive:
-    Deals continuous damage to a rectangular area: {data1} + ({data2}% \xD7 Attack)
-    (Final: {Final}), and leaves burning ground."
+  - "\u5F8C\u52E4\u6548\u679C:\u840C(Moe)\u707C\u71D2\u7576\u524D\u76EE\u6A19\u8173\u4E0B\u7684\u683C\u5B50\uFF0C\u6BCF0.5\u79D2\u9020\u6210{Attack}\u50B7\u5BB3(\u707C\u71D2\u50B7\u5BB3\u53EF\u4EE5\u7D2F\u52A0\u8A08\u7B97)\n\u4E3B\u52D5\u6280\u80FD:\u707C\u71D2\u77E9\u5F62\u7BC4\u570D\uFF0C\u6BCF0.5\u79D2\u9020\u6210{data1}
+    + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final}) \u50B7\u5BB3\uFF0C\u6301\u7E8C5\u79D2\u3002"
+  - "Logistics Effect: Moe scorches the tile beneath the current target, dealing
+    {Attack} damage every 0.5 seconds \r\n(burn damage can stack).\r\n\r\nActive
+    Skill: Burns a rectangular area, dealing {data1} + ({data2}% \xD7 {Attack}) damage
+    (Final: {Final}) every 0.5 seconds, \r\nlasting for 5 seconds.\r\n"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

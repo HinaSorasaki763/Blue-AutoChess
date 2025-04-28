@@ -60,15 +60,15 @@ MonoBehaviour:
   Tooltips:
   - "\u6C92\u6709\u4E3B\u52D5\u6280\u80FD\uFF0C\n\u7B2C\u516D\u6B21\u666E\u901A\u653B\u64CA\u6539\u70BA\u5C0D\u5713\u5F62\u7BC4\u570D\u5167\u6575\u4EBA\u9020\u6210
     {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\u3002"
-  - "Has no active skill. Instead, her sixth basic attack deals \n{data1} + ({data2}%
-    \xD7 ATK) (Final: {Final}) in a circular area."
+  - "Izuna has no active skill. Every sixth normal attack deals {data1} + ({data2}%
+    \xD7 Attack) damage (Final: {Final}) to enemies within a circular area.\r\n"
   EnhancedSkillTooltips:
   - "\u7B2C\u516D\u6B21\u666E\u901A\u653B\u64CA\u6539\u70BA\u5C0D\u5713\u5F62\u7BC4\u570D\u5167\u6575\u4EBA\u9020\u6210
     {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\u3002\n\u7372\u5F97\u6280\u80FD:\u77AC\u9593\u79FB\u52D5\uFF0C\u6BCF\u666E\u901A\u653B\u64CA\u516D\u6B21\uFF0C\u6703\u77AC\u9593\u79FB\u52D5\u5230\u6700\u4F73\u4F4D\u7F6E\uFF0C\u4E14\u7372\u5F97\u5927\u91CF\u653B\u901F"
-  - "Every 6th attack hits all enemies in an area: {data1} + ({data2}% \xD7 Attack)
-    (Final: {Final}).\nGains skill: Teleport. Every 6 normal attacks, teleports to
-    optimal location and gains high attack speed. Count does not increase during
-    skill duration."
+  - "Izuna has no active skill. On every sixth normal attack, she instantly teleports
+    to the optimal position, gains a large amount of attack speed, and deals {data1}
+    + ({data2}% \xD7 Attack) damage (Final: {Final}) to enemies within a circular
+    area.\r\n"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

@@ -35,7 +35,7 @@ public class NeruActiveSkill : MonoBehaviour
             }
 
         }
-        bulletComponent.Initialize(dmg, parent.GetTargetLayer(), parent, 20, go, true, iscrit, hitEffect);
+        bulletComponent.Initialize(dmg, parent.GetTargetLayer(), parent, 20, go, false, iscrit, hitEffect);
         HandleAttacking();
     }
     private void HandleAttacking()

@@ -35,6 +35,7 @@ public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     }
     public void OnPointerClick(PointerEventData eventData)
     {
+        characterCTRL.RecalculateStats();
         StringBuilder sb = new();
         foreach (var item in characterCTRL.traitController.GetCurrentTraits())
         {

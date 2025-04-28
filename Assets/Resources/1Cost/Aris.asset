@@ -61,15 +61,16 @@ MonoBehaviour:
   - "\u611B\u9E97\u7D72\u627E\u5230\u4E00\u500B\u53EF\u4EE5\u8CAB\u7A7F\u6700\u591A\u6575\u4EBA\u7684\u65B9\u5411\uFF0C\u5411\u8A72\u65B9\u5411\u767C\u5C04\u4E00\u500B\u53EF\u4EE5\u8CAB\u7A7F\u6575\u4EBA\u7684\u5B50\u5F48\uFF0C\u9020\u6210:
     {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C\n\u6BCF\u7A7F\u904E\u4E00\u500B\u6575\u4EBA\u5F8C\uFF0C\u5B50\u5F48\u50B7\u5BB3\u964D\u4F4E\u81F3
     {data3}%\u3002"
-  - "Finds the direction that can pierce the largest number of enemies and fires
-    a bullet in that direction, \ndealing {data1} + ({data2}% \xD7 {Attack}) (Final:
-    {Final}), \nwith each pierced enemy reducing the bullet's damage to {data3}%
-    of the previous value."
+  - "Aris finds the direction that can pierce through the most enemies and fires
+    a bullet in that direction. The bullet pierces through enemies, dealing {data1}
+    + ({data2}% \xD7 {Attack}) damage (Final: {Final}). \r\nAfter passing through
+    each enemy, the bullet's damage is reduced to {data3}%.\r\n"
   EnhancedSkillTooltips:
-  - "\u611B\u9E97\u7D72\u6539\u70BA\u5411\u7576\u524D\u76EE\u6A19\u5C04\u64CA\uFF0C\u9020\u6210\u9245\u984D\u50B7\u5BB3\uFF0C\u4F46\u4E0D\u518D\u8CAB\u7A7F\u76EE\u6A19\uFF0C\u9020\u6210:
-    {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})"
-  - "Aris now shoots at the current target, dealing massive damage, but no longer
-    pierces the target, dealing: {data1} + ({data2}% \xD7 {Attack}) (Final: {Final})"
+  - "\u611B\u9E97\u7D72(Aris)\u6539\u70BA\u5411\u7576\u524D\u76EE\u6A19\u5C04\u64CA\uFF0C\u9020\u6210\u9245\u984D\u50B7\u5BB3\uFF0C\u4F46\u4E0D\u518D\u8CAB\u7A7F\u76EE\u6A19\uFF0C\u9020\u6210:
+    {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C\u4E14\u7206\u64CA\u6703\u8A08\u7B97\u5169\u6B21"
+  - "Aris now fires at her current target, dealing massive damage without piercing
+    through the target, \r\ndealing {data1} + ({data2}% \xD7 {Attack}) damage (Final:
+    {Final}). \r\nCritical hits are calculated twice.\r\n"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

@@ -4256,7 +4256,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CurrentHex: {fileID: 0}
   HexWhenBattleStart: {fileID: 0}
-  Target: {fileID: 0}
   PreTarget: {fileID: 0}
   IsAlly: 0
   allyLayer:
@@ -4300,6 +4299,94 @@ MonoBehaviour:
       value: 0
     - statType: 12
       value: 0
+  ExtraPernamentStats:
+    stats:
+    - statType: 0
+      value: 0
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 0
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 0
+    - statType: 5
+      value: 0
+    - statType: 6
+      value: 0
+    - statType: 7
+      value: 0
+    - statType: 8
+      value: 0
+    - statType: 9
+      value: 0
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 0
+    - statType: 12
+      value: 0
+    - statType: 13
+      value: 0
+    - statType: 14
+      value: 0
+    - statType: 15
+      value: 0
+    - statType: 16
+      value: 0
+    - statType: 17
+      value: 0
+    - statType: 18
+      value: 0
+    - statType: 19
+      value: 0
+    - statType: 20
+      value: 0
+  PercentageStats:
+    stats:
+    - statType: 0
+      value: 0
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 0
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 0
+    - statType: 5
+      value: 0
+    - statType: 6
+      value: 0
+    - statType: 7
+      value: 0
+    - statType: 8
+      value: 0
+    - statType: 9
+      value: 0
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 0
+    - statType: 12
+      value: 0
+    - statType: 13
+      value: 0
+    - statType: 14
+      value: 0
+    - statType: 15
+      value: 0
+    - statType: 16
+      value: 0
+    - statType: 17
+      value: 0
+    - statType: 18
+      value: 0
+    - statType: 19
+      value: 0
+    - statType: 20
+      value: 0
   star: 0
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
@@ -4320,6 +4407,7 @@ MonoBehaviour:
   Taunted: 0
   attackRate: 5
   WakamoMark: 0
+  dmgRecivedOnWakamoMarked: 0
   stunned: 0
   FirePoint: {fileID: 6785243035821884817}
   GetHitPoint: {fileID: 6823596854267453372}
@@ -4337,6 +4425,9 @@ MonoBehaviour:
   StealManaCount: 0
   DealtDamageThisRound: 0
   TakeDamageThisRound: 0
+  AkoAddedCrit: 0
+  SpecialSkillStack: 0
+  Undying: 0
 --- !u!95 &8388447069001492355
 Animator:
   serializedVersion: 5
@@ -4377,8 +4468,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.3646055, y: 1.0042706, z: 0.3924719}
-  m_Center: {x: 0.0146568045, y: 0.46377444, z: 0.006126225}
+  m_Size: {x: 0.5304249, y: 1.089885, z: 0.7149205}
+  m_Center: {x: 0.01197353, y: 0.50658166, z: 0.0020742863}
 --- !u!114 &2275707325211537295
 MonoBehaviour:
   m_ObjectHideFlags: 0

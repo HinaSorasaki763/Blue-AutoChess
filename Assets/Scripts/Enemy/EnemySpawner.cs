@@ -63,7 +63,6 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    // Step 4: Player selects a wave, then spawn the enemies
     public void PlayerSelectWave(int waveIndex)
     {
         CustomLogger.Log(this, "PlayerSelectWave");
@@ -110,7 +109,7 @@ public class EnemySpawner : MonoBehaviour
                             hexNode,
                             enemyParent,
                             isAlly: false,
-                            1
+                            slot.Level
                         );
 
                         CharacterCTRL characterCtrl = go.GetComponent<CharacterCTRL>();

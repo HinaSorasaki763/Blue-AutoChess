@@ -1,43 +1,81 @@
+ï»¿using UnityEngine.EventSystems;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems; // ­Y­n¥ÎIPointerClickHandler
 
 public class Editor_HexTile : MonoBehaviour, IPointerClickHandler
 {
-    // ¥Nªí·í«e®æ¤l¸Ì¬O­ş¤@¦ì¨¤¦â (¥i¥H¬O Character, ©Î¦s CharacterID)
     public Character occupant;
     public string occupantName;
-
-    // ¥Î¨ÓÅã¥Ü¨¤¦âÀY¹³ªº UI (¨Ò¦p±¾¦b¦P¤@­ÓGameObject¤U)
     public Sprite HexagonSprite;
     public int index;
     [SerializeField] private Image occupantImage;
+    public int editedLevel = 1;
+    public int[] editedEquipmentIDs = new int[3] { -1, -1, -1 };
+    public Image[] equipmentImages = new Image[3];
+
     public void Awake()
     {
         occupantImage = GetComponent<Image>();
-        index = int.Parse(name)+32;
-        
+        index = int.Parse(name) + 32;
+
+        // æ‰¾åˆ°åå­—ä»¥ "equipments" é–‹é ­çš„å­ç‰©ä»¶
+        Transform equipmentRoot = null;
+        foreach (Transform child in transform)
+        {
+            if (child.name.StartsWith("equipments"))
+            {
+                equipmentRoot = child;
+                break;
+            }
+        }
+
+        if (equipmentRoot != null)
+        {
+            Transform panel = equipmentRoot.Find("Panel");
+            if (panel != null)
+            {
+                int count = 0;
+                foreach (Transform imgChild in panel)
+                {
+                    if (count >= 3) break;
+                    Image img = imgChild.GetComponent<Image>();
+                    if (img != null)
+                    {
+                        equipmentImages[count] = img;
+                        count++;
+                    }
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[Editor_HexTile] æ‰¾åˆ°equipmentsä½†è£¡é¢æ²’æœ‰Panel");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"[Editor_HexTile] æ‰¾ä¸åˆ°ä»¥'equipments'é–‹é ­çš„å­ç‰©ä»¶ï¼");
+        }
     }
+
+
     public void Start()
     {
         EnemyWaveRuntimeEditor.Instance.editor_HexTiles.Add(this);
     }
-    // HexTile ³QÂIÀ»®É
+
     public void OnPointerClick(PointerEventData eventData)
     {
-        // ­Y¤w¦³¨¤¦â ¡÷ ÂIÀ»¤@¦¸´N²MªÅ
         if (occupant != null)
         {
-            ClearOccupant();
+            CharacterDetailPanel.Instance.Open(this);
+            EnemyWaveRuntimeEditor.Instance.OnHexTileClicked(this);
         }
         else
         {
-            // §iª¾¡uºŞ²z¾¹¡v¦¹®æ¥Ø«e¬OªÅªº¡AÅıºŞ²z¾¹°O¦í§Ú
             EnemyWaveRuntimeEditor.Instance.OnHexTileClicked(this);
         }
     }
 
-    // ³]¸m¤@¦ì¨¤¦â
     public void SetOccupant(Character newOccupant)
     {
         occupant = newOccupant;
@@ -50,17 +88,26 @@ public class Editor_HexTile : MonoBehaviour, IPointerClickHandler
                 : null;
             occupantImage.color = (newOccupant != null) ? Color.white : Color.clear;
         }
+
+        editedLevel = 1;
+        editedEquipmentIDs = new int[3] { -1, -1, -1 };
     }
+
     public void ClearOccupant()
     {
         occupant = null;
-
         occupantName = "";
         if (occupantImage != null)
         {
             occupantImage.sprite = HexagonSprite;
             occupantImage.color = Color.white;
-            occupantImage.rectTransform.localEulerAngles = new Vector3(0, 0, 90);
+        }
+
+        editedLevel = 1;
+        editedEquipmentIDs = new int[3] { -1, -1, -1 };
+        foreach (var item in equipmentImages)
+        {
+            item.sprite = null;
         }
     }
 }

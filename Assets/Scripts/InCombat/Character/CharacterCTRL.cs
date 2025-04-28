@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class CharacterCTRL : MonoBehaviour
@@ -46,9 +45,11 @@ public class CharacterCTRL : MonoBehaviour
     public CharacterParent enemyParent;
     public StatsContainer stats;
     public StatsContainer ExtraPernamentStats = new StatsContainer();
+    public Dictionary<string, (StatsType stat, float amount)> ExtraPernamentStatDict
+    = new Dictionary<string, (StatsType stat, float amount)>();
     public StatsContainer PercentageStats = new StatsContainer();
-    public Dictionary<string, (StatsType fromStat, StatsType toStat, int amount)> PercentageStatsDict
-    = new Dictionary<string, (StatsType fromStat, StatsType toStat, int amount)>();
+    public Dictionary<string, (StatsType fromStat, StatsType toStat, float amount)> PercentageStatsDict
+    = new Dictionary<string, (StatsType fromStat, StatsType toStat, float amount)>();
     public int star;
     public ModifierCTRL modifierCTRL;
     public EffectCTRL effectCTRL;
@@ -85,13 +86,10 @@ public class CharacterCTRL : MonoBehaviour
     public Vector3 DetectedPos = Vector3.zero;
     public SkillContext SkillContext;
     public CharacterAudioManager AudioManager;
-    // Traits and Effects-related Fields
     public TraitController traitController;
     public List<CharacterObserverBase> observers = new List<CharacterObserverBase>();
-    // Animator-related Fields
     public CustomAnimatorController customAnimator;
     private int Amulet_WatchObserverManaRestoreAmount;
-    // Targeting and Grid Events-related Fields
     public bool isTargetable = true;
     public delegate void GridChanged(HexNode oldTile, HexNode newTile);
     public event GridChanged OnGridChanged;
@@ -164,8 +162,6 @@ public class CharacterCTRL : MonoBehaviour
         effectCTRL = GetComponent<EffectCTRL>();
         effectCTRL.characterCTRL = GetComponent<CharacterCTRL>();
         traitController = GetComponent<TraitController>();
-        RecalculateStats();
-
         IsDying = false;
         if (characterBars != null)
         {
@@ -207,11 +203,15 @@ public class CharacterCTRL : MonoBehaviour
         {
             GetComponent<SkillAnimationReplacer>().SwitchToEnhancedSkill();
         }
+        OnCharaterEnabled();
+        RecalculateStats();
+    }
+    public void OnCharaterEnabled()
+    {
         foreach (var item in observers)
         {
             item.OncharacterEnabled(this);
         }
-        RecalculateStats();
     }
     public void GetSkill()
     {
@@ -845,16 +845,30 @@ public class CharacterCTRL : MonoBehaviour
     {
         return stats.GetStat(statsType);
     }
+    public void LifeStealCorrecttion()
+    {
+        if (GameController.Instance.CheckCharacterEnhance(29, IsAlly))
+        {
+            if (characterObserver is TsurugiObserver tsurugi)
+            {
+                int amount = (int)GetStat(StatsType.Lifesteal) - 100;
+                tsurugi.DamageIncrease = amount;
+                CustomLogger.Log(this, $"set tsurugi.DamageIncrease to {tsurugi.DamageIncrease}");
+                SetStat(StatsType.Lifesteal, 100);
+            }
+        }
+
+
+
+
+    }
     public void CritCorrection()
     {
         int currentCritChance = (int)GetStat(StatsType.CritChance);
-        float ratio = crtiTranferRatio * 0.01f; // 轉換因子
-
+        float ratio = crtiTranferRatio * 0.01f;
         if (currentCritChance > 100)
         {
-            // 有溢出：計算超出部分
             int overflow = currentCritChance - 100;
-            // 將 overflow 部分轉換成額外爆擊傷害
             float addedCritRatio = overflow * ratio;
             AddStat(StatsType.CritRatio, addedCritRatio);
             SetStat(StatsType.CritChance, 100);
@@ -864,16 +878,10 @@ public class CharacterCTRL : MonoBehaviour
         }
         else // currentCritChance <= 100
         {
-            // 當前爆擊率低於上限，檢查是否有先前轉換的溢出需要還原
             int deficit = 100 - currentCritChance;
-            // 要還原的爆擊傷害數值，也就是如果要補足至 100，理論上需要扣除的 CritRatio
             float neededCritRatio = deficit * ratio;
-
             if (critTransferAmount > 0)
             {
-                // 先計算從目前已轉換的 critTransferAmount 能還原多少爆擊率
-                // 反向公式：還原的爆擊率 = 扣除的 CritRatio / ratio
-                // 如果 critTransferAmount（以爆擊率點數計）足夠填補 deficit，則可全部還原
                 if (critTransferAmount >= deficit)
                 {
                     float removalCritRatio = deficit * ratio;
@@ -931,6 +939,7 @@ public class CharacterCTRL : MonoBehaviour
         stats = characterStats.Stats.Clone();
         stats.SetStat(StatsType.Health, maxHealth);
         stats.SetStat(StatsType.Attack, Attack);
+        equipmentManager.UpdateEquipmentStats();
         stats.AddFrom(ExtraPernamentStats);
         stats.AddFrom(GameController.Instance.TeamExtraStats);
         if (effectCTRL.GetStatsEffects().Count > 0)
@@ -951,6 +960,8 @@ public class CharacterCTRL : MonoBehaviour
         {
             SetStat(StatsType.currHealth, GetStat(StatsType.Health, false));
         }
+        CritCorrection();
+        LifeStealCorrecttion();
     }
     public void AddPercentageBonus(StatsType fromStat, StatsType toStat, int percent, string identifier)
     {
@@ -1001,14 +1012,28 @@ public class CharacterCTRL : MonoBehaviour
         }
         SetStat(StatsType.Mana, GetStat(StatsType.Mana) + amount);
     }
-    public void SetExtraStat(StatsType statsType, float amount)
+    public void AddExtraStat(StatsType statsType, float amount, string identefier, bool stackable)
     {
-        ExtraPernamentStats.SetStat(statsType, amount);
+        if (ExtraPernamentStatDict.ContainsKey(identefier))
+        {
+            if (stackable)
+            {
+                ExtraPernamentStatDict[identefier] = (statsType, ExtraPernamentStatDict[identefier].amount + amount);
+            }
+            else
+            {
+                ExtraPernamentStatDict[identefier] = (statsType, amount);
+            }
+        }
+        else
+        {
+            ExtraPernamentStatDict.Add(identefier, (statsType, amount));
+        }
+        foreach (var item in ExtraPernamentStatDict.Values)
+        {
+            ExtraPernamentStats.SetStat(item.stat, item.amount);
+        }
         RecalculateStats();
-    }
-    public void AddExtraStat(StatsType statsType, float amount)
-    {
-        SetExtraStat(statsType, GetExtraStat(statsType) + amount);
     }
     public void SetStat(StatsType statsType, float amount)
     {
@@ -1144,6 +1169,7 @@ public class CharacterCTRL : MonoBehaviour
     public void UpdateEquipmentUI()
     {
         characterBars.UpdateEquipmentDisplay(equipmentManager.GetEquippedItems());
+        RecalculateStats();
     }
     #endregion
 
@@ -1504,6 +1530,11 @@ public class CharacterCTRL : MonoBehaviour
     }
     public int ObserverDamageModifier(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit)
     {
+        if (sourceCharacter.characterObserver != null)
+        {
+            CustomLogger.Log(this, $"observer {sourceCharacter.characterObserver} modifiying");
+            amount = sourceCharacter.characterObserver.DamageModifier(sourceCharacter, this, amount, detailedSource, isCrit);
+        }
         foreach (var item in observers)
         {
             amount = item.DamageModifier(sourceCharacter, this, amount, detailedSource, isCrit);
@@ -1635,15 +1666,15 @@ public class CharacterCTRL : MonoBehaviour
         int count = effectCTRL.ClearEffects(EffectType.Negative);
         if (GameController.Instance.CheckCharacterEnhance(6, IsAlly) && characterStats.CharacterId == 6)
         {
-            int attack =  ActiveSkill.GetCharacterLevel()[star].Data4;
+            int attack = ActiveSkill.GetCharacterLevel()[star].Data4;
             int health = ActiveSkill.GetCharacterLevel()[star].Data3;
             if (count == 0)
             {
-                AddExtraStat(StatsType.Attack, attack);
+                AddExtraStat(StatsType.Attack, attack, "NatsuAttack", true);
             }
             else
             {
-                AddExtraStat(StatsType.Health, health * count);
+                AddExtraStat(StatsType.Health, health * count, "NatsuHealth", true);
             }
         }
         isCCImmune = true;
@@ -1660,7 +1691,7 @@ public class CharacterCTRL : MonoBehaviour
         if (GameController.Instance.CheckCharacterEnhance(7, !IsAlly))
         {
             CharacterParent characterParent = IsAlly ? ResourcePool.Instance.enemy : ResourcePool.Instance.ally;
-            CharacterCTRL noa = Utility.GetSpecificCharacterByIndex(characterParent.GetBattleFieldCharacter(),7);
+            CharacterCTRL noa = Utility.GetSpecificCharacterByIndex(characterParent.GetBattleFieldCharacter(), 7);
             Effect Effect = EffectFactory.StatckableStatsEffct(0, "Noa Enhanced Skill", -20, StatsType.PercentageResistence, noa, true);
             Effect.SetActions(
                 (character) => character.ModifyStats(StatsType.PercentageResistence, Effect.Value, Effect.Source),
@@ -1886,7 +1917,7 @@ public class CharacterCTRL : MonoBehaviour
     { 25, () => new HinaObserver() },
     { 26, () => new HoshinoObserver() },
     { 27, () => new MikaObserver() },
-    { 28, () => new NullObserver() },
+    { 28, () => new NeruObserver() },
     { 29, () => new TsurugiObserver() },
     { 30, () => new WakamoObserver() },
     { 31, () => new Shiroko_Terror_Observer() },

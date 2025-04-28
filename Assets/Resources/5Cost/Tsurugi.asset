@@ -58,18 +58,22 @@ MonoBehaviour:
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
-  - "\u5C07\u63A5\u4E0B\u4F86 {data3} \u6B21\u666E\u901A\u653B\u64CA\u66FF\u63DB\u70BA\u7BC4\u570D\u50B7\u5BB3\uFF0C\n\u9020\u6210
+  - "\u9DB4\u57CE(Tsurugi)\u5C07\u63A5\u4E0B\u4F86 {data3} \u6B21\u666E\u901A\u653B\u64CA\u66FF\u63DB\u70BA\u7BC4\u570D\u50B7\u5BB3\uFF0C\u9020\u6210
     {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\uFF0C\u4E26\u7372\u5F97\u9AD8\u984D\u5438\u8840\u3002"
-  - "For the next {data3} basic attacks, they become AoE, \ndealing {data1} + ({data2}%
-    \xD7 ATK) (Final: {Final}), and granting high lifesteal."
+  - "Tsurugi replaces her next {data3} normal attacks with area damage, \r\ndealing
+    {data1} + ({data2}% \xD7 Attack) damage (Final: {Final}), \r\nand gains a high
+    amount of lifesteal.\r\n"
   EnhancedSkillTooltips:
-  - "\u88AB\u52D5:\u7372\u5F97100%\u5438\u8840\uFF0C\u6B64\u89D2\u8272\u5C0D\u65BC\u8D85\u904E100%\u7684\u5438\u8840\u6536\u76CA\u5C07\u6703\u88AB\u8F49\u5316\u70BA\u76F8\u61C9%\u6578\u7684\u50B7\u5BB3\u589E\u5E45\u3002\n\u6BCF\u56DE\u5408\u7B2C\u4E00\u6B21\u5C07\u8981\u6B7B\u4EA1\u6642\uFF0C\u6062\u5FA950%\u6700\u5927\u751F\u547D\u503C\u7684\u8840\u91CF\uFF0C\u4E26\u4E14\u7121\u6575\u4E00\u79D2\n\u4E3B\u52D5:\u5C07\u63A5\u4E0B\u4F86
-    {data3} \u6B21\u666E\u901A\u653B\u64CA\u66FF\u63DB\u70BA\u7BC4\u570D\u50B7\u5BB3\uFF0C\n\u9020\u6210
-    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\uFF0C\u4E26\u4E14\u7372\u5F97\u9AD8\u984D\u5438\u8840"
-  - "Gains 100% lifesteal. Excess lifesteal converts into bonus damage. First death
-    per turn restores 50% HP and grants 1s invincibility.\nActive: Replaces next
-    {data3} normal attacks with AoE: {data1} + ({data2}% \xD7 Attack) (Final: {Final}),
-    with high lifesteal."
+  - "\u88AB\u52D5:\u9DB4\u57CE(Tsurugi)\u7372\u5F97100%\u5438\u8840\uFF0C\u9DB4\u57CE(Tsurugi)\u5C0D\u65BC\u8D85\u904E100%\u7684\u5438\u8840\u6536\u76CA\u5C07\u6703\u88AB\u8F49\u5316\u70BA\u76F8\u61C9%\u6578\u7684\u50B7\u5BB3\u589E\u5E45\uFF0C\u73FE\u5728\u9DB4\u57CE(Tsurugi)\u7E3D\u662F\u9020\u6210\u7BC4\u570D\u50B7\u5BB3\u3002\n\u4E14\u9DB4\u57CE(Tsurugi)\u6BCF\u56DE\u5408\u7B2C\u4E00\u6B21\u5C07\u8981\u6B7B\u4EA1\u6642\uFF0C\u6062\u5FA950%\u6700\u5927\u751F\u547D\u503C\u7684\u8840\u91CF\uFF0C\u4E26\u4E14\u7121\u6575\u4E00\u79D2\n\u4E3B\u52D5:\u9DB4\u57CE(Tsurugi)\u5C07\u63A5\u4E0B\u4F86
+    {data3} \u6B21\u666E\u901A\u653B\u64CA\u66FF\u63DB\u70BA\u66F4\u5927\u7684\u7BC4\u570D\u50B7\u5BB3\uFF0C\n\u9020\u6210
+    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\uFF0C\u4E26\u4E14\u7372\u5F97{data4}%\u50B7\u5BB3\u589E\u5E45"
+  - "Passive: Tsurugi gains 100% lifesteal. \r\nAny excess lifesteal beyond 100%
+    is converted into an equivalent percentage of bonus damage. \r\nTsurugi always
+    deals area damage with her attacks. \r\nOnce per turn, the first time she would
+    die, she instead restores 50% of her maximum HP and becomes invincible for 1
+    second.\r\n\r\nActive: Tsurugi replaces her next {data3} normal attacks with
+    larger area damage, \r\ndealing {data1} + ({data2}% \xD7 Attack) damage (Final:
+    {Final}), \r\nand gains {data4}% bonus damage.\r\n"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

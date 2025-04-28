@@ -60,15 +60,16 @@ MonoBehaviour:
   Tooltips:
   - "\u6CBB\u7652\u81EA\u8EAB: {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42:
     {Final})\uFF0C\n\u4E26\u5728 {data5} \u79D2\u5167\u514D\u75AB\u8CA0\u9762\u72C0\u614B"
-  - "Heals herself for {data1} + ({data2}% \xD7 {Attack}) (Final: {Final}) \nand
-    becomes immune to negative status effects for {data5} seconds."
+  - "Natsu heals herself for {data1} + ({data2}% \xD7 {Attack}) (Final: {Final}),
+    and becomes immune to negative effects for {data5} seconds.\r\n"
   EnhancedSkillTooltips:
   - "\u6CBB\u7652\u81EA\u8EAB: {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42:
     {Final})\uFF0C\n\u4E26\u5728 {data5} \u79D2\u5167\u514D\u75AB\u8CA0\u9762\u72C0\u614B\n\u5982\u679C\u5728\u6280\u80FD\u6301\u7E8C\u6642\u9593\u5167\u6642\u6BCF\u514D\u75AB\u4E00\u500B\u8CA0\u9762\u6548\u679C\uFF0C\u5C31\u6C38\u4E45\u7372\u5F97{data3}\u751F\u547D\u503C\u3002\u5982\u679C\u65BD\u653E\u6280\u80FD\u6642\u6C92\u6709\u8CA0\u9762\u6548\u679C\u53EF\u4EE5\u89E3\u9664\uFF0C\u6C38\u4E45\u7372\u5F97{data4}\u653B\u64CA\u529B"
-  - "Heals self: {data1} + ({data2}% \xD7 {Attack}) (Final: {Final}), and becomes
-    immune to debuffs for {data5} seconds. For each debuff prevented during this
-    time, permanently gains {data3} HP. If no debuffs are present when casting, permanently
-    gains {data4}% Attack."
+  - "Natsu heals herself for {data1} + ({data2}% \xD7 {Attack}) (Final: {Final}),
+    and becomes immune to negative effects for {data5} seconds. \r\nFor each negative
+    effect prevented during the skill duration, she permanently gains {data3} HP.
+    \r\nIf there are no negative effects to cleanse when casting the skill, she permanently
+    gains {data4} Attack.\r\n"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

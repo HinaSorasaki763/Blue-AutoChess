@@ -58,18 +58,19 @@ MonoBehaviour:
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
-  - "\u67B6\u8D77\u8B77\u76FE\uFF0C\u5C0D\u524D\u65B9\u4E00\u683C\u8207\u5DE6\u53F3\u5169\u683C\u9020\u6210\u591A\u6B21\u50B7\u5BB3\uFF0C\n\u6BCF\u6CE2\u7D04\u70BA
-    {data1} (\u6700\u7D42: {Final})\u3002"
-  - "Raises a shield and deals multiple waves of damage to the tile directly in front
-    \nand the two adjacent tiles, each wave dealing about {data1} (Final: {Final})."
+  - "\u661F\u91CE(Hoshino)\u67B6\u8D77\u8B77\u76FE\uFF0C\u5C0D\u524D\u65B9\u4E00\u683C\u8207\u5DE6\u53F3\u5169\u683C\u9020\u6210\u591A\u6B21\u50B7\u5BB3\uFF0C\n\u6BCF\u6CE2\u9020\u6210
+    {data1}+{data2}*{Attack} (\u6700\u7D42: {Final})\u50B7\u5BB3"
+  - "Hoshino raises her shield and deals multiple waves of damage to the tile directly
+    in front and the tiles to the left and right. \r\nEach wave deals {data1} + {data2}
+    \xD7 {Attack} damage (Final: {Final}).\r\n"
   EnhancedSkillTooltips:
-  - "\u67B6\u8D77\u8B77\u76FE\uFF0C\u5C0D\u524D\u65B9\u4E00\u683C\u8207\u5DE6\u53F3\u5169\u683C\u9020\u6210\u591A\u6B21\u50B7\u5BB3\uFF0C\n\u6BCF\u6CE2\u70BA
-    {data1} (\u6700\u7D42: {Final})\u3002\n\u5E38\u99D0\u9632\u79A6\u529B\u4E0A\u5347\uFF0C\u6280\u80FD\u9020\u6210\u50B7\u5BB3\u6642\uFF0C\u9644\u5E36\u6688\u7729\u4E14\u5F37\u8FEB\u6575\u4EBA\u8F49\u706B\u3002"
-  - 'Sets up shield, deals multiple hits to 1 tile ahead and tiles to the sides,
-    each for {data1} (Final: {Final}).
-
-    Increases defense permanently. Skill
-    hits stun and force enemies to retarget.'
+  - "\u661F\u91CE(Hoshino)\u67B6\u8D77\u8B77\u76FE\uFF0C\u5C0D\u524D\u65B9\u4E00\u683C\u8207\u5DE6\u53F3\u5169\u683C\u9020\u6210\u591A\u6B21\u50B7\u5BB3\uFF0C\n\u6BCF\u6CE2\u9020\u6210
+    {data1}+{data2}*{Attack} (\u6700\u7D42: {Final})\u50B7\u5BB3\u3002\n\u5E38\u99D0\u9632\u79A6\u529B\u4E0A\u5347{data4}%\uFF0C\u6280\u80FD\u9020\u6210\u50B7\u5BB3\u6642\uFF0C\u9644\u5E36\u6688\u7729\u3002\u4E14\u5F37\u8FEB{data3}\u683C\u5167\u7684\u6575\u4EBA\u8F49\u706B\u653B\u64CA\u661F\u91CE\u3002"
+  - "Hoshino raises her shield and deals multiple waves of damage to the tile directly
+    in front and the tiles to the left and right. \r\nEach wave deals {data1} + {data2}
+    \xD7 {Attack} damage (Final: {Final}). \r\nShe permanently gains {data4}% increased
+    Defense. \r\nAdditionally, each instance of damage stuns enemies and forces all
+    enemies within {data3} hexes to retarget and attack Hoshino.\r\n"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

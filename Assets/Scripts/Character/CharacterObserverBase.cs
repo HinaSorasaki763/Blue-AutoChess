@@ -3,6 +3,7 @@ using GameEnum;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public abstract class CharacterObserverBase
 {
@@ -84,7 +85,7 @@ public abstract class CharacterObserverBase
         }
     }
 
-    public virtual void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource,bool recursion)
+    public virtual void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource, bool recursion)
     {
         CustomLogger.Log(this, $"{character.characterStats.name} get hit by {source.characterStats.name} for {amount} as {detailedSource}");
 
@@ -93,8 +94,8 @@ public abstract class CharacterObserverBase
     {
         if (character.effectCTRL.GetEffect("AkoEnhancedSkillBuff") != null)
         {
-            character.AddExtraStat(StatsType.CritChance, 1);
-            character.AddExtraStat(StatsType.CritRatio, 1);
+            character.AddExtraStat(StatsType.CritChance, 1,"AkoCritChance",true);
+            character.AddExtraStat(StatsType.CritRatio, 1, "AkoCritRatio", true);
             character.AkoAddedCrit++;
         }
 
@@ -103,20 +104,6 @@ public abstract class CharacterObserverBase
 
     public virtual void OnDying(CharacterCTRL character)
     {
-        if (character.effectCTRL.HaveEffect("WakamoEnhancedMark"))
-        {
-            CharacterCTRL c = Utility.GetNearestAlly(character);
-            Effect effect = EffectFactory.WakamoEnhancedMark(c, 20);
-            c.effectCTRL.AddEffect(effect, c);
-            c.dmgRecivedOnWakamoMarked += character.dmgRecivedOnWakamoMarked;
-        }
-        if (character.effectCTRL.HaveEffect("KazusaMark"))
-        {
-            CustomLogger.Log(this, $"{character.characterStats.name} KazusaMark");
-            CharacterParent c = character.IsAlly ? ResourcePool.Instance.enemy : ResourcePool.Instance.ally;
-            CharacterCTRL ch = Utility.GetSpecificCharacterByIndex(c.GetBattleFieldCharacter(), 18);
-            GameController.Instance.AddExtraStat(StatsType.AttackSpeed, ch.ActiveSkill.GetCharacterLevel()[ch.star].Data4 * 0.01f);
-        }
         CustomLogger.Log(this, $"{character.characterStats.name} is dying.");
     }
     public virtual bool BeforeDying()
@@ -200,7 +187,6 @@ public abstract class CharacterObserverBase
     /// </summary>
     public virtual int DamageModifier(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
-
         return damage;
     }
     /// </summary>
@@ -221,7 +207,7 @@ public class ArisObserver : CharacterObserverBase//1
     int critTime;
     public override void OnCrit(CharacterCTRL character)
     {
-        
+
     }
     public override void OnCastedSkill(CharacterCTRL character)
     {
@@ -268,7 +254,7 @@ public class AzusaObserver : CharacterObserverBase
         if (GameController.Instance.CheckCharacterEnhance(13, character.IsAlly))
         {
             GameController.Instance.AzusaAddAttack += 2;
-            character.AddExtraStat(StatsType.Attack, 2);
+            character.AddExtraStat(StatsType.Attack, 2, "AzusaAttack", true);
         }
     }
 }
@@ -428,7 +414,8 @@ public class HoshinoObserver : CharacterObserverBase
     }
     public override void OncharacterEnabled(CharacterCTRL character)
     {
-        character.AddPercentageBonus(StatsType.Null, StatsType.Resistence, 20, "HoshinoPassive");
+        int amount = character.ActiveSkill.GetCharacterLevel()[character.star].Data4;
+        character.AddPercentageBonus(StatsType.Null, StatsType.Resistence, amount, "HoshinoPassive");
     }
 }
 public class IzunaObserver : CharacterObserverBase
@@ -533,7 +520,7 @@ public class MisakiObserver : CharacterObserverBase
     }
 
 
-    void Explode(GameObject fragment, HexNode node, CharacterCTRL character,int randKey)
+    void Explode(GameObject fragment, HexNode node, CharacterCTRL character, int randKey)
     {
         MisakiObserver misakiObserver = character.characterObserver as MisakiObserver;
         foreach (var item in Utility.GetCharacterInrange(node, 1, character, false))
@@ -601,12 +588,18 @@ public class MoeObserver : CharacterObserverBase
         if (GameController.Instance.CheckCharacterEnhance(37, character.IsAlly))
         {
             CharacterCTRL target = character.Target.GetComponent<CharacterCTRL>();
-            int dmg = 10;
+            int dmg = character.GetAttack();
             target.CurrentHex.ApplyBurningEffect(3, dmg, 0.5f, character);//TODO: 檢查是否可以和ex疊加，數值是否正確
         }
         else
         {
-            //一般後勤特效
+            CharacterCTRL target = character.GetTargetCTRL();
+            Effect effect = EffectFactory.StatckableStatsEffct(1.5f, "Moe", -5, StatsType.Resistence, character, false);
+            effect.SetActions(
+                (character) => character.ModifyStats(StatsType.Resistence, effect.Value, effect.Source),
+                (character) => character.ModifyStats(StatsType.Resistence, -effect.Value, effect.Source)
+            );
+            character.effectCTRL.AddEffect(effect, target);
         }
     }
 }
@@ -641,7 +634,7 @@ public class TsubakiObserver : CharacterObserverBase
                 getHitCount -= 100;
                 triggerCount++;
             }
-            if (character.GetHealthPercentage() <= 0.4f && triggerCount > 0)
+            if (character.GetHealthPercentage() <= 0.6f && triggerCount > 0)
             {
                 triggerCount--;
                 character.Heal((int)(character.GetStat(StatsType.Health) * 0.4f), character);
@@ -649,16 +642,25 @@ public class TsubakiObserver : CharacterObserverBase
         }
 
     }
+    public override void OnBattleEnd(bool isVictory)
+    {
+        triggerCount = 1;
+    }
 }
 public class TsurugiObserver : CharacterObserverBase
 {
     private bool trigger;
     private TsurugiActiveSkill skill;
     private CharacterCTRL parent;
+    public int DamageIncrease = 0;
 
     public override void OnBattleEnd(bool isVictory)
     {
         trigger = true;
+    }
+    public override void OncharacterEnabled(CharacterCTRL character)
+    {
+        character.AddExtraStat(StatsType.Lifesteal, 150, "TsurugiLifeSteal", false);
     }
     public override bool BeforeDying()
     {
@@ -673,6 +675,10 @@ public class TsurugiObserver : CharacterObserverBase
         }
         return false;
     }
+    public override int DamageModifier(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
+    {
+        return (int)(damage * (1+(DamageIncrease * 0.01f)));
+    }
     public override void OnKilledEnemy(CharacterCTRL character, string detailedSource, CharacterCTRL characterDies)
     {
         character.Heal((int)character.GetStat(StatsType.Health), character);
@@ -686,10 +692,7 @@ public class TsurugiObserver : CharacterObserverBase
     }
     public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
-        if (GameController.Instance.CheckCharacterEnhance(29, source.IsAlly))
-        {
-            source.Heal(damage, source);
-        }
+
     }
     public override void OnAttacking(CharacterCTRL character)
     {
@@ -732,7 +735,21 @@ public class TsurugiObserver : CharacterObserverBase
         }
     }
 
-
+}
+public class NeruObserver : CharacterObserverBase
+{
+    public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
+    {
+        if (detailedSource == DamageSourceType.NormalAttack.ToString())
+        {
+            Effect effect = EffectFactory.StatckableStatsEffct(5, "NeruPassive", 1, StatsType.Attack, source, true);
+            effect.SetActions(
+                (character) => character.ModifyStats(StatsType.Attack, effect.Value, effect.Source),
+                (character) => character.ModifyStats(StatsType.Attack, -effect.Value, effect.Source)
+            );
+            source.effectCTRL.AddEffect(effect, source);
+        }
+    }
 }
 public class YuukaObserver : CharacterObserverBase
 {
@@ -740,8 +757,7 @@ public class YuukaObserver : CharacterObserverBase
     {
         if (character.effectCTRL.GetEffect("YuukaSkill") != null)
         {
-            int amount = (int)(character.GetStat(StatsType.MaxMana) * 0.05f);
-            character.Addmana(amount);
+            character.Addmana(1);
         }
     }
 }
@@ -918,14 +934,38 @@ public class GlobalBaseObserver : CharacterObserverBase
 
     public override void OnKilledEnemy(CharacterCTRL character, string detailedSource, CharacterCTRL characterDies)
     {
+        if (character.traitController.GetAcademy() == Traits.Gehenna)
+        {
+            PressureManager.Instance.IncreasePressure(1);
+        }
         base.OnKilledEnemy(character, detailedSource, characterDies);
     }
 
     public override void OnDying(CharacterCTRL character)
     {
-        if (character.traitController.GetAcademy() == Traits.Gehenna)
+
+        if (character.effectCTRL.HaveEffect("WakamoEnhancedMark"))
         {
-            PressureManager.Instance.IncreasePressure(1);
+            CharacterCTRL c = Utility.GetNearestAlly(character);
+            Effect effect = EffectFactory.WakamoEnhancedMark(c, 20);
+            c.effectCTRL.AddEffect(effect, c);
+            c.dmgRecivedOnWakamoMarked += character.dmgRecivedOnWakamoMarked;
+        }
+        if (character.effectCTRL.HaveEffect("KazusaMark"))
+        {
+            CustomLogger.Log(this, $"{character.characterStats.name} KazusaMark");
+            CharacterParent c = character.IsAlly ? ResourcePool.Instance.enemy : ResourcePool.Instance.ally;
+            CharacterCTRL ch = Utility.GetSpecificCharacterByIndex(c.GetBattleFieldCharacter(), 18);
+            GameController.Instance.AddExtraStat(StatsType.AttackSpeed, ch.ActiveSkill.GetCharacterLevel()[ch.star].Data4 * 0.01f);
+        }
+        if (character.effectCTRL.HaveEffect("NoaEnhancedSkill"))
+        {
+            CharacterParent characterParent = character.IsAlly ? ResourcePool.Instance.enemy : ResourcePool.Instance.ally;
+            CharacterCTRL noa = Utility.GetSpecificCharacterByIndex(characterParent.GetBattleFieldCharacter(), 7);
+            if (noa.ActiveSkill is NoaEnhancedSkill noaSkill)
+            {
+                noaSkill.AddMark(noa.GetSkillContext());
+            }
         }
         base.OnDying(character);
     }
@@ -974,7 +1014,15 @@ public class GlobalBaseObserver : CharacterObserverBase
     }
     public override void OncharacterEnabled(CharacterCTRL character)
     {
+        if (GameController.Instance.CheckSpecificCharacterEnhanced(character,11,character.IsAlly))
+        {
+            character.AddPercentageBonus(StatsType.Health, StatsType.Attack, 5, "SumireActiveSkill");
+        }
         base.OncharacterEnabled(character);
+    }
+    public override void OnCharacterDisabled(CharacterCTRL character)
+    {
+        EffectCanvas.Instance.RemoveWakamoImage(character);
     }
     public override void ResetVaribles(CharacterCTRL characterCTRL)
     {

@@ -58,21 +58,25 @@ MonoBehaviour:
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
-  - "\u5C0D\u7576\u524D\u76EE\u6A19\u9020\u6210 {data1} + ({data2}% \xD7 \u653B\u64CA\u529B)
-    (\u6700\u7D42: {Final})\uFF0C\u4E26\u65BD\u52A0\"\u6A19\u8A18\"\uFF0C\n\u6A19\u8A18\u5132\u5B58\u90E8\u5206\u53D7\u5230\u7684\u50B7\u5BB3\uFF0C\u65BC
-    {data5} \u79D2\u5F8C\u6E05\u9664\u4E26\u5F15\u7206\u6240\u7D2F\u7A4D\u7684\u50B7\u5BB3\u3002"
-  - "Snipes the current target for {data1} + ({data2}% \xD7 ATK) (Final: {Final}),
-    applying a mark.\nThe mark stores a portion of damage taken and explodes after
-    {data5} seconds."
+  - "\u82E5\u85FB(Wakamo)\u5C0D\u7576\u524D\u76EE\u6A19\u9020\u6210 {data1} + ({data2}%
+    \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C\u4E26\u65BD\u52A0\"\u6A19\u8A18\"\uFF0C\n\u6A19\u8A18\u5132\u5B58{data3}%\u90E8\u5206\u53D7\u5230\u7684\u50B7\u5BB3\uFF0C\u65BC5\u79D2\u5F8C\u6E05\u9664\u6A19\u8A18\uFF0C\u4E26\u5F15\u7206\u6240\u7D2F\u7A4D\u7684\u50B7\u5BB3\u3002"
+  - "Wakamo deals {data1} + ({data2}% \xD7 {Attack}) damage (Final: {Final}) to her
+    current target and applies a \"Mark.\" \r\nThe Mark stores {data3}% of the damage
+    the target takes. \r\nAfter 5 seconds, the Mark is removed and the accumulated
+    damage is detonated.\r\n"
   EnhancedSkillTooltips:
-  - "\u88AB\u52D5:\u5C0D\u5C1A\u672A\u88AB\u6B64\u89D2\u8272\u50B7\u5BB3\u904E\u7684\u6575\u4EBA\u9020\u6210\u50B7\u5BB3\u6642\uFF0C\u5C31\u6703\u9644\u52A0\u5370\u8A18\u3002\u73FE\u5728\u82E5\u85FB\u7684\u653B\u64CA\u8DDD\u96E2\u6C92\u6709\u4E0A\u9650\uFF0C\u6BCF\u4E00\u6B21\u653B\u64CA\u6703\u512A\u5148\u5C0B\u627E\u5C1A\u672A\u88AB\u52A0\u4E0A\u5370\u8A18\u7684\u6575\u4EBA\uFF0C\u5370\u8A18\u73FE\u5728\u4E0D\u518D\u6D88\u9000\uFF0C\u800C\u662F\u6BCF\u4E94\u79D2\u7D50\u7B97\u4E00\u6B21\u3002\u7576\u5E36\u6709\u5370\u8A18\u7684\u6575\u4EBA\u6B7B\u6389\u6642\uFF0C\u5C07\u4ED6\u8EAB\u4E0A\u672C\u56DE\u5408\u5370\u8A18\u5132\u5B58\u904E\u7684\u6240\u6709\u50B7\u5BB3\u8F49\u79FB\u5230\u53E6\u4E00\u4EBA\u8EAB\u4E0A\uFF0C\u4E26\u4E14\u7ACB\u523B\u7D50\u7B97\u4E00\u6B21\u3002\n\u4E3B\u52D5:\u5C0D\u7576\u524D\u76EE\u6A19\u9020\u6210
-    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\uFF0C\u4E26\u65BD\u52A0\"\u6A19\u8A18\"\uFF0C\n\u6A19\u8A18\u5132\u5B58{data3}%\u53D7\u5230\u7684\u50B7\u5BB3\uFF0C\u65BC
-    {data5} \u79D2\u5F8C\u7D50\u7B97\u4E26\u5F15\u7206\u6240\u7D2F\u7A4D\u7684\u50B7\u5BB3\u3002//\u90E8\u5206\u5C1A\u672A\u5B8C\u6210"
-  - " Passive: Applies mark to enemies never hit by her. Now has infinite range.
-    Prefers unmarked targets. Marks persist, resolve every 5s.\nOn death of marked
-    enemy, stored turn damage transfers and resolves on another target.\nActive:
-    Deals {data1} + ({data2}% \xD7 Attack) (Final: {Final}), applies mark.\nMark
-    stores part of damage taken and explodes after {data5}s. //Partially incomplete"
+  - "\u88AB\u52D5:\u5C0D\u5C1A\u672A\u88AB\u82E5\u85FB(Wakamo)\u50B7\u5BB3\u904E\u7684\u6575\u4EBA\u9020\u6210\u50B7\u5BB3\u6642\uFF0C\u5C31\u6703\u9644\u52A0\u5370\u8A18\u3002\u73FE\u5728\u82E5\u85FB\u7684\u653B\u64CA\u8DDD\u96E2\u6C92\u6709\u4E0A\u9650\uFF0C\u4E14\u82E5\u85FB(Wakamo)\u6BCF\u4E00\u6B21\u653B\u64CA\u6703\u512A\u5148\u5C0B\u627E\u5C1A\u672A\u88AB\u52A0\u4E0A\u5370\u8A18\u7684\u6575\u4EBA\uFF0C\u5370\u8A18\u73FE\u5728\u4E0D\u518D\u6D88\u9000\uFF0C\u800C\u662F\u6BCF\u4E94\u79D2\u7D50\u7B97\u4E00\u6B21\u3002\u7576\u5E36\u6709\u5370\u8A18\u7684\u6575\u4EBA\u6B7B\u6389\u6642\uFF0C\u5C07\u4ED6\u8EAB\u4E0A\u672C\u56DE\u5408\u5370\u8A18\u5132\u5B58\u904E\u7684\u6240\u6709\u50B7\u5BB3\u8F49\u79FB\u5230\u53E6\u4E00\u4EBA\u8EAB\u4E0A\uFF0C\u4E26\u4E14\u9023\u540C\u539F\u6709\u5370\u8A18\u6578\u503C\u7ACB\u523B\u7D50\u7B97\u4E00\u6B21\u3002\n\u4E3B\u52D5:\u82E5\u85FB(Wakamo)\u5C0D\u7576\u524D\u76EE\u6A19\u9020\u6210
+    {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C\u4E26\u65BD\u52A0\"\u6A19\u8A18\"\uFF0C\n\u6A19\u8A18\u5132\u5B58{data3}%\u53D7\u5230\u7684\u50B7\u5BB3\uFF0C\u65BC5\u79D2\u5F8C\u7D50\u7B97\u4E26\u5F15\u7206\u6240\u7D2F\u7A4D\u7684\u50B7\u5BB3\u3002"
+  - "Passive: When Wakamo damages an enemy she has not previously harmed, she applies
+    a Mark. \r\nWakamo's attack range is now unlimited. \r\nShe prioritizes attacking
+    enemies without an existing Mark. \r\nMarks no longer expire naturally; instead,
+    they detonate every 5 seconds. \r\nIf a marked enemy dies, all damage stored
+    by the Mark this turn is transferred to another enemy, \r\nand the accumulated
+    damage is immediately detonated together with any existing Mark on the new target.\r\n\r\nActive:
+    Wakamo deals {data1} + ({data2}% \xD7 {Attack}) damage (Final: {Final}) to her
+    current target and applies a \"Mark.\" \r\nThe Mark stores {data3}% of the damage
+    the target takes. \r\nEvery 5 seconds, the Mark detonates, dealing the stored
+    damage.\r\n"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

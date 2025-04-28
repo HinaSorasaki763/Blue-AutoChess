@@ -58,17 +58,20 @@ MonoBehaviour:
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
-  - "\u5F8C\u63F4\u6548\u679C\u70BA:\u5C0D\u751F\u547D\u503C\u6700\u4F4E\u7684\u53CB\u8ECD\u6CBB\u7652{Attack}\n\u4E3B\u52D5\u6280\u80FD:\u6CBB\u7652\u751F\u547D\u503C\u6700\u4F4E\u7684\u53CB\u8ECD\uFF0C\n\u6CBB\u7652\u91CF:
+  - "\u5F8C\u63F4\u6548\u679C:\u82B9\u5948\u5C0D\u751F\u547D\u503C\u6700\u4F4E\u7684\u53CB\u8ECD\u6CBB\u7652{Attack}\n\u4E3B\u52D5\u6280\u80FD:\u82B9\u5948\u6CBB\u7652\u751F\u547D\u503C\u6700\u4F4E\u7684\u53CB\u8ECD\uFF0C\u6CBB\u7652\u91CF:
     {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\u3002"
-  - "Heals the ally with the lowest HP for {data1} + ({data2}% \xD7 {Attack}) (Final:
-    {Final})."
+  - "Logistic Effect: Serina heals the ally with the lowest HP by {Attack}. \r\nActive
+    Skill: Serina heals the ally with the lowest HP for {data1} + ({data2}% \xD7
+    {Attack}) (Final: {Final}).\r\n"
   EnhancedSkillTooltips:
-  - "\u5F8C\u63F4\u6548\u679C\u70BA:\u5C0D\u751F\u547D\u503C\u6700\u4F4E\u7684\u53CB\u8ECD\u6CBB\u7652{Attack}\n\u4E3B\u52D5\u6280\u80FD:\u6CBB\u7652\u751F\u547D\u503C\u6700\u4F4E\u7684\u53CB\u8ECD\uFF0C\n\u6CBB\u7652\u91CF:
-    {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\u3002\n\u88AB\u52D5\u6280\u80FD:\u6211\u65B9\u6BCF\u4E00\u6B21\u7206\u64CA\u6642\uFF0C\u6CBB\u7652\u81EA\u5DF1\u6700\u5927\u751F\u547D\u503C1%\uFF0C\u5728\u672C\u56DE\u5408\u7E3D\u8A08\u7206\u64CA\u4E86\u82E5\u5E72\u6B21\u5F8C\uFF0C\u672C\u56DE\u5408\u66AB\u6642\u589E\u52A0{data4}%\u7206\u64CA\u50B7\u5BB3"
-  - "Logistic: Heals lowest HP ally based on {Attack}.\nActive Skill: Heals lowest
-    HP ally: {data1} + ({data2}% \xD7 {Attack}) (Final: {Final})\nPassive: Each ally
-    critical hit heals her for 1% max HP. Total crits in a turn temporarily increase
-    crit damage by {data4}."
+  - "\u5F8C\u63F4\u6548\u679C:\u82B9\u5948\u5C0D\u751F\u547D\u503C\u6700\u4F4E\u7684\u53CB\u8ECD\u6CBB\u7652{Attack}\n\u4E3B\u52D5\u6280\u80FD:\u82B9\u5948\u6CBB\u7652\u751F\u547D\u503C\u6700\u4F4E\u7684\u53CB\u8ECD\uFF0C\u6CBB\u7652\u91CF:
+    {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\u3002\n\u88AB\u52D5\u6280\u80FD:\u6211\u65B9\u6BCF\u4E00\u6B21\u7206\u64CA\u6642\uFF0C\u6CBB\u7652\u81EA\u5DF1\u6700\u5927\u751F\u547D\u503C1%\uFF0C\u5728\u672C\u56DE\u5408\u7E3D\u8A08\u7206\u64CA\u4E86\u82E5\u5E72\u6B21\u5F8C\uFF0C\u6240\u6709\u53CB\u8ECD\u672C\u56DE\u5408\u66AB\u6642\u589E\u52A0{data4}%\u7206\u64CA\u50B7\u5BB3"
+  - "Logistic Effect: Serina heals the ally with the lowest HP by {Attack}. \r\nActive
+    Skill: Serina heals the ally with the lowest HP for {data1} + ({data2}% \xD7
+    {Attack}) (Final: {Final}). \r\nPassive Skill: Each time an ally lands a critical
+    hit, Serina heals herself for 1% of her maximum HP. \r\nAt the end of the turn,
+    based on the number of critical hits triggered, allies temporarily gains {data4}%
+    critical damage for this turn.\r\n"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

@@ -58,20 +58,21 @@ MonoBehaviour:
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
-  - "\u8DF3\u5230\u4E09\u683C\u5167\u53CB\u8ECD\u6700\u591A\u7684\u683C\u5B50\uFF0C\u5C0D\u8A72\u683C\u5468\u570D
-    {data1} \u683C\u5167\u7684\u53CB\u8ECD\u65BD\u52A0\u8B77\u76FE\uFF0C\u91CF\u70BA
-    {data2} + ({data3}% \xD7 \u81EA\u8EAB\u6700\u5927\u751F\u547D) (\u6700\u7D42:
-    {Final})\u3002"
-  - "Jumps to the tile within three spaces that has the most allied units, \ngranting
-    allies within {data1} tiles a shield equal to {data2} + ({data3}% of her max
-    HP) (Final: {Final})."
+  - "\u512A\u9999(Yuuka)\u8DF3\u5230\u4E09\u683C\u5167\u53CB\u8ECD\u6700\u591A\u7684\u683C\u5B50\uFF0C\u5C0D\u8A72\u683C\u5468\u570D
+    {data4} \u683C\u5167\u7684\u53CB\u8ECD\u65BD\u52A0\u8B77\u76FE\uFF0C\u8B77\u76FE\u91CF\u70BA
+    {data1} + ({data2}% \xD7 {Attack}+{data3}%*{Health}) (\u6700\u7D42: {Final})\u3002"
+  - "Yuuka jumps to the tile within 3 hexes that has the most allies, \r\ngranting
+    a shield to allies within {data4} hexes around that tile. \r\nThe shield amount
+    is {data1} + ({data2}% \xD7 {Attack} + {data3}% \xD7 {Health}) (Final: {Final}).\r\n"
   EnhancedSkillTooltips:
-  - "\u8DF3\u5230\u4E09\u683C\u5167\u6575\u4EBA\u6700\u591A\u7684\u683C\u5B50\uFF0C\u8A98\u5C0E\u4ED6\u5011\u66F4\u6539\u76EE\u6A19\u4E14\u9583\u907F\u503C\u4E0A\u5347\uFF0C\u4E26\u4E14\u6BCF\u4E00\u6B21\u7684\u9583\u907F\u90FD\u6703\u586B\u51451%\u6700\u5927\u9B54\u529B\u3002\u5C0D\u8A72\u683C\u5468\u570D
-    {data1} \u683C\u5167\u7684\u6575\u4EBA\u9020\u6210{data2} + ({data3}% \xD7 \u81EA\u8EAB\u6700\u5927\u751F\u547D)
-    (\u6700\u7D42: {Final})\u50B7\u5BB3\u3002"
-  - "Leaps to the tile with most enemies within 3 tiles, redirects their targeting,
-    and increases dodge. Each dodge restores 1% max MP.\nDeals {data2} + ({data3}%
-    \xD7 max HP) (Final: {Final}) to enemies within {data1} tiles of the target tile."
+  - "\u512A\u9999(Yuuka)\u8DF3\u5230\u4E09\u683C\u5167\u6575\u4EBA\u6700\u591A\u7684\u683C\u5B50\uFF0C\u8A98\u5C0E\u4ED6\u5011\u66F4\u6539\u76EE\u6A19\u4E14\u9583\u907F\u503C\u4E0A\u5347\uFF0C\u4E26\u4E14\u6BCF\u4E00\u6B21\u7684\u9583\u907F\u90FD\u6703\u586B\u51451\u9EDE\u9B54\u529B\u3002\u5C0D\u8A72\u683C\u5468\u570D
+    {data4} \u683C\u5167\u7684\u6575\u8ECD\u9020\u6210\u50B7\u5BB3\uFF0C\u50B7\u5BB3\u91CF\u70BA
+    {data1} + ({data2}% \xD7 {Attack}+{data3}%*{Health}) (\u6700\u7D42: {Final})\uFF0C\u4E14\u81EA\u8EAB\u7372\u5F97\u76F8\u540C\u6578\u503C\u7684\u8B77\u76FE\u3002"
+  - "Yuuka jumps to the tile within 3 hexes that has the most enemies, \r\nprovoking
+    them to change their target and increasing her evasion. \r\nEach successful evasion
+    restores 1 point of Mana. \r\nShe deals {data1} + ({data2}% \xD7 {Attack} + {data3}%
+    \xD7 {Health}) damage (Final: {Final}) to enemies within {data4} hexes around
+    that tile, \r\nand gains a shield equal to the same amount.\r\n"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

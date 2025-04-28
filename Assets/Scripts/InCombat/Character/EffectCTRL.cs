@@ -39,6 +39,7 @@ public class EffectCTRL : MonoBehaviour
                 if (existingEffect.Stackable)
                 {
                     existingEffect.UpdateValue(existingEffect.Value + effect.Value,c);
+                    UpdateEffectNames();
                 }
                 if (effect.Value > existingEffect.Value && !existingEffect.Stackable)
                 {

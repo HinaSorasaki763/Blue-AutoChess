@@ -30,7 +30,7 @@ public class UIManager : MonoBehaviour
     public Image Sprite1, Sprite2, CompleteItemSprite;
     public TextMeshProUGUI CompleteItemText;
     public Button BugReportButton;
-    public TextMeshProUGUI Attack, Accuracy, Attackspeed, CritChance, CritDamage, Def, Dodge, Lifesteal, HealEffectiveness, PercentageDef;
+    public TextMeshProUGUI Attack, Accuracy, Attackspeed, CritChance, CritDamage, Def, Dodge, Lifesteal, HealEffectiveness, PercentageDef,Range;
     private void Awake()
     {
         if (Instance == null)
@@ -206,7 +206,7 @@ public class UIManager : MonoBehaviour
         Dodge.text = currentCharacter.GetStat(StatsType.DodgeChance).ToString();
         Lifesteal.text = currentCharacter.GetStat(StatsType.Lifesteal).ToString();
         PercentageDef.text = currentCharacter.GetStat(StatsType.PercentageResistence).ToString();
-
+        Range.text = currentCharacter.GetStat(StatsType.Range).ToString();
     }
 }
 public static class StringPlaceholderReplacer
@@ -223,7 +223,6 @@ public static class StringPlaceholderReplacer
             // 若replacements裡有這個key，就替換；否則原樣返回
             if (replacements.TryGetValue(key, out string value))
             {
-                CustomLogger.Log(value, $"getting {key} key , returing {value} value");
                 return value;
             }
             else

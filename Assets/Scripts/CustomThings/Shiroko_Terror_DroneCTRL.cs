@@ -23,7 +23,7 @@ public class Shiroko_Terror_DroneCTRL : MonoBehaviour
         Animator.speed = parent.GetStat(StatsType.AttackSpeed);
         Vector3 v = target.transform.position;
         transform.LookAt(v);
-        int dmg = (int)parent.GetStat(StatsType.Attack)*stack;
+        int dmg = (int)parent.ActiveSkill.GetAttackCoefficient(parent.GetSkillContext());
         (bool, int) tuple = parent.CalculateCrit(dmg);
         if (GameController.Instance.CheckCharacterEnhance(22, parent.IsAlly))
         {
@@ -31,15 +31,13 @@ public class Shiroko_Terror_DroneCTRL : MonoBehaviour
             if (enhanced_stack >= 3)
             {
                 enhanced_stack -= 3;
-                Utility.DealDamageInRange(target.CurrentHex, 2, parent, tuple.Item2, "Enhanced_Shiroko_Drone", tuple.Item1);
+                Utility.DealDamageInRange(target.CurrentHex, 1, parent, tuple.Item2, "Enhanced_Shiroko_Drone", tuple.Item1);
             }
         }
         target.GetHit(tuple.Item2,parent,"Shiroko_Terror_Drone",tuple.Item1);
-        CustomLogger.Log(this,$"Dealing {dmg}");
     }
     public void EndAttack()
     {
         Animator.SetBool(attacking, false);
-        CustomLogger.Log(this, $" end attack");
     }
 }

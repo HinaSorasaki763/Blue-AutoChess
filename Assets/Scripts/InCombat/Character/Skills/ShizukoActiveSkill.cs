@@ -1,6 +1,5 @@
 using GameEnum;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 public class ShizukoActiveSkill : MonoBehaviour
 {
@@ -21,15 +20,16 @@ public class ShizukoActiveSkill : MonoBehaviour
     }
     public void Update()
     {
-        if (GameController.Instance.CheckCharacterEnhance(10,Parent.IsAlly) && ctrl.isTargetable)
+        if (GameController.Instance.CheckCharacterEnhance(10, Parent.IsAlly) && ctrl.isTargetable)
         {
             counter++;
-            if (counter>=updateCounter)
+            if (counter >= updateCounter)
             {
                 counter = 0;
-                foreach (var item in Utility.GetCharacterInrange(ctrl.CurrentHex,2,ctrl,true))
+                int range = Parent.ActiveSkill.GetCharacterLevel()[Parent.star].Data1;
+                foreach (var item in Utility.GetCharacterInrange(ctrl.CurrentHex, range, ctrl, true))
                 {
-                    int amount = (int)(ctrl.GetStat(StatsType.Health)*0.1f);
+                    int amount = (int)(ctrl.GetStat(StatsType.Health) * 0.01f);
                     item.Heal(amount, ctrl);
                 }
             }
@@ -91,7 +91,7 @@ public class ShizukoActiveSkill : MonoBehaviour
         ctrl.characterBars = bar;
         bar.SetBarsParent(obj.transform);
         StaticObject staticObj = obj.GetComponent<StaticObject>();
-        staticObj.InitStaticObjStats(parent,parent.ActiveSkill.GetAttackCoefficient(parent.GetSkillContext()));
+        staticObj.InitStaticObjStats(parent, parent.ActiveSkill.GetAttackCoefficient(parent.GetSkillContext()));
         characterParent.childCharacters.Add(ctrl.gameObject);
         ctrl.IsAlly = Parent.IsAlly;
         ctrl.CurrentHex = h;

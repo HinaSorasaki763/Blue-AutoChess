@@ -59,15 +59,18 @@ MonoBehaviour:
   BarrageInitAngle: 0
   Tooltips:
   - "\u5632\u8AF7\u6240\u6709\u6575\u4EBA\uFF0C\u82E5\u6A01\u5728\u5176\u653B\u64CA\u7BC4\u570D\u5167\uFF0C\u5247\u5F37\u5236\u8F49\u706B\u653B\u64CA\u6A01\u3002"
-  - "Taunts all enemies. If Tsubaki is within their attack range, \nthey are forced
-    to target her instead. (Final: {Final})"
-  EnhancedSkillTooltips:
-  - "\u4E3B\u52D5:\u5632\u8AF7\u6240\u6709\u6575\u4EBA\uFF0C\u82E5\u6A01\u5728\u5176\u653B\u64CA\u7BC4\u570D\u5167\uFF0C\u5247\u5F37\u5236\u8F49\u706B\u653B\u64CA\u6A01\u3002\n\u88AB\u52D5:\u751F\u547D\u503C\u6389\u843D\u523040%\u4EE5\u4E0B\u6642\uFF0C\u6062\u5FA940%\u6700\u5927\u751F\u547D\uFF0C\u6BCF\u88AB\u50B7\u5BB3100\u6B21\u6642\uFF0C\u589E\u52A0\u4E00\u6B21\u53EF\u89F8\u767C\u7684\u6A5F\u6703"
-  - 'Taunts all enemies. If the Tsubaki is within range, forces enemies to attack
-    it.
+  - 'Tsubaki taunts all enemies.If Tsubaki is within an enemy''s attack range, the
+    enemy is forced to retarget and attack Tsubaki.
 
-    Passive: When HP drops below 40%, restores 40% max HP. Gains a trigger
-    charge every 100 hits taken.'
+    
+
+'
+  EnhancedSkillTooltips:
+  - "\u4E3B\u52D5:\u5632\u8AF7\u6240\u6709\u6575\u4EBA\uFF0C\u82E5\u6A01\u5728\u5176\u653B\u64CA\u7BC4\u570D\u5167\uFF0C\u5247\u5F37\u5236\u8F49\u706B\u653B\u64CA\u6A01\u3002\n\u88AB\u52D5:\u751F\u547D\u503C\u6389\u843D\u523060%\u4EE5\u4E0B\u6642\uFF0C\u6062\u5FA940%\u6700\u5927\u751F\u547D\uFF0C\u6BCF\u88AB\u50B7\u5BB3100\u6B21\u6642\uFF0C\u589E\u52A0\u4E00\u6B21\u53EF\u89F8\u767C\u7684\u6A5F\u6703"
+  - "Active: Tsubaki taunts all enemies. \r\nIf Tsubaki is within an enemy's attack
+    range, the enemy is forced to retarget and attack Tsubaki.\r\nPassive: When Tsubaki's
+    HP falls below 60%, she restores 40% of her maximum HP. \r\nFor every 100 instances
+    of damage taken, she gains an additional activation opportunity for this effect.\r\n"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

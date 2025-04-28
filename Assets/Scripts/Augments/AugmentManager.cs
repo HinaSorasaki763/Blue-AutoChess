@@ -65,7 +65,10 @@ public class AugmentManager : MonoBehaviour
             var config = availableAugments[selectedIndex];
             currentAugments[i] = AugmentFactory.CreateAugment(config);
             optionIcons[i].sprite = config.augmentIcon;
-            optionDescriptions[i].text = config.description;
+            int language = PlayerSettings.SelectedDropdownValue;
+            string description = language == 0 ? config.description : config.descriptionEnglish;
+            CustomLogger.Log(config, $"選擇了強化：{config.augmentName}，描述：{description},語言為{language}");
+            optionDescriptions[i].text = description;
 
             recentAugments.Enqueue(config.augmentIndex);
             if (recentAugments.Count > 10)
@@ -120,6 +123,10 @@ public class AugmentManager : MonoBehaviour
 
             currentAugments[index].Apply();
             Debug.Log($"選擇了強化：{currentAugments[index].Name}");
+        }
+        foreach (var item in ResourcePool.Instance.ally.GetAllCharacter())
+        {
+            item.OnCharaterEnabled();
         }
         Parent.SetActive(false);
     }

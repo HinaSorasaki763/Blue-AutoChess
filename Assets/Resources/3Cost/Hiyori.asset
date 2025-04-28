@@ -60,13 +60,14 @@ MonoBehaviour:
   Tooltips:
   - "\u5C0D\u7576\u524D\u76EE\u6A19\u767C\u5C04\u5B50\u5F48\uFF0C\u5148\u964D\u4F4E{data3}%\u9632\u79A6\u4E4B\u5F8C\u518D\u9020\u6210
     {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})"
-  - 
+  - "Hiyori fires a bullet at her current target, first reducing their Defense by
+    {data3}%, \r\nthen dealing {data1} + ({data2}% \xD7 Attack) damage (Final: {Final}).\r\n"
   EnhancedSkillTooltips:
   - "\u5C04\u51FA\u4E94\u767C\u5B50\u5F48\uFF0C\u5206\u5225\u9020\u6210\u9020\u6210
     {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\u50B7\u5BB3\u3002\u5728\u540C\u4E00\u6B21\u6280\u80FD\u65BD\u653E\u6642\uFF0C\u6BCF\u4E00\u6B21\u547D\u4E2D\u5230\u540C\u4E00\u500B\u55AE\u4F4D\u6642\uFF0C\u50B7\u5BB3\u90FD\u6703\u589E\u52A0{data3}%\u3002"
-  - "Shoots 5 bullets, each dealing: {data1} + ({data2}% \xD7 Attack) (Final: {Final}).\nFor
-    each hit on the same unit in one skill cast, increases damage by {data3}% per
-    hit."
+  - "Hiyori fires five bullets, each dealing {data1} + ({data2}% \xD7 Attack) damage
+    (Final: {Final}). \r\nFor this skill, each consecutive hit on the same target
+    increases the damage by {data3}%.\r\n"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

@@ -60,15 +60,18 @@ MonoBehaviour:
   Tooltips:
   - "\u671D\u8986\u84CB\u6700\u591A\u6575\u4EBA\u7684\u4F4D\u7F6E\u767C\u5C04\u53EF\u7A7F\u900F\u7684\u5F48\u5E55\uFF0C\n\u6BCF\u767C\u9020\u6210
     {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) + {data3} (\u6700\u7D42: {Final})\u3002"
-  - "Fires a barrage at the location that hits the most enemies, piercing them. \nEach
-    shot deals {data1} + ({data2}% \xD7 ATK) + {data3} (Final: {Final})."
+  - "Hina fires a piercing barrage toward the location covering the most enemies.
+    \r\nEach shot deals {data1} + ({data2}% \xD7 Attack) + {data3} \xD7 {Pressure}
+    damage (Final: {Final}).\r\n"
   EnhancedSkillTooltips:
   - "\u671D\u8986\u84CB\u6700\u591A\u6575\u4EBA\u7684\u4F4D\u7F6E\u767C\u5C04\u53EF\u7A7F\u900F\u7684\u5F48\u5E55\uFF0C\n\u6BCF\u767C\u9020\u6210
     {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) + {data3} (\u6700\u7D42: {Final})\u3002\n\u5C0D\u65BC\u547D\u4E2D\u7684\u55AE\u4F4D\u65BD\u52A0\u6A19\u8A18\uFF0C\u683C\u9ED1\u5A1C\u5B78\u9662\u7684\u5B78\u751F(\u975E\u967D\u5948)\u9020\u6210\u50B7\u5BB3\u6642\u5C07\u6703\u9020\u6210\u984D\u5916\u50B7\u5BB3(\u6839\u64DA\u5A01\u58D3)\uFF0C\u5E36\u6709\u6A19\u8A18\u7684\u55AE\u4F4D\u6B7B\u53BB\u6642\uFF0C\u5C07\u6703\u6839\u64DA\u89F8\u767C\u6A19\u8A18\u7684\u6B21\u6578\u7684\u56FA\u5B9A\u6BD4\u4F8B\u984D\u5916\u7372\u5F97\"\u5A01\u58D3\""
-  - "Fires a piercing barrage at the area with most enemies. Each hit deals: {data1}
-    + ({data2}% \xD7 Attack) + {data3} (Final: {Final}).\nApplies marks. Gehenna
-    students (except Hina) deal bonus damage to marked enemies. On death, marked
-    enemies grant Pressure proportional to trigger count."
+  - "Hina fires a piercing barrage toward the location covering the most enemies.
+    \r\nEach shot deals {data1} + ({data2}% \xD7 Attack) + {data3} \xD7 {Pressure}
+    damage (Final: {Final}). \r\nEnemies hit are marked. \r\nWhen Gehenna Academy
+    students (excluding Hina) deal damage to marked enemies, they inflict additional
+    damage based on {Pressure}. \r\nIf a marked enemy dies, a fixed proportion of
+    \"Pressure\" is gained based on the number of times the mark was triggered.\r\n"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

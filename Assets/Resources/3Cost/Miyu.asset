@@ -61,17 +61,23 @@ MonoBehaviour:
   - "\u88AB\u52D5: \u4E0D\u6703\u88AB\u55AE\u9AD4\u9396\u5B9A\uFF0C\u4F46\u4ECD\u6703\u53D7\u5230\u7BC4\u570D\u653B\u64CA\u3002\u82E5\u6240\u6709\u53CB\u8ECD\u6B7B\u4EA1\uFF0C\u7F8E\u904A\u624D\u6703\u88AB\u9396\u5B9A\n\u4E3B\u52D5:
     \u72D9\u64CA\u672C\u5C40\u9020\u6210\u6700\u591A\u50B7\u5BB3\u7684\u6575\u4EBA\uFF0C\u9020\u6210
     {data1} (\u6700\u7D42: {Final})\uFF0C\u7121\u6CD5\u88AB\u4EFB\u4F55\u5F62\u5F0F\u963B\u64CB\u3002"
-  - "Passive: Cannot be directly targeted but can be hit by AoE. If all other allies
-    die, Miyu becomes targetable.\nActive: Snipes the enemy who dealt the most damage
-    this match for {data1} (Final: {Final}), \nwhich cannot be blocked by any means."
+  - "Passive: Miyu cannot be targeted by single-target attacks but can still be hit
+    by area-of-effect attacks. \r\nShe can only be targeted directly if all other
+    allies are defeated.\r\n\r\nActive: Miyu snipes the enemy who has dealt the most
+    damage this battle, \r\ndealing {data1} damage (Final: {Final}). \r\nThis attack
+    cannot be blocked by any means.\r\n"
   EnhancedSkillTooltips:
   - "\u88AB\u52D5: \u4E0D\u6703\u88AB\u55AE\u9AD4\u9396\u5B9A\uFF0C\u4F46\u4ECD\u6703\u53D7\u5230\u7BC4\u570D\u653B\u64CA\u3002\u82E5\u6240\u6709\u53CB\u8ECD\u6B7B\u4EA1\uFF0C\u7F8E\u904A\u624D\u6703\u88AB\u9396\u5B9A\n\u4E3B\u52D5:
     \u72D9\u64CA\u672C\u5C40\u9020\u6210\u6700\u591A\u50B7\u5BB3\u7684\u6575\u4EBA\uFF0C\u9020\u6210
     {data1} (\u6700\u7D42: {Final})\uFF0C\u7121\u6CD5\u88AB\u4EFB\u4F55\u5F62\u5F0F\u963B\u64CB\uFF0C\u4E14\u9084\u6703\u5C0D\u65BC\u6575\u4EBA\u65BD\u52A0\"\u5F31\u9EDE\u89C0\u5BDF(\u6575\u4EBA\u53D7\u5230\u50B7\u5BB3\u6642\uFF0C\u6703\u984D\u5916\u53D7\u5230\u7F8E\u904A\u653B\u64CA\u529B%\u7684\u50B7\u5BB3)\"\uFF0C\u4E26\u4E14\u5F37\u8FEB\u5176\u6210\u70BA\u76EE\u6A19\u5167\u53CB\u8ECD\u7684\u76EE\u6A19\n"
-  - "Cannot be single-targeted while allies are alive, but can be hit by AoE.\nActive:
-    Snipes the enemy who dealt the most damage this round: {data1} (Final: {Final}),
-    cannot be blocked. Applies \u201CWeak Spot\u201D mark: enemy takes extra damage
-    equal to Miyu\u2019s Attack %. Forces allies to target that enemy."
+  - "Passive: Miyu cannot be targeted by single-target attacks but can still be hit
+    by area-of-effect attacks. \r\nShe can only be targeted directly if all other
+    allies are defeated.\r\n\r\nActive: Miyu snipes the enemy who has dealt the most
+    damage this battle, \r\ndealing {data1} damage (Final: {Final}). \r\nThis attack
+    cannot be blocked by any means. \r\nAdditionally, the target is afflicted with
+    \"Weak Point Observation,\" \r\ncausing them to take additional damage based
+    on a percentage of Miyu's Attack whenever they are hit. \r\nThe target is also
+    forced to become the priority target for allied units.\r\n"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

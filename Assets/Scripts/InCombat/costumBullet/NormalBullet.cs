@@ -125,7 +125,7 @@ public class NormalBullet : MonoBehaviour
         {
             if (!isBarrage )
             {
-                Vector3 targetPosWithFixedY = new Vector3(Target.transform.position.x, transform.position.y, Target.transform.position.z);
+                Vector3 targetPosWithFixedY = new Vector3(Target.GetComponent<CharacterCTRL>().GetHitPoint.position.x, transform.position.y, Target.GetComponent<CharacterCTRL>().GetHitPoint.position.z);
                 transform.position += speed * Time.deltaTime * (targetPosWithFixedY - transform.position).normalized;
                 transform.LookAt(targetPosWithFixedY);
             }
@@ -393,7 +393,7 @@ public class NeruSkillEffect : HitEffect
             (bool, int) tuple = source.CalculateCrit(dmg);
             bool iscrit = tuple.Item1;
             dmg = tuple.Item2;
-            bulletComponent.Initialize(dmg, source.GetTargetLayer(), source, 20, c.gameObject, true, iscrit, null, 20, false, default, false, null, true, target.GetHitPoint.position);
+            bulletComponent.Initialize(dmg, source.GetTargetLayer(), source, 20, c.gameObject, false, iscrit, null, 20, false, default, false, null, true, target.GetHitPoint.position);
         }
         else
         {
@@ -401,7 +401,7 @@ public class NeruSkillEffect : HitEffect
             (bool, int) tuple = source.CalculateCrit(dmg);
             bool iscrit = tuple.Item1;
             dmg = tuple.Item2;
-            c.GetHit(dmg, source, DamageSourceType.Skill.ToString(), iscrit);
+            c.GetHit(dmg, source, DamageSourceType.NormalAttack.ToString(), iscrit);
         }
     }
 }

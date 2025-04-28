@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
 using TMPro;
+using GameEnum;
 
 public class EnemyWaveRuntimeEditor : MonoBehaviour
 {
@@ -25,8 +26,7 @@ public class EnemyWaveRuntimeEditor : MonoBehaviour
     public List<Character> OneCostCharacter, TwoCostCharacter, ThreeCostCharacter, FourCostCharacter, FiveCostCharacter, SpecialCharacter, TestBuildCharacter;
     public List<List<Character>> Lists = new();
     public Sprite HexagonImage;
-
-
+    public List<IEquipment> availableEquipments = new List<IEquipment>();
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -50,29 +50,26 @@ public class EnemyWaveRuntimeEditor : MonoBehaviour
         }
 
         selectedTile = tile;
-        tile.GetComponent<Image>().color = Color.yellow;
-        CustomLogger.Log(this, $"選擇了空白HexTile: {tile.name}");
-    }
+        if (tile.occupant == null)
+        {
+            tile.GetComponent<Image>().color = Color.yellow;
+            CharacterDetailPanel.Instance.Close();
+        }
 
-    // 當點擊一個角色按鈕
+    }
     public void OnCharacterButtonClicked(Character characterData)
     {
         if (selectedTile != null && selectedTile.occupant == null)
         {
-            // 指派角色給這個 tile
             selectedTile.SetOccupant(characterData);
             CustomLogger.Log(this, $"選擇了{characterData}，放置在{selectedTile}");
-            selectedTile = null; // 取消選中
-
+            selectedTile = null;
         }
         else
         {
-            // 代表沒有選到空白格，就純粹按了角色按鈕；可能可以給個提示
             CustomLogger.LogWarning(this, "尚未選擇空白HexTile就點角色了，無法放置。");
         }
     }
-
-
     public void SaveSnapshot()
     {
         EnemyWaveData enemyWaveData = new EnemyWaveData();
@@ -83,25 +80,24 @@ public class EnemyWaveRuntimeEditor : MonoBehaviour
                 EnemyWaveData.GridSlotData gridSlotData = new EnemyWaveData.GridSlotData();
                 gridSlotData.GridIndex = item.index;
                 gridSlotData.CharacterID = item.occupant.CharacterId;
-                gridSlotData.Level = 1;
+                gridSlotData.Level = item.editedLevel;
+                gridSlotData.EquipmentIDs = item.editedEquipmentIDs;
                 enemyWaveData.gridSlots.Add(gridSlotData);
             }
-            enemyWaveData.logisticSlot1.CharacterID = -1;
-            enemyWaveData.logisticSlot1.GridIndex = -1;
-            enemyWaveData.logisticSlot1.Level = 1;
-            enemyWaveData.logisticSlot1.EquipmentIDs = new int[3] { -1, -1, -1 };
-            enemyWaveData.logisticSlot2.CharacterID = -1;
-            enemyWaveData.logisticSlot2.GridIndex = -1;
-            enemyWaveData.logisticSlot2.Level = 1;
-            enemyWaveData.logisticSlot2.EquipmentIDs = new int[3] { -1, -1, -1 };
-            enemyWaveData.logisticSlot2.DummyGridIndex = -1;
         }
+        enemyWaveData.logisticSlot1.CharacterID = -1;
+        enemyWaveData.logisticSlot1.GridIndex = -1;
+        enemyWaveData.logisticSlot1.Level = 1;
+        enemyWaveData.logisticSlot1.EquipmentIDs = new int[3] { -1, -1, -1 };
+        enemyWaveData.logisticSlot2.CharacterID = -1;
+        enemyWaveData.logisticSlot2.GridIndex = -1;
+        enemyWaveData.logisticSlot2.Level = 1;
+        enemyWaveData.logisticSlot2.EquipmentIDs = new int[3] { -1, -1, -1 };
+        enemyWaveData.logisticSlot2.DummyGridIndex = -1;
         EnemyWave enemyWave = EnemyWaveConverter.FromData(enemyWaveData);
-        // 1) 先拿到使用者輸入的檔名
         string userInput = fileNameInputField.text.Trim();
         if (string.IsNullOrEmpty(userInput))
         {
-            // 若沒輸入，則用預設檔名
             userInput = DefaultName;
         }
         string json = JsonUtility.ToJson(enemyWaveData, true);
@@ -111,10 +107,8 @@ public class EnemyWaveRuntimeEditor : MonoBehaviour
         {
             if (overrideToggle == null || !overrideToggle.isOn)
             {
-                // 沒有選覆蓋 => 自動產生新檔名
-                // 例如  "MyWave.json" 變成 "MyWave (1).json"、"MyWave (2).json" 等
                 int index = 1;
-                string baseName = userInput; // 不含 .json
+                string baseName = userInput;
                 string extension = ".json";
                 string tryPath;
                 do
@@ -124,18 +118,13 @@ public class EnemyWaveRuntimeEditor : MonoBehaviour
                     index++;
                 }
                 while (File.Exists(tryPath));
-
-                // 找到可用的 path
                 finalPath = tryPath;
             }
             else
             {
-                // overrideToggle.isOn = true => 直接覆蓋
-                // 就什麼都不用做
+                
             }
         }
-
-        // 5) 寫出檔案
         File.WriteAllText(finalPath, json);
         CustomLogger.Log(this, $"快照儲存完成 => {finalPath}");
     }
@@ -146,14 +135,9 @@ public class EnemyWaveRuntimeEditor : MonoBehaviour
             CustomLogger.LogError(this, "找不到快照檔案，無法讀取");
             return;
         }
-
-        // 從外部檔案讀 JSON 字串，反序列化成 Data，再回寫到 ScriptableObject
         string json = File.ReadAllText(snapshotPath);
         EnemyWaveData data = JsonUtility.FromJson<EnemyWaveData>(json);
     }
-
-    // 這裡可以示範「在遊戲中修改 targetWave」的流程
-    // 假設有個公開的方法給 UI Button 來加減數值
     public void ModifyPressureStack(int amount)
     {
 
@@ -191,9 +175,59 @@ public class EnemyWaveRuntimeEditor : MonoBehaviour
                 }
             }
         }
+        EquipmentSO[] equipments = Resources.LoadAll<EquipmentSO>("Equipments");
+        foreach (var equipment in equipments)
+        {
+            if (equipment.isSpecial)
+            {
+                
+            }
+            else if (equipment.IsConsumable)
+            {
+                
+            }
+            else if (equipment.Index >= 6)
+            {
+                CombinedEquipment combinedEquipment = new(equipment);
+                CharacterObserverBase c = ItemObserverFactory.GetObserverByIndex(equipment.Index);
+                if (c != null)
+                {
+                    combinedEquipment.observer = c;
+                }
+                availableEquipments.Add(combinedEquipment);
+            }
+            else if (equipment.Index < 6)
+            {
+                CharacterObserverBase c = ItemObserverFactory.GetObserverByIndex(equipment.Index);
+                BasicEquipment basicEquipment = new(equipment);
+                basicEquipment.observer = c;
+                availableEquipments.Add(basicEquipment);
+                CustomLogger.Log(this, $"Add {basicEquipment}, id = {basicEquipment.id},{basicEquipment.Icon}");
+            }
+        }
+        CharacterDetailPanel.Instance.Init();
     }
+
     void LoadResources<T>(string path, ref List<T> list) where T : Object
     {
         list = Resources.LoadAll<T>(path).ToList();
     }
+    public void DeleteAllSnapshots()
+    {
+        string[] jsonFiles = Directory.GetFiles(snapshotPath, "*.json", SearchOption.TopDirectoryOnly);
+
+        foreach (string filePath in jsonFiles)
+        {
+            try
+            {
+                File.Delete(filePath);
+                CustomLogger.Log(this, $"已刪除檔案: {filePath}");
+            }
+            catch (System.Exception ex)
+            {
+                CustomLogger.LogError(this, $"刪除檔案失敗: {filePath}, 錯誤訊息: {ex.Message}");
+            }
+        }
+    }
+
 }

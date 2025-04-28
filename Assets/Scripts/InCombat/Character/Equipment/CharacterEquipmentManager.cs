@@ -41,6 +41,7 @@ public class CharacterEquipmentManager : MonoBehaviour
         }
         AddEquipment(equipment);
         UpdateStatsForEquipment(equipment);
+        Parent.RecalculateStats();
         return true;
     }
     public void OnParentCastedSkill()
@@ -214,6 +215,22 @@ public class CharacterEquipmentManager : MonoBehaviour
     {
         equippedItems.Add(equipment);
     }
+    public void UpdateEquipmentStats()
+    {
+        foreach (var item in equippedItems)
+        {
+            foreach (var stat in item.GetStats())
+            {
+                float val = stat.Value;
+                if (stat.Key == EquipmentType.AttackSpeed)
+                {
+                    val *= 0.01f;
+                }
+                Parent.AddStat(GetStatType(stat.Key), val,false);
+            }
+            CustomLogger.Log(this, $"UpdateEquipmentStats: {item.GetStats()}");
+        }
+    }
     private void UpdateStatsForEquipment(IEquipment equipment)
     {
         foreach (var stat in equipment.GetStats())
@@ -253,6 +270,8 @@ public class CharacterEquipmentManager : MonoBehaviour
                 return StatsType.CritChance;
             case EquipmentType.Health:
                 return StatsType.Health;
+            case EquipmentType.LifeSteal:
+                return StatsType.Lifesteal;
             default:
                 return StatsType.Null;
         }

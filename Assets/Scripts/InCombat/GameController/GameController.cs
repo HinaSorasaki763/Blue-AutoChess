@@ -227,11 +227,32 @@ public class GameController : MonoBehaviour
     {
         if (absoluteAlly)
         {
+            CustomLogger.Log(this, $"CheckSpecificCharacterEnhanced{index}");
+            foreach (var item in ResourcePool.Instance.ally.enhancedSkillCharacters)
+            {
+                CustomLogger.Log(this, $"enhancedSkillCharacters has {item}");
+            }
             return ResourcePool.Instance.ally.enhancedSkillCharacters.Contains(index);
         }
         else
         {
             return ResourcePool.Instance.enemy.enhancedSkillCharacters.Contains(index);
+        }
+    }
+    public bool CheckSpecificCharacterEnhanced(CharacterCTRL c ,int index,bool absoluteAlly)
+    {
+        if (absoluteAlly)
+        {
+            CustomLogger.Log(this, $"CheckSpecificCharacterEnhanced {c.name} {index}");
+            foreach (var item in ResourcePool.Instance.ally.enhancedSkillCharacters)
+            {
+                CustomLogger.Log(this, $"enhancedSkillCharacters has {item}");
+            }
+            return ResourcePool.Instance.ally.enhancedSkillCharacters.Contains(index) && c.characterStats.CharacterId == index;
+        }
+        else
+        {
+            return ResourcePool.Instance.enemy.enhancedSkillCharacters.Contains(index) && c.characterStats.CharacterId == index;
         }
     }
 }

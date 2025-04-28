@@ -3,7 +3,7 @@ using UnityEngine;
 public class EnemyTraitRelated : MonoBehaviour
 {
     public static EnemyTraitRelated Instance;
-    private int PressureStack;
+    private int PressureStack = 0;
     public void OnEnable()
     {
         Instance = this;

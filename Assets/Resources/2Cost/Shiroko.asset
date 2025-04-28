@@ -58,17 +58,19 @@ MonoBehaviour:
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
-  - "\u62DB\u559A\u4E00\u500B\u7121\u4EBA\u6A5F\uFF0C\u5C0D\u6575\u4EBA\u9032\u884C\u82E5\u5E72\u6B21\u653B\u64CA\uFF0C\n\u6BCF\u6B21\u9020\u6210
-    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\u3002"
-  - "Summons a drone that attacks several times, \neach hit dealing {data1} + ({data2}%
-    \xD7 ATK) (Final: {Final}).)."
+  - "\u767D\u5B50\u62DB\u559A\u4E00\u500B\u7121\u4EBA\u6A5F\uFF0C\u9032\u884C\u8F14\u52A9\u653B\u64CA\uFF0C\u4ED6\u6BCF\u4E00\u6B21\u653B\u64CA\uFF0C\u7121\u4EBA\u6A5F\u5C31\u6703\u5C0D\u76F8\u540C\u76EE\u6A19\u9020\u6210
+    {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\u3002"
+  - "Shiroko summons a drone to assist in attacks. \r\nEach time she attacks, the
+    drone also attacks the same target, dealing {data1} + ({data2}% \xD7 {Attack})
+    damage (Final: {Final}).\r\n"
   EnhancedSkillTooltips:
-  - "\u62DB\u559A\u4E00\u500B\u7121\u4EBA\u6A5F\uFF0C\u5C0D\u6575\u4EBA\u9032\u884C\u82E5\u5E72\u6B21\u653B\u64CA\uFF0C\n\u6BCF\u6B21\u9020\u6210
-    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\u3002\n\u7121\u4EBA\u6A5F\u73FE\u5728\u6703\u8CE6\u4E88\u767D\u5B50\u8B77\u76FE\uFF0C\u5728\u8B77\u76FE\u88AB\u7834\u58DE\u6642\uFF0C\u7121\u4EBA\u6A5F\u5931\u6548\uFF0C\u4E14\u671D\u9130\u8FD1\u6575\u4EBA\u9020\u6210\u4E00\u6B21\u7BC4\u570D\u50B7\u5BB3//\u5C1A\u672A\u5B8C\u6210"
-  - "Summons a drone that attacks enemies multiple times, each dealing: {data1} +
-    ({data2}% \xD7 Attack) (Final: {Final}).\nDrone gives Shiroko a shield. If shield
-    is broken, drone is destroyed and deals AoE damage to nearby enemies. //Partially
-    incomplete"
+  - "\u767D\u5B50\u62DB\u559A\u4E00\u500B\u7121\u4EBA\u6A5F\uFF0C\u9032\u884C\u8F14\u52A9\u653B\u64CA\uFF0C\u4ED6\u6BCF\u4E00\u6B21\u653B\u64CA\uFF0C\u7121\u4EBA\u6A5F\u5C31\u6703\u5C0D\u76F8\u540C\u76EE\u6A19\u9020\u6210
+    {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\u3002\n\u7121\u4EBA\u6A5F\u73FE\u5728\u6703\u8CE6\u4E88\u767D\u5B50\u6301\u7E8C\u4E94\u79D2\u7684\u8B77\u76FE(\u6578\u503C\u70BA{final}*10)\uFF0C\u4E14\u6BCF\u4E09\u6B21\u8F14\u52A9\u653B\u64CA\uFF0C\u6539\u70BA\u5C0D1\u683C\u5167\u7684\u6575\u8ECD\u9020\u6210\u76F8\u540C\u50B7\u5BB3"
+  - "Shiroko summons a drone to assist in attacks. \r\nEach time she attacks, the
+    drone also attacks the same target, dealing {data1} + ({data2}% \xD7 {Attack})
+    damage (Final: {Final}). \r\nThe drone now grants Shiroko a shield lasting 5
+    seconds (shield value: {final} \xD7 10). \r\nEvery third assisted attack, the
+    drone instead deals the same damage to all enemies within 1 hex of the target.\r\n"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

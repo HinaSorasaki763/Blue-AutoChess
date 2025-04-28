@@ -14,11 +14,19 @@ public class TsurugiActiveSkill : MonoBehaviour
         Enhancing = true;
         Animator.SetBool(attackType, true);
         Parent.ManaLock = true;
+        if (Parent.characterObserver is TsurugiObserver tsurugi)
+        {
+            tsurugi.DamageIncrease += 50;
+        }
     }
     public void ResetAttackType()
     {
         Enhancing = false;
         Animator.SetBool(attackType, false);
         Parent.ManaLock = false;
+        if (Parent.characterObserver is TsurugiObserver tsurugi)
+        {
+            tsurugi.DamageIncrease -= 50;
+        }
     }
 }

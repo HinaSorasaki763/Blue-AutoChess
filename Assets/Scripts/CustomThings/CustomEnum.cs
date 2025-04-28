@@ -122,7 +122,8 @@ namespace GameEnum
         AttackSpeed,
         Defense,
         CriticalRate,
-        Health
+        Health,
+        LifeSteal
     }
     public interface IEquipment
     {
@@ -159,6 +160,8 @@ namespace GameEnum
         public string EquipmentDescriptionEnglish => equipmentDescriptionEnglish;
         public Sprite Icon => icon;
         public bool IsConsumable => isConsumable;
+        public List<EquipmentType> Attributes;
+        public List<int> Value;
         public CharacterObserverBase observer;
         public CharacterObserverBase Observer
         {
@@ -174,10 +177,17 @@ namespace GameEnum
             equipmentDetail = equipmentSO.equipmentDescription;
             equipmentDescriptionEnglish = equipmentSO.equipmentDescriptionEnglish;
             isConsumable = equipmentSO.IsConsumable;
+            Attributes = equipmentSO.Attributes;
+            Value = equipmentSO.Value;
         }
         public Dictionary<EquipmentType, int> GetStats()
         {
-            return new Dictionary<EquipmentType, int> { { equipmentType, value } };
+            Dictionary<EquipmentType, int> combinedStats = new Dictionary<EquipmentType, int>();
+            for (int i = 0; i < Attributes.Count; i++)
+            {
+                combinedStats[Attributes[i]] = Value[i];
+            }
+            return combinedStats;
         }
         public void OnRemove(CharacterCTRL character)
         {
@@ -203,7 +213,23 @@ namespace GameEnum
                 ? new List<EquipmentType>(this.combinableWith)
                 : null;
             copy.Observer = null;
+            if (this.Attributes != null)
+            {
+                copy.Attributes = new List<EquipmentType>(this.Attributes);
+            }
+            else
+            {
+                copy.Attributes = null;
+            }
 
+            if (this.Value != null)
+            {
+                copy.Value = new List<int>(this.Value);
+            }
+            else
+            {
+                copy.Value = null;
+            }
             return copy;
         }
     }
@@ -348,11 +374,6 @@ namespace GameEnum
         public string EquipmentDescriptionEnglish => equipmentDescriptionEnglish;
         public Sprite Icon => icon;
         public bool IsConsumable => isConsumable;
-
-        // ----------------------------------------
-        // 建構子
-        // ----------------------------------------
-        // 從 EquipmentSO 初始化
         public SpecialEquipment(EquipmentSO equipmentSO)
         {
             Attributes = equipmentSO.Attributes;
@@ -1532,7 +1553,7 @@ namespace GameEnum
         {
             Parent = c;
             Value = newValue;
-            OnApply.Invoke(Parent);
+            c.RecalculateStats();
         }
         public void AddValue(float valAdded)
         {

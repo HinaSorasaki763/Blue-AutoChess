@@ -14,6 +14,7 @@ public abstract class Augment
     public string Name => config.augmentName;
     public Sprite Icon => config.augmentIcon;
     public string Description => config.description;
+    public string DescriptionEnglish => config.descriptionEnglish;
     public virtual void Apply()
     {
 

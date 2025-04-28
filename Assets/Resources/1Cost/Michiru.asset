@@ -61,17 +61,17 @@ MonoBehaviour:
   - "\u5C0D\u7576\u524D\u76EE\u6A19\u767C\u5C04\u7159\u706B\uFF0C\u9020\u6210: {data1}
     + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C\n\u4E26\u707C\u71D2\u76EE\u6A19\u53CA\u5176\u5468\u570D1\u683C\u7684\u5730\u677F\uFF0C\u5728
     {data5} \u79D2\u5167\u6301\u7E8C\u9020\u6210\u50B7\u5BB3\u3002"
-  - "Fires fireworks at the current target, dealing {data1} + ({data2}% \xD7 {Attack})
-    (Final: {Final}), and scorches the 1-tile area around it for {data5} seconds,
-    inflicting damage over time."
+  - "Michiru fires fireworks at her current target, dealing {data1} + ({data2}% \xD7
+    {Attack}) damage (Final: {Final}). \r\nShe scorches the ground within 1 hex around
+    the target, continuously dealing damage over {data5} seconds.\r\n"
   EnhancedSkillTooltips:
   - "\u5C0D\u7576\u524D\u76EE\u6A19\u767C\u5C04\u7159\u706B\uFF0C\u9020\u6210: {data1}
     + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C\n\u4E26\u707C\u71D2\u76EE\u6A19\u53CA\u5176\u5468\u570D2\u683C\u7684\u5730\u677F\uFF0C\u5728
     {data5} \u79D2\u5167\u6301\u7E8C\u9020\u6210\u50B7\u5BB3\u3002\n\u4F7F\u5F97\u7BC4\u570D\u5167\u53CB\u8ECD\u653B\u64CA\u901F\u5EA6\u63D0\u5347{data3}%,\u56DE\u5FA9\u8840\u91CF{data4}%"
-  - "Fires fireworks at the current target, dealing: {data1} + ({data2}% \xD7 {Attack})
-    (Final: {Final}), and scorches the target and nearby 2 tiles, dealing continuous
-    damage over {data5} seconds. Allies in the area gain {data3}% attack speed and
-    restore {data4}% HP."
+  - "Michiru fires fireworks at her current target, dealing {data1} + ({data2}% \xD7
+    {Attack}) damage (Final: {Final}). \r\nShe scorches the ground within 2 hexes
+    around the target, continuously dealing damage over {data5} seconds. \r\nAllies
+    within the area gain {data3}% increased attack speed and recover {data4}% HP.\r\n"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

@@ -21,6 +21,11 @@ public class CharacterParent : MonoBehaviour
 
     public void OnStartBattle()
     {
+        childCharacters.RemoveAll(c=> !c.activeInHierarchy);
+        foreach (var item in childCharacters)
+        {
+            item.GetComponent<CharacterCTRL>().RecalculateStats();
+        }
         IsBattling = true;
         foreach (var character in childCharacters)
         {

@@ -58,19 +58,20 @@ MonoBehaviour:
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
-  - "\u8DF3\u8E8D\u5230\u6575\u4EBA\u6700\u591A\u7684\u4F4D\u7F6E\uFF0C\u5C0D\u5468\u570D
-    {data1} \u683C\u5167\u6575\u4EBA\u9020\u6210\u6688\u7729 {data5} \u79D2 (\u6700\u7D42:
-    {Final})\u3002"
-  - 'Jumps to the location with the most enemies and stuns those within {data1} tiles
-    for {data5} seconds (Final: {Final}).'
+  - "\u7F8E\u5F4C(Mine)\u8DF3\u8E8D\u5230\u6575\u4EBA\u6700\u591A\u7684\u4F4D\u7F6E\uFF0C\u5C0D\u5468\u570D
+    {data3} \u683C\u5167\u6575\u4EBA\u9020\u6210\u6688\u7729 {data5} \u79D2\uFF0C\u4E26\u9020\u6210{data1}+{data2}*{Attack}
+    (\u6700\u7D42: {Final})\u50B7\u5BB3\u3002"
+  - "Mine jumps to the location with the most enemies, \r\nstunning enemies within
+    {data3} hexes for {data5} seconds and dealing {data1} + {data2} \xD7 {Attack}
+    damage (Final: {Final}).\r\n"
   EnhancedSkillTooltips:
-  - "\u8DF3\u8E8D\u5230\u6575\u4EBA\u6700\u591A\u7684\u4F4D\u7F6E\uFF0C\u5C0D\u5468\u570D
-    {data1} \u683C\u5167\u6575\u4EBA\u9020\u6210\u50B7\u5BB3 (\u6700\u7D42: {Final})\u3002\u73FE\u5728\u4E0D\u518D\u843D\u5730\u6642\u64CA\u6688\u5B83\u5011\uFF0C\u6539\u70BA\u5728\u843D\u5730\u6642\uFF0C\u65BD\u653E\u4E00\u6B21\u5C0F\u6280\u80FD\uFF0C\u5C0D\u5468\u570D\u5169\u683C\u5167\u6575\u4EBA\u9020\u6210\u4E00\u6B21\u9707\u64CA\uFF0C\u518D\u4E00\u6B21\u9020\u6210{Final}\u50B7\u5BB3\uFF0C\u4E14\u6E1B\u5C11\u5B83\u5011{data2}\u653B\u64CA\u901F\u5EA6"
-  - 'Jumps to the area with most enemies, dealing AoE damage within {data1} tiles
-    (Final: {Final}).
-
-    No longer stuns on landing. Instead, casts mini skill
-    on landing, causing shock in 2 tiles and reduces attack speed by {data2}.'
+  - "\u7F8E\u5F4C(Mine)\u8DF3\u8E8D\u5230\u6575\u4EBA\u6700\u591A\u7684\u4F4D\u7F6E\uFF0C\u5C0D\u5468\u570D
+    {data3} \u683C\u5167\u6575\u4EBA\u9020\u6210{data1}+{data2}*{Attack} (\u6700\u7D42:
+    {Final})\u50B7\u5BB3\u3002\u73FE\u5728\u843D\u5730\u6642\uFF0C\u4E0D\u518D\u64CA\u6688\u5B83\u5011\uFF0C\u6539\u70BA\u5728\u843D\u5730\u6642\uFF0C\u518D\u4E00\u6B21\u5728\u76F8\u540C\u7BC4\u570D\u5167\u9020\u6210{Final}\u50B7\u5BB3\uFF0C\u4E14\u6E1B\u5C11\u5B83\u5011{data4}\u653B\u64CA\u901F\u5EA6\u3002"
+  - "Mine jumps to the location with the most enemies, \r\ndealing {data1} + {data2}
+    \xD7 {Attack} damage (Final: {Final}) to enemies within {data3} hexes. \r\nShe
+    no longer stuns enemies upon landing. \r\nInstead, she deals an additional {Final}
+    damage in the same area upon landing and reduces their Attack Speed by {data4}.\r\n"
   isObj: 0
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

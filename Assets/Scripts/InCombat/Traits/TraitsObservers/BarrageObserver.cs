@@ -167,7 +167,9 @@ public class BarrageObserver : CharacterObserverBase
         List<HitEffect> l = new List<HitEffect>();
         if (GameController.Instance.CheckCharacterEnhance(21, Character.IsAlly))
         {
-             l.Add(new NonomiSkillEffect());
+            float ratio = Mathf.Min(GameController.Instance.GetGoldAmount(),50)*0.01f;
+            dmg = (int)(dmg * (1 + ratio));
+            l.Add(new NonomiSkillEffect());
         }
         if (GameController.Instance.CheckCharacterEnhance(25, Character.IsAlly))
         {

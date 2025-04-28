@@ -7,6 +7,8 @@ public class AugmentConfig : ScriptableObject
     public Sprite augmentIcon;  // 圖片
     [TextArea(3,10)]
     public string description;  // 描述
+    [TextArea(3, 10)]
+    public string descriptionEnglish; // 描述2
     public int augmentIndex;    // 與代碼層面類別聯繫的索引
     public int CharacterSkillEnhanceIndex = -1;  // 與技能強化類別聯繫的索引
 }

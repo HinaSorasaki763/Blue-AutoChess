@@ -130,7 +130,14 @@ public class RewardEntry
     // 取得完整描述：若有自訂描述則附加獎勵描述
     public string GetName()
     {
-        return Name;
+        if (PlayerSettings.SelectedDropdownValue == 0)
+        {
+            return ChineseDescription;
+        }
+        else
+        {
+            return EnglishDescription;
+        }
     }
 }
 
