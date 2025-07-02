@@ -48,7 +48,12 @@ public class HexNode : MonoBehaviour
     private float effectCountDown = 1f;
     public bool IsHexReserved()
     {
+        if (OccupyingCharacter != null) return true;
         return reservedBy != null;
+    }
+    public bool Passable()
+    {
+        return OccupyingCharacter == null;
     }
     public bool IsReservedBy(CharacterCTRL character)
     {
@@ -203,9 +208,9 @@ public class HexNode : MonoBehaviour
         List<FloorEffect> removeList = new List<FloorEffect>();
         foreach (var item in floorEffects)
         {
-            if (occupyingCharacter != null)
+            if (OccupyingCharacter != null)
             {
-                if (!item.Update(occupyingCharacter, item.source))
+                if (!item.Update(OccupyingCharacter, item.source))
                 {
                     removeList.Add(item);
                 }
@@ -321,13 +326,16 @@ public class HexNode : MonoBehaviour
 
     public void SetOccupyingCharacter(CharacterCTRL character)
     {
+        CustomLogger.Log(this, $"set {name} occupying to {character}");
         if (character != null)
         {
             OccupyingCharacter = character;
+            reservedBy = character;
         }
         else
         {
             OccupyingCharacter = null;
+            reservedBy = null;
         }
     }
     public void Start()

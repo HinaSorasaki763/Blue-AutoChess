@@ -4,6 +4,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class CharacterCTRL : MonoBehaviour
@@ -25,7 +27,7 @@ public class CharacterCTRL : MonoBehaviour
             string oldHex = _target != null ? _target.GetComponent<CharacterCTRL>()?.CurrentHex?.ToString() : "null";
             string newName = value != null ? value.name : "null";
             string newHex = value != null ? value.GetComponent<CharacterCTRL>()?.CurrentHex?.ToString() : "null";
-            CustomLogger.Log(this, $"[Setter] Target 由 `{oldName}` at {oldHex} 改為 `{newName}` at {newHex}");
+            CustomLogger.Log(this, $"[Setter] {gameObject.name} 的Target 由 `{oldName}` at {oldHex} 改為 `{newName}` at {newHex}");
             _target = value;
         }
 
@@ -50,7 +52,7 @@ public class CharacterCTRL : MonoBehaviour
     public StatsContainer PercentageStats = new StatsContainer();
     public Dictionary<string, (StatsType fromStat, StatsType toStat, float amount)> PercentageStatsDict
     = new Dictionary<string, (StatsType fromStat, StatsType toStat, float amount)>();
-    public int star;
+    public int star = 1;
     public ModifierCTRL modifierCTRL;
     public EffectCTRL effectCTRL;
     private List<Shield> shields = new List<Shield>(); // 存儲所有護盾
@@ -112,7 +114,11 @@ public class CharacterCTRL : MonoBehaviour
     public int AkoAddedCrit;
     public int SpecialSkillStack;
     public CharacterObserverBase characterObserver;
-    public bool Undying;
+    public bool Undying = false;
+    public bool IsDragable = true;
+    private Coroutine moveCoroutine;
+    private Coroutine movingCoroutine;
+
     #endregion
     #region Unity Lifecycle Methods
     public void ResetToBeforeBattle()
@@ -153,9 +159,8 @@ public class CharacterCTRL : MonoBehaviour
     }
     public virtual void OnEnable()
     {
+        if (star <= 1) star = 1;
         GetComponent<BoxCollider>().enabled = true;
-        star = 1;
-
         allyParent = ResourcePool.Instance.ally;
         enemyParent = ResourcePool.Instance.enemy;
         modifierCTRL = GetComponent<ModifierCTRL>();
@@ -172,8 +177,10 @@ public class CharacterCTRL : MonoBehaviour
         if (characterBehaviors.TryGetValue(characterId, out var characterBehaviorFunc))
         {
             var observer = characterBehaviorFunc();
-            AddObserver(observer);
-            characterObserver = observer;
+            if (AddObserver(observer))
+            {
+                characterObserver = observer;
+            }
         }
         GlobalBaseObserver globalObserver = new GlobalBaseObserver();
         AddObserver(globalObserver);
@@ -253,27 +260,6 @@ public class CharacterCTRL : MonoBehaviour
             && !(characterStats.TestEnhanceSkill)
             && !characterStats.TestBuildInvinvicble;
     }
-    private IEnumerator CheckEverySecond()
-    {
-        while (true)
-        {
-            if (enterBattle)
-            {
-                CustomLogger.Log(this, "enterBattle");
-                if (CurrentHex.isDesertified)
-                {
-                    CustomLogger.Log(this, "CurrentHex.isDesertified");
-                    bool isAbydos = traitController.GetAcademy() == Traits.Abydos;
-                    Effect effect = EffectFactory.CreateAbydosEffect(isAbydos, AbydosManager.Instance.level);
-                    CustomLogger.Log(this, $"isabydos = {isAbydos}, effect = {effect.Source}");
-
-                    effectCTRL.AddEffect(effect, this);
-                }
-            }
-
-            yield return new WaitForSeconds(1f);
-        }
-    }
     public void ReleaseLockDirection()
     {
         if (Target == null)
@@ -293,7 +279,6 @@ public class CharacterCTRL : MonoBehaviour
         customAnimator = GetComponent<CustomAnimatorController>();
         TriggerCharacterStart();
         TriggerManualUpdate();
-        StartCoroutine(CheckEverySecond());
     }
 
     void Awake()
@@ -311,14 +296,32 @@ public class CharacterCTRL : MonoBehaviour
         }
         if (customAnimator != null)
         {
-            characterBars.UpdateText(customAnimator.GetState().Item1.ToString());
-            bool canAttack = !customAnimator.animator.GetBool("CastSkill") && !isWalking;
+            customAnimator.TryGetBool(customAnimator.animator, "CastSkill", out bool val);
+            bool canAttack = !val && !isWalking;
+            if (enterBattle)
+            {
+                if (CurrentHex.isDesertified)
+                {
+                    CustomLogger.Log(this, "CurrentHex.isDesertified");
+                    bool isAbydos = traitController.GetAcademy() == Traits.Abydos;
+                    Effect effect = EffectFactory.CreateAbydosEffect(isAbydos, AbydosManager.Instance.level);
+                    if (SelectedAugments.Instance.CheckAugmetExist(106) && !effectCTRL.HaveEffect("AbydosMark"))
+                    {
+                        Effect effect1 = EffectFactory.CreateStunEffect(5f, this);
+                        Effect effect2 = EffectFactory.AbydosEnhancedMark();
+                        effectCTRL.AddEffect(effect1, this);
+                        effectCTRL.AddEffect(effect2, this);
+                    }
+                    CustomLogger.Log(this, $"isabydos = {isAbydos}, effect = {effect.Source}");
 
+                    effectCTRL.AddEffect(effect, this);
+                }
+            }
             if (enterBattle)
             {
                 DetectedPos = CurrentHex.transform.position + new Vector3(0, 0.3f, 0);
-
-                if (!(stunned || IsFeared || customAnimator.animator.GetBool("CastSkill")))
+                customAnimator.TryGetBool(customAnimator.animator, "CastSkill", out bool b);
+                if (!(stunned || IsFeared || b || effectCTRL.HaveEffect("Stun")))
                 {
                     HandleTargetFinding();
                     HandleAttack(canAttack);
@@ -335,8 +338,9 @@ public class CharacterCTRL : MonoBehaviour
                 }
             }
         }
+        
 
-        if (Target != null && (Target.GetComponent<CharacterCTRL>().IsDying || !Target.GetComponent<CharacterCTRL>().isAlive || !Target.activeInHierarchy))
+        if (Target != null && (Target.GetComponent<CharacterCTRL>().IsDying || !Target.GetComponent<CharacterCTRL>().isAlive || !Target.activeInHierarchy) || effectCTRL.HaveEffect("Stun"))
         {
             Target = null;
         }
@@ -419,6 +423,7 @@ public class CharacterCTRL : MonoBehaviour
         attackTimer += Time.deltaTime;
 
         float time = characterStats.logistics ? 1f : customAnimator.GetAnimationClipInfo(animationIndex).Item2 / attackSpeed;
+        if (characterStats.CharacterId == 41) time = 1f / attackSpeed;
         if (attackTimer >= time)
         {
             attackTimer = 0f;
@@ -426,7 +431,7 @@ public class CharacterCTRL : MonoBehaviour
     }
     public void SetAnimatorStateToAttack()
     {
-        if (IsCastingAbility || isWalking || isFindingPath)
+        if (IsCastingAbility || isWalking || isFindingPath||GameStageManager.Instance.CurrGamePhase == GamePhase.Preparing)
         {
             return;
         }
@@ -522,7 +527,11 @@ public class CharacterCTRL : MonoBehaviour
 
         }
 
-        transform.LookAt(Target.transform);
+        if (Target)
+        {
+            transform.LookAt(Target.transform);
+        }
+
     }
     public IEnumerator Explosion(int dmg, int range, HexNode centerNode, CharacterCTRL sourceCharacter, float waitforSec, string sources, bool iscrit)
     {
@@ -551,7 +560,7 @@ public class CharacterCTRL : MonoBehaviour
     private void HandleAttacking()
     {
         customAnimator.animator.speed = GetStat(StatsType.AttackSpeed);
-        if (!ManaLock)
+        if (!ManaLock||characterStats.CharacterId!=41)
         {
             Addmana(10);
         }
@@ -780,9 +789,10 @@ public class CharacterCTRL : MonoBehaviour
     #endregion
 
     #region Skill and Observer Pattern
-    public void AddObserver(CharacterObserverBase observer)
+    public bool AddObserver(CharacterObserverBase observer)
     {
         if (!observers.Contains(observer)) observers.Add(observer);
+        return observers.Contains(observer);
     }
 
     public void RemoveObserver(CharacterObserverBase observer) => observers.Remove(observer);
@@ -794,7 +804,8 @@ public class CharacterCTRL : MonoBehaviour
             Die();
             return;
         }
-        if (GetStat(StatsType.Mana) >= GetStat(StatsType.MaxMana) && !IsCasting() && !isWalking && !isObj && !Taunted)
+        customAnimator.TryGetBool(customAnimator.animator, "CastSkill", out bool val);
+        if (GetStat(StatsType.Mana) >= GetStat(StatsType.MaxMana) && !val && !isWalking && !isObj && !Taunted)
         {
             Addmana(-(int)GetStat(StatsType.MaxMana));
             SwapToCastSkill();
@@ -811,6 +822,7 @@ public class CharacterCTRL : MonoBehaviour
         if (isShirokoTerror)
         {
             animationIndex = i + 8;
+            customAnimator.animator.SetInteger("SkillID", i);
         }
         float sec1 = customAnimator.GetAnimationClipInfo(animationIndex).Item2;
         if (characterStats.CharacterId == 16)
@@ -845,7 +857,14 @@ public class CharacterCTRL : MonoBehaviour
     {
         return stats.GetStat(statsType);
     }
-    public void LifeStealCorrecttion()
+    public void DodgeCorrection()
+    {
+        if (GetStat(StatsType.DodgeChance) >=100)
+        {
+            SetStat(StatsType.DodgeChance, 100);
+        }
+    }
+    public void LifeStealCorrection()
     {
         if (GameController.Instance.CheckCharacterEnhance(29, IsAlly))
         {
@@ -857,10 +876,6 @@ public class CharacterCTRL : MonoBehaviour
                 SetStat(StatsType.Lifesteal, 100);
             }
         }
-
-
-
-
     }
     public void CritCorrection()
     {
@@ -870,7 +885,7 @@ public class CharacterCTRL : MonoBehaviour
         {
             int overflow = currentCritChance - 100;
             float addedCritRatio = overflow * ratio;
-            AddStat(StatsType.CritRatio, addedCritRatio);
+            AddStat(StatsType.CritRatio, addedCritRatio,false);
             SetStat(StatsType.CritChance, 100);
             critTransferAmount = overflow;
 
@@ -885,7 +900,7 @@ public class CharacterCTRL : MonoBehaviour
                 if (critTransferAmount >= deficit)
                 {
                     float removalCritRatio = deficit * ratio;
-                    AddStat(StatsType.CritRatio, -removalCritRatio);
+                    AddStat(StatsType.CritRatio, -removalCritRatio,false);
                     SetStat(StatsType.CritChance, 100);
                     critTransferAmount -= deficit;
                     CustomLogger.Log(this, $"Restored full deficit: restored {deficit} CritChance by removing {removalCritRatio} CritRatio.");
@@ -895,7 +910,7 @@ public class CharacterCTRL : MonoBehaviour
                     // 如果不足，則部分還原：依據現有轉換量還原對應的爆擊率
                     int restoredCritChance = critTransferAmount; // 已有的全部轉換點數都能還原
                     float removalCritRatio = restoredCritChance * ratio;
-                    AddStat(StatsType.CritRatio, -removalCritRatio);
+                    AddStat(StatsType.CritRatio, -removalCritRatio, false);
                     SetStat(StatsType.CritChance, currentCritChance + restoredCritChance);
                     critTransferAmount = 0;
                     CustomLogger.Log(this, $"Partially restored: restored {restoredCritChance} CritChance by removing {removalCritRatio} CritRatio.");
@@ -932,6 +947,10 @@ public class CharacterCTRL : MonoBehaviour
     }
     public virtual void RecalculateStats()
     {
+        if (star <=1)
+        {
+            star = 1;
+        }
         int currHealth = (int)GetStat(StatsType.currHealth);
         int currMana = (int)GetStat(StatsType.Mana);
         int maxHealth = characterStats.Health[star - 1];
@@ -942,6 +961,10 @@ public class CharacterCTRL : MonoBehaviour
         equipmentManager.UpdateEquipmentStats();
         stats.AddFrom(ExtraPernamentStats);
         stats.AddFrom(GameController.Instance.TeamExtraStats);
+        if (traitController.HasTrait(Traits.SRT))
+        {
+            stats.AddFrom(SRTManager.instance.GetStats());
+        }
         if (effectCTRL.GetStatsEffects().Count > 0)
         {
             foreach (var item in effectCTRL.GetStatsEffects())
@@ -961,7 +984,8 @@ public class CharacterCTRL : MonoBehaviour
             SetStat(StatsType.currHealth, GetStat(StatsType.Health, false));
         }
         CritCorrection();
-        LifeStealCorrecttion();
+        LifeStealCorrection();
+        DodgeCorrection();
     }
     public void AddPercentageBonus(StatsType fromStat, StatsType toStat, int percent, string identifier)
     {
@@ -1083,7 +1107,6 @@ public class CharacterCTRL : MonoBehaviour
         }
         else
         {
-            CustomLogger.LogWarning(this, "Getting null target");
             return null;
         }
     }
@@ -1127,13 +1150,11 @@ public class CharacterCTRL : MonoBehaviour
         IsCastingAbility = false;
         StealManaCount = 0;
     }
-    public bool IsCasting() => customAnimator.animator.GetBool("CastSkill");
     public bool EquipItem(IEquipment equipment)
     {
         CustomLogger.Log(this, $"EquipItem {equipment.EquipmentName}");
         if (equipment is SpecialEquipment specialEquipment)
         {
-            Traits traits = specialEquipment.trait;
             foreach (var item in equipmentManager.GetEquippedItems())
             {
                 if (item is SpecialEquipment)
@@ -1141,11 +1162,6 @@ public class CharacterCTRL : MonoBehaviour
                     PopupManager.Instance.CreatePopup("已經有一個轉學證明了", 2);
                     return false;
                 }
-            }
-            if (traitController.HasTrait(traits))
-            {
-                PopupManager.Instance.CreatePopup("本校學生無法配戴", 2);
-                return false;
             }
         }
         if (equipment is ConsumableItem consumable)
@@ -1176,23 +1192,18 @@ public class CharacterCTRL : MonoBehaviour
     #region Targeting and Pathfinding
     public bool FindTarget()
     {
-        //
         if (characterStats.CharacterId == 30 && GameController.Instance.CheckCharacterEnhance(30, true))
         {
             CharacterParent characterParent = IsAlly ? ResourcePool.Instance.enemy : ResourcePool.Instance.ally;
-            CustomLogger.Log(this, $"[WakamoObserver] enemy count = {characterParent.GetBattleFieldCharacter().Count} ");
             foreach (var item in characterParent.GetBattleFieldCharacter())
             {
-                CustomLogger.Log(this, $"[WakamoObserver] {item} in {item.CurrentHex} get effect {item.effectCTRL.GetEffect("WakamoEnhancedMark")} ");
                 if (item.effectCTRL.GetEffect("WakamoEnhancedMark") == null)
                 {
                     PreTarget = null;
                     Target = item.gameObject;
-                    CustomLogger.Log(this, $"[WakamoObserver] Change Target to {item.gameObject.name} in {item.CurrentHex}");
                     return true;
                 }
             }
-
         }
         var hitColliders = Physics.OverlapSphere(transform.position, 50, GetTargetLayer());
         GameObject closestTarget = null;
@@ -1222,19 +1233,24 @@ public class CharacterCTRL : MonoBehaviour
     }
     private bool UpdateTarget(GameObject closestTarget, float closestDistance)
     {
+
         if (closestTarget != null)
         {
+            CustomLogger.Log(this, "UpdatingTarget");
             if (closestDistance <= GetStat(StatsType.Range) + 0.1f)
             {
-                PreTarget = null;
+                PreTarget = closestTarget;
                 Target = closestTarget;
+                CustomLogger.Log(this, "Attacking");
             }
             else
             {
                 Target = null;
                 PreTarget = closestTarget;
-                if (!isWalking && !isFindingPath && !IsCastingAbility)
+
+                if (movingCoroutine == null && !isFindingPath && !IsCastingAbility)
                 {
+                    CustomLogger.Log(this, "TargetFinder");
                     TargetFinder();
                 }
             }
@@ -1244,13 +1260,12 @@ public class CharacterCTRL : MonoBehaviour
     }
     public void TargetFinder()
     {
-        if (isFindingPath)
+        if (isFindingPath && characterStats.isObj)
         {
             return;
         }
         isFindingPath = true;
-        HexNode targetNode = PreTarget?.GetComponent<CharacterCTRL>().CurrentHex ??
-                             Target?.GetComponent<CharacterCTRL>().CurrentHex;
+        HexNode targetNode = GetTarget().GetComponent<CharacterCTRL>().CurrentHex;
         HexNode startNode = CurrentHex;
         if (startNode == null)
         {
@@ -1269,43 +1284,47 @@ public class CharacterCTRL : MonoBehaviour
     private void OnPathFound(List<HexNode> path)
     {
         isFindingPath = false;
-        if (Target == null && PreTarget != null && !isWalking)
+        if (Target == null && PreTarget != null && !isWalking && path.Count >0)
         {
-            StartCoroutine(MoveAlongPath(path));
+            PathRequestManager.Instance.ReleaseReserve(this, path);
+            CustomLogger.Log(this, $"{name} on path found");
+            if (moveCoroutine != null)
+            {
+                PathRequestManager.Instance.HardReleaseReservation(this);
+                StopCoroutine(moveCoroutine);
+                
+            }
+            if (movingCoroutine != null)
+            {
+                StopCoroutine(movingCoroutine);
+            }
+            moveCoroutine = StartCoroutine(MoveAlongPath(path));
         }
     }
+
 
 
     private IEnumerator MoveAlongPath(List<HexNode> path)
     {
         isWalking = true;
         customAnimator.ChangeState(CharacterState.Moving);
-        HexNode previousNode = null;
-        int currentNodeIndex = -1;
-        for (int i = 0; i < path.Count; i++)
-        {
-            var node = path[i];
-            Vector3 targetPos = node.Position + offset;
-            yield return MoveTowardsPosition(targetPos);
-            if (previousNode != null)
-            {
-                previousNode.SetOccupyingCharacter(null);
-                previousNode.Release();
-            }
-            previousNode = CurrentHex;
-            CurrentHex = node;
-            CurrentHex.SetOccupyingCharacter(this);
-            currentNodeIndex = i;
-            if (IsTargetInRange())
-            {
-                currentNodeIndex = i;
-                break;
-            }
-        }
+        var node = path[0];
+        Vector3 targetPos = node.Position + offset;
+        yield return movingCoroutine = StartCoroutine(MoveTowardsPosition(targetPos));
         PathRequestManager.Instance.ReleaseCharacterReservations(this);
+        PathRequestManager.Instance.HardReleaseReservation(this);
         isWalking = false;
         FindTarget();
+        moveCoroutine = null;
+        if (movingCoroutine!= null)
+        {
+            transform.position = targetPos;
+            StopCoroutine(movingCoroutine);
+            movingCoroutine = null;
+        }
+
     }
+
 
 
 
@@ -1319,6 +1338,7 @@ public class CharacterCTRL : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(targetPos - transform.position), Time.deltaTime * 5);
 
             HexNode newGrid = SpawnGrid.Instance.GetHexNodeByPosition(targetPos - offset);
+
             if (newGrid != null)
             {
                 MoveToNewGrid(newGrid);
@@ -1327,6 +1347,9 @@ public class CharacterCTRL : MonoBehaviour
             yield return null;
         }
         transform.position = targetPos;
+        CurrentHex.Release();
+        CurrentHex = SpawnGrid.Instance.GetHexNodeByPosition(targetPos - offset);
+        CurrentHex.SetOccupyingCharacter(this);
     }
     public bool CheckDist(CharacterCTRL enemy)
     {
@@ -1422,7 +1445,7 @@ public class CharacterCTRL : MonoBehaviour
     }
     public bool Dragable()
     {
-        return !(enterBattle || GameStageManager.Instance.CurrGamePhase == GamePhase.Battling || !IsAlly);
+        return !(enterBattle || GameStageManager.Instance.CurrGamePhase == GamePhase.Battling || !IsAlly || !IsDragable);
     }
     public bool Dodge(CharacterCTRL sourceCharacter)
     {
@@ -1455,8 +1478,7 @@ public class CharacterCTRL : MonoBehaviour
     }
     public virtual void GetHit(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit, bool recursion = true)
     {
-        if (IsDying || (characterStats.TestEnhanceSkill && IsAlly) || characterStats.TestBuildInvinvicble) return;//TODO:正式版記得拔掉
-        if (!isAlive) return;
+        if (!isAlive || IsDying ||characterStats.logistics||!CurrentHex.IsBattlefield) return;
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
         if (Dodge(sourceCharacter)) return;
 
@@ -1564,6 +1586,15 @@ public class CharacterCTRL : MonoBehaviour
         }
         return amount;
     }
+    public int GetShieldStats()
+    {
+        int amount = 0;
+        foreach (var item in shields)
+        {
+            amount += item.amount;
+        }
+        return amount;
+    }
     public void AddShield(int amount, float duration, CharacterCTRL source)
     {
         Shield newShield = new Shield(amount, duration);
@@ -1658,8 +1689,11 @@ public class CharacterCTRL : MonoBehaviour
         dmgRecivedOnWakamoMarked = 0;
         CustomLogger.Log(this, "OnWakamoEnhancedMarkEnd()");
         EffectCanvas.Instance.ResetImage(this, false);
-        Effect effect = EffectFactory.WakamoEnhancedMark(this, 20);
-        effectCTRL.AddEffect(effect, this);
+        if (enterBattle)
+        {
+            Effect effect = EffectFactory.WakamoEnhancedMark(this, 20);
+            effectCTRL.AddEffect(effect, this);
+        }
     }
     public void Clarity()
     {
@@ -1800,7 +1834,11 @@ public class CharacterCTRL : MonoBehaviour
         TriggerManualUpdate();
         SetStat(StatsType.currHealth, 0);
         Debug.Log($"{gameObject.name} Die()");
-
+        if (TryGetComponent<Panchan_AnimatorCTRL>(out var p))
+        {
+            p.SwitchForm(true);
+            p.gameObject.SetActive(false);
+        }
 
     }
     public void BattleOverTime()
@@ -1929,7 +1967,7 @@ public class CharacterCTRL : MonoBehaviour
     { 37, () => new MoeObserver() },
     { 38, () => new NullObserver() },
     { 39, () => new SaoriObserver() },
-    { 40, () => new NullObserver() },
+    { 40, () => new TokiObserver() },
     {504, () => new NullObserver() },
 };
 
@@ -1977,6 +2015,7 @@ public class CharacterCTRL : MonoBehaviour
         { 38, () => new Saki_Skill()},
         { 39, () => new Saori_Skill()},
         { 40, () => new Toki_Skill()},
+        { 41, () => new Panchan_Skill()},
         {  504, () => new HarunaSkill()},
     };
     #endregion

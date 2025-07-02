@@ -9,7 +9,7 @@ public class StaticObject : CharacterCTRL
     private float lastShakeTime = 0f; // 上次旋轉效果觸發的時間
     private float shakeCooldown = 0.7f; // 旋轉效果的冷卻時間（秒）
     public CharacterCTRL parent;
-    public int MaxHealth_StaticObj;
+    public int MaxHealth_StaticObj = 10000;
     public int Resistance_StaticObj;
     public override void OnEnable()
     {
@@ -109,7 +109,11 @@ public class StaticObject : CharacterCTRL
         traitController.NotifyOnDying();
         Debug.Log($"{gameObject.name} Die()");
         CurrentHex.OccupyingCharacter = null;
-        CurrentHex.HardRelease();
+        TriggerManualUpdate();
+        SetStat(StatsType.currHealth, 0);
+        CurrentHex.HardRelease(); 
+        isTargetable = false;
+        isAlive = false;
         gameObject.SetActive(false);
         StopAllCoroutines();
     }

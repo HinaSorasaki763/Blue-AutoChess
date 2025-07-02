@@ -19,6 +19,7 @@ public class HealerObserver : CharacterObserverBase
     }
     public HealerObserver(int level, CharacterCTRL character)
     {
+        if (character == null) return;
         this.traitLevel = level;
         this.character = character;
     }

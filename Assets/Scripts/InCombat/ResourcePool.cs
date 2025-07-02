@@ -12,6 +12,8 @@ public class ResourcePool : MonoBehaviour
     public static ResourcePool Instance { get; private set; }
     public GameObject floorPrefab, characterBarPrefab, FloatingTextPrefab, wallPrefab;
     public Transform floorParent, characterBarParent, FloatingTextParent, wallParent;
+    private readonly Dictionary<SkillPrefab, List<GameObject>> pooledObjects
+        = new Dictionary<SkillPrefab, List<GameObject>>();
     public const int floorCount = 64,barCount = 20, TextCount = 50, wallCount = 50;
     public List<GameObject> floorPool = new(), barPool = new(), textPool = new(), wallPool = new();
     public List<Character> OneCostCharacter, TwoCostCharacter, ThreeCostCharacter, FourCostCharacter, FiveCostCharacter, SpecialCharacter ,TestBuildCharacter;
@@ -23,6 +25,7 @@ public class ResourcePool : MonoBehaviour
     public Transform normalBulletParent;
     public Transform MissleFragmentsParent;
     public Transform MissleParent;
+    public Transform BeamParent;
     public GameObject PenetrateTrailedBullet;
     public GameObject HealPack;
     public GameObject NormalTrailBullet;
@@ -43,6 +46,7 @@ public class ResourcePool : MonoBehaviour
     public BenchManager BenchManager;
     public GameObject MisslePrefab;
     public GameObject MissleFragmentsPrefab;
+    public GameObject BeamPrefab;
     public GameObject SmallPenetrateTrailedBulletPrefab;
     public Transform SmallPenetrateTrailedBulletParent;
     public int RandomKeyThisGame;
@@ -94,30 +98,18 @@ public class ResourcePool : MonoBehaviour
     {
         foreach (var characterList in Lists)
         {
-            StringBuilder sb = new();
             foreach (var character in characterList)
             {
                 if (!characterDictionary.ContainsKey(character.CharacterId))
                 {
-                    sb.AppendLine($"character {character.CharacterName} ,skill = {character.EnhancedSkillTooltips[0]}");
-                    sb.AppendLine("");
                     characterDictionary.Add(character.CharacterId, character);
                 }
                 else
                 {
-                    Debug.LogWarning($"CharacterId {character.CharacterId} is already in the dictionary!");
+
                 }
             }
-            Debug.Log(sb.ToString());
         }
-        StringBuilder Sb = new();
-        foreach (var character in characterDictionary)
-        {
-
-            Sb.AppendLine($"character tooltips chinese : {character.Value.EnhancedSkillTooltips[0]}");
-
-        }
-        Debug.Log(Sb.ToString());
     }
     public List<Character> GetAllCharacters()
     {
@@ -293,55 +285,77 @@ public class ResourcePool : MonoBehaviour
         ctrl.GetSkill();
         return obj;
     }
+    public void Prewarm(SkillPrefab prefabName, int needCount)
+    {
+        if (!pooledObjects.TryGetValue(prefabName, out var list))
+        {
+            list = new List<GameObject>();
+            pooledObjects[prefabName] = list;
+        }
 
+        int disabled = 0;
+        foreach (var go in list)
+            if (!go.activeInHierarchy) disabled++;
+
+        int toCreate = needCount - disabled;
+        if (toCreate <= 0) return;
+
+        (GameObject prefab, Transform parent) = GetPrefabAndParent(prefabName);
+        for (int i = 0; i < toCreate; i++)
+        {
+            var obj = Instantiate(prefab, Vector3.one * 9999, Quaternion.identity, parent);
+            obj.SetActive(false);
+            list.Add(obj);
+        }
+    }
     public GameObject SpawnObject(SkillPrefab skillPrefabName, Vector3 position, Quaternion rotation)
     {
-        GameObject prefab = null;
-        Transform parent = null;
-        switch (skillPrefabName)
+        (GameObject prefab, Transform parent) = GetPrefabAndParent(skillPrefabName);
+        if (!pooledObjects.TryGetValue(skillPrefabName, out var list))
+            pooledObjects[skillPrefabName] = list = new List<GameObject>();
+
+        foreach (var go in list)
         {
-            case SkillPrefab.PenetrateTrailedBullet:
-                prefab = PenetrateTrailedBullet;
-                parent = penetrateBulletParent;
-                break;
-            case SkillPrefab.HealPack:
-                prefab = HealPack;
-                parent = healPackParent;
-                break;
-            case SkillPrefab.NormalTrailedBullet:
-                prefab = NormalTrailBullet;
-                parent = normalBulletParent;
-                break;
-            case SkillPrefab.MissleFragmentsPrefab:
-                prefab = MissleFragmentsPrefab;
-                parent = MissleFragmentsParent;
-                break;
-            case SkillPrefab.SmallPenetrateTrailedBullet:
-                prefab = SmallPenetrateTrailedBulletPrefab;
-                parent = SmallPenetrateTrailedBulletParent;
-                break;
-            case SkillPrefab.Missle:
-                prefab = MisslePrefab;
-                parent = MissleParent;
-                break;
+            if (!go.activeInHierarchy)
+            {
+                go.transform.SetPositionAndRotation(position, rotation);
+                go.SetActive(true);
+                return go;
+            }
         }
 
-        if (prefab != null && parent != null)
+        var inst = Instantiate(prefab, position, rotation, parent);
+        list.Add(inst);
+        return inst;
+    }
+    private (GameObject, Transform) GetPrefabAndParent(SkillPrefab name)
+    {
+        switch (name)
         {
-            GameObject existingObject = FindDisabledChild(prefab.name, parent);
-            if (existingObject != null)
-            {
-                existingObject.transform.position = position;
-                existingObject.transform.rotation = rotation;
-                existingObject.SetActive(true);
-                return existingObject;
-            }
-            return Instantiate(prefab, position, rotation, parent);
-        }
-        else
-        {
-            Debug.LogError("Prefab or parent not found: " + skillPrefabName.ToString());
-            return null;
+            case SkillPrefab.PenetrateTrailedBullet:
+                return (PenetrateTrailedBullet, penetrateBulletParent);
+
+            case SkillPrefab.SmallPenetrateTrailedBullet:
+                return (SmallPenetrateTrailedBulletPrefab, SmallPenetrateTrailedBulletParent);
+
+            case SkillPrefab.NormalTrailedBullet:
+                return (NormalTrailBullet, normalBulletParent);
+
+            case SkillPrefab.HealPack:
+                return (HealPack, healPackParent);
+
+            case SkillPrefab.MissleFragmentsPrefab:
+                return (MissleFragmentsPrefab, MissleFragmentsParent);
+
+            case SkillPrefab.Missle:
+                return (MisslePrefab, MissleParent);
+
+            case SkillPrefab.Beam:
+                return (BeamPrefab, BeamParent); // 這裡需要根據實際情況返回對應的 prefab 和 parent
+
+            default:
+                CustomLogger.LogError(this, $"Prefab not mapped: {name}");
+                return (null, null);
         }
     }
 

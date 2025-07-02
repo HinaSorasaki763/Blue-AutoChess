@@ -14,8 +14,7 @@ public class SellGrid : MonoBehaviour
 
     private int CalculateRefund(CharacterCTRL character)
     {
-        int baseCost = character.characterStats.Level;
-        return baseCost;
+        return character.star * character.characterStats.Level;
     }
 
     private void RemoveCharacter(CharacterCTRL character)

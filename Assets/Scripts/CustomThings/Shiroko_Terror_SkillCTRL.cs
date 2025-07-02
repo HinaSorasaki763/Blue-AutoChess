@@ -206,7 +206,7 @@ public class DroneSummonSkill : I_Shiroko_Terror_Skill//3
         if (skillController.droneCTRL == null)
         {
             skillController.droneRef = skillController.GetDrone(skillContext);
-
+            skillContext.Parent.droneCTRL = skillController.droneRef.GetComponent<Shiroko_Terror_DroneCTRL>();
             skillController.droneRef.transform.SetParent(skillContext.Parent.transform,true);
             skillController.droneCTRL = skillController.droneRef.GetComponent<Shiroko_Terror_DroneCTRL>();
             skillController.droneCTRL.stack = 1;

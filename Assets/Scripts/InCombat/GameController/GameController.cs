@@ -94,7 +94,15 @@ public class GameController : MonoBehaviour
         }
         int characterLimit = GameStageManager.Instance.GetCharacterLimit();
         CustomLogger.Log(this, $"GameStageManager.Instance.GetCharacterLimit() = {characterLimit}");
-        if (ResourcePool.Instance.ally.GetCount() >= characterLimit &&
+        int count = 0;
+        foreach (var item in ResourcePool.Instance.ally.GetBattleFieldCharacter())
+        {
+            if (!item.characterStats.logistics)
+            {
+                count++;
+            }
+        }
+        if (count >= characterLimit &&
             !character.CurrentHex.IsBattlefield &&
             targetSlot.OccupyingCharacter == null)
         {
@@ -227,11 +235,6 @@ public class GameController : MonoBehaviour
     {
         if (absoluteAlly)
         {
-            CustomLogger.Log(this, $"CheckSpecificCharacterEnhanced{index}");
-            foreach (var item in ResourcePool.Instance.ally.enhancedSkillCharacters)
-            {
-                CustomLogger.Log(this, $"enhancedSkillCharacters has {item}");
-            }
             return ResourcePool.Instance.ally.enhancedSkillCharacters.Contains(index);
         }
         else

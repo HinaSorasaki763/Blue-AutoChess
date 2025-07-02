@@ -1,5 +1,4 @@
-﻿using GameEnum;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 public class SpawnGrid : MonoBehaviour
@@ -69,13 +68,13 @@ public class SpawnGrid : MonoBehaviour
         foreach (var pair in preparationPositions)
         {
             GameController.Instance.TryMoveCharacter(pair.Value, pair.Key);
-            pair.Value.transform.position = pair.Key.transform.position +offset;
+            pair.Value.transform.position = pair.Key.transform.position + offset;
             pair.Value.gameObject.SetActive(true);
             pair.Value.RecalculateStats();
             pair.Key.Reserve(pair.Value);
             pair.Key.OccupyingCharacter = pair.Value;
         }
-        if (Logistic1!= null)
+        if (Logistic1 != null)
         {
             Logistic1.transform.position = LogisticNode1.transform.position + offset;
             Logistic1.gameObject.SetActive(true);
@@ -451,7 +450,7 @@ public class SpawnGrid : MonoBehaviour
         }
     }
 
-    public void UpdateDesertifiedTiles(int randomKey,int count)
+    public void UpdateDesertifiedTiles(int randomKey, int count)
     {
         SetDesertifiedTiles(count, randomKey);
     }
@@ -466,10 +465,6 @@ public class SpawnGrid : MonoBehaviour
 
     public void SetDesertifiedTiles(int count, int randomKey)
     {
-        // 確保 count 是合法的羈絆數量（6、8、10、12）
-        int[] validCounts = { 6, 8, 10, 12 };
-        if (!validCounts.Contains(count)) return;
-
         List<HexNode> deployableTiles = new List<HexNode>();
         foreach (var tile in hexNodes.Values)
         {

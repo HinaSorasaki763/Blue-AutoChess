@@ -8,14 +8,15 @@ public class CustomAnimatorController : MonoBehaviour
     private CharacterState currentState;
     public Animator animator;
     const string skillIndex = "SkillID";
-    private CharacterCTRL character;
+    public CharacterCTRL character;
     public float animatorSpeed;
     public bool animationLock = false;
-    void Start()
+    public virtual void Start()
     {
         animationLock = false;
-        animator = GetComponent<Animator>();
         character = GetComponent<CharacterCTRL>();
+        animator = GetComponent<Animator>();
+
         RuntimeAnimatorController controller = animator.runtimeAnimatorController;
         int i = 0;
         StringBuilder stringBuilder = new StringBuilder();
@@ -34,6 +35,7 @@ public class CustomAnimatorController : MonoBehaviour
     }
     public (string, float) GetAnimationClipInfo(int order)
     {
+        if (character.characterStats.CharacterId == 41) return (null, 0);
         RuntimeAnimatorController controller = animator.runtimeAnimatorController;
 
         List<AnimationClip> clips = new List<AnimationClip>();
@@ -50,7 +52,6 @@ public class CustomAnimatorController : MonoBehaviour
         {
             clips.AddRange(controller.animationClips);
         }
-
         if (order >= 0 && order < clips.Count)
         {
             AnimationClip clip = clips[order];
@@ -111,7 +112,7 @@ public class CustomAnimatorController : MonoBehaviour
         }
 
     }
-    public void SetToIdle()
+    public virtual void SetToIdle()
     {
         if (animationLock) return;
         animator.SetBool("Idling", true);
@@ -121,7 +122,7 @@ public class CustomAnimatorController : MonoBehaviour
         animator.SetBool("HaveTarget", false);
         animator.SetBool("CastSkill", false);
     }
-    public void ChangeState(CharacterState newState)
+    public virtual void ChangeState(CharacterState newState)
     {
         if (animationLock) return;
         CharacterState oldState = currentState;
@@ -167,12 +168,14 @@ public class CustomAnimatorController : MonoBehaviour
     }
     public void ForceIdle()
     {
+        CustomLogger.Log(this, $"character{character} force idle at {Time.time}");
         animationLock = false;
         animator.speed = 1f;
         currentState = CharacterState.Idling;
         animator.SetBool("Idling", true);
         animator.SetBool("Moving", false);
         animator.SetBool("Attacking", false);
+        animator.SetBool("HaveTarget", false);
         animator.SetBool("PickedUp", false);
     }    
     public void ForceDying()
@@ -198,5 +201,19 @@ public class CustomAnimatorController : MonoBehaviour
     {
         PathRequestManager.Instance.ReleaseCharacterReservations(character);
         character.gameObject.SetActive(false);
+    }
+
+    public bool TryGetBool(Animator animator, string paramName, out bool value)
+    {
+        value = false;
+        foreach (var param in animator.parameters)
+        {
+            if (param.name == paramName && param.type == AnimatorControllerParameterType.Bool)
+            {
+                value = animator.GetBool(paramName);
+                return true;
+            }
+        }
+        return false;
     }
 }

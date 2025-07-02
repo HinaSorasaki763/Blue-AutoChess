@@ -1,5 +1,6 @@
 ﻿using GameEnum;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,10 +9,10 @@ public class CharacterBars : MonoBehaviour
     public Transform Parent;
     private CharacterCTRL CharacterCTRL;
     private Camera cam;
+    private GameObject canvas;
 
     public SliderCTRL HealthSlider;
     public SliderCTRL ManaSlider;
-    public TMPro.TextMeshProUGUI CurrentState;
     public List<Sprite> StarSprites = new List<Sprite>();  // 星級圖片
     public Image starImage;  // 顯示星級的圖片
     public GameObject strongestMark;  // "最強"標誌
@@ -21,6 +22,7 @@ public class CharacterBars : MonoBehaviour
     public List<Image> equipmentImages = new List<Image>(); 
     private void OnEnable()
     {
+        canvas = GameObject.Find("Canvas");
         cam = Camera.main;
     }
 
@@ -29,12 +31,6 @@ public class CharacterBars : MonoBehaviour
 
     }
 
-    public void UpdateText( string currentState)
-    {
-        CurrentState.text = currentState;
-    }
-
-
     void Update()
     {
         if (Parent == null || !Parent.gameObject.activeInHierarchy)
@@ -42,8 +38,11 @@ public class CharacterBars : MonoBehaviour
             gameObject.SetActive(false);
             return;
         }
-        Vector3 screenPos = cam.WorldToScreenPoint(Parent.position);
-        transform.position = screenPos + new Vector3(0, 120, 0);
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(Parent.position);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvas.GetComponent<RectTransform>(), screenPos, null, out Vector2 localPos);
+        float prefix = Parent.position.x * 5f;
+        transform.GetComponent<RectTransform>().anchoredPosition = localPos + new Vector2(prefix, 45);
         UpdateUIs();
     }
     public void UpdateEquipmentDisplay(List<IEquipment> equippedItems)

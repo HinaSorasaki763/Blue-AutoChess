@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 public class SRTObserver : CharacterObserverBase
 {
@@ -10,15 +8,29 @@ public class SRTObserver : CharacterObserverBase
     {
         Dictionary<int, TraitLevelStats> statsByStarLevel = new Dictionary<int, TraitLevelStats>()
         {
-            {1, new TraitLevelStats(3,30,80)},
-            {2, new TraitLevelStats(5,45,90)},
-            {3, new TraitLevelStats(10,70,100)}
+            //空,攻擊力,防禦力,生命,攻擊速度
+            {0, new TraitLevelStats(0,5,5,10,0.01f)},
+            {1, new TraitLevelStats(0,5,5,10,0.01f)},
+            {2, new TraitLevelStats(0,7,7,14,0.02f)},
+            {3, new TraitLevelStats(0,10,10,20,0.04f)}
         };
         return statsByStarLevel;
     }
     public SRTObserver(int level, CharacterCTRL character)
     {
+        if (character == null) return;
         this.traitLevel = level;
         this.character = character;
+    }
+}
+public class NoneObserver : CharacterObserverBase
+{
+    public override Dictionary<int, TraitLevelStats> GetTraitObserverLevel()
+    {
+        return new Dictionary<int, TraitLevelStats>();
+    }
+    public NoneObserver(int level, CharacterCTRL character)
+    {
+
     }
 }

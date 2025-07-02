@@ -33,6 +33,7 @@ public class PrecisionObserver : CharacterObserverBase
     }
     public PrecisionObserver(int level, CharacterCTRL character)
     {
+        if (character == null) return;
         this.traitLevel = level;
         this.character = character;
     }

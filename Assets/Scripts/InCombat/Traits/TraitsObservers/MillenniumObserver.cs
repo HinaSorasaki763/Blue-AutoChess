@@ -12,6 +12,7 @@ public class MillenniumObserver : CharacterObserverBase
 
     public MillenniumObserver(int level, CharacterCTRL character)
     {
+        if (character == null) return;
         traitLevel = level;
         this.character = character;
         isAlive = true;

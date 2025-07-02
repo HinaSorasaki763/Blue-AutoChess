@@ -23,19 +23,19 @@ MonoBehaviour:
     the threshold value, and all enemies targeting them will be redirected to other
     students. For a short time, the student cannot be harmed.
   thresholds:
-  - level: 0
+  - level: 1
     requiredCount: 3
     effectValue: 0
     effectDescription: 
-  - level: 1
+  - level: 2
     requiredCount: 5
     effectValue: 0
     effectDescription: 
-  - level: 2
+  - level: 3
     requiredCount: 7
     effectValue: 0
     effectDescription: 
-  - level: 3
+  - level: 4
     requiredCount: 9
     effectValue: 0
     effectDescription: 

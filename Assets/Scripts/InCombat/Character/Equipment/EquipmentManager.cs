@@ -81,18 +81,11 @@ public class EquipmentManager : MonoBehaviour
     // 新增裝備方法
     public GameObject AddEquipmentItem(IEquipment equipmentTemplate)
     {
-        // 1. 先 Clone 出一個全新的裝備實例
         IEquipment newEquipment = equipmentTemplate.Clone();
-
-        // 2. 由工廠為「新裝備」生成對應的 Observer
         CharacterObserverBase c = ItemObserverFactory.GetObserverByIndex(newEquipment.Id);
         newEquipment.Observer = c;
-
-        // 3. 把新裝備加入 ownedEquipments
         ownedEquipments.Add(newEquipment);
         LogItems();
-
-        // 4. 建立 UI 物件並設定
         GameObject item = Instantiate(equipmentItemPrefab, equipmentArea);
         EquipmentItemUI itemUI = item.GetComponent<EquipmentItemUI>();
         itemUI.Setup(newEquipment, this, UIParent);

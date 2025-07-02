@@ -8,6 +8,7 @@ public class GehennaObserver : CharacterObserverBase
     private CharacterCTRL character;
     public GehennaObserver(int level, CharacterCTRL character)
     {
+        if (character == null) return;
         traitLevel = level;
         this.character = character;
     }

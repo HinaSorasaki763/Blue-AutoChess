@@ -1,5 +1,7 @@
+using GameEnum;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public class BenchManager : MonoBehaviour
 {
@@ -35,6 +37,27 @@ public class BenchManager : MonoBehaviour
         {
             HexNode gridSlot = slot.GetComponent<HexNode>();
 
+            if (characterPrefab.GetComponent<CharacterCTRL>().characterStats.CharacterId == 999)
+            {
+
+                HexNode h = SpawnGrid.Instance.GetEmptyHex();
+                GameObject obj = Instantiate(ResourcePool.Instance.LogisticDummy, h.Position + new Vector3(0, 0.14f, 0), Quaternion.Euler(new Vector3(0, 0, 0)));
+                obj.transform.SetParent(ResourcePool.Instance.ally.transform);
+                CharacterBars bar = ResourcePool.Instance.GetBar(h.Position).GetComponent<CharacterBars>();
+                ResourcePool.Instance.ally.childCharacters.Add(obj);
+                CharacterCTRL ctrl = obj.GetComponent<CharacterCTRL>();
+                StaticObject staticObj = obj.GetComponent<StaticObject>();
+                ctrl.SetBarChild(bar);
+                ctrl.characterBars = bar;
+                bar.SetBarsParent(obj.transform);
+                staticObj.GetComponent<StaticObject>().InitNoParentDummy(20000, 35, false);
+                ctrl.CurrentHex = h;
+                h.OccupyingCharacter = ctrl;
+                ctrl.IsAlly = true;
+                obj.layer = 8;
+                h.Reserve(ctrl);
+                return true;
+            }
             if (gridSlot == null || gridSlot.OccupyingCharacter != null)
             {
                 continue;
@@ -42,7 +65,8 @@ public class BenchManager : MonoBehaviour
 
             Vector3 position = gridSlot.transform.position;
 
-            ResourcePool.Instance.SpawnCharacterAtPosition(characterPrefab, position,gridSlot, characterParent, isAlly: true);
+            ResourcePool.Instance.SpawnCharacterAtPosition(characterPrefab, position,gridSlot, characterParent, isAlly: true,1);
+
             BugReportLogger.Instance.GetCharacter(characterPrefab.name);
             Debug.Log($"spawned at {position},{gridSlot.name}");
             return true;

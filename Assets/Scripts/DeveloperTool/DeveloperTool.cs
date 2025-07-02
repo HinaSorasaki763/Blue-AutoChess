@@ -1,6 +1,7 @@
 ﻿using GameEnum;
 using System.Collections.Generic;
 using System.Text;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -45,6 +46,7 @@ public class DeveloperTool : MonoBehaviour
 
             // 添加点击事件
             Character capturedCharacter = character;
+
             button.onClick.AddListener(() => SpawnCharacter(capturedCharacter));
 
             // 将按钮添加到列表

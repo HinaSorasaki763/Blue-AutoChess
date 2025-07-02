@@ -23,15 +23,15 @@ MonoBehaviour:
     temporarily lose their current target, choosing instead to cover as many enemy
     students as possible."
   thresholds:
-  - level: 0
+  - level: 1
     requiredCount: 3
     effectValue: 0
     effectDescription: 
-  - level: 1
+  - level: 2
     requiredCount: 5
     effectValue: 0
     effectDescription: 
-  - level: 2
+  - level: 3
     requiredCount: 7
     effectValue: 0
     effectDescription: 

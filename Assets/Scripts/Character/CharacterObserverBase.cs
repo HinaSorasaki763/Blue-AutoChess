@@ -2,6 +2,8 @@
 using GameEnum;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using TMPro.EditorUtilities;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 
@@ -196,6 +198,53 @@ public abstract class CharacterObserverBase
     {
         return 0;
     }
+    public HexNode FindMaxOccupiedEntityGrid(
+    int range,
+    List<HexNode> hexNodes,
+    SkillContext skillContext,
+    bool FindingAlly,
+    bool isInjured = false)
+    {
+        float maxWeight = 0;  // 用來記錄最大權重
+        HexNode maxNode = null;
+        // 用於暫存目前擁有最高權重的角色清單（含權重）
+        List<(CharacterCTRL character, float weight)> bestTuples = new List<(CharacterCTRL, float)>();
+
+        foreach (var startNode in hexNodes)
+        {
+            // 使用新的方法取得 (角色, 權重) 清單
+            var characterTuples = Utility.GetCharacterInrangeWithWeight(
+                startNode,
+                range,
+                skillContext.Parent,
+                FindingAlly,
+                isInjured
+            );
+
+            // 計算該點位所有角色權重總和
+            float totalWeight = characterTuples.Sum(t => t.weight);
+
+            // 用權重總和來判斷是否更新最大值
+            if (totalWeight >= maxWeight)
+            {
+                maxWeight = totalWeight;
+                maxNode = startNode;
+                bestTuples.Clear();
+                bestTuples.AddRange(characterTuples);
+            }
+        }
+
+        // 紀錄一下結果
+        StringBuilder sb = new StringBuilder();
+        foreach (var tupleItem in bestTuples)
+        {
+            sb.AppendLine($"{tupleItem.character.name}: {tupleItem.character.CurrentHex.name}, weight = {tupleItem.weight}");
+        }
+        sb.AppendLine($"max weight = {maxWeight}, pos = {maxNode.Position}, {maxNode.name}");
+        CustomLogger.Log(this, sb.ToString());
+
+        return maxNode;
+    }
 }
 
 public class Example : CharacterObserverBase
@@ -263,7 +312,8 @@ public class FuukaObserver : CharacterObserverBase
     public int count = 0;
     public override void OnLogistic(CharacterCTRL character)
     {
-        HexNode targetHex = SpawnGrid.Instance.FindBestHexNode(character, 2, false, false, character.CurrentHex);
+        SkillContext skillContext = character.GetSkillContext();
+        HexNode targetHex = FindMaxOccupiedEntityGrid(2, skillContext.hexMap, skillContext, true, true);
         foreach (var item in targetHex.GetCharacterOnNeighborHex(2, true))
         {
             if (item.IsAlly == character.IsAlly)
@@ -514,7 +564,7 @@ public class MisakiObserver : CharacterObserverBase
         foreach (var item in fragments)
         {
             count++;
-            randkey += Utility.GetRand(character, count);
+            randkey += Utility.GetRand(character);
             Explode(item.Key, item.Value, character, randkey);
         }
     }
@@ -542,7 +592,7 @@ public class MisakiObserver : CharacterObserverBase
         if (GameController.Instance.CheckCharacterEnhance(34, true))
         {
 
-            if (Utility.GetRand(character, randKey) >= 30)
+            if (Utility.GetRand(character) >= 30)
             {
                 active = false;
             }
@@ -606,18 +656,44 @@ public class MoeObserver : CharacterObserverBase
 public class ShirokoObserver : CharacterObserverBase
 {
     private ShirokoActiveSkill skillCTRL;
+    private CharacterCTRL ctrl;
     public override void CharacterStart(CharacterCTRL character)
     {
+        ctrl = character;
         skillCTRL = character.GetComponent<ShirokoActiveSkill>();
-        base.CharacterStart(character);
+    }
+    public override void CharacterUpdate()
+    {
+
+        if (GameController.Instance.CheckCharacterEnhance(31,true) && !ctrl.CurrentHex.IsBattlefield)
+        {
+            Shiroko_Terror_AugmentCheck shiroko_Terror_AugmentCheck = ctrl.GetComponent<Shiroko_Terror_AugmentCheck>();
+            shiroko_Terror_AugmentCheck.parent = ctrl;
+            shiroko_Terror_AugmentCheck.TriggerDetecting();
+        }
+        else
+        {
+            Shiroko_Terror_AugmentCheck shiroko_Terror_AugmentCheck = ctrl.GetComponent<Shiroko_Terror_AugmentCheck>();
+            shiroko_Terror_AugmentCheck.parent = ctrl;
+            shiroko_Terror_AugmentCheck.StopDetecting();
+        }
     }
     public override void OnAttacking(CharacterCTRL character)
     {
+        ctrl = character;
         if (skillCTRL.droneCTRL != null)
         {
             skillCTRL.droneCTRL.AssistAttack(character.Target.GetComponent<CharacterCTRL>(), character);
         }
         CustomLogger.Log(this, $"Character : {character.characterStats.name} OnAttacking.");
+    }
+}
+public class TokiObserver : CharacterObserverBase
+{
+    public override void OncharacterEnabled(CharacterCTRL character)
+    {
+        int amount = 100;
+        character.AddExtraStat(StatsType.DodgeChance, amount, "TokiPassive", false);
     }
 }
 public class TsubakiObserver : CharacterObserverBase
@@ -696,6 +772,7 @@ public class TsurugiObserver : CharacterObserverBase
     }
     public override void OnAttacking(CharacterCTRL character)
     {
+        if (character.Target == null)return;
         character.transform.LookAt(character.Target.transform);
         HexNode origin = character.CurrentHex;
         HexNode targetHex = character.Target.GetComponent<CharacterCTRL>().CurrentHex;
@@ -790,7 +867,7 @@ public class Shiroko_Terror_Observer : CharacterObserverBase
     public override void OnAttacking(CharacterCTRL character)
     {
         base.OnAttacking(character);
-        if (skillCTRL.droneCTRL != null)
+        if (skillCTRL.droneCTRL != null&& character.Target != null)
         {
             skillCTRL.droneCTRL.AssistAttack(character.Target.GetComponent<CharacterCTRL>(), character);
         }

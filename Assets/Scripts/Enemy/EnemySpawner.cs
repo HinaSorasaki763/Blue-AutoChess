@@ -174,6 +174,7 @@ public class EnemySpawner : MonoBehaviour
         SpawnLogisticCharacter(enemyWave.logisticSlot2, ResourcePool.Instance.EnemylogisticSlotNode2);
 
         ResourcePool.Instance.enemy.UpdateTraitEffects();
+        ResourcePool.Instance.ally.UpdateTraitEffects();
     }
 
     private void SpawnLogisticCharacter(EnemyWave.GridSlotData logisticSlot, HexNode logisticSlotNode)

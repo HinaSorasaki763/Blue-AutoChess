@@ -20,6 +20,7 @@ public class RapidfireObserver : CharacterObserverBase
     }
     public RapidfireObserver(int level, CharacterCTRL character)
     {
+        if (character == null) return;
         this.level = level;
         this.parent = character;
         character.effectCTRL.characterCTRL = character;

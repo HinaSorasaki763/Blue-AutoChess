@@ -24,15 +24,19 @@ MonoBehaviour:
     negative effects. Both positive and negative effects are removed immediately
     when leaving the tile.
   thresholds:
-  - level: 0
+  - level: 1
     requiredCount: 2
     effectValue: 0
     effectDescription: 
-  - level: 1
+  - level: 2
+    requiredCount: 3
+    effectValue: 0
+    effectDescription: 
+  - level: 3
     requiredCount: 4
     effectValue: 0
     effectDescription: 
-  - level: 2
+  - level: 4
     requiredCount: 5
     effectValue: 0
     effectDescription: 

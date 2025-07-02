@@ -34,15 +34,38 @@ public class CoroutineController : MonoBehaviour
             shootingCoroutine = null;
         }
     }
-    public void SetNextSkill(BarrageObserver observer, float duration, float interval, float angle, float fireAngle,bool penetrate)
+    public void SetNextSkill(BarrageObserver observer,
+                              float duration,
+                              float interval,
+                              float angle,
+                              int fireAngle,
+                              bool penetrate)
     {
         currentObserver = observer;
         skillDuration = duration;
         skillInterval = interval;
         bestAngle = angle;
         this.fireAngle = fireAngle;
-
         this.penetrate = penetrate;
+
+        PrewarmBullets(observer, duration, interval, observer.IntervalAngle, penetrate);
+    }
+    private void PrewarmBullets(BarrageObserver observer,
+                             float duration,
+                             float interval,
+                             int angle,
+                             bool penetrateBullet)
+    {
+        int scatter = (int)observer.GetAngle();
+        int bulletsPerWave = scatter / angle;
+        int waveCount = Mathf.CeilToInt(duration * 2f / interval);
+        int totalBullets = bulletsPerWave * waveCount;
+
+        SkillPrefab bulletType = penetrateBullet
+            ? SkillPrefab.PenetrateTrailedBullet
+            : SkillPrefab.NormalTrailedBullet;
+
+        ResourcePool.Instance.Prewarm(bulletType, totalBullets);
     }
 
     // 透過動畫事件觸發的公開方法
@@ -87,7 +110,6 @@ public class CoroutineController : MonoBehaviour
         int numBullets = (int)scatterAngle / angle;
         while (elapsedTime < duration * 2)
         {
-            // 從最佳角度開始，逐步射出一整波子彈
             for (int i = 0; i < numBullets; i++)
             {
                 float bulletAngle = bestAngle - (scatterAngle / 2) + i * angle;

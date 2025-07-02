@@ -34,7 +34,14 @@ public static class ItemObserverFactory
         { 23, () => new Gloves_WatchObserver() },
         { 24, () => new Hairband_HairbandObserver() },
         { 25, () => new Hairband_WatchObserver() },
-        { 26, () => new Watch_WatchObserver() }
+        { 26, () => new Watch_WatchObserver() },
+        { 101,()=> new ExchangeCertificateObserver()},
+        { 102,()=> new ExchangeCertificateObserver()},
+        { 103,()=> new ExchangeCertificateObserver()},
+        { 104,()=> new ExchangeCertificateObserver()},
+        { 105,()=> new ExchangeCertificateObserver()},
+        { 106,()=> new ExchangeCertificateObserver()},
+        { 107,()=> new ExchangeCertificateObserver()},
     };
 
     public static CharacterObserverBase GetObserverByIndex(int index)
@@ -349,4 +356,8 @@ public class Hairband_WatchObserver : CharacterObserverBase
 public class Watch_WatchObserver : CharacterObserverBase
 {
     //爆擊傷害提升，透過數值加成完成
+}
+public class ExchangeCertificateObserver : CharacterObserverBase
+{
+
 }

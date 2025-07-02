@@ -15,7 +15,7 @@ public class EquipmentSO : ScriptableObject, IEquipment
     public Sprite icon;
     public bool isSpecial;
     public bool isConsumable;
-    public Traits Traits;
+    public List<Traits> Traits;
     public List<EquipmentType> Attributes;
     public List<int> Value;
     public Dictionary<EquipmentType, int> combinedStats;

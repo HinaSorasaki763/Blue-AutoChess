@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEditor.Progress;
 
 public class SelectedAugments : MonoBehaviour
 {
@@ -11,6 +13,8 @@ public class SelectedAugments : MonoBehaviour
     public Sprite LockedSprite;
     public List<TextMeshProUGUI> descriptions = new List<TextMeshProUGUI>();
     public List<GameObject> panels = new List<GameObject>();
+    public List<int> SelectedIndex = new List<int>(); // 儲存已選擇的強化選項索引
+    public List<int> TriggeredIndex = new List<int>();
     public void Awake()
     {
         if (Instance == null)
@@ -27,6 +31,11 @@ public class SelectedAugments : MonoBehaviour
             buttons[i].onClick.AddListener(() => ShowAugment(index));
         }
     }
+    public bool CheckAugmetExist(int index)
+    {
+        return selectedAugments.Exists(item => item.config.augmentIndex == index);
+    }
+
     public void AddAugment(Augment augment)
     {
         selectedAugments.Add(augment);
@@ -41,6 +50,7 @@ public class SelectedAugments : MonoBehaviour
             buttons[i].interactable = true;
             buttons[i].GetComponent<Image>().sprite = selectedAugments[i].Icon;
         }
+        SelectedIndex.Add(augment.config.augmentIndex);
     }
     public void ShowAugment(int index)
     {
@@ -48,5 +58,18 @@ public class SelectedAugments : MonoBehaviour
         int language = PlayerSettings.SelectedDropdownValue;
         string description = language == 0 ? selectedAugments[index].Description : selectedAugments[index].DescriptionEnglish;
         descriptions[index].text = description;
+    }
+    public void TriggerAugment(int index)
+    {
+        if (TriggeredIndex.Contains(index)) return;
+        foreach (Augment augment in selectedAugments)
+        {
+            if (augment.config.augmentIndex == index)
+            {
+                TriggeredIndex.Add(augment.config.augmentIndex);
+                augment.Trigger();
+
+            }
+        }
     }
 }

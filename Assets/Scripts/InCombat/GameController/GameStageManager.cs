@@ -233,15 +233,15 @@ public class GameStageManager : MonoBehaviour
         currGamePhase.text = CurrGamePhase.ToString();
         if (CurrGamePhase == GamePhase.Battling)
         {
-            characterLimitParent.gameObject.SetActive(false);
+            characterLimitParent.SetActive(false);
         }
         else
         {
-            characterLimitParent.gameObject.SetActive(true);
+            characterLimitParent.SetActive(true);
             int count = 0;
-            foreach (var item in ResourcePool.Instance.ally.childCharacters)
+            foreach (var item in ResourcePool.Instance.ally.GetBattleFieldCharacter())
             {
-                if (item.activeInHierarchy&&item.GetComponent<CharacterCTRL>().CurrentHex.IsBattlefield && !item.GetComponent<CharacterCTRL>().isObj)
+                if (!item.characterStats.logistics)
                 {
                     count++;
                 }

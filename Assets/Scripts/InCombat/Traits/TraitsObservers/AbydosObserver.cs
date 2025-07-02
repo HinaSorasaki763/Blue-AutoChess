@@ -9,6 +9,7 @@ public class AbydosObserver : CharacterObserverBase
     private bool isOnDesertTile;
     public AbydosObserver(int level, CharacterCTRL character)
     {
+        if (character == null) return;
         this.traitLevel = level;
         this.character = character;
         UpdateDesertifiedTiles();

@@ -24,9 +24,9 @@ public class EffectCTRL : MonoBehaviour
     }
 
     // ²K¥[®ÄªG
-    public void AddEffect(Effect effect,CharacterCTRL c)
+    public void AddEffect(Effect effect, CharacterCTRL c)
     {
-        if (effect.EffectType == EffectType.Negative)
+        if (effect.EffectType == EffectType.Negative && effect.Parent != null)
         {
             (float length, float effectiveness) = effect.Parent.BeforeApplyingNegetiveEffect(effect.Duration, effect.Value);
         }
@@ -38,12 +38,12 @@ public class EffectCTRL : MonoBehaviour
             {
                 if (existingEffect.Stackable)
                 {
-                    existingEffect.UpdateValue(existingEffect.Value + effect.Value,c);
+                    existingEffect.UpdateValue(existingEffect.Value + effect.Value, c);
                     UpdateEffectNames();
                 }
                 if (effect.Value > existingEffect.Value && !existingEffect.Stackable)
                 {
-                    existingEffect.UpdateValue(effect.Value,c);
+                    existingEffect.UpdateValue(effect.Value, c);
                     UpdateEffectNames();
                 }
                 return;
@@ -74,7 +74,7 @@ public class EffectCTRL : MonoBehaviour
         UpdateEffectNames();
         if (effect.SpecialType == SpecialEffectType.None)
         {
-            modifierCTRL.AddStatModifier(effect.ModifierType, effect.Value, effect.Source, effect.IsPermanent, effect.Duration);
+            //modifierCTRL.AddStatModifier(effect.ModifierType, effect.Value, effect.Source, effect.IsPermanent, effect.Duration);
         }
         effect.OnApply.Invoke(characterCTRL);
     }
@@ -96,6 +96,7 @@ public class EffectCTRL : MonoBehaviour
     private void UpdateEffectNames()
     {
         effectNames = activeEffects.OrderByDescending(e => e.Source.Length).Select(e => $" {e.Source} : {e.SpecialType}  ({e.Duration:F2}s)").ToList();
+
     }
     public void ClearEffectWithSource(String source)
     {
@@ -241,7 +242,7 @@ public static class EffectFactory
             EffectType.Negative,
             ModifierType.None,
             0,
-            "StunSkill",
+            "Stun",
             false,
             (character) => character.Stun(true),
             (character) => character.Stun(false),
@@ -579,6 +580,21 @@ public static class EffectFactory
             (character) => character.AbydosBuff(isAbydos, effectiveness, statsByStarLevel[level].Data3, true),
             (character) => character.AbydosBuff(isAbydos, -effectiveness, statsByStarLevel[level].Data3, false),
             1,
+            SpecialEffectType.None,
+            null
+        );
+    }
+    public static Effect AbydosEnhancedMark()
+    {
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            "AbydosMark",
+            true,
+            (character) => character.EmptyEffectFunction(),
+            (character) => character.EmptyEffectFunction(),
+            100,
             SpecialEffectType.None,
             null
         );

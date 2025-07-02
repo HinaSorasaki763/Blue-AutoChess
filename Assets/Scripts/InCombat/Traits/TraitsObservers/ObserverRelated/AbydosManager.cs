@@ -10,10 +10,10 @@ public class AbydosManager : MonoBehaviour
         Dictionary<int, TraitLevelStats> statsByStarLevel = new Dictionary<int, TraitLevelStats>()
         {
             {0, new TraitLevelStats(0,0,0)},
-            {1, new TraitLevelStats(6,30,2)},
-            {2, new TraitLevelStats(8,45,3)},
-            {3, new TraitLevelStats(10,70,5)},
-            {4, new TraitLevelStats(12,70,10)}
+            {1, new TraitLevelStats(8,30,2)},
+            {2, new TraitLevelStats(10,45,3)},
+            {3, new TraitLevelStats(12,70,5)},
+            {4, new TraitLevelStats(20,100,10)}
         };
         return statsByStarLevel;
     }

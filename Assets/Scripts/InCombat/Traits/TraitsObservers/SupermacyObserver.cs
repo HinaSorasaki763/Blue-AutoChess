@@ -17,6 +17,7 @@ public class SupermacyObserver : CharacterObserverBase
     }
     public SupermacyObserver(int level, CharacterCTRL character)
     {
+        if (character == null) return;
         this.traitLevel = level;
         this.character = character;
     }

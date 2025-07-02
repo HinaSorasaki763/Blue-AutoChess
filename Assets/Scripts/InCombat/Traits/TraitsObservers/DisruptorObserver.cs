@@ -25,6 +25,7 @@ public class DisruptorObserver : CharacterObserverBase
     }
     public DisruptorObserver(int level, CharacterCTRL character)
     {
+        if (character == null) return;
         this.traitLevel = level;
         this.character = character;
     }

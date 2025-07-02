@@ -20,15 +20,15 @@ MonoBehaviour:
   - "\u6CBB\u7642\u5E2B(Healer)\u4F7F\u5F97\u968A\u4F0D\u6CBB\u7642\u91CF\u589E\u52A0"
   - "Increases the team\u2019s healing amount. "
   thresholds:
-  - level: 0
+  - level: 1
     requiredCount: 2
     effectValue: 0
     effectDescription: 
-  - level: 1
+  - level: 2
     requiredCount: 4
     effectValue: 0
     effectDescription: 
-  - level: 2
+  - level: 3
     requiredCount: 6
     effectValue: 0
     effectDescription: 

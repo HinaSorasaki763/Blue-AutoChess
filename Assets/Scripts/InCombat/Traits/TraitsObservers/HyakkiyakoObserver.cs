@@ -20,8 +20,10 @@ public class HyakkiyakoObserver : CharacterObserverBase
     }
     public HyakkiyakoObserver(int level, CharacterCTRL character)
     {
+        if (character == null)return;
         this.character = character;
         traitLevel = level;
+
         character.effectCTRL.characterCTRL = character;
         float healthThreshold = GetTraitObserverLevel()[traitLevel].Data3 * 0.01f;
         if (character.GetHealthPercentage() > healthThreshold)

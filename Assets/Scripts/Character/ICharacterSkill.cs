@@ -2146,7 +2146,7 @@ public class HinaSkill : CharacterSkillBase//陽奈(Hina)朝著能夠覆蓋最�
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(40,8,1,0,0.25f)},
+            {1, new StarLevelStats(5,8,1,0,0.25f)},
             {2, new StarLevelStats(60,8,1,0,0.25f)},
             {3, new StarLevelStats(999,219,10,0,0.25f)}
         };
@@ -2364,7 +2364,6 @@ public class MikaSkill : CharacterSkillBase//被動:彌香(mika)的傷害總是�
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         if (Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true).Count > 0)
         {
             CharacterCTRL C = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true)[0];
@@ -2576,7 +2575,23 @@ public class WakamoEnhancedSkill : CharacterSkillBase//對尚未被此角色傷�
     {
         this.originalSkill = originalSkill;
     }
-
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(100,315,0,0,5.0f)},
+            {2, new StarLevelStats(150,475,0,0,5.0f)},
+            {3, new StarLevelStats(500,9999,0,0,5.0f)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
         CharacterCTRL c = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true)[0];
@@ -2597,6 +2612,23 @@ public class Shiroko_TerrorSkill : CharacterSkillBase//黑子(Shiroko_Terror)將
         base.ExecuteSkill(skillContext);
         skillContext.Parent.transform.rotation = Quaternion.Euler(0, 180, 0);
         skillContext.Parent.customAnimator.animator.SetInteger("SkillID", skillContext.shirokoTerror_SkillID);
+    }
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(0,0,0,0,0)},
+            {2, new StarLevelStats(0,0,0,0,0)},
+            {3, new StarLevelStats(0,0,0,0,0)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
     {
@@ -3204,11 +3236,12 @@ public class SaoriEnhancedSkill : CharacterSkillBase//來源自紗織的傷害�
 }
 public class Toki_Skill : CharacterSkillBase
 {
+    public TokiActiveskill tokiActiveskill;
     public override Dictionary<int, StarLevelStats> GetCharacterLevel()
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(0)},
+            {1, new StarLevelStats(100,375)},
             {2, new StarLevelStats(0)},
             {3, new StarLevelStats(0)}
         };
@@ -3223,7 +3256,10 @@ public class Toki_Skill : CharacterSkillBase
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
+        tokiActiveskill = skillContext.Parent.GetComponent<TokiActiveskill>();
+        tokiActiveskill.TokiSkill = this;
+        tokiActiveskill.SkillContext = skillContext;
+        tokiActiveskill.StartSkillCorutine();
     }
 }
 public class TokiEnhancedSkill : CharacterSkillBase
@@ -3238,6 +3274,10 @@ public class TokiEnhancedSkill : CharacterSkillBase
     {
         base.ExecuteSkill(skillContext);
     }
+}
+public class Panchan_Skill : CharacterSkillBase
+{
+
 }
 public class StarLevelStats
 {

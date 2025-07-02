@@ -17,6 +17,7 @@ public class BarrageObserver : CharacterObserverBase
     public int InitAngle;
     public BarrageObserver(int level, CharacterCTRL character)
     {
+        if (character == null) return;
         Level = level;
         Character = character;
         IntervalAngle = character.characterStats.BarrageIntervalAngle;
@@ -40,7 +41,8 @@ public class BarrageObserver : CharacterObserverBase
     }
     public override void OnCastedSkill(CharacterCTRL character)
     {
-        base.OnCastedSkill(character);
+        IntervalAngle = character.characterStats.BarrageIntervalAngle;
+        InitAngle = character.characterStats.BarrageInitAngle;
         CustomLogger.Log(this, $"BarrageObserver OnCastedSkill {character.name}");
         CoroutineController coroutineController = character.GetComponent<CoroutineController>();
         if (coroutineController == null)
@@ -64,7 +66,7 @@ public class BarrageObserver : CharacterObserverBase
         coroutineController.SetNextSkill(this, time, 0.1f, bestAngle, GetAngle(), character.ActiveSkill.Barrage_penetrate());
         CastTimes++;
     }
-    public float GetAngle()
+    public int GetAngle()
     {
         return InitAngle + (CastTimes * 20);
     }
@@ -75,7 +77,11 @@ public class BarrageObserver : CharacterObserverBase
         CustomLogger.Log(this, $"Character position: {origin}");
         List<HexNode> bestSector = new List<HexNode>();
         int maxEnemiesCount = 0;
-        Vector3 v = Character.transform.position - Character.GetTarget().transform.position;
+        Vector3 v = Character.transform.position;
+        if (Character.GetTarget() != null)
+        {
+            v = Character.transform.position - Character.GetTarget().transform.position;
+        }
         float startAngle = Character.transform.rotation.eulerAngles.y;
         CustomLogger.Log(this, $"Character start rotation angle: {startAngle}");
         StringBuilder sb = new StringBuilder();

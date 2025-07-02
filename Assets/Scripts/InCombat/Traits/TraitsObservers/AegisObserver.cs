@@ -7,6 +7,7 @@ public class AegisObserver : CharacterObserverBase
     private CharacterCTRL character;
     public AegisObserver(int level, CharacterCTRL character)
     {
+        if (character == null) return;
         this.character = character;
     }
     public override Dictionary<int, TraitLevelStats> GetTraitObserverLevel()

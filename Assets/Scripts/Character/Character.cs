@@ -25,10 +25,6 @@ public class Character : ScriptableObject
 
     public bool TestEnhanceSkill;
     public bool TestBuildInvinvicble;
-    public void ApplyLevelUp(int newLevel)
-    {
-        Level = newLevel;
-    }
     private void SetStatIfBelowThreshold(StatsType statType, float threshold, int value)
     {
         if (!isObj)

@@ -19,9 +19,10 @@ public class PathFinder : MonoBehaviour
             return _instance;
         }
     }
-    public static List<HexNode> FindPath(string name, HexNode startNode, HexNode targetNode,int range = 0)
+    public static List<HexNode> FindPath(string name, HexNode startNode, HexNode targetNode, int range = 0, CharacterCTRL character = null)
     {
-        CustomLogger.Log(name,$"Finding {name}'s path");
+        CustomLogger.Log(name, $"Finding {name}'s path");
+
         foreach (HexNode node in SpawnGrid.Instance.hexNodes.Values)
         {
             node.gCost = Mathf.Infinity;
@@ -31,14 +32,28 @@ public class PathFinder : MonoBehaviour
 
         startNode.gCost = 0;
         startNode.hCost = GetHexDistance(startNode, targetNode);
+
         List<HexNode> openList = new List<HexNode> { startNode };
         HashSet<HexNode> closedList = new HashSet<HexNode>();
+
+        HexNode closestNode = startNode;
+        float closestDistance = GetHexDistance(startNode, targetNode);
+
         while (openList.Count > 0)
         {
             HexNode currentNode = openList.OrderBy(node => node.fCost).ThenBy(node => node.hCost).First();
             openList.Remove(currentNode);
             closedList.Add(currentNode);
+
             int distanceToTarget = GetHexDistance(currentNode, targetNode);
+
+            // 記錄目前最接近目標的點
+            if (distanceToTarget < closestDistance)
+            {
+                closestDistance = distanceToTarget;
+                closestNode = currentNode;
+            }
+
             if (currentNode == targetNode || (range > 0 && distanceToTarget <= range))
             {
                 return RetracePath(startNode, currentNode);
@@ -46,10 +61,12 @@ public class PathFinder : MonoBehaviour
 
             foreach (HexNode neighbor in currentNode.Neighbors)
             {
-                if (neighbor == null || closedList.Contains(neighbor) || (neighbor != startNode && neighbor != targetNode && neighbor.IsHexReserved()))
+                if (neighbor == null || closedList.Contains(neighbor)) continue;
+                if (neighbor != startNode && neighbor != targetNode && character != null && neighbor.IsHexReserved())
                     continue;
+
                 float movementCost = currentNode.gCost + 1f;
-                int moveDeltaZ = neighbor.Z - currentNode.Z;
+
                 if (movementCost < neighbor.gCost)
                 {
                     neighbor.gCost = movementCost;
@@ -62,9 +79,15 @@ public class PathFinder : MonoBehaviour
             }
         }
 
-        Debug.LogError($"{name} No path found");
-        return new List<HexNode>();
+        // 沒有直接路徑，回傳最近可到的路徑
+        CustomLogger.LogWarning(name, $"{name} cannot reach target, fallback to closestNode {closestNode}");
+
+        if (closestNode != startNode)
+            return RetracePath(startNode, closestNode);
+        else
+            return new List<HexNode>(); // 如果連一格都沒法動
     }
+
 
 
     private static List<HexNode> RetracePath(HexNode startNode, HexNode endNode)
@@ -77,16 +100,11 @@ public class PathFinder : MonoBehaviour
             path.Add(currentNode);
             currentNode = currentNode.CameFrom;
         }
-
-        path.Add(startNode); // 包含起始节点
-
         path.Reverse();
-        StringBuilder sb = new StringBuilder();
-        foreach (var item in path)
+        if (path.Count >=1)
         {
-            sb.AppendLine(item.name);
+            path = new List<HexNode> { path[0] };
         }
-        CustomLogger.Log(startNode, sb.ToString());
         return path;
     }
 

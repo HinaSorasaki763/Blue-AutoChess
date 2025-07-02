@@ -10,6 +10,7 @@ public class AriusObserver : CharacterObserverBase
     public bool isactive = false;
     public AriusObserver(int level, CharacterCTRL character)
     {
+        if (character == null) return;
         this.traitLevel = level;
         this.parent = character;
     }

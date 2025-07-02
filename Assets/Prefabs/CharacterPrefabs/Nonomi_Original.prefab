@@ -4129,7 +4129,6 @@ GameObject:
   - component: {fileID: -6438073149345365053}
   - component: {fileID: -8628772335206556083}
   - component: {fileID: 3783920675868660082}
-  - component: {fileID: 6635520310736287454}
   - component: {fileID: 5115214769048187476}
   - component: {fileID: 1513338104347659184}
   - component: {fileID: -5210086210028158616}
@@ -4173,7 +4172,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CurrentHex: {fileID: 0}
   HexWhenBattleStart: {fileID: 0}
-  Target: {fileID: 0}
   PreTarget: {fileID: 0}
   IsAlly: 0
   allyLayer:
@@ -4217,6 +4215,94 @@ MonoBehaviour:
       value: 0
     - statType: 12
       value: 0
+  ExtraPernamentStats:
+    stats:
+    - statType: 0
+      value: 0
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 0
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 0
+    - statType: 5
+      value: 0
+    - statType: 6
+      value: 0
+    - statType: 7
+      value: 0
+    - statType: 8
+      value: 0
+    - statType: 9
+      value: 0
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 0
+    - statType: 12
+      value: 0
+    - statType: 13
+      value: 0
+    - statType: 14
+      value: 0
+    - statType: 15
+      value: 0
+    - statType: 16
+      value: 0
+    - statType: 17
+      value: 0
+    - statType: 18
+      value: 0
+    - statType: 19
+      value: 0
+    - statType: 20
+      value: 0
+  PercentageStats:
+    stats:
+    - statType: 0
+      value: 0
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 0
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 0
+    - statType: 5
+      value: 0
+    - statType: 6
+      value: 0
+    - statType: 7
+      value: 0
+    - statType: 8
+      value: 0
+    - statType: 9
+      value: 0
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 0
+    - statType: 12
+      value: 0
+    - statType: 13
+      value: 0
+    - statType: 14
+      value: 0
+    - statType: 15
+      value: 0
+    - statType: 16
+      value: 0
+    - statType: 17
+      value: 0
+    - statType: 18
+      value: 0
+    - statType: 19
+      value: 0
+    - statType: 20
+      value: 0
   star: 0
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
@@ -4237,6 +4323,7 @@ MonoBehaviour:
   Taunted: 0
   attackRate: 5
   WakamoMark: 0
+  dmgRecivedOnWakamoMarked: 0
   stunned: 0
   FirePoint: {fileID: 4357207593776985854}
   GetHitPoint: {fileID: 8841981844774995697}
@@ -4254,6 +4341,10 @@ MonoBehaviour:
   StealManaCount: 0
   DealtDamageThisRound: 0
   TakeDamageThisRound: 0
+  AkoAddedCrit: 0
+  SpecialSkillStack: 0
+  Undying: 0
+  IsDragable: 1
 --- !u!95 &9144523155973911132
 Animator:
   serializedVersion: 5
@@ -4363,18 +4454,6 @@ MonoBehaviour:
   effectNames: []
   characterCTRL: {fileID: 0}
 --- !u!114 &3783920675868660082
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8069955001826372559}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d166ca0c523f59641ab22e288092a104, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &6635520310736287454
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

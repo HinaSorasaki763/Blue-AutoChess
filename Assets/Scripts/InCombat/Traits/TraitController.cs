@@ -47,7 +47,7 @@ public class TraitController : MonoBehaviour
             currentTraits.Add(trait);
         }
     }
-    public CharacterObserverBase GetObserverForTrait(Traits trait)
+    public  CharacterObserverBase GetObserverForTrait(Traits trait)
     {
         if (traitObservers.TryGetValue(trait, out var observer))
         {
@@ -135,13 +135,14 @@ public class TraitController : MonoBehaviour
                 observer = new SRTObserver(traitLevel,character);
                 break;
             case Traits.None:
+                observer = new NoneObserver(traitLevel, character);
+                break;
             default:
                 // 不做任何操作
                 break;
         }
         if (observer != null)
         {
-            CustomLogger.Log(this, $"observer{observer} = level {traitLevel}");
             traitObservers[trait] = observer;
 
         }
@@ -204,7 +205,7 @@ public class TraitController : MonoBehaviour
 
         if (gameObject.GetComponent<CustomAnimatorController>() != null)
         {
-            gameObject.GetComponent<CustomAnimatorController>().SetToIdle();
+            gameObject.GetComponent<CustomAnimatorController>().ForceIdle();
         }
 
         foreach (var observer in traitObservers.Values)

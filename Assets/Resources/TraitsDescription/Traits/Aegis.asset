@@ -24,19 +24,19 @@ MonoBehaviour:
     blocking bullets within one tile around them. They absorb part of the bullet
     damage and nullify the rest.
   thresholds:
-  - level: 0
+  - level: 1
     requiredCount: 2
     effectValue: 0
     effectDescription: 
-  - level: 1
+  - level: 2
     requiredCount: 4
     effectValue: 0
     effectDescription: 
-  - level: 2
+  - level: 3
     requiredCount: 6
     effectValue: 0
     effectDescription: 
-  - level: 3
+  - level: 4
     requiredCount: 8
     effectValue: 0
     effectDescription: 

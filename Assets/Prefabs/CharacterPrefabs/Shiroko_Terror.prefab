@@ -5673,6 +5673,7 @@ GameObject:
   - component: {fileID: 5080474695208450311}
   - component: {fileID: 3471925506653404141}
   - component: {fileID: -3557860876729709900}
+  - component: {fileID: 6615402810793738765}
   m_Layer: 0
   m_Name: Shiroko_Terror
   m_TagString: Character
@@ -5810,7 +5811,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentHex: {fileID: 0}
-  Target: {fileID: 0}
+  HexWhenBattleStart: {fileID: 0}
   PreTarget: {fileID: 0}
   IsAlly: 0
   allyLayer:
@@ -5854,9 +5855,99 @@ MonoBehaviour:
       value: 0
     - statType: 12
       value: 0
+  ExtraPernamentStats:
+    stats:
+    - statType: 0
+      value: 0
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 0
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 0
+    - statType: 5
+      value: 0
+    - statType: 6
+      value: 0
+    - statType: 7
+      value: 0
+    - statType: 8
+      value: 0
+    - statType: 9
+      value: 0
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 0
+    - statType: 12
+      value: 0
+    - statType: 13
+      value: 0
+    - statType: 14
+      value: 0
+    - statType: 15
+      value: 0
+    - statType: 16
+      value: 0
+    - statType: 17
+      value: 0
+    - statType: 18
+      value: 0
+    - statType: 19
+      value: 0
+    - statType: 20
+      value: 0
+  PercentageStats:
+    stats:
+    - statType: 0
+      value: 0
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 0
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 0
+    - statType: 5
+      value: 0
+    - statType: 6
+      value: 0
+    - statType: 7
+      value: 0
+    - statType: 8
+      value: 0
+    - statType: 9
+      value: 0
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 0
+    - statType: 12
+      value: 0
+    - statType: 13
+      value: 0
+    - statType: 14
+      value: 0
+    - statType: 15
+      value: 0
+    - statType: 16
+      value: 0
+    - statType: 17
+      value: 0
+    - statType: 18
+      value: 0
+    - statType: 19
+      value: 0
+    - statType: 20
+      value: 0
   star: 0
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
+  IsHeroicEnhanced: 0
+  FaceDirectionLock: 0
   ManaLock: 0
   enterBattle: 0
   isAlive: 1
@@ -5866,12 +5957,18 @@ MonoBehaviour:
   isMarked: 0
   isCCImmune: 0
   Invincible: 0
+  AntiHeal: 0
+  Overtime: 0
+  AntiHealRatio: 0
+  Taunted: 0
   attackRate: 5
+  WakamoMark: 0
+  dmgRecivedOnWakamoMarked: 0
   stunned: 0
-  bulletPrefab: {fileID: 0}
   FirePoint: {fileID: 2358996488297888552}
   GetHitPoint: {fileID: 3183110010081886943}
   DetectedPos: {x: 0, y: 0, z: 0}
+  AudioManager: {fileID: 0}
   traitController: {fileID: 0}
   customAnimator: {fileID: 0}
   isTargetable: 1
@@ -5880,6 +5977,14 @@ MonoBehaviour:
   isObj: 0
   Logistic_dummy: {fileID: 0}
   equipmentManager: {fileID: 0}
+  critTransferAmount: 0
+  StealManaCount: 0
+  DealtDamageThisRound: 0
+  TakeDamageThisRound: 0
+  AkoAddedCrit: 0
+  SpecialSkillStack: 0
+  Undying: 0
+  IsDragable: 1
 --- !u!114 &5342661329701524180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5893,6 +5998,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
+  animatorSpeed: 0
+  animationLock: 0
 --- !u!114 &8226846360587726061
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6068,6 +6175,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &6615402810793738765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8199883607337634985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f9accdc07a275849a356fd8221884e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parent: {fileID: 7206625394570171306}
 --- !u!1 &8234859896267721778
 GameObject:
   m_ObjectHideFlags: 0

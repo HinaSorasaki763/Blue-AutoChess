@@ -351,7 +351,7 @@ namespace GameEnum
         public List<int> value;
         public bool isSpecial;
         public bool isConsumable;
-        public Traits trait;
+        public List<Traits> Traits;
         public Traits OriginalstudentTrait;
         public List<EquipmentType> combinableWith;
         public CharacterObserverBase observer;
@@ -383,7 +383,7 @@ namespace GameEnum
             equipmentDetail = equipmentSO.equipmentDescription;
             equipmentDescriptionEnglish = equipmentSO.equipmentDescriptionEnglish;
             value = equipmentSO.Value;
-            trait = equipmentSO.Traits;
+            Traits = equipmentSO.Traits;
             isSpecial = equipmentSO.isSpecial;
             id = equipmentSO.Id;
             combinableWith = new List<EquipmentType>(equipmentSO.Attributes);
@@ -408,9 +408,11 @@ namespace GameEnum
         public void OnRemove(CharacterCTRL character)
         {
             CustomLogger.Log(this, $"{EquipmentName} on remove");
-            character.traitController.RemoveTrait(trait);
+            List<Traits> t = new List<Traits>(Traits);
+            t.RemoveAll(x => x == OriginalstudentTrait);
+            character.traitController.RemoveTrait(t[0]);
             character.traitController.AddTrait(OriginalstudentTrait);
-            OriginalstudentTrait = Traits.None;
+            OriginalstudentTrait = GameEnum.Traits.None;
         }
 
         // ----------------------------------------
@@ -430,7 +432,7 @@ namespace GameEnum
             copy.equipmentDescriptionEnglish = this.equipmentDescriptionEnglish;
             copy.isSpecial = this.isSpecial;
             copy.isConsumable = this.isConsumable;
-            copy.trait = this.trait;
+            copy.Traits = this.Traits;
             copy.OriginalstudentTrait = this.OriginalstudentTrait;
             if (this.value != null)
             {
@@ -688,6 +690,15 @@ namespace GameEnum
                 stats.Add(new Stat { statType = type, value = 0 });
             }
         }
+        public StatsContainer MultiplyBy(float ratio)
+        {
+            StatsContainer newS = this.Clone();
+            foreach (var item in newS.stats)
+            {
+                item.value *= ratio;
+            }
+            return newS;
+        }
         public StatsContainer Clone()
         {
             StatsContainer newContainer = new StatsContainer();
@@ -805,7 +816,8 @@ namespace GameEnum
         NormalTrailedBullet,
         MissleFragmentsPrefab,
         SmallPenetrateTrailedBullet,
-        Missle
+        Missle,
+        Beam,
     }
     public enum ModifierType
     {
@@ -844,7 +856,17 @@ namespace GameEnum
     }
     public static class Utility
     {
-
+        public static IEquipment GetSpecificEquipment(int index)
+        {
+            foreach (var item in EquipmentManager.Instance.availableEquipments)
+            {
+                if (item.Id == index)
+                {
+                    return item;
+                }
+            }
+            return null;
+        }
         public static Traits IsAcademy(List<Traits> traits)
         {
             foreach (var item in traits)
@@ -859,7 +881,18 @@ namespace GameEnum
             }
             return Traits.None;
         }
-
+        public static GameObject GetSpecificCharacterToSpawn(int index)
+        {
+            List<Character> allCharacters = ResourcePool.Instance.GetAllCharacters();
+            foreach (var item in allCharacters)
+            {
+                if (item.CharacterId == index)
+                {
+                    return item.Model;
+                }
+            }
+            return null;
+        }
         public static void ChangeImageAlpha(Image image, float alpha)
         {
             Color color = image.color;
@@ -1090,8 +1123,10 @@ namespace GameEnum
         }
         public static List<CharacterCTRL> GetCharacterInrange(HexNode startNode, int range, CharacterCTRL finder, bool findingAlly, bool isInjured = false)
         {
-            CustomLogger.Log(finder, $"GetCharacterInrange - StartNode: {startNode.name}, Range: {range}, Finder: {finder.name}, FindingAlly: {findingAlly}");
             var characters = new HashSet<CharacterCTRL>();
+            if (finder == null) return characters.ToList();
+            CustomLogger.Log(finder, $"GetCharacterInrange - StartNode: {startNode.name}, Range: {range}, Finder: {finder.name}, FindingAlly: {findingAlly}");
+
             var nodes = GetHexInRange(startNode, range);
             CustomLogger.Log(finder, $"GetCharacterInrange - Nodes: {string.Join(", ", nodes.Select(n => n.name))}");
             foreach (var item in nodes)
@@ -1110,7 +1145,6 @@ namespace GameEnum
     bool findingAlly,
     bool isInjured = false)
         {
-            // 這裡以 (CharacterCTRL, int) 形式回傳角色和其權重
             var result = new List<(CharacterCTRL, float)>();
             CustomLogger.Log(finder, $"GetCharacterInrangeWithWeight - StartNode: {startNode.name}, " +
                                      $"Range: {range}, Finder: {finder.name}, FindingAlly: {findingAlly}, " +
@@ -1165,31 +1199,26 @@ namespace GameEnum
             }
             return false;
         }
-        public static int GetRand(CharacterCTRL c = null, int randKey = 0)
+        public static void SetRandKey(CharacterCTRL c = null)
         {
             int battleCounterInt = Mathf.FloorToInt(GameStageManager.Instance.enteringBattleCounter * 1000);
             int seed = ResourcePool.Instance.RandomKeyThisGame + battleCounterInt;
-
             if (c != null)
             {
                 int i = c.IsAlly ? 1 : 0;
-                seed += c.characterStats.CharacterId + i + randKey;
+                seed += c.characterStats.CharacterId + i + seed;
             }
-
             UnityEngine.Random.InitState(seed);
+        }
+        public static int GetRand(CharacterCTRL c = null)
+        {
+            SetRandKey(c);
             return UnityEngine.Random.Range(0, 101);
         }
 
-        public static float GetRandfloat(CharacterCTRL c = null, int randKey = 0)
+        public static float GetRandfloat(CharacterCTRL c = null)
         {
-            int battleCounterInt = Mathf.FloorToInt(GameStageManager.Instance.enteringBattleCounter * 1000);
-            int seed = ResourcePool.Instance.RandomKeyThisGame + battleCounterInt;
-            if (c != null)
-            {
-                int i = c.IsAlly ? 1 : 0;
-                seed += c.characterStats.CharacterId + i + randKey;
-            }
-            UnityEngine.Random.InitState(seed);
+            SetRandKey(c);
             return UnityEngine.Random.Range(0f, 1f);
         }
 

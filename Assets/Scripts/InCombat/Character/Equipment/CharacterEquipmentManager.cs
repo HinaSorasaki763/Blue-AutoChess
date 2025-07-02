@@ -35,9 +35,20 @@ public class CharacterEquipmentManager : MonoBehaviour
         if (equipment is SpecialEquipment specialEquipment)
         {
             Traits trait = Parent.traitController.GetAcademy();
-            specialEquipment.OriginalstudentTrait = trait;
-            Parent.traitController.RemoveTrait(trait);
-            Parent.traitController.AddTrait(specialEquipment.trait);
+            List<Traits> t = new List<Traits>(specialEquipment.Traits);
+            if (specialEquipment.Traits.Contains(trait))
+            {
+                
+                t.Remove(trait);
+                specialEquipment.OriginalstudentTrait = trait;
+                Parent.traitController.RemoveTrait(trait);
+                Parent.traitController.AddTrait(t[0]);
+            }
+            else
+            {
+                PopupManager.Instance.CreatePopup($"角色{Parent.name}沒有{t[0]}或{t[1]},無法配戴", 2);
+                return false;
+            }
         }
         AddEquipment(equipment);
         UpdateStatsForEquipment(equipment);

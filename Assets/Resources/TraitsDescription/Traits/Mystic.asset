@@ -20,15 +20,15 @@ MonoBehaviour:
   - "\u5C07\u7121\u8996\u4E00\u90E8\u5206\u6575\u4EBA\u7684\u8B77\u7532\u548C\u50B7\u5BB3\u6E1B\u514D"
   - "Students ignore part of the enemy\u2019s armor and damage reduction."
   thresholds:
-  - level: 1
-    requiredCount: 2
-    effectValue: 0
-    effectDescription: 
   - level: 2
     requiredCount: 4
     effectValue: 0
     effectDescription: 
   - level: 3
     requiredCount: 6
+    effectValue: 0
+    effectDescription: 
+  - level: 4
+    requiredCount: 8
     effectValue: 0
     effectDescription: 

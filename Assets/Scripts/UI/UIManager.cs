@@ -171,7 +171,7 @@ public class UIManager : MonoBehaviour
         // 根據 currentCharacter 更新彈窗中的數據
         characterNameText.text = currentCharacter.characterStats.CharacterName;
         healthText.text = $"Health:{currentCharacter.GetStat(StatsType.currHealth)}/{currentCharacter.GetStat(StatsType.Health)}";
-        shieldText.text = $"Shield: {currentCharacter.GetStat(StatsType.Shield)}";
+        shieldText.text = $"Shield: {currentCharacter.GetShieldStats()}";
         manaText.text = $"Mana: {currentCharacter.GetStat(StatsType.Mana)}";
         for (int i = 0; i < currentCharacter.equipmentManager.equippedItems.Count; i++)
         {
@@ -182,7 +182,7 @@ public class UIManager : MonoBehaviour
             equipments[i].sprite = null;
         }
         healthBar.UpdateValue(currentCharacter.GetStat(StatsType.currHealth));
-        shieldBar.UpdateValue(currentCharacter.GetStat(StatsType.Shield));
+        shieldBar.UpdateValue(currentCharacter.GetShieldStats());
         manaBar.UpdateValue(currentCharacter.GetStat(StatsType.Mana));
     }
     public void OnQuit()

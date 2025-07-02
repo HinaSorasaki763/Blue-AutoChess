@@ -1,4 +1,5 @@
 ﻿using GameEnum;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,9 @@ public class CharacterParent : MonoBehaviour
     private List<GameObject> totems = new List<GameObject>();
     private Dictionary<CharacterCTRL, GameObject> logisticsDummies = new Dictionary<CharacterCTRL, GameObject>();
     public HashSet<int> enhancedSkillCharacters = new HashSet<int>();
+    public bool Shiroko_Terror_Postponed = false;
+    private bool Shiroko_Terror_Tempmark = false;
+    public List<String> BattleingCharacterNames = new List<string>();
     public void Start()
     {
 
@@ -21,7 +25,7 @@ public class CharacterParent : MonoBehaviour
 
     public void OnStartBattle()
     {
-        childCharacters.RemoveAll(c=> !c.activeInHierarchy);
+        childCharacters.RemoveAll(c => !c.activeInHierarchy);
         foreach (var item in childCharacters)
         {
             item.GetComponent<CharacterCTRL>().RecalculateStats();
@@ -152,6 +156,13 @@ public class CharacterParent : MonoBehaviour
         }
 
     }
+    public void FroceRefrshStats()
+    {
+        foreach (var item in childCharacters)
+        {
+            item.GetComponent<CharacterCTRL>().RecalculateStats();
+        }
+    }
     private bool CombineCharacters(List<CharacterCTRL> charactersToCombine)
     {
 
@@ -163,6 +174,7 @@ public class CharacterParent : MonoBehaviour
 
         // 找到最強的角色作為主要角色
         CharacterCTRL mainCharacter = FindStrongestCharacter(charactersToCombine);
+        if (mainCharacter.characterStats.CharacterId == 41) return false;
         if (mainCharacter == null)
         {
             CustomLogger.LogWarning(this, "未能找到主要角色");
@@ -189,7 +201,6 @@ public class CharacterParent : MonoBehaviour
             Destroy(characterGameObject);
         }
         mainCharacter.ExtraPernamentStats = extraList[0].Clone();
-        mainCharacter.characterStats.ApplyLevelUp(mainCharacter.characterStats.Level + 1);
         mainCharacter.RecalculateStats();
         mainCharacter.GetSkillContext();
         mainCharacter.AudioManager.PlayOnStarUp();
@@ -251,6 +262,7 @@ public class CharacterParent : MonoBehaviour
         }
         AddTraitEffects();
     }
+    
     public void GetEmptyObserver(CharacterCTRL character)
     {
         foreach (var item in character.traitController.GetCurrentTraits())
@@ -264,22 +276,60 @@ public class CharacterParent : MonoBehaviour
     {
         if (GameStageManager.Instance.CurrGamePhase == GamePhase.Preparing) return;
         bool allDisabled = true;
-
-        foreach (var item in childCharacters)
+        BattleingCharacterNames.Clear();
+        foreach (var item in GetBattleFieldCharacter())
         {
-            if (item.activeInHierarchy && !item.GetComponent<CharacterCTRL>().CurrentHex.IsLogistics&& !item.GetComponent<CharacterCTRL>().Undying)
+            if (item.isAlive && !item.CurrentHex.IsLogistics && !item.GetComponent<CharacterCTRL>().Undying)
             {
                 allDisabled = false;
-                break;
+                BattleingCharacterNames.Add(item.name);
             }
         }
         if (allDisabled && GameStageManager.Instance.CurrGamePhase == GamePhase.Battling)
         {
-            GameStageManager.Instance.NotifyTeamDefeated(this);
-
+            if (!Shiroko_Terror_Postponed)
+            {
+                GameStageManager.Instance.CurrGamePhase = GamePhase.Preparing;
+                foreach (var item in GetBattleFieldCharacter())
+                {
+                    item.customAnimator.ForceIdle();
+                    if (item.droneCTRL != null)
+                    {
+                        item.droneCTRL.gameObject.SetActive(false);
+                    }
+                    item.enterBattle = false;
+                }
+            }
+            if (Shiroko_Terror_Postponed && !isEnemy)
+            {
+                if (Shiroko_Terror_Tempmark) return;
+                Shiroko_Terror_Tempmark = true;
+                CharacterCTRL c = Utility.GetSpecificCharacterByIndex(GetAllCharacter(), 22);
+                ResourcePool.Instance.ally.childCharacters.Remove(c.gameObject);
+                Destroy(c.gameObject);
+                BenchManager.Instance.AddToBench(Utility.GetSpecificCharacterToSpawn(31));
+                return;
+            }
+            foreach (var item in childCharacters)
+            {
+                item.GetComponent<CharacterCTRL>().ResetToBeforeBattle();
+            }
+            GameStageManager.Instance.NotifyTeamDefeated(this);//TODO:黑子的邏輯需要再修正
         }
     }
-
+    public void ContinueBattleRoutine()
+    {
+        GameStageManager.Instance.NotifyTeamDefeated(this);
+    }
+    public int GetSpecificTrait(Traits traits)
+    {
+        UpdateTraitEffects();
+        if (currTraits.ContainsKey(traits))
+        {
+            return currTraits[traits];
+        }
+        return 0;
+    }
     public void UpdateTraitEffects()
     {
         List<CharacterCTRL> battlefieldCharacters = GetBattleFieldCharacter();
@@ -309,11 +359,27 @@ public class CharacterParent : MonoBehaviour
         {
             item.SetActive(false);
         }
-        if (!isEnemy)
+        if (!isEnemy && GameStageManager.Instance.CurrGamePhase == GamePhase.Preparing)
         {
             UpdateLogisticsDummies(battlefieldCharacters);
         }
+        if (SelectedAugments.Instance.CheckAugmetExist(124) && !SelectedAugments.Instance.TriggeredIndex.Contains(124))
+        {
+            int srtCount = 0;
+            foreach (var item in childCharacters)
+            {
+                CharacterCTRL c = item.GetComponent<CharacterCTRL>();
+                if (c.traitController.GetAcademy() == Traits.SRT && c.star == 3)
+                {
+                    srtCount++;
+                }
+            }
+            if (srtCount >=0)
+            {
+                SelectedAugments.Instance.TriggerAugment(124);
+            }
 
+        }
     }
     public void AddTraitEffects()
     {
@@ -351,7 +417,7 @@ public class CharacterParent : MonoBehaviour
                 else
                 {
                     HexNode h = SpawnGrid.Instance.GetEmptyHex();
-                    GameObject obj = Instantiate(ResourcePool.Instance.LogisticDummy, h.Position + new Vector3(0, 0.14f, 0), Quaternion.Euler(new Vector3(0, 0, 0)));
+                    GameObject obj = Instantiate(ResourcePool.Instance.LogisticDummy,h.Position + new Vector3(0, 0.23f, 0), Quaternion.Euler(new Vector3(0, 0, 0)));
                     CustomLogger.Log(this, "spawned dummy");
                     obj.transform.SetParent(ResourcePool.Instance.ally.transform);
                     CharacterBars bar = ResourcePool.Instance.GetBar(h.Position).GetComponent<CharacterBars>();
@@ -366,6 +432,7 @@ public class CharacterParent : MonoBehaviour
                     staticObj.RefreshDummy(character);
                     logisticsDummies[character] = obj;
                     ctrl.CurrentHex = h;
+                    ctrl.IsAlly = true;
                     h.OccupyingCharacter = ctrl;
                     h.Reserve(ctrl);
                 }
@@ -461,45 +528,57 @@ public class CharacterParent : MonoBehaviour
         }
         return L;
     }
-    public int GetCount()
-    {
-        List<CharacterCTRL> battlefieldCharacters = new List<CharacterCTRL>();
-        foreach (var item in childCharacters)
-        {
-            if (!item.activeInHierarchy) continue;
-            CharacterCTRL character = item.GetComponent<CharacterCTRL>();
-            if (character.CurrentHex.IsBattlefield && !character.characterStats.logistics)
-            {
-                battlefieldCharacters.Add(character);
-            }
-        }
-        return battlefieldCharacters.Count;
-    }
     public List<CharacterCTRL> GetBattleFieldCharacter()
     {
 
         List<CharacterCTRL> battlefieldCharacters = new List<CharacterCTRL>();
         foreach (var item in childCharacters)
         {
-            if (!item.activeInHierarchy) continue;
+            if (!item.activeInHierarchy || item.GetComponent<CharacterCTRL>().characterStats.CharacterId == 41) continue;
             CharacterCTRL character = item.GetComponent<CharacterCTRL>();
-            if (character.CurrentHex.IsBattlefield )
+            if (character.CurrentHex.IsBattlefield)
             {
                 battlefieldCharacters.Add(character);
             }
         }
         return battlefieldCharacters;
     }
-    public void ClearAllCharacter()
+    public CharacterCTRL GetRandomCharacter(bool needLogistic)
     {
-        for (int i = childCharacters.Count; i > 0; i--)
+        List<CharacterCTRL> characters = GetBattleFieldCharacter();
+        if (!needLogistic)
         {
-            childCharacters[i - 1].GetComponent<CharacterCTRL>().characterBars.ResetBars();
-            childCharacters[i - 1].GetComponent<CharacterCTRL>().characterBars.gameObject.SetActive(false);
-            childCharacters[i - 1].SetActive(false);
-            Destroy(childCharacters[i - 1]);
-            logisticsDummies.Clear();
-            childCharacters.RemoveAt(i - 1);
+            characters.RemoveAll(x => x.characterStats.logistics ==true);
         }
+
+        Utility.SetRandKey();
+        if (characters == null || characters.Count == 0)
+        {
+            CustomLogger.LogWarning(this, "No characters available on battlefield.");
+            return null;
+        }
+        int randomIndex = UnityEngine.Random.Range(0, characters.Count);
+        return characters[randomIndex];
     }
+
+    public void ClearAllCharacter(GameObject exception = null)
+    {
+
+        logisticsDummies.Clear();
+        for (int i = childCharacters.Count - 1; i >= 0; i--)
+        {
+            GameObject current = childCharacters[i];
+            if (current == exception)
+                continue;
+
+            CharacterCTRL ctrl = current.GetComponent<CharacterCTRL>();
+            ctrl.characterBars.ResetBars();
+            ctrl.characterBars.gameObject.SetActive(false);
+            current.SetActive(false);
+            Destroy(current);
+            childCharacters.RemoveAt(i);
+        }
+
+    }
+
 }

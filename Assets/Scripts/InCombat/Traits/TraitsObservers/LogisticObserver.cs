@@ -22,6 +22,7 @@ public class LogisticObserver : CharacterObserverBase
     }
     public LogisticObserver(int level, CharacterCTRL character)
     {
+        if (character == null) return;
         this.traitLevel = level;
         this.character = character;
     }

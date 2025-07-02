@@ -219,7 +219,7 @@ public class MikaSkillEffect : HitEffect
         StarLevelStats stats = source.ActiveSkill.GetCharacterLevel()[target.star];
         int BaseDamage = stats.Data1;
         int DamageRatio = stats.Data2;
-        int dmg = BaseDamage + DamageRatio * (int)source.GetStat(StatsType.Attack);
+        int dmg = BaseDamage + DamageRatio * (int)(source.GetStat(StatsType.Attack)*0.01f);
         (bool iscrit, int dmg1) = source.CalculateCrit(dmg);
         source.StartCoroutine(target.Explosion(dmg1, 2, target.CurrentHex, source, 100 / 30f, DamageSourceType.Skill.ToString(), iscrit));
     }

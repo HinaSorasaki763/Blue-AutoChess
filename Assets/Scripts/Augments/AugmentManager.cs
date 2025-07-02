@@ -17,11 +17,16 @@ public class AugmentManager : MonoBehaviour
 
     public Button refreshButton; // 新增的刷新按鈕
     public List<int> DisableAugmentsIndex = new List<int>();
+    public int forcedIndex;// 預設 -1 表示無內定
     private Queue<int> recentAugments = new Queue<int>();
+
     private Dictionary<int, int> augmentHistoryCount = new Dictionary<int, int>();
     private void OnEnable()
     {
-        allAugments = Resources.LoadAll<AugmentConfig>("Augments/SkillAugments");
+        var list = new List<AugmentConfig>();
+        list.AddRange(Resources.LoadAll<AugmentConfig>("Augments/SkillAugments"));
+        list.AddRange(Resources.LoadAll<AugmentConfig>("Augments/AcademyAugments"));
+        allAugments = list.ToArray();
     }
 
     private void Start()
@@ -44,6 +49,7 @@ public class AugmentManager : MonoBehaviour
     {
         availableAugments = new List<AugmentConfig>(allAugments);
         availableAugments.RemoveAll(item => DisableAugmentsIndex.Contains(item.augmentIndex));
+
         if (availableAugments.Count < optionButtons.Length)
         {
             CustomLogger.LogWarning(this, "可用的強化選項不足！");
@@ -57,33 +63,55 @@ public class AugmentManager : MonoBehaviour
         }
 
         List<int> selectedIndices = new List<int>();
-        for (int i = 0; i < optionButtons.Length; i++)
+
+        // 強制放入內定 index
+        if (forcedIndex != -1)
         {
-            int selectedIndex = GetWeightedRandomIndex(availableAugments, selectedIndices);
-            selectedIndices.Add(selectedIndex);
-
-            var config = availableAugments[selectedIndex];
-            currentAugments[i] = AugmentFactory.CreateAugment(config);
-            optionIcons[i].sprite = config.augmentIcon;
-            int language = PlayerSettings.SelectedDropdownValue;
-            string description = language == 0 ? config.description : config.descriptionEnglish;
-            CustomLogger.Log(config, $"選擇了強化：{config.augmentName}，描述：{description},語言為{language}");
-            optionDescriptions[i].text = description;
-
-            recentAugments.Enqueue(config.augmentIndex);
-            if (recentAugments.Count > 10)
+            int forcedAvailableIndex = availableAugments.FindIndex(a => a.augmentIndex == forcedIndex);
+            if (forcedAvailableIndex != -1)
             {
-                int removed = recentAugments.Dequeue();
-                augmentHistoryCount[removed]--;
+                SetOptionAt(0, forcedAvailableIndex, selectedIndices);
             }
-
-            if (!augmentHistoryCount.ContainsKey(config.augmentIndex))
-                augmentHistoryCount[config.augmentIndex] = 0;
-            augmentHistoryCount[config.augmentIndex]++;
-
-            int index = i;
-            optionButtons[i].onClick.AddListener(() => SelectAugment(index));
+            else
+            {
+                CustomLogger.LogWarning(this, $"找不到內定強化 index: {forcedIndex}");
+                SetOptionAt(0, GetWeightedRandomIndex(availableAugments, selectedIndices), selectedIndices);
+            }
         }
+        else
+        {
+            SetOptionAt(0, GetWeightedRandomIndex(availableAugments, selectedIndices), selectedIndices);
+        }
+
+        // 其餘選項
+        for (int i = 1; i < optionButtons.Length; i++)
+        {
+            SetOptionAt(i, GetWeightedRandomIndex(availableAugments, selectedIndices), selectedIndices);
+        }
+    }
+    private void SetOptionAt(int optionSlot, int augmentPoolIndex, List<int> selectedIndices)
+    {
+        selectedIndices.Add(augmentPoolIndex);
+        var config = availableAugments[augmentPoolIndex];
+        currentAugments[optionSlot] = AugmentFactory.CreateAugment(config);
+        optionIcons[optionSlot].sprite = config.augmentIcon;
+        int language = PlayerSettings.SelectedDropdownValue;
+        string description = language == 0 ? config.description : config.descriptionEnglish;
+        optionDescriptions[optionSlot].text = description;
+        CustomLogger.Log(config, $"選擇了強化：{config.augmentName}，描述：{description},語言為{language}");
+
+        recentAugments.Enqueue(config.augmentIndex);
+        if (recentAugments.Count > 10)
+        {
+            int removed = recentAugments.Dequeue();
+            augmentHistoryCount[removed]--;
+        }
+
+        if (!augmentHistoryCount.ContainsKey(config.augmentIndex))
+            augmentHistoryCount[config.augmentIndex] = 0;
+        augmentHistoryCount[config.augmentIndex]++;
+
+        optionButtons[optionSlot].onClick.AddListener(() => SelectAugment(optionSlot));
     }
 
     private int GetWeightedRandomIndex(List<AugmentConfig> pool, List<int> alreadySelected)
@@ -116,14 +144,14 @@ public class AugmentManager : MonoBehaviour
     private void SelectAugment(int index)
     {
         if (currentAugments[index] == null) return;
-        if (currentAugments[index].config.CharacterSkillEnhanceIndex!= -1)
+        currentAugments[index].Apply();
+        Debug.Log($"選擇了強化：{currentAugments[index].Name}");
+        if (currentAugments[index].config.CharacterSkillEnhanceIndex != -1)
         {
             ResourcePool.Instance.ally.AddEnhancedSkill(currentAugments[index].config.CharacterSkillEnhanceIndex);
-            SelectedAugments.Instance.AddAugment(currentAugments[index]);
 
-            currentAugments[index].Apply();
-            Debug.Log($"選擇了強化：{currentAugments[index].Name}");
         }
+        SelectedAugments.Instance.AddAugment(currentAugments[index]);
         foreach (var item in ResourcePool.Instance.ally.GetAllCharacter())
         {
             item.OnCharaterEnabled();

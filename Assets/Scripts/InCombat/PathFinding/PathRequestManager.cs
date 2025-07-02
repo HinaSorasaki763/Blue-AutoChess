@@ -8,8 +8,6 @@ using UnityEngine;
 public class PathRequestManager : MonoBehaviour
 {
     private static PathRequestManager _instance;
-    private CustomLogger logger = new CustomLogger();
-
     public static PathRequestManager Instance
     {
         get
@@ -33,6 +31,7 @@ public class PathRequestManager : MonoBehaviour
     {
         CustomLogger.Log(this, $"character {character} requesting path from {startNode} to {targetNode} , target = {character.Target}, target node occupying {targetNode.OccupyingCharacter}");
         PathRequest newRequest = new PathRequest(character, startNode, targetNode, callback, range);
+        pathRequestBuffer.RemoveAll(item => item.character == character);
         pathRequestBuffer.Add(newRequest);
 
         if (!isProcessingPath)
@@ -48,6 +47,12 @@ public class PathRequestManager : MonoBehaviour
         List<PathRequest> sortedRequests = pathRequestBuffer
             .OrderBy(r => GetHexDistance(r.startNode, r.targetNode))
             .ToList();
+        CustomLogger.Log(this, $"processing {pathRequestBuffer.Count} of request");
+        foreach (var item in pathRequestBuffer)
+        {
+            HardReleaseReservation(item.character);
+        }
+
         StringBuilder sb = new StringBuilder();
         foreach (HexNode node in SpawnGrid.Instance.hexNodes.Values)
         {
@@ -55,7 +60,15 @@ public class PathRequestManager : MonoBehaviour
             node.hCost = Mathf.Infinity;
             node.CameFrom = null;
         }
-
+        int count = 0;
+        foreach (HexNode node in SpawnGrid.Instance.hexNodes.Values)
+        {
+            if (node.IsHexReserved())
+            {
+                count++;
+            }
+        }
+        CustomLogger.Log(this, $"reserved count = {count}");
         foreach (var request in sortedRequests)
         {
             sb.AppendLine($" request: {request.character.characterStats.CharacterName} to target{request.targetNode}");
@@ -63,7 +76,8 @@ public class PathRequestManager : MonoBehaviour
                 request.character.characterStats.CharacterName,
                 request.startNode,
                 request.targetNode,
-                (int)request.character.stats.GetStat(GameEnum.StatsType.Range)
+                (int)request.character.stats.GetStat(GameEnum.StatsType.Range),
+                request.character
             );
             ReserveNodes(path, request.character);
             request.callback(path);
@@ -102,7 +116,26 @@ public class PathRequestManager : MonoBehaviour
             characterReservations.Remove(character);
         }
     }
-
+    public void HardReleaseReservation(CharacterCTRL c)
+    {
+        foreach (var item in SpawnGrid.Instance.hexNodes)
+        {
+            if (item.Value.IsReservedBy(c) && (item.Value.OccupyingCharacter == c||item.Value.OccupyingCharacter == null) && item.Value != c.CurrentHex)
+            {
+                item.Value.HardRelease();
+            }
+        }
+    }
+    public void ReleaseReserve(CharacterCTRL c ,List<HexNode> hexNodes)
+    {
+        foreach (var item in SpawnGrid.Instance.hexNodes)
+        {
+            if (item.Value.IsReservedBy(c) && item.Value.OccupyingCharacter != c && !hexNodes.Contains(item.Value))
+            {
+                item.Value.Release();
+            }
+        }
+    }
     public void ReleaseRemainingReservations(CharacterCTRL character, int startIndex)
     {
         if (characterReservations.TryGetValue(character, out List<HexNode> reservedNodes))

@@ -1,7 +1,8 @@
 using GameEnum;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
 
 public class Shop : MonoBehaviour
@@ -17,6 +18,10 @@ public class Shop : MonoBehaviour
     public BenchManager benchManager;
     public RoundProbabilityData roundProbabilityData;
     public Button RefreshButton;
+    public int SRT_RerollCount;
+    public int freeReroll;
+    public List<Sprite> SRT_statsImage = new List<Sprite>();
+    public int SRT_RandStatIndex;
     public void Awake()
     {
         Instance = this;
@@ -35,160 +40,189 @@ public class Shop : MonoBehaviour
     public void Update()
     {
         int gold = GameController.Instance.GetGoldAmount();
-        for (int i = 0; i <5; i++)
+        for (int i = 0; i < prices.Count; i++)
         {
-            if (prices[i] > gold)
-            {
-                ShopButtons[i].interactable = false;
-            }
-            else if (!Selled.Contains(i))
-            {
-                ShopButtons[i].interactable = true;
-            }
+            bool affordable = prices[i] <= gold;
+            bool notSold = !Selled.Contains(i);
+            ShopButtons[i].interactable = affordable && notSold;
         }
         RefreshButton.interactable = gold >= 2;
     }
-    public void GoldLessRefresh()
-    {
-        GetCharacter();
-    }
+
+    public void GoldLessRefresh() => GetCharacter();
+
     public void Refresh()
     {
         Selled.Clear();
-        GameController.Instance.AddGold(-2);
+        if (freeReroll > 0)
+            freeReroll--;
+        else
+            GameController.Instance.AddGold(-2);
+
         GetCharacter();
     }
 
     public void SpawnCharacter(int index)
     {
+        CustomLogger.Log(this, $"SpawnCharacter calling at {index}");
 
-        if (!benchManager.IsBenchFull())//TODO:當角色可以融合時，應該要檢查是否有可以融合的角色
+        if (ResourcePool.Instance.ally.GetSpecificTrait(Traits.SRT) >= 2 && SRT_RandStatIndex != -1)
         {
-            bool added = benchManager.AddToBench(Characters[index]);
-            if (added)
-            {
-                var shopButton = ShopButtons[index].gameObject.GetComponent<ShopButton>();
-                Selled.Add(index);
-                images[index].sprite = null;
-                priceSprite[index] = null;
-                images[index].color = new Color(1, 1, 1, 0);
-                ShopButtons[index].interactable = false;
-                shopButton.SetImagesNull();
-                UpdateShopUI();
-                GameController.Instance.AddGold(-prices[index]);
-            }
+            GameController.Instance.AddGold(-2);
+            SRTManager.instance.AddStat(SRT_RandStatIndex);
+            SRT_RandStatIndex = -1;
+            ShopButtons[index].interactable = false;
+            images[index].color = new Color(1, 1, 1, 0);
+            images[index].sprite = null;
+            prices.RemoveAt(index);
+            priceSprite[index] = null;
+            return;
         }
-        else
+
+        if (benchManager.IsBenchFull())
         {
             PopupManager.Instance.CreatePopup("Full Board", 2);
+            return;
+        }
+
+        if (benchManager.AddToBench(Characters[index]))
+        {
+            ShopButton shopButton = ShopButtons[index].GetComponent<ShopButton>();
+            Selled.Add(index);
+            images[index].sprite = null;
+            priceSprite[index] = null;
+            images[index].color = new Color(1, 1, 1, 0);
+
+            ShopButtons[index].interactable = false;
+            shopButton.SetImagesNull();
+            UpdateShopUI();
+            GameController.Instance.AddGold(-prices[index]);
         }
     }
 
     public void GetCharacter()
     {
+        if (ResourcePool.Instance.ally.GetSpecificTrait(Traits.SRT) >= 2 && ++SRT_RerollCount >= 4)
+        {
+            SRT_RerollCount = 0;
+            freeReroll++;
+        }
+
         priceSprite.Clear();
         prices.Clear();
+
         int currentRound = GameStageManager.Instance.GetRound();
         RoundProbability p = roundProbabilityData.roundProbabilities[currentRound];
-        CustomLogger.Log(this,$"p.OneCostProbability={p.OneCostProbability},p.TwoCostProbability={p.TwoCostProbability},p.ThreeCostProbability={p.ThreeCostProbability},p.p.FourCostProbability={p.FourCostProbability},p.FiveCostProbability={p.FiveCostProbability}");
-        for (int i = 0; i < ShopButtons.Count; i++)
+
+        int count = 5 - (ResourcePool.Instance.ally.GetSpecificTrait(Traits.SRT) >= 2 ? 1 : 0);
+
+        for (int i = 0; i < count; i++)
         {
-            float rand = Random.Range(0, 100);
-            int cost;
-            if (rand < p.OneCostProbability) cost = 1;
-            else if (rand < p.OneCostProbability + p.TwoCostProbability) cost = 2;
-            else if (rand < p.OneCostProbability + p.TwoCostProbability + p.ThreeCostProbability) cost = 3;
-            else if (rand < p.OneCostProbability + p.TwoCostProbability + p.ThreeCostProbability + p.FourCostProbability) cost = 4;
-            else cost = 5;
+            float rand = UnityEngine.Random.Range(0, 100);
+            int cost = rand < p.OneCostProbability ? 1 :
+                       rand < p.OneCostProbability + p.TwoCostProbability ? 2 :
+                       rand < p.OneCostProbability + p.TwoCostProbability + p.ThreeCostProbability ? 3 :
+                       rand < p.OneCostProbability + p.TwoCostProbability + p.ThreeCostProbability + p.FourCostProbability ? 4 : 5;
+
             priceSprite.Add(ResourcePool.Instance.Getnumber(cost));
             prices.Add(cost);
 
-            int selectedCharacterId = GetRandomCharacterId(
-                cost == 1 ? ResourcePool.Instance.OneCostCharacter :
-                cost == 2 ? ResourcePool.Instance.TwoCostCharacter :
-                cost == 3 ? ResourcePool.Instance.ThreeCostCharacter :
-                cost == 4 ? ResourcePool.Instance.FourCostCharacter :
-                            ResourcePool.Instance.FiveCostCharacter
-            );
+            List<Character> pool = cost switch
+            {
+                1 => ResourcePool.Instance.OneCostCharacter,
+                2 => ResourcePool.Instance.TwoCostCharacter,
+                3 => ResourcePool.Instance.ThreeCostCharacter,
+                4 => ResourcePool.Instance.FourCostCharacter,
+                _ => ResourcePool.Instance.FiveCostCharacter
+            };
 
-            Character character = ResourcePool.Instance.GetCharacterByID(selectedCharacterId);
+            Character character = ResourcePool.Instance.GetCharacterByID(GetRandomCharacterId(pool));
             if (character == null) continue;
 
-            ShopButton shopButton = ShopButtons[i].GetComponent<ShopButton>();
-            List<Traits> temp = new List<Traits>(character.Traits);
+            Characters[i] = character.Model;
+            SetupShopButton(i, character);
+            ShopButtons[i].interactable = true;
+            CustomLogger.Log(this, $"Generated character: {character.CharacterName}, Cost: {cost}");
+        }
 
-            for (int k = 0; k < temp.Count; k++)
-            {
-                if (TraitDescriptions.Instance.GetTraitIsAcademy(temp[k]))
-                {
-                    shopButton.AcademyIcon.sprite = TraitDescriptions.Instance.GetTraitImage(temp[k]);
-                    shopButton.AcademyIcon.color = new Color(1, 1, 1, 1);
-                    temp.RemoveAt(k);
-                    break;
-                }
-            }
+        if (ResourcePool.Instance.ally.GetSpecificTrait(Traits.SRT) >= 2)
+        {
+            Characters[4] = null;
+            ShopButton shopButton = ShopButtons[4].GetComponent<ShopButton>();
+            shopButton.SetImagesNull();
+            SRT_RandStatIndex = UnityEngine.Random.Range(0, 4);
+            images[4].sprite = SRT_statsImage[SRT_RandStatIndex];
+            images[4].color = new Color(1, 1, 1, 1);
+            priceSprite.Add(ResourcePool.Instance.Getnumber(2));
+            prices.Add(2);
+            pricesImg[4].sprite = priceSprite[4];
+            pricesImg[4].color = images[4].color = new Color(1, 1, 1, 1);
+            ShopButtons[4].interactable = true;
 
             for (int j = 0; j < 2; j++)
             {
-                if (j < temp.Count)
-                {
-                    shopButton.traitIcon[j].sprite = TraitDescriptions.Instance.GetTraitImage(temp[j]);
-                    shopButton.traitIcon[j].color = new Color(1, 1, 1, 1);
-                }
-                else
-                {
-                    shopButton.traitIcon[j].sprite = null;
-                    shopButton.traitIcon[j].color = new Color(1, 1, 1, 0);
-                }
+                shopButton.traitIcon[j].sprite = null;
+                shopButton.traitIcon[j].color = new Color(1, 1, 1, 0);
             }
-
-            if (images[i] != null)
-            {
-                images[i].sprite = character.Sprite;
-                pricesImg[i].sprite = priceSprite[i];
-                pricesImg[i].color = new Color(1, 1, 1, 1);
-                images[i].color = new Color(1, 1, 1, 1);
-            }
-
-            Characters[i] = character.Model;
-            if (ShopButtons[i] != null) ShopButtons[i].interactable = true;
-
-            CustomLogger.Log(this, $"Generated character: {character.CharacterName}, Cost: {cost}");
         }
 
         UpdateShopUI();
     }
 
-    public void UpdateShopUI()
+    private void SetupShopButton(int index, Character character)
     {
-        for (int i = 0; i < Characters.Count; i++)
+        ShopButton shopButton = ShopButtons[index].GetComponent<ShopButton>();
+        List<Traits> traits = new List<Traits>(character.Traits);
+
+        for (int k = 0; k < traits.Count; k++)
         {
-            // 確保該按鈕的圖片和角色都有效
-            if (ShopButtons[i].interactable && images[i].sprite != null)
+            if (TraitDescriptions.Instance.GetTraitIsAcademy(traits[k]))
             {
-                CharacterCTRL characterCTRL = Characters[i].GetComponent<CharacterCTRL>();
-                int characterId = ResourcePool.Instance.GetCharacterByID(characterCTRL.characterStats.CharacterId).CharacterId;
-
-                // 計算場上和備戰席的該角色
-                int owned1StarCount = CountOwnedCharactersWithSameStar(characterId, 1);  // 只計算一星角色
-                int owned2StarCount = CountOwnedCharactersWithSameStar(characterId, 2);
-                // 根據擁有數量調整高亮顏色
-                if (owned1StarCount == 0 && owned2StarCount == 0)
-                {
-                    images[i].color = new Color(1, 1, 1, 1); // 重設為默認顏色
-                }
-                else if (owned1StarCount == 2)
-                {
-                    images[i].color = new Color(1f, 0.84f, 0f, 1); // 金黃色高亮，僅在有兩個一星角色時
-                }
-                else if (owned1StarCount == 1 || owned2StarCount == 1)
-                {
-                    images[i].color = new Color(0.7f, 0.7f, 0.7f, 1); // 變暗顯示
-                }
-
+                shopButton.AcademyIcon.sprite = TraitDescriptions.Instance.GetTraitImage(traits[k]);
+                shopButton.AcademyIcon.color = new Color(1, 1, 1, 1);
+                traits.RemoveAt(k);
+                break;
             }
         }
+
+        for (int j = 0; j < 2; j++)
+        {
+            if (j < traits.Count)
+            {
+                shopButton.traitIcon[j].sprite = TraitDescriptions.Instance.GetTraitImage(traits[j]);
+                shopButton.traitIcon[j].color = new Color(1, 1, 1, 1);
+            }
+            else
+            {
+                shopButton.traitIcon[j].sprite = null;
+                shopButton.traitIcon[j].color = new Color(1, 1, 1, 0);
+            }
+        }
+
+        images[index].sprite = character.Sprite;
+        pricesImg[index].sprite = priceSprite[index];
+        pricesImg[index].color = images[index].color = new Color(1, 1, 1, 1);
     }
+
+    public void UpdateShopUI()
+    {
+        int count = 5 - (ResourcePool.Instance.ally.GetSpecificTrait(Traits.SRT) >= 2 ? 1 : 0);
+
+        for (int i = 0; i < count; i++)
+        {
+            if (!ShopButtons[i].interactable || images[i].sprite == null) continue;
+
+            CharacterCTRL ctrl = Characters[i].GetComponent<CharacterCTRL>();
+            int id = ResourcePool.Instance.GetCharacterByID(ctrl.characterStats.CharacterId).CharacterId;
+            int count1 = CountOwnedCharactersWithSameStar(id, 1);
+            int count2 = CountOwnedCharactersWithSameStar(id, 2);
+
+            images[i].color = (count1 == 2) ? new Color(1f, 0.84f, 0f, 1) :
+                              (count1 == 1 || count2 == 1) ? new Color(0.7f, 0.7f, 0.7f, 1) :
+                              new Color(1, 1, 1, 1);
+        }
+    }
+
 
     // 計算相同角色ID且星級為指定星級的角色數量
     private int CountOwnedCharactersWithSameStar(int characterId, int starLevel)
@@ -208,7 +242,7 @@ public class Shop : MonoBehaviour
     {
         if (characterList.Count > 0)
         {
-            int randIndex = Random.Range(0, characterList.Count);
+            int randIndex = UnityEngine.Random.Range(0, characterList.Count);
             return characterList[randIndex].CharacterId;
         }
         return -1;

@@ -2669,6 +2669,7 @@ GameObject:
   - component: {fileID: 8861898794224215140}
   - component: {fileID: -7728718613489353954}
   - component: {fileID: 8227150545488378215}
+  - component: {fileID: 1394636664578198045}
   m_Layer: 0
   m_Name: Shiroko_Original
   m_TagString: Character
@@ -2711,7 +2712,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CurrentHex: {fileID: 0}
   HexWhenBattleStart: {fileID: 0}
-  Target: {fileID: 0}
   PreTarget: {fileID: 0}
   IsAlly: 0
   allyLayer:
@@ -2755,6 +2755,94 @@ MonoBehaviour:
       value: 0
     - statType: 12
       value: 0
+  ExtraPernamentStats:
+    stats:
+    - statType: 0
+      value: 0
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 0
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 0
+    - statType: 5
+      value: 0
+    - statType: 6
+      value: 0
+    - statType: 7
+      value: 0
+    - statType: 8
+      value: 0
+    - statType: 9
+      value: 0
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 0
+    - statType: 12
+      value: 0
+    - statType: 13
+      value: 0
+    - statType: 14
+      value: 0
+    - statType: 15
+      value: 0
+    - statType: 16
+      value: 0
+    - statType: 17
+      value: 0
+    - statType: 18
+      value: 0
+    - statType: 19
+      value: 0
+    - statType: 20
+      value: 0
+  PercentageStats:
+    stats:
+    - statType: 0
+      value: 0
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 0
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 0
+    - statType: 5
+      value: 0
+    - statType: 6
+      value: 0
+    - statType: 7
+      value: 0
+    - statType: 8
+      value: 0
+    - statType: 9
+      value: 0
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 0
+    - statType: 12
+      value: 0
+    - statType: 13
+      value: 0
+    - statType: 14
+      value: 0
+    - statType: 15
+      value: 0
+    - statType: 16
+      value: 0
+    - statType: 17
+      value: 0
+    - statType: 18
+      value: 0
+    - statType: 19
+      value: 0
+    - statType: 20
+      value: 0
   star: 0
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
@@ -2775,6 +2863,7 @@ MonoBehaviour:
   Taunted: 0
   attackRate: 5
   WakamoMark: 0
+  dmgRecivedOnWakamoMarked: 0
   stunned: 0
   FirePoint: {fileID: 295924936301240833}
   GetHitPoint: {fileID: 8308696475093731627}
@@ -2792,6 +2881,9 @@ MonoBehaviour:
   StealManaCount: 0
   DealtDamageThisRound: 0
   TakeDamageThisRound: 0
+  AkoAddedCrit: 0
+  SpecialSkillStack: 0
+  Undying: 0
 --- !u!95 &6287075285387017520
 Animator:
   serializedVersion: 5
@@ -3060,6 +3152,23 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1394636664578198045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4247883918085999096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: addd2196ea3699a4e90fdfc54c0a5565, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Detecting: 0
+  Nonomi: {fileID: 21300000, guid: 8f07edd8e25a8c947a21b25310b422a9, type: 3}
+  Serika: {fileID: 21300000, guid: 32be9274f44120c4ea5420f7445c1605, type: 3}
+  Hoshino: {fileID: 21300000, guid: d0f9b6c33866fdc4eb2f7c015ec02daa, type: 3}
+  Ayane: {fileID: 21300000, guid: d1ae1d3aba5c8714c875bd1b346ddc10, type: 3}
 --- !u!1 &4367975775114666945
 GameObject:
   m_ObjectHideFlags: 0

@@ -52,6 +52,7 @@ public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHan
             sb.AppendLine($"{type}: {value}");
         }
         CustomLogger.Log(this,sb.ToString());
+        CustomLogger.Log(this, $"character skill observer {characterCTRL.ActiveSkill.GetType()}");
         if (!UIManager.Instance.TryClose(characterCTRL))
         {
             UIManager.Instance.ShowCharacterStats(characterCTRL);

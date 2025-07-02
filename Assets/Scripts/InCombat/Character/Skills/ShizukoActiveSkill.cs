@@ -20,20 +20,24 @@ public class ShizukoActiveSkill : MonoBehaviour
     }
     public void Update()
     {
-        if (GameController.Instance.CheckCharacterEnhance(10, Parent.IsAlly) && ctrl.isTargetable)
+        if (ctrl!=null)
         {
-            counter++;
-            if (counter >= updateCounter)
+            if (GameController.Instance.CheckCharacterEnhance(10, Parent.IsAlly) && ctrl.isTargetable)
             {
-                counter = 0;
-                int range = Parent.ActiveSkill.GetCharacterLevel()[Parent.star].Data1;
-                foreach (var item in Utility.GetCharacterInrange(ctrl.CurrentHex, range, ctrl, true))
+                counter++;
+                if (counter >= updateCounter)
                 {
-                    int amount = (int)(ctrl.GetStat(StatsType.Health) * 0.01f);
-                    item.Heal(amount, ctrl);
+                    counter = 0;
+                    int range = Parent.ActiveSkill.GetCharacterLevel()[Parent.star].Data1;
+                    foreach (var item in Utility.GetCharacterInrange(ctrl.CurrentHex, range, ctrl, true))
+                    {
+                        int amount = (int)(ctrl.GetStat(StatsType.Health) * 0.01f);
+                        item.Heal(amount, ctrl);
+                    }
                 }
             }
         }
+        
 
         if (Reference != null)
         {
