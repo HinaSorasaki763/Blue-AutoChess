@@ -3629,8 +3629,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentHex: {fileID: 0}
-  Target: {fileID: 0}
+  HexWhenBattleStart: {fileID: 0}
   PreTarget: {fileID: 0}
+  IsDragable: 1
   IsAlly: 0
   allyLayer:
     serializedVersion: 2
@@ -3642,9 +3643,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   characterStats: {fileID: 11400000, guid: 02f5e51b2ff10784591ec77e9ce24da8, type: 2}
-  characterBars: {fileID: 0}
-  allyParent: {fileID: 0}
-  enemyParent: {fileID: 0}
+  star: 0
   stats:
     stats:
     - statType: 0
@@ -3673,32 +3672,143 @@ MonoBehaviour:
       value: 0
     - statType: 12
       value: 0
-  star: 0
+  ExtraPernamentStats:
+    stats:
+    - statType: 0
+      value: 0
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 0
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 0
+    - statType: 5
+      value: 0
+    - statType: 6
+      value: 0
+    - statType: 7
+      value: 0
+    - statType: 8
+      value: 0
+    - statType: 9
+      value: 0
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 0
+    - statType: 12
+      value: 0
+    - statType: 13
+      value: 0
+    - statType: 14
+      value: 0
+    - statType: 15
+      value: 0
+    - statType: 16
+      value: 0
+    - statType: 17
+      value: 0
+    - statType: 18
+      value: 0
+    - statType: 19
+      value: 0
+    - statType: 20
+      value: 0
+  PercentageStats:
+    stats:
+    - statType: 0
+      value: 0
+    - statType: 1
+      value: 0
+    - statType: 2
+      value: 0
+    - statType: 3
+      value: 0
+    - statType: 4
+      value: 0
+    - statType: 5
+      value: 0
+    - statType: 6
+      value: 0
+    - statType: 7
+      value: 0
+    - statType: 8
+      value: 0
+    - statType: 9
+      value: 0
+    - statType: 10
+      value: 0
+    - statType: 11
+      value: 0
+    - statType: 12
+      value: 0
+    - statType: 13
+      value: 0
+    - statType: 14
+      value: 0
+    - statType: 15
+      value: 0
+    - statType: 16
+      value: 0
+    - statType: 17
+      value: 0
+    - statType: 18
+      value: 0
+    - statType: 19
+      value: 0
+    - statType: 20
+      value: 0
+  DealtDamageThisRound: 0
+  TakeDamageThisRound: 0
+  AkoAddedCrit: 0
+  SpecialSkillStack: 0
+  critTransferAmount: 0
+  StealManaCount: 0
+  characterBars: {fileID: 0}
   modifierCTRL: {fileID: 0}
   effectCTRL: {fileID: 0}
-  ManaLock: 0
-  enterBattle: 0
-  isAlive: 1
-  IsCastingAbility: 0
-  isWalking: 0
-  IsDying: 0
-  isMarked: 0
-  isCCImmune: 0
-  Invincible: 0
-  attackRate: 5
-  stunned: 0
-  bulletPrefab: {fileID: 0}
-  FirePoint: {fileID: 8372952358128236372}
-  GetHitPoint: {fileID: 6618478792315068149}
-  DetectedPos: {x: 0, y: 0, z: 0}
+  equipmentManager: {fileID: 0}
   traitController: {fileID: 0}
   customAnimator: {fileID: 0}
+  AudioManager: {fileID: 0}
+  isAlive: 1
+  enterBattle: 0
+  isWalking: 0
+  IsDying: 0
+  IsCastingAbility: 0
+  IsHeroicEnhanced: 0
+  ManaLock: 0
+  stunned: 0
+  isMarked: 0
+  Taunted: 0
+  Invincible: 0
+  isCCImmune: 0
+  AntiHeal: 0
+  AntiHealRatio: 0
+  Overtime: 0
   isTargetable: 1
-  isShirokoTerror: 0
-  droneCTRL: {fileID: 0}
+  FaceDirectionLock: 0
+  Undying: 0
+  CanWalk: 1
+  CanAttack: 1
+  InStasis: 0
+  WakamoMark: 0
+  dmgRecivedOnWakamoMarked: 0
+  DetectedPos: {x: 0, y: 0, z: 0}
+  FirePoint: {fileID: 8372952358128236372}
+  GetHitPoint: {fileID: 6618478792315068149}
+  Halo: {fileID: 0}
+  allyParent: {fileID: 0}
+  enemyParent: {fileID: 0}
   isObj: 0
   Logistic_dummy: {fileID: 0}
-  equipmentManager: {fileID: 0}
+  isShirokoTerror: 0
+  droneCTRL: {fileID: 0}
+  OGBody: {fileID: 6035228891290847095}
+  materials: []
+  OGMat: []
 --- !u!95 &6903330610522190954
 Animator:
   serializedVersion: 5
@@ -3739,8 +3849,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.3646055, y: 1.0042706, z: 0.3924719}
-  m_Center: {x: 0.0146568045, y: 0.46377444, z: 0.006126225}
+  m_Size: {x: 0.69888735, y: 1.0042706, z: 0.6401452}
+  m_Center: {x: -0.05350685, y: 0.46377444, z: 0.06419027}
 --- !u!114 &6732156979409826041
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3754,6 +3864,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
+  character: {fileID: 0}
+  animatorSpeed: 0
+  animationLock: 0
 --- !u!114 &4463155793238711219
 MonoBehaviour:
   m_ObjectHideFlags: 0

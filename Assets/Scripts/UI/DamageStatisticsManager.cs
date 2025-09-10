@@ -161,7 +161,21 @@ public class DamageStatisticsManager : MonoBehaviour
             .OrderByDescending(c => c.TakeDamageThisRound)
             .FirstOrDefault();
     }
-
+    public void Reset125()
+    {
+        foreach (var item in allCharacters)
+        {
+            item.isAugment125Reinforced = false;
+        }
+    }
+    public CharacterCTRL GetAugment125Character(bool isAlly)
+    {
+        return allCharacters
+        .Where(c => c.IsAlly == isAlly)
+        .Where(c => c.traitController.GetAcademy() == Traits.Trinity || c.traitController.GetAcademy() == Traits.Arius)
+        .OrderByDescending(c => c.DealtDamageThisRound)
+        .FirstOrDefault();
+    }
     public void ResetDamage()
     {
         foreach (var c in allCharacters)

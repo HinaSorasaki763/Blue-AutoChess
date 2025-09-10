@@ -21,4 +21,19 @@ public class AbydosObserver : CharacterObserverBase
         AbydosManager.Instance.level = traitLevel;
         SpawnGrid.Instance.UpdateDesertifiedTiles(ResourcePool.Instance.RandomKeyThisGame, AbydosManager.Instance.GetTraitObserverLevel()[traitLevel].Data1);
     }
+    public override void OnEnterBattleField(CharacterCTRL character)
+    {
+        if (SelectedAugments.Instance.CheckIfConditionMatch(102))
+        {
+            character.AddPercentageBonus(StatsType.Null, StatsType.Health, AbydosManager.Instance.Augment102_EarnedCount * 5, "Augment102");
+            character.AddPercentageBonus(StatsType.Null, StatsType.Attack, AbydosManager.Instance.Augment102_EarnedCount * 5, "Augment102");
+            character.AddPercentageBonus(StatsType.Null, StatsType.AttackSpeed, AbydosManager.Instance.Augment102_EarnedCount * 5, "Augment102");
+            character.AddPercentageBonus(StatsType.Null, StatsType.Resistence, AbydosManager.Instance.Augment102_EarnedCount * 5, "Augment102");
+        }
+        
+        if (SelectedAugments.Instance.CheckIfConditionMatch(107))
+        {
+            AriusManager.Instance.AddArius(character);
+        }
+    }
 }

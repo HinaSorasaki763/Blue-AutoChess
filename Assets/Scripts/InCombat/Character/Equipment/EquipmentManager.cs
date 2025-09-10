@@ -32,6 +32,7 @@ public class EquipmentManager : MonoBehaviour
             {
                 // 如果是特殊裝備，初始化為 SpecialEquipment
                 SpecialEquipment specialEquipment = new (equipment);
+                CustomLogger.Log(this, $"eq{specialEquipment} stats : {specialEquipment.Attributes[0].ToString()}");
                 availableEquipments.Add(specialEquipment);
             }
             else if(equipment.IsConsumable)
@@ -74,6 +75,8 @@ public class EquipmentManager : MonoBehaviour
                 return new AriusSelector();
             case ConsumableEffectType.Duplicator:
                 return new Duplicator();
+            case ConsumableEffectType.Oasis:
+                return new Oasis();
             default:
                 return null;
         }

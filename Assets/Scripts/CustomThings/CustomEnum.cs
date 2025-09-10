@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using static Unity.VisualScripting.Member;
+using static UnityEngine.GraphicsBuffer;
 
 namespace GameEnum
 {
@@ -67,6 +68,7 @@ namespace GameEnum
         Lifesteal,
         PercentageResistence,
         healAbility,
+        DamageIncrease,
         Null
     }
     public enum ColorState
@@ -74,7 +76,8 @@ namespace GameEnum
         Default,
         Burning,
         Reserved,
-        TemporaryYellow // 新增一個暫時的顏色狀態
+        TemporaryYellow,
+        oasis
     }
     public enum CollectionRewardType
     {
@@ -196,7 +199,6 @@ namespace GameEnum
         public BasicEquipment() { }
         public IEquipment Clone()
         {
-            // 建立一個新的 BasicEquipment，並把該複製的欄位都複製過去
             BasicEquipment copy = new BasicEquipment();
 
             copy.id = this.id;
@@ -348,7 +350,6 @@ namespace GameEnum
         public string equipmentName;
         public string equipmentDetail;
         public string equipmentDescriptionEnglish;
-        public List<int> value;
         public bool isSpecial;
         public bool isConsumable;
         public List<Traits> Traits;
@@ -382,7 +383,7 @@ namespace GameEnum
             equipmentName = equipmentSO.equipmentName;
             equipmentDetail = equipmentSO.equipmentDescription;
             equipmentDescriptionEnglish = equipmentSO.equipmentDescriptionEnglish;
-            value = equipmentSO.Value;
+            Value = equipmentSO.Value;
             Traits = equipmentSO.Traits;
             isSpecial = equipmentSO.isSpecial;
             id = equipmentSO.Id;
@@ -400,7 +401,7 @@ namespace GameEnum
             Dictionary<EquipmentType, int> combinedStats = new Dictionary<EquipmentType, int>();
             for (int i = 0; i < Attributes.Count; i++)
             {
-                combinedStats.Add(Attributes[i], i);
+                combinedStats.Add(Attributes[i], Value[i]);
             }
             return combinedStats;
         }
@@ -434,13 +435,13 @@ namespace GameEnum
             copy.isConsumable = this.isConsumable;
             copy.Traits = this.Traits;
             copy.OriginalstudentTrait = this.OriginalstudentTrait;
-            if (this.value != null)
+            if (this.Value != null)
             {
-                copy.value = new List<int>(this.value);
+                copy.Value = new List<int>(this.Value);
             }
             else
             {
-                copy.value = null;
+                copy.Value = null;
             }
             if (this.combinableWith != null)
             {
@@ -582,13 +583,15 @@ namespace GameEnum
         None,
         Remover,
         AriusSelector,
-        Duplicator
+        Duplicator,
+        Oasis
     }
     public interface IConsumableEffect
     {
         bool Permanent { get; }
         void ApplyEffect(CharacterCTRL target);
         void RemoveEffect(CharacterCTRL target);
+
     }
     public class None : IConsumableEffect
     {
@@ -653,7 +656,26 @@ namespace GameEnum
             CustomLogger.Log(this, $"Remove AriusSelector from {target.name}");
         }
     }
+    public class Oasis : IConsumableEffect
+    {
+        public bool Permanent => false;
+        public void UpdateSlot(HexNode h)
+        {
+            foreach (var item in h.Neighbors)
+            {
+                h.isDesertified = false;
+                h.oasis = true;
+            }
+        }
+        public void ApplyEffect(CharacterCTRL _)
+        {
 
+        }
+        public void RemoveEffect(CharacterCTRL target)
+        {
+            
+        }
+    }
     public class Duplicator : IConsumableEffect
     {
         public bool Permanent => false;
@@ -837,7 +859,7 @@ namespace GameEnum
         public StatModifier(ModifierType modifierType, float value, string source, bool isPermanent, float duration = 0f)
         {
             ModifierType = modifierType;
-            Value = value;
+            Value = Value;
             Source = source;
             IsPermanent = isPermanent;
             Duration = duration;
@@ -867,6 +889,7 @@ namespace GameEnum
             }
             return null;
         }
+
         public static Traits IsAcademy(List<Traits> traits)
         {
             foreach (var item in traits)
@@ -898,6 +921,24 @@ namespace GameEnum
             Color color = image.color;
             color.a = alpha;
             image.color = color;
+        }
+        public static IEquipment GetExchangeCirtificate(Traits trait1,Traits trait2)
+        {
+            IEquipment equipment = GetSpecificEquipment(101);
+            IEquipment eq = equipment.Clone();
+            if (eq is SpecialEquipment special)
+            {
+                special.Traits.Clear();
+                special.Traits.Add(trait1);
+                special.Traits.Add(trait2);
+                special.equipmentDetail = $"{special.Traits[0]} and {special.Traits[1]} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{special.Traits[0]} and {special.Traits[1]} exchange certificate";
+                return special;
+            }
+            else
+            {
+                return null;
+            }
         }
         public static List<CharacterCTRL> GetSpecificCharacters(List<CharacterCTRL> characters, StatsType statsType, bool descending, int count, bool filterTargetable)
         {
@@ -1014,6 +1055,16 @@ namespace GameEnum
             return farthestNode;
         }
 
+        public static HexNode FindSpotToSpawnEnemy(bool ascending = false)
+        {
+            IEnumerable<HexNode> nodes = SpawnGrid.Instance.hexNodes.Values
+                .Where(node => node.Index >= 32 && node.Index <= 64 && node.OccupyingCharacter == null);
+
+            return ascending
+                ? nodes.OrderBy(node => node.Index).FirstOrDefault()       // 正序
+                : nodes.OrderByDescending(node => node.Index).FirstOrDefault(); // 倒序
+        }
+
 
 
         private static Vector3Int PositionToCubeCoordinates(Vector3 position)
@@ -1107,7 +1158,40 @@ namespace GameEnum
             }
             return bestMatch;
         }
+        public static bool CompareTwoGroups(List<CharacterCTRL> list1, List<CharacterCTRL> list2)
+        {
+            int[] sums1 = SumStats(list1);
+            int[] sums2 = SumStats(list2);
 
+            for (int i = 0; i < sums1.Length; i++)
+                if (sums1[i] > sums2[i]) return true;
+                else if (sums1[i] < sums2[i]) return false;
+
+            return false;
+
+            static int[] SumStats(List<CharacterCTRL> list)
+            {
+                int star = 0, attack = 0, health = 0, def = 0;
+                foreach (var c in list)
+                {
+                    star += c.star;
+                    attack += c.GetAttack();
+                    health += (int)c.GetStat(StatsType.Health);
+                    def += (int)c.GetStat(StatsType.Resistence);
+                }
+                return new[] { star, attack, health, def };
+            }
+        }
+
+        public static bool CheckExecuted(CharacterCTRL target,CharacterCTRL source,float percentage,string detailedSource)
+        {
+            if (target.GetHealthPercentage() <= percentage)
+            {
+                target.Executed(source, detailedSource);
+                return true;
+            }
+            return false;
+        }
         public static List<CharacterCTRL> GetCharacterInSet(List<HexNode> nodes, CharacterCTRL finder, bool findingAlly)
         {
             var characters = new List<CharacterCTRL>();
@@ -1131,7 +1215,7 @@ namespace GameEnum
             CustomLogger.Log(finder, $"GetCharacterInrange - Nodes: {string.Join(", ", nodes.Select(n => n.name))}");
             foreach (var item in nodes)
             {
-                if (item.OccupyingCharacter != null && item.OccupyingCharacter.IsAlly == (finder.IsAlly == findingAlly) && !item.OccupyingCharacter.characterStats.logistics && item.OccupyingCharacter.isAlive)
+                if (item.OccupyingCharacter != null && item.OccupyingCharacter.IsAlly == (finder.IsAlly == findingAlly) && !item.OccupyingCharacter.characterStats.logistics)
                 {
                     characters.Add(item.OccupyingCharacter);
                 }

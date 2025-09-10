@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class CharacterParent : MonoBehaviour
 {
@@ -29,6 +31,7 @@ public class CharacterParent : MonoBehaviour
         foreach (var item in childCharacters)
         {
             item.GetComponent<CharacterCTRL>().RecalculateStats();
+            item.GetComponent<CharacterCTRL>().TriggerCharacterStart();
         }
         IsBattling = true;
         foreach (var character in childCharacters)
@@ -112,8 +115,6 @@ public class CharacterParent : MonoBehaviour
                     if (starGroup.Value.Count >= 3)
                     {
                         if (starGroup.Value[0].isObj) continue;
-
-                        // 暫存升級的角色，並即時更新
                         CharacterCTRL upgradedCharacter = starGroup.Value[0];
                         bool result = CombineCharacters(starGroup.Value);
                         if (result)
@@ -262,7 +263,7 @@ public class CharacterParent : MonoBehaviour
         }
         AddTraitEffects();
     }
-    
+
     public void GetEmptyObserver(CharacterCTRL character)
     {
         foreach (var item in character.traitController.GetCurrentTraits())
@@ -299,6 +300,20 @@ public class CharacterParent : MonoBehaviour
                     }
                     item.enterBattle = false;
                 }
+                foreach (var item in SpawnGrid.Instance.hexNodes.Values)
+                {
+                    if (item.TempDesert1)
+                    {
+                        item.TempDesert1 = false;
+                    }
+                    if (item.TempDesert)
+                    {
+                        item.TempDesert = false;
+                        item.TempDesert1 = true;
+                    }
+                }
+
+
             }
             if (Shiroko_Terror_Postponed && !isEnemy)
             {
@@ -317,9 +332,46 @@ public class CharacterParent : MonoBehaviour
             GameStageManager.Instance.NotifyTeamDefeated(this);//TODO:黑子的邏輯需要再修正
         }
     }
+    public void TriggerOnBoard()
+    {
+        foreach (var item in GetBattleFieldCharacter())
+        {
+            item.OnEnterGrid();
+        }
+    }
     public void ContinueBattleRoutine()
     {
         GameStageManager.Instance.NotifyTeamDefeated(this);
+    }
+    public void Trigger109()
+    {
+        if (!SelectedAugments.Instance.CheckAugmetExist(109)) return;
+        if (isEnemy)
+        {
+            int[] ids = { 34, 32, 39 };
+
+            foreach (int id in ids)
+            {
+                HexNode h = (id == 32)
+                    ? Utility.FindSpotToSpawnEnemy(ascending: true)   // 正序找
+                    : Utility.FindSpotToSpawnEnemy(ascending: false); // 倒序找
+
+                if (h == null) continue;
+
+                Character characterData = ResourcePool.Instance.GetCharacterByID(id);
+                GameObject characterPrefab = characterData.Model;
+
+                GameObject go = ResourcePool.Instance.SpawnCharacterAtPosition(
+                    characterPrefab,
+                    h.Position,
+                    h,
+                    ResourcePool.Instance.enemy,
+                    false,
+                    1
+                );
+            }
+        }
+
     }
     public int GetSpecificTrait(Traits traits)
     {
@@ -374,7 +426,7 @@ public class CharacterParent : MonoBehaviour
                     srtCount++;
                 }
             }
-            if (srtCount >=0)
+            if (srtCount >= 15)
             {
                 SelectedAugments.Instance.TriggerAugment(124);
             }
@@ -417,7 +469,7 @@ public class CharacterParent : MonoBehaviour
                 else
                 {
                     HexNode h = SpawnGrid.Instance.GetEmptyHex();
-                    GameObject obj = Instantiate(ResourcePool.Instance.LogisticDummy,h.Position + new Vector3(0, 0.23f, 0), Quaternion.Euler(new Vector3(0, 0, 0)));
+                    GameObject obj = Instantiate(ResourcePool.Instance.LogisticDummy, h.Position + new Vector3(0, 0.23f, 0), Quaternion.Euler(new Vector3(0, 0, 0)));
                     CustomLogger.Log(this, "spawned dummy");
                     obj.transform.SetParent(ResourcePool.Instance.ally.transform);
                     CharacterBars bar = ResourcePool.Instance.GetBar(h.Position).GetComponent<CharacterBars>();
@@ -528,13 +580,21 @@ public class CharacterParent : MonoBehaviour
         }
         return L;
     }
+    public List<CharacterCTRL> GetNoneRepeatCharacterOnField()
+    {
+        return GetBattleFieldCharacter()
+            .GroupBy(c => c.characterStats.CharacterId)
+            .Select(g => g.OrderByDescending(c => c.star).First())
+            .ToList();
+    }
+
     public List<CharacterCTRL> GetBattleFieldCharacter()
     {
 
         List<CharacterCTRL> battlefieldCharacters = new List<CharacterCTRL>();
         foreach (var item in childCharacters)
         {
-            if (!item.activeInHierarchy || item.GetComponent<CharacterCTRL>().characterStats.CharacterId == 41) continue;
+            if (!item.activeInHierarchy) continue;
             CharacterCTRL character = item.GetComponent<CharacterCTRL>();
             if (character.CurrentHex.IsBattlefield)
             {
@@ -543,23 +603,35 @@ public class CharacterParent : MonoBehaviour
         }
         return battlefieldCharacters;
     }
+    public CharacterCTRL GetStrongestCharacterByID(int id)
+    {
+        return GetBattleFieldCharacter()
+            .Where(c => c.characterStats.CharacterId == id)
+            .OrderByDescending(c => c.star)
+            .FirstOrDefault();
+    }
+
+    public List<CharacterCTRL> GetCharacterWithTraits(Traits trait)
+    {
+        return GetBattleFieldCharacter().Where(c => c.traitController.HasTrait(trait)).ToList();
+    }
+
     public CharacterCTRL GetRandomCharacter(bool needLogistic)
     {
         List<CharacterCTRL> characters = GetBattleFieldCharacter();
         if (!needLogistic)
-        {
-            characters.RemoveAll(x => x.characterStats.logistics ==true);
-        }
+            characters.RemoveAll(c => c.characterStats.logistics);
 
         Utility.SetRandKey();
-        if (characters == null || characters.Count == 0)
+        if (characters.Count == 0)
         {
             CustomLogger.LogWarning(this, "No characters available on battlefield.");
             return null;
         }
-        int randomIndex = UnityEngine.Random.Range(0, characters.Count);
-        return characters[randomIndex];
+
+        return characters[UnityEngine.Random.Range(0, characters.Count)];
     }
+
 
     public void ClearAllCharacter(GameObject exception = null)
     {
@@ -578,6 +650,10 @@ public class CharacterParent : MonoBehaviour
             Destroy(current);
             childCharacters.RemoveAt(i);
         }
+
+    }
+    public void EndBattle()
+    {
 
     }
 

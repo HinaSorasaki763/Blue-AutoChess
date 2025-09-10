@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.TextCore.Text;
 
 public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler,IPointerClickHandler
 {
@@ -79,6 +80,11 @@ public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         (bool, bool) tuple = GameController.Instance.TryMoveCharacter(characterCTRL, PreSelectedGrid);
         if (PreSelectedGrid != null && PreSelectedGrid.CompareTag("SellGrid"))
         {
+            if (characterCTRL.characterStats.CharacterId == 41)
+            {
+                PopupManager.Instance.CreatePopup($"召喚物無法被放置回備戰席!", 2);
+                return;
+            }
             PreSelectedGrid.GetComponent<SellGrid>().OnCharacterEnter(characterCTRL);
         }
 

@@ -116,6 +116,7 @@
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitUIManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\map\Wall.cs" />
     <Compile Include="Assets\Scripts\UI\EquipmentUIManager.cs" />
+    <Compile Include="Assets\Scripts\InCombat\Character\Skills\AtsukoDroneCTRL.cs" />
     <Compile Include="Assets\Scripts\InCombat\costumBullet\TrailedBullet.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\PercisionObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\AbydosObserver.cs" />
@@ -135,6 +136,7 @@
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\SupermacyObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\GameController\EndBattleModal.cs" />
     <Compile Include="Assets\Scripts\UI\CharacterStatsModal.cs" />
+    <Compile Include="Assets\Scripts\Augments\HyakkiyakoManager.cs" />
     <Compile Include="Assets\Scripts\Player\RewardCollecting.cs" />
     <Compile Include="Assets\Scripts\CustomThings\CustomEnum.cs" />
     <Compile Include="Assets\Scripts\Enemy\EnemyWave.cs" />
@@ -190,6 +192,7 @@
     <Compile Include="Assets\Scripts\InCombat\GameController\GameController.cs" />
     <Compile Include="Assets\Scripts\GlobalAudioManager.cs" />
     <Compile Include="Assets\Scripts\UI\DamageStatisticsManager.cs" />
+    <Compile Include="Assets\Scripts\UI\ShowAugment.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\Miyako_DroneCTRL.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\SRTObserver.cs" />
     <Compile Include="Assets\Scripts\PlayerSettings.cs" />

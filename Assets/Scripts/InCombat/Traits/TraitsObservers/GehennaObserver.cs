@@ -37,23 +37,23 @@ public class GehennaObserver : CharacterObserverBase
         int amount = GetTraitObserverLevel()[traitLevel].Data1;
         if (character.IsAlly)
         {
-            PressureManager.Instance.IncreasePressure(amount);
+            PressureManager.Instance.AddPressure(amount);
         }
         else
         {
             EnemyTraitRelated.Instance.AddPressure(amount);
         }
 
-        Debug.Log($"[GehennaObserver] {character.name} 击杀了敌方单位，威压层数增加 1。");
+        Debug.Log($"[GehennaObserver] {character.name} killed an aenemy, add pressure 1。");
     }
 
-    public override void OnBattleEnd(bool isVictory)
+    public override void OnBattleEnd(bool isVictory, CharacterCTRL c)
     {
         if (isVictory)
         {
             if (character.IsAlly)
             {
-                PressureManager.Instance.IncreasePressure(1);
+                PressureManager.Instance.AddPressure(1);
             }
             Debug.Log($"[GehennaObserver] 回合胜利，原有的威壓：{PressureManager.Instance.GetPressure(true)}，威压层数增加 {GameController.Instance.GetAliveCount()}。");
         }

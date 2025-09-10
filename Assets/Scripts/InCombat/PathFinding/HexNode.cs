@@ -1,8 +1,6 @@
 ﻿using GameEnum;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 public class HexNode : MonoBehaviour
 {
     public Vector3 Position;
@@ -36,6 +34,9 @@ public class HexNode : MonoBehaviour
     public bool IsBattlefield; // 格子是否位於戰場
     public bool IsLogistics;
     public bool isDesertified = false;
+    public bool TempDesert = false;
+    public bool TempDesert1;
+    public bool oasis = false;
     public bool isAllyHex;
 
     // Burning effect fields
@@ -58,6 +59,10 @@ public class HexNode : MonoBehaviour
     public bool IsReservedBy(CharacterCTRL character)
     {
         return reservedBy == character;
+    }
+    public bool IsDesertified()
+    {
+        return isDesertified || TempDesert || TempDesert1;
     }
     public void HardReserve(CharacterCTRL character)
     {
@@ -171,7 +176,7 @@ public class HexNode : MonoBehaviour
                             {
                                 if (effect.Source.characterStats.CharacterId == 14)
                                 {
-                                    Effect negEffect = EffectFactory.StatckableStatsEffct(1,$"{effect.Source}",-5,StatsType.AttackSpeed,effect.Source,false);
+                                    Effect negEffect = EffectFactory.StatckableStatsEffct(1, $"{effect.Source}", -5, StatsType.AttackSpeed, effect.Source, false);
                                     negEffect.SetActions(
                                         (character) => character.ModifyStats(StatsType.PercentageResistence, negEffect.Value, negEffect.Source),
                                         (character) => character.ModifyStats(StatsType.PercentageResistence, -negEffect.Value, negEffect.Source)
@@ -232,7 +237,7 @@ public class HexNode : MonoBehaviour
 
     public void UpdateTileColor()
     {
-        if (!IsBattlefield||EditMode) return;
+        if (!IsBattlefield || EditMode) return;
         Renderer renderer = head.GetComponent<Renderer>();
         if (renderer != null)
         {
@@ -254,9 +259,16 @@ public class HexNode : MonoBehaviour
                     tileMaterial.color = Color.white; // Default state
                     break;
             }
-            if (isDesertified)
+            if (currentColorState != ColorState.TemporaryYellow)
             {
-                tileMaterial.color = Color.yellow;
+                if (IsDesertified())
+                {
+                    tileMaterial.color = Color.red;
+                }
+                if (oasis)
+                {
+                    tileMaterial.color = Color.green;
+                }
             }
             renderer.material = tileMaterial; // Ensure the material is applied
         }
@@ -364,8 +376,8 @@ public class HexNode : MonoBehaviour
 public abstract class FloorEffect
 {
     private float duration;
-    public CharacterCTRL source { get;private set; }
-    public FloorEffect(float duration,CharacterCTRL character)
+    public CharacterCTRL source { get; private set; }
+    public FloorEffect(float duration, CharacterCTRL character)
     {
 
         this.duration = duration;
@@ -400,10 +412,10 @@ public class MichiruFloorBuff : FloorEffect
                 (character) => character.ModifyStats(StatsType.AttackSpeed, effect.Value, effect.Source),
                 (character) => character.ModifyStats(StatsType.AttackSpeed, -effect.Value, effect.Source)
             );
-            target.effectCTRL.AddEffect(effect,target);
+            target.effectCTRL.AddEffect(effect, target);
             StarLevelStats stats = source.ActiveSkill.GetCharacterLevel()[source.star];
-            int amount = (int)(stats.Data1+stats.Data4*0.01f*source.GetAttack());
-            target.Heal(amount,source);
+            int amount = (int)(stats.Data1 + stats.Data4 * 0.01f * source.GetAttack());
+            target.Heal(amount, source);
         }
     }
 }

@@ -43,7 +43,7 @@ public class PathRequestManager : MonoBehaviour
     private IEnumerator ProcessBufferedRequests()
     {
         isProcessingPath = true;
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.05f);
         List<PathRequest> sortedRequests = pathRequestBuffer
             .OrderBy(r => GetHexDistance(r.startNode, r.targetNode))
             .ToList();

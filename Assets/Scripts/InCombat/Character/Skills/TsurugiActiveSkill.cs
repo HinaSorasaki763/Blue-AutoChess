@@ -1,3 +1,4 @@
+using GameEnum;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,19 +15,18 @@ public class TsurugiActiveSkill : MonoBehaviour
         Enhancing = true;
         Animator.SetBool(attackType, true);
         Parent.ManaLock = true;
-        if (Parent.characterObserver is TsurugiObserver tsurugi)
-        {
-            tsurugi.DamageIncrease += 50;
-        }
+        Effect effect = EffectFactory.StatckableStatsEffct(0, "TsurugiSkill", 50, StatsType.DamageIncrease, Parent, true);
+        effect.SetActions(
+            (character) => character.ModifyStats(StatsType.DamageIncrease, effect.Value, effect.Source),
+            (character) => character.ModifyStats(StatsType.DamageIncrease, -effect.Value, effect.Source)
+        );
+        Parent.effectCTRL.AddEffect(effect, Parent);
     }
     public void ResetAttackType()
     {
         Enhancing = false;
         Animator.SetBool(attackType, false);
         Parent.ManaLock = false;
-        if (Parent.characterObserver is TsurugiObserver tsurugi)
-        {
-            tsurugi.DamageIncrease -= 50;
-        }
+        Parent.effectCTRL.ClearEffectWithSource("TsurugiSkill");
     }
 }

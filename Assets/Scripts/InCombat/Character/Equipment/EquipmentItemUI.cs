@@ -4,6 +4,7 @@ using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using GameEnum;
 using TMPro;
+using UnityEngine.TextCore.Text;
 
 public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
@@ -18,12 +19,14 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     
     public Button Btn;
     public LayerMask characterLayerMask;
+    public LayerMask gridLayer;
     private bool isDragging;
 
     // 新增 GridLayoutGroup 和原始索引變數
     private GridLayoutGroup gridLayoutGroup;
     private int originalIndex;
     public bool IsConsumableItem;
+    private PointerEventData pointerEventData;
     // 虛影用變數
     private GameObject ghostItem;
 
@@ -61,7 +64,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     public void OnBeginDrag(PointerEventData eventData)
     {
         isDragging = true;
-
+        pointerEventData = eventData;
         // 禁用 GridLayoutGroup
         if (gridLayoutGroup != null)
         {
@@ -81,7 +84,38 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         transform.SetParent(canvas.transform);
     }
+    public void Update()
+    {
+        if (isDragging&&pointerEventData!=null)
+        {
+            List<RaycastResult> raycastResults = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(pointerEventData, raycastResults);
+            if (IsConsumableItem)
+            {
+                ConsumableItem consumableItem = equipmentData as ConsumableItem;
+                if (consumableItem != null)
+                {
+                    Oasis oasis = consumableItem.consumableEffect as Oasis;
+                    if (oasis != null)
+                    {
+                        foreach (var result in raycastResults)
+                        {
+                            if (((1 << result.gameObject.layer) & gridLayer) != 0)
+                            {
+                                HexNode hexNode = result.gameObject.GetComponent<HexNode>();
+                                if (hexNode.IsDesertified())
+                                {
+                                    hexNode.SetColorState(ColorState.TemporaryYellow, Time.deltaTime*2);
+                                }
 
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
     public void OnDrag(PointerEventData eventData)
     {
 
@@ -90,6 +124,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         List<RaycastResult> raycastResults = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, raycastResults);
         bool canCompose = false;
+        
         foreach (var result in raycastResults)
         {
             if (((1 << result.gameObject.layer) & characterLayerMask) != 0)
@@ -114,13 +149,12 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     public void OnEndDrag(PointerEventData eventData)
     {
-
+        pointerEventData = null;
         Utility.ChangeImageAlpha(gameObject.GetComponentInChildren<Image>(), 1);
         List<RaycastResult> raycastResults = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, raycastResults);
-
+        CheckOasis(raycastResults);
         bool successfulEquip = false;
-
         foreach (var result in raycastResults)
         {
             if (((1 << result.gameObject.layer) & characterLayerMask) != 0)
@@ -136,7 +170,6 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                         if (!consumableItem.consumableEffect.Permanent)
                         {
                             equipmentManager.RemoveEquipmentItem(equipmentData, gameObject);
-
                         }
                         BugReportLogger.Instance.UseConsumableOnCharacter(character.name, consumableItem.EquipmentName);
                         if (gridLayoutGroup != null)
@@ -146,6 +179,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                         transform.SetParent(originalParent);
                         transform.SetSiblingIndex(0);
                         transform.localPosition = Vector3.zero;
+                        pointerEventData = null;
                         isDragging = false;
                         return;
                     }
@@ -176,15 +210,47 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         {
             gridLayoutGroup.enabled = true;
         }
-
+        pointerEventData = null;
         isDragging = false;
     }
+    public void CheckOasis(List<RaycastResult> raycastResults)
+    {
+        if (IsConsumableItem)
+        {
+            ConsumableItem consumableItem = equipmentData as ConsumableItem;
+            if (consumableItem != null)
+            {
+                Oasis oasis = consumableItem.consumableEffect as Oasis;
+                foreach (var item in raycastResults)
+                {
+                    if (((1 << item.gameObject.layer) & gridLayer) != 0)
+                    {
+                        HexNode h = item.gameObject.GetComponent<HexNode>();
+                        if (!h.isDesertified)
+                        {
+                            PopupManager.Instance.CreatePopup("使用在沙漠化的格子上!",2);
+                        }
+                        else
+                        {
+                            oasis.UpdateSlot(h);
+                            equipmentManager.RemoveEquipmentItem(equipmentData, gameObject);
+                        }
 
+                    }
+                }
+            }
+        }
+        
+    }
     public void OnPointerClick(PointerEventData eventData)
     {
         if (!isDragging)
         {
-            EquipmentUIManager.Instance.ToggleUI(Detail);
+            {
+                EquipmentUIManager.Instance.ToggleUI(Detail);
+            
+            }
         }
+
     }
 }

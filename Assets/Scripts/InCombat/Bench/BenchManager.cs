@@ -2,6 +2,7 @@ using GameEnum;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
+using UnityEngine.UIElements;
 
 public class BenchManager : MonoBehaviour
 {
@@ -33,6 +34,13 @@ public class BenchManager : MonoBehaviour
 
     public bool AddToBench(GameObject characterPrefab)
     {
+        if (characterPrefab.GetComponent<CharacterCTRL>().characterStats.CharacterId ==41)
+        {
+            HexNode h = SpawnGrid.Instance.GetEmptyHex();
+            if (h == null) return false;
+            ResourcePool.Instance.SpawnCharacterAtPosition(characterPrefab, h.Position, h, characterParent, isAlly: true, 1);
+            return true;
+        }
         foreach (var slot in benchSlots)
         {
             HexNode gridSlot = slot.GetComponent<HexNode>();

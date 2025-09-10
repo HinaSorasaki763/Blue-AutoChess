@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI; // 假設您使用 Unity 的 UI 系統
 
@@ -37,7 +36,7 @@ public class GameStageManager : MonoBehaviour
     private Dictionary<int, Action> stageRewardMapping;
     public RewardPopup rewardPopup;
     readonly int OvertimeThreshold = 30;
-    
+
     public int WinStreak { get; private set; } = 0; // 連勝次數
     public int LoseStreak { get; private set; } = 0; // 連敗次數
 
@@ -56,7 +55,7 @@ public class GameStageManager : MonoBehaviour
         endGamePopup.SetActive(false);
         InitializeFloorRewardMapping();
     }
-    
+
     public void Start()
     {
         CalculateGold();
@@ -78,7 +77,7 @@ public class GameStageManager : MonoBehaviour
         //TODO: 根據玩家選擇決定波次，目前PVE不需要
         /*EnemySpawner.Instance.SelectRandomEnemyWaves();
         opponentSelectionUI.Show(EnemySpawner.Instance.selectedEnemyWaves);*/
-        if (ResourcePool.Instance.enemy.childCharacters.Count!= 0)
+        if (ResourcePool.Instance.enemy.childCharacters.Count != 0)
         {
             StartCoroutine(StartBattleCorutine());
             return;
@@ -141,7 +140,10 @@ public class GameStageManager : MonoBehaviour
                 c.HexWhenBattleStart = null;
             }
         }
+        ResourcePool.Instance.enemy.Trigger109();
         yield return new WaitForSeconds(1.5f);
+        ResourcePool.Instance.enemy.TriggerOnBoard();
+        
         startBattle.Raise();
         startBattleFlag = true;
         AbydosManager.Instance.UpdateDesertifiedTiles();
@@ -151,6 +153,11 @@ public class GameStageManager : MonoBehaviour
         endGamePopup.SetActive(false);
         ResourcePool.Instance.enemy.ClearAllCharacter();
         DataStackManager.Instance.CheckDataStackRewards();
+        if (SelectedAugments.Instance.CheckAugmetExist(103))
+        {
+            IEquipment equipment = Utility.GetSpecificEquipment(29);
+            EquipmentManager.Instance.AddEquipmentItem(equipment);
+        }
         CheckGameStageReward();
         foreach (var item in SpawnGrid.Instance.hexNodes.Values)
         {
@@ -175,6 +182,7 @@ public class GameStageManager : MonoBehaviour
             }
 
         }
+
         AdvanceStage();
     }
     public void ResetBattleData()
@@ -206,11 +214,28 @@ public class GameStageManager : MonoBehaviour
     }
     public void NotifyTeamDefeated(CharacterParent defeatedTeam)
     {
+
         currentRound++;
         if (defeatedTeam.isEnemy)
         {
             netWin++;
             WinStreak++;
+            if (SelectedAugments.Instance.CheckAugmetExist(102))
+            {
+                foreach (var item in ResourcePool.Instance.ally.GetBattleFieldCharacter())
+                {
+                    if (item.traitController.GetAcademy() == Traits.Abydos)
+                    {
+                        AbydosManager.Instance.Augment102_LivedCount++;
+                    }
+
+                }
+            }
+            PressureManager.Instance.HandleAugment109();
+            if (SelectedAugments.Instance.CheckAugmetExist(116))
+            {
+                DataStackManager.Instance.floorRewardMapping[LoseStreak * 100].Invoke();
+            }
             LoseStreak = 0; // 重置連敗
             OnVictory(allyParent, defeatedTeam);
         }
@@ -224,6 +249,7 @@ public class GameStageManager : MonoBehaviour
 
         StartCoroutine(ShowEndGamePopup(defeatedTeam.isEnemy));
     }
+
     public void GainSupply()
     {
 
@@ -280,6 +306,16 @@ public class GameStageManager : MonoBehaviour
     private void OnVictory(CharacterParent winningTeam, CharacterParent defeatedTeam)
     {
         startBattleFlag = false;
+        DamageStatisticsManager.Instance.Reset125();
+        if (SelectedAugments.Instance.CheckAugmetExist(125))
+        {
+            CharacterCTRL c = DamageStatisticsManager.Instance.GetAugment125Character(true);
+            if (c == null)
+            {
+                c = DamageStatisticsManager.Instance.GetTopDamageDealer(true);
+            }
+            c.isAugment125Reinforced = true;
+        }
         DamageStatisticsManager.Instance.ClearAll();
         BugReportLogger.Instance.EndBattle();
         enteringBattleCounter = 0;
@@ -317,7 +353,7 @@ public class GameStageManager : MonoBehaviour
         }
         ResourcePool.Instance.enemy.ClearAllCharacter();
         GameObject randomItem;
-        if (winningTeam.childCharacters.Count>0)
+        if (winningTeam.childCharacters.Count > 0)
         {
             do
             {
@@ -353,10 +389,21 @@ public class GameStageManager : MonoBehaviour
     private void CalculateGold()
     {
         int gold = GameController.Instance.GetGoldAmount();
-        int streakBonus = CalculateStreakBonus()*2;
-        int amount = streakBonus + CurrentStage*2 + 10;
+        int streakBonus = CalculateStreakBonus() * 2;
+        int interest = GetInterest(gold);
+        if (SelectedAugments.Instance.CheckAugmetExist(126)) interest = 0;
+        int amount = streakBonus + CurrentStage * 2 + 10 + interest;
         GameController.Instance.AddGold(amount);
         CustomLogger.Log(this, $"Gold: {gold}, Streak Bonus: {streakBonus},stagebouns = {CurrentStage + 3}, Total: {amount}");
+    }
+    public int GetInterest(int gold)
+    {
+        int max = 5;
+        if (SelectedAugments.Instance.CheckAugmetExist(116))
+        {
+            max = 7;
+        }
+        return Mathf.Min(gold / 10, max);
     }
     private int CalculateStreakBonus()
     {
@@ -376,7 +423,7 @@ public class GameStageManager : MonoBehaviour
 
         for (int i = 0; i < round.Length; i++)
         {
-            if(currentRound >= round[i])
+            if (currentRound >= round[i])
             {
                 additionalLimit++;
             }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.ExceptionServices;
+using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 
@@ -62,6 +63,26 @@ public class CharacterEquipmentManager : MonoBehaviour
             item.Observer.OnCastedSkill(Parent);
         }
 
+    }
+    public bool BeforeDying()
+    {
+        bool undying = false;
+        foreach (var item in equippedItems)
+        {
+            if (item.Observer.BeforeDying(Parent))
+            {
+                CustomLogger.Log(this, $"{item.GetType()} triggering beforedying");
+                undying = true;
+            }
+        }
+        return undying;
+    }
+    public void OnBattleStart()
+    {
+        foreach (var item in equippedItems)
+        {
+            item.Observer.OnBattleStart();
+        }
     }
     public void OnParentGethit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit,string detailedSource)
     {
@@ -141,6 +162,13 @@ public class CharacterEquipmentManager : MonoBehaviour
             amount = item.Observer.DamageModifier(sourceCharacter, target, amount, detailedSource, isCrit);
         }
         return amount;
+    }
+    public void TriggerOnEnterBattleField()
+    {
+        foreach (var item in equippedItems)
+        {
+            item.Observer.OnEnterBattleField(Parent);
+        }
     }
     public int BeforeDealtDamage(CharacterCTRL sourceCharacter, CharacterCTRL target, int amount, string detailedSource, bool isCrit)
     {
@@ -254,7 +282,23 @@ public class CharacterEquipmentManager : MonoBehaviour
             Parent.AddStat(GetStatType(stat.Key), val);
         }
     }
-
+    public StatsContainer GetEqStats()
+    {
+        var stats = new StatsContainer();
+        foreach (var item in equippedItems)
+        {
+            foreach (var stat in item.GetStats())
+            {
+                float val = stat.Value;
+                if (stat.Key == EquipmentType.AttackSpeed)
+                {
+                    val *= 0.01f;
+                }
+                stats.AddValue(GetStatType(stat.Key), val);
+            }
+        }
+        return stats;
+    }
     // 移除属性
     private void RemoveStatsForEquipment(IEquipment equipment)
     {

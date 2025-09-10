@@ -1,9 +1,8 @@
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
-using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.Progress;
 
 public class SelectedAugments : MonoBehaviour
 {
@@ -71,5 +70,22 @@ public class SelectedAugments : MonoBehaviour
 
             }
         }
+    }
+    /// <summary>
+    /// 部分方法仍要先檢查有沒有該強化
+    /// </summary>
+    /// <param name="index"></param>
+    /// <returns></returns>
+    public bool CheckIfConditionMatch(int index)
+    {
+        
+        if (!CheckAugmetExist(index))
+        {
+            return false;
+        }
+
+        return selectedAugments
+            .FirstOrDefault(a => a.config.augmentIndex == index)
+            ?.OnConditionMatch() ?? false;
     }
 }

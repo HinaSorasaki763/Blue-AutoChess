@@ -81,6 +81,12 @@ public class GameController : MonoBehaviour
         }
         if (!isBattlefield)
         {
+            if (character.characterStats.CharacterId == 41)
+            {
+                PopupManager.Instance.CreatePopup($"召喚物無法被放置回備戰席!", 2);
+                ReturnToOriginalSlot(character);
+                return (false, isBattlefield);
+            }
             MoveOrSwapCharacter(character, targetSlot);
             BugReportLogger.Instance.MoveCharacterToTile(character.name, targetSlot.name);
             return (true, isBattlefield);

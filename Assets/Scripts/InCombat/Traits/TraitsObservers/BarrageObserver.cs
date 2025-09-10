@@ -74,51 +74,77 @@ public class BarrageObserver : CharacterObserverBase
     public List<HexNode> FindBestSector()
     {
         Vector3 origin = Character.transform.position;
-        CustomLogger.Log(this, $"Character position: {origin}");
-        List<HexNode> bestSector = new List<HexNode>();
-        int maxEnemiesCount = 0;
-        Vector3 v = Character.transform.position;
-        if (Character.GetTarget() != null)
-        {
-            v = Character.transform.position - Character.GetTarget().transform.position;
-        }
-        float startAngle = Character.transform.rotation.eulerAngles.y;
-        CustomLogger.Log(this, $"Character start rotation angle: {startAngle}");
-        StringBuilder sb = new StringBuilder();
+        float startYaw = Character.transform.rotation.eulerAngles.y;
+
+        int maxEnemiesCount = -1;
+        float bestStartRel = 0f; // 以 forward 為 0° 的相對起始角
+        List<HexNode> bestSector = null;
+
+        float step = 360f / numSteps;
+
+        // 掃描：全部以「相對 forward 角度」運算
         for (int i = 0; i < numSteps; i++)
         {
-            float angleStart = (startAngle + i * (360f / numSteps)) % 360;
-            float angleEnd = (angleStart + GetAngle()) % 360;
-            sb.AppendLine($"Step {i}: angleStart = {angleStart}, angleEnd = {angleEnd}");
+            float angleStartRel = i * step;
+            float angleEndRel = angleStartRel + GetAngle();
 
-            List<HexNode> currentSectorNodes = GetNodesInSector(origin, angleStart, angleEnd);
-            sb.AppendLine($"Step {i}: Nodes in sector = {currentSectorNodes.Count}");
+            List<HexNode> sector = GetNodesInSectorRelative(origin, angleStartRel, angleEndRel);
+            int enemies = CountEnemiesInNodes(sector);
 
-            int enemiesCount = CountEnemiesInNodes(currentSectorNodes);
-            sb.AppendLine($"Step {i}: Enemies count = {enemiesCount}");
-
-            if (enemiesCount > maxEnemiesCount)
+            if (enemies > maxEnemiesCount)
             {
-                maxEnemiesCount = enemiesCount;
-                bestSector = currentSectorNodes;
-                BestAngle = angleStart + startAngle + (GetAngle() / 2);
-                sb.AppendLine($"New best sector found at step {i} with {maxEnemiesCount} enemies. BestAngle = {BestAngle}");
+                maxEnemiesCount = enemies;
+                bestSector = sector;
+                bestStartRel = angleStartRel;
             }
         }
-        List<HexNode> currentSectorNode = GetNodesInSector(origin, startAngle - GetAngle() / 2, startAngle + GetAngle() / 2);
-        int EnemiesCount = CountEnemiesInNodes(currentSectorNode);
-        if (EnemiesCount >= maxEnemiesCount)
+
+        // 計算「當前朝向」這一扇形（-half ~ +half，相對角度）
+        float half = GetAngle() * 0.5f;
+        List<HexNode> currentSector = GetNodesInSectorRelative(origin, -half, +half);
+        int currentCount = CountEnemiesInNodes(currentSector);
+
+        // 決策：只有「相等」時才維持原角度
+        if (currentCount == maxEnemiesCount)
         {
-            bestSector = currentSectorNode;
-            BestAngle = startAngle;
-            sb.AppendLine($"New best sector found at step ORIGIN with {maxEnemiesCount} enemies. BestAngle = {BestAngle}");
+            BestAngle = startYaw; // 維持原先面向
+            return currentSector;
         }
-        sb.AppendLine($"Final best sector found with {maxEnemiesCount} enemies.");
-        CustomLogger.Log(this, sb.ToString());
-        return bestSector;
+        else
+        {
+            // 轉向最佳：世界角 = 目前朝向 + (最佳起始相對角 + 扇形一半)
+            float worldYaw = startYaw + bestStartRel + half;
+            // 正規化到 0~360
+            BestAngle = (worldYaw % 360f + 360f) % 360f;
+            return bestSector ?? currentSector; // 理論上不會為空；保險
+        }
     }
 
+    private List<HexNode> GetNodesInSectorRelative(Vector3 origin, float angleStartRel, float angleEndRel)
+    {
+        List<HexNode> nodesInSector = new List<HexNode>();
 
+        float start = (angleStartRel % 360f + 360f) % 360f;
+        float end = (angleEndRel % 360f + 360f) % 360f;
+
+        foreach (var node in SpawnGrid.Instance.hexNodes.Values)
+        {
+            Vector3 toNode = node.Position - origin;
+            float dist = toNode.magnitude;
+            if (dist > maxDistance) continue;
+
+            // 0° 代表角色 forward，範圍 0~360
+            float ang = Vector3.SignedAngle(Character.transform.forward, toNode, Vector3.up);
+            ang = (ang % 360f + 360f) % 360f;
+
+            bool inRange = start <= end ? (ang >= start && ang <= end)
+                                        : (ang >= start || ang <= end);
+
+            if (inRange)
+                nodesInSector.Add(node);
+        }
+        return nodesInSector;
+    }
 
     private int CountEnemiesInNodes(List<HexNode> nodes)
     {

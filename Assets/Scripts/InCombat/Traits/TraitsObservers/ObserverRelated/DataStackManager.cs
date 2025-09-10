@@ -3,6 +3,7 @@ using GameEnum;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using UnityEngine;
 
 public class DataStackManager : MonoBehaviour
@@ -12,7 +13,7 @@ public class DataStackManager : MonoBehaviour
     public GameObject MillienumIndicator;
     public TraitsText TraitText;
     public RewardPopup rewardPopup;
-    private Dictionary<int, Action> floorRewardMapping;
+    public Dictionary<int, Action> floorRewardMapping;
     private HashSet<int> claimedFloors = new HashSet<int>();
 
     private void Awake()
@@ -43,12 +44,23 @@ public class DataStackManager : MonoBehaviour
     public void CheckDataStackRewards()
     {
         var sortedKeys = new List<int>(floorRewardMapping.Keys);
+
         sortedKeys.Sort();
         foreach (int floorKey in sortedKeys)
         {
             if (CurrentDataStack >= floorKey && !claimedFloors.Contains(floorKey))
             {
                 floorRewardMapping[floorKey]?.Invoke();
+                if (SelectedAugments.Instance.CheckAugmetExist(121))
+                {
+                    int amount = (int)(SRTManager.instance.SRT_Mill_CostMoney / 10) * (floorKey/100);
+                    for (int i = 0; i < amount; i++)
+                    {
+                        ResourcePool.Instance.GetGoldPrefab(new Vector3(0,0,0));
+                        SRTManager.instance.SRT_Mill_CostMoney--;
+                    }
+
+                }
                 claimedFloors.Add(floorKey);
             }
             else if (CurrentDataStack < floorKey)
@@ -166,11 +178,20 @@ public class DataStackManager : MonoBehaviour
                 rewardPopup.AddRewards(context, 3);
             }
         },
-    };
+        };
     }
 
-    public void IncreaseDataStack(int amount)
+    public void AddDataStack(int amount)
     {
+        if (SelectedAugments.Instance.CheckAugmetExist(111))
+        {
+            if (SelectedAugments.Instance.CheckIfConditionMatch(111))
+            {
+                PressureManager.Instance.AddPressure(amount);
+                DataStackManager.Instance.AddDataStack(amount);
+                return;
+            }
+        }
         CurrentDataStack += amount;
         UpdateIndicator();
     }

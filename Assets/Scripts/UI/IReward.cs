@@ -132,11 +132,11 @@ public class RewardEntry
     {
         if (PlayerSettings.SelectedDropdownValue == 0)
         {
-            return ChineseDescription;
+            return Name;
         }
         else
         {
-            return EnglishDescription;
+            return EnglishName;
         }
     }
 }

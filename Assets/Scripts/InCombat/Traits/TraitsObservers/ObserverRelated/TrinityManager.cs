@@ -36,6 +36,17 @@ public class TrinityManager : MonoBehaviour
     }
     public void TriggerComet(Vector3 targetPosition, string detailSource, HexNode h, CharacterCTRL c)
     {
+        
+        if (SelectedAugments.Instance.CheckAugmetExist(122))
+        {
+            HexNode he = SpawnGrid.Instance.GetHexNodeByPosition(targetPosition);
+            targetPosition = SpawnGrid.Instance.FindBestHexNode(c, 2, true, false, he).Position;
+        }
+        if (SelectedAugments.Instance.CheckAugmetExist(118))
+        {
+            HexNode he = SpawnGrid.Instance.GetHexNodeByPosition(targetPosition);
+            targetPosition = SpawnGrid.Instance.FindBestHexNode(c, 2, false, false, he).Position;
+        }
         if (SelectedAugments.Instance.CheckAugmetExist(127))
         {
             GiveDessert(c);
@@ -181,10 +192,58 @@ public class TrinityManager : MonoBehaviour
         }
         if (c == null) yield break;
         comet.transform.position = targetPosition;
+        if (SelectedAugments.Instance.CheckAugmetExist(105))
+        {
+            h.TempDesert = true;
+            h.TempDesert1 = false;
+        }
         var observer = c.traitController.GetObserverForTrait(Traits.Trinity) as TrinityObserver;
         int dmg = observer.GetCuurDmg();
         (bool iscrit, int dmg1) = c.CalculateCrit(dmg);
-        foreach (var item in Utility.GetCharacterInrange(h, 1, c, false))
+
+        int range = 1;
+        if (SelectedAugments.Instance.CheckAugmetExist(113))
+        {
+            float ratio = PressureManager.Instance.GetPressure(true) * 0.01f;
+            dmg1 = (int)(dmg1 * (1 + ratio));
+            PressureManager.Instance.AddPressure(5);
+            range = 2;
+        }
+        if (SelectedAugments.Instance.CheckAugmetExist(122))
+        {
+            range++;
+        }
+        if (SelectedAugments.Instance.CheckAugmetExist(118))
+        {
+            foreach (var item in Utility.GetCharacterInrange(h, range, c, false))
+            {
+                item.Heal(dmg, c);
+            }
+            foreach (var item in Utility.GetCharacterInrange(h, range, c, true))
+            {
+                item.Heal(dmg, c);
+            }
+            int rand = Utility.GetRand(c);
+            if (rand <= 10)
+            {
+                ResourcePool.Instance.GetGoldPrefab(c.transform.position);
+            }
+            else if (rand <= 75)
+            {
+                ResourcePool.Instance.GetGoldPrefab(c.transform.position);
+            }
+            else
+            {
+                ResourcePool.Instance.GetRandRewardPrefab(c.transform.position);
+            }
+            GameObject ef = Instantiate(Effect, targetPosition, Quaternion.identity);
+            
+            Destroy(ef, 2f);
+            Destroy(groundEffect, 2f);
+            Destroy(comet);
+            yield return null;
+        }
+        foreach (var item in Utility.GetCharacterInrange(h, range, c, false))
         {
             item.GetHit(dmg1, c, detailSource, iscrit);
         }

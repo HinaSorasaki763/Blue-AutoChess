@@ -59,7 +59,7 @@ public class RewardPopup : MonoBehaviour
         selectedRewards.Clear();
         entryViewDict.Clear();
         RebuildUI(currentContext.RewardEntries, maxSelectable);
-        rewardPanel.SetActive(true);
+        //rewardPanel.SetActive(true);
     }
     private void RebuildUI(List<RewardEntry> rewards, int maxSelect)
     {
@@ -85,11 +85,11 @@ public class RewardPopup : MonoBehaviour
                 option.Image.sprite = reward.Sprite;
                 if (PlayerSettings.SelectedDropdownValue == 0)
                 {
-                    option.Description = reward.ChineseDescription;
+                    option.Description = reward.Name;
                 }
                 else
                 {
-                    option.Description = reward.EnglishDescription;
+                    option.Description = reward.EnglishName;
                 }
                 option.optionIndex = reward.Index;
             }

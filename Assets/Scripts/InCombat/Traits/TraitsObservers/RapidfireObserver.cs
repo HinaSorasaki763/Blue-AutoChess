@@ -32,7 +32,7 @@ public class RapidfireObserver : CharacterObserverBase
         parent.effectCTRL.AddEffect(effect,parent);
         RapidfireObserverEffect = effect;
     }
-    public override void OnBattleEnd(bool isVictory)
+    public override void OnBattleEnd(bool isVictory, CharacterCTRL c)
     {
         RapidfireObserverEffect.UpdateValue(0,parent);
     }

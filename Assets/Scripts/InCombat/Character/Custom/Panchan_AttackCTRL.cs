@@ -1,3 +1,4 @@
+using GameEnum;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,4 +24,5 @@ public class Panchan_AttackCTRL : MonoBehaviour
     {
         parent.Attack();
     }
+
 }

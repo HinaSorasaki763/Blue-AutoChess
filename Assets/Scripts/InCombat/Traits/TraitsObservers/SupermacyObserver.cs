@@ -1,3 +1,4 @@
+using GameEnum;
 using System.Collections.Generic;
 
 public class SupermacyObserver : CharacterObserverBase
@@ -23,10 +24,6 @@ public class SupermacyObserver : CharacterObserverBase
     }
     public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
-        int threshold = (int)(target.GetStat(GameEnum.StatsType.Health) * GetTraitObserverLevel()[traitLevel].Data1 * 0.01f);
-        if (target.GetStat(GameEnum.StatsType.currHealth) <= threshold)
-        {
-            target.Executed(source, detailedSource);
-        }
+        Utility.CheckExecuted(target,source, GetTraitObserverLevel()[traitLevel].Data1 * 0.01f,detailedSource);
     }
 }

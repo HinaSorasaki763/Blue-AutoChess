@@ -87,7 +87,7 @@ public class Amulet_AmuletObserver : CharacterObserverBase
 public class Amulet_BagObserver : CharacterObserverBase
 {
     private bool trigger = false;
-    public override void OnBattleEnd(bool isVictory)
+    public override void OnBattleEnd(bool isVictory, CharacterCTRL c)
     {
         trigger = false;
     }
@@ -139,7 +139,7 @@ public class Amulet_WatchObserver : CharacterObserverBase
 public class Bag_BagObserver : CharacterObserverBase
 {
     private int count = 20;
-    public override void OnBattleEnd(bool isVictory)
+    public override void OnBattleEnd(bool isVictory, CharacterCTRL c)
     {
         count = 20;
     }
@@ -157,7 +157,7 @@ public class Bag_BagObserver : CharacterObserverBase
 public class Bag_CapObserver : CharacterObserverBase
 {
     private bool trigger = false;
-    public override void OnBattleEnd(bool isVictory)
+    public override void OnBattleEnd(bool isVictory, CharacterCTRL c)
     {
         trigger = false;
     }
@@ -238,7 +238,7 @@ public class Cap_GlovesObserver : CharacterObserverBase
 public class Cap_HairbandObserver : CharacterObserverBase
 {
     private bool trigger = false;
-    public override void OnBattleEnd(bool isVictory)
+    public override void OnBattleEnd(bool isVictory, CharacterCTRL c)
     {
         trigger = false;
     }

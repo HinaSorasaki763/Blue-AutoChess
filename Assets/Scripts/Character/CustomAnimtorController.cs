@@ -172,6 +172,7 @@ public class CustomAnimatorController : MonoBehaviour
         animationLock = false;
         animator.speed = 1f;
         currentState = CharacterState.Idling;
+        
         animator.SetBool("Idling", true);
         animator.SetBool("Moving", false);
         animator.SetBool("Attacking", false);
@@ -199,8 +200,16 @@ public class CustomAnimatorController : MonoBehaviour
     }
     public void SetCharacterFalse()
     {
+
         PathRequestManager.Instance.ReleaseCharacterReservations(character);
         character.gameObject.SetActive(false);
+    }
+    public void CheckStasis()
+    {
+        if (character.InStasis)
+        {
+            animator.speed = 0;
+        }
     }
 
     public bool TryGetBool(Animator animator, string paramName, out bool value)

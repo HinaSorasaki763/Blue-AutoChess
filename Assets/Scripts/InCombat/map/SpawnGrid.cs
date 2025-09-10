@@ -465,6 +465,10 @@ public class SpawnGrid : MonoBehaviour
 
     public void SetDesertifiedTiles(int count, int randomKey)
     {
+        if (SelectedAugments.Instance.CheckAugmetExist(102))
+        {
+            count = 64;
+        }
         List<HexNode> deployableTiles = new List<HexNode>();
         foreach (var tile in hexNodes.Values)
         {
@@ -510,15 +514,23 @@ public class SpawnGrid : MonoBehaviour
         // 選擇前 maxGroup1 個作為 desertified
         for (int i = 0; i < maxGroup1; i++)
         {
-            selectedOrderGroup1[i].isDesertified = true;
-            selectedOrderGroup1[i].UpdateTileColor();
+            if (!selectedOrderGroup1[i].oasis)
+            {
+                selectedOrderGroup1[i].isDesertified = true;
+                selectedOrderGroup1[i].UpdateTileColor();
+            }
+
         }
 
         // 選擇前 maxGroup2 個作為 desertified
         for (int i = 0; i < maxGroup2; i++)
         {
-            selectedOrderGroup2[i].isDesertified = true;
-            selectedOrderGroup2[i].UpdateTileColor();
+            if (!selectedOrderGroup2[i].oasis)
+            {
+                selectedOrderGroup2[i].isDesertified = true;
+                selectedOrderGroup2[i].UpdateTileColor();
+            }
+
         }
     }
 

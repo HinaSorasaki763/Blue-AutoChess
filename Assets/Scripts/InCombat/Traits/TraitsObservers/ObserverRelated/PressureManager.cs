@@ -6,12 +6,15 @@ public class PressureManager : MonoBehaviour
     public int CurrentPressure { get; private set; }
     public GameObject PressureIndicator;
     public TraitsText TraitText;
+    public int SRT_GehennaStack;
+    public bool Augment109Triggered = false;
+    public bool Augment109CondMatch = false;
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            CurrentPressure = 0;
+            CurrentPressure = 100;
             DontDestroyOnLoad(gameObject);
         }
         else
@@ -29,11 +32,25 @@ public class PressureManager : MonoBehaviour
         else return EnemyTraitRelated.Instance.GetPressure();
 
     }
-    public void IncreasePressure(int amount)
+    public void AddPressure(int amount)
     {
         CurrentPressure += amount;
+        SRT_GehennaStack += amount;
+        if (SelectedAugments.Instance.CheckAugmetExist(111))
+        {
+            if (!SelectedAugments.Instance.CheckIfConditionMatch(111))
+            {
+                DataStackManager.Instance.AddDataStack(CurrentPressure);
+                return;
+            }
+        }
+        if (SelectedAugments.Instance.CheckAugmetExist(112) && SRT_GehennaStack >= 100)
+        {
+            SRT_GehennaStack -= 100;
+            int rand = Random.Range(0, 5);
+            SRTManager.instance.AddSRT_GehennaStat(rand);
+        }
         UpdateIndicater();
-        Debug.Log($"[PressureManager] 威压层数增加 {amount}，当前总层数：{CurrentPressure}");
     }
 
     public void ResetPressure()
@@ -53,6 +70,19 @@ public class PressureManager : MonoBehaviour
             TraitText.TextMesh.text = string.Empty;
             PressureIndicator.SetActive(false);
 
+        }
+    }
+    public void TriggerAugment109Negative()
+    {
+
+    }
+    public void HandleAugment109()
+    {
+        if (!SelectedAugments.Instance.CheckAugmetExist(109)) return;
+        if (!Augment109CondMatch && !Augment109Triggered)
+        {
+            Augment109Triggered = true;
+            SelectedAugments.Instance.TriggerAugment(109);
         }
     }
 }

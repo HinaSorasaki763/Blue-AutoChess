@@ -56,6 +56,7 @@ public class ResourcePool : MonoBehaviour
     public Sprite[] numberSprites;
     public Sprite WakamosSprite;
     public Canvas EffectCanva;
+    public Material BlackMat;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -196,7 +197,7 @@ public class ResourcePool : MonoBehaviour
         GameObject obj = Instantiate(DropRewardPrefab, p, Quaternion.identity);
         obj.GetComponent<GoldRotate>().rewardType = CollectionRewardType.RandComponent;
     }
-    public void GetRandCharacterPrefab(Vector3 pos,int index)
+    public void GetRandCharacterPrefab(int index, Vector3 pos = default)
     {
         float randx = Random.Range(-0.5f, 0.5f);
         float randz = Random.Range(-0.5f, 0.5f);

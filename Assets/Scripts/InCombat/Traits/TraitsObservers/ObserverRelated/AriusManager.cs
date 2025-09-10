@@ -1,5 +1,6 @@
 using GameEnum;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 
@@ -7,6 +8,7 @@ public class AriusManager : MonoBehaviour
 {
     public static AriusManager Instance { get; private set; }
     public List<CharacterCTRL> OnBoard = new();
+    public List<CharacterCTRL> EnemyOnBoard = new();
     public CharacterCTRL SonOfGod;
     public GameObject SelectorRef;
     public EquipmentSO SelectorEquipmentData;
@@ -28,6 +30,7 @@ public class AriusManager : MonoBehaviour
     }
     public void RemoveSelector()
     {
+        ResetAllGodOfSonFlags();
         if (SelectorRef != null)
         {
             EquipmentManager.Instance.RemoveEquipmentItem(equipment, SelectorRef);
@@ -44,10 +47,21 @@ public class AriusManager : MonoBehaviour
     }
     public void AddArius(CharacterCTRL character)
     {
-        if (!OnBoard.Contains(character))
+        if (character.IsAlly)
         {
-            OnBoard.Add(character);
+            if (!OnBoard.Contains(character))
+            {
+                OnBoard.Add(character);
+            }
         }
+        else
+        {
+            if (!EnemyOnBoard.Contains(character))
+            {
+                EnemyOnBoard.Add(character);
+            }
+        }
+
 
     }
 
@@ -56,6 +70,10 @@ public class AriusManager : MonoBehaviour
         if (OnBoard.Contains(character))
         {
             OnBoard.Remove(character);
+        }
+        if (EnemyOnBoard.Contains(character))
+        {
+            EnemyOnBoard.Remove(character);
         }
 
     }
@@ -72,22 +90,39 @@ public class AriusManager : MonoBehaviour
                 CustomLogger.Log(this, $"Reset IsGodOfSon for {character.name}");
             }
         }
+        foreach (var item in EnemyOnBoard)
+        {
+            CharacterCTRL character = item.GetComponent<CharacterCTRL>();
+            if (character == null) continue;
+            var observer = character.traitController.GetObserverForTrait(Traits.Arius) as AriusObserver;
+            if (observer != null && observer.IsSonOfGod)
+            {
+                observer.SetGodOfSon(false);
+                CustomLogger.Log(this, $"Reset IsGodOfSon for {character.name}");
+            }
+        }
     }
-    public List<CharacterCTRL> GetOnBoard(bool includeSonOfGod)
+    public List<CharacterCTRL> GetOnBoard(bool includeSonOfGod,bool isally)
     {
         List<CharacterCTRL> validCharacters = new List<CharacterCTRL>();
-        foreach (var item in OnBoard)
+        List<CharacterCTRL> c = isally ? OnBoard : EnemyOnBoard;
+        foreach (var item in c)
         {
             if (!item.gameObject.activeInHierarchy || item.characterStats.logistics || !item.isAlive)
                 continue;
 
             if (!includeSonOfGod)
             {
+                if (SelectedAugments.Instance.CheckAugmetExist(125) && item.traitController.GetAcademy() == Traits.Trinity)
+                {
+                    validCharacters.Add(item);
+                }
                 var observer = item.traitController.GetObserverForTrait(Traits.Arius) as AriusObserver;
                 // 若 observer 為 null 或判定為 SonOfGod 則略過該角色
                 if (observer != null && observer.IsSonOfGod)
                     continue;
             }
+            if (item.characterStats.logistics)
             validCharacters.Add(item);
         }
         return validCharacters;

@@ -3,13 +3,12 @@ using GameEnum;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using TMPro.EditorUtilities;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 public abstract class CharacterObserverBase
 {
     public bool activated;
+    public bool Augument125_Triggered = false;
     public virtual void ActivateTrait()
     {
         activated = true;
@@ -46,8 +45,9 @@ public abstract class CharacterObserverBase
     }
     public virtual void CharacterStart(CharacterCTRL character)
     {
-
+        Augument125_Triggered = false;
     }
+
     public virtual void OnAttacking(CharacterCTRL character)
     {
         CustomLogger.Log(this, $"Character : {character.characterStats.name} OnAttacking.");
@@ -96,7 +96,7 @@ public abstract class CharacterObserverBase
     {
         if (character.effectCTRL.GetEffect("AkoEnhancedSkillBuff") != null)
         {
-            character.AddExtraStat(StatsType.CritChance, 1,"AkoCritChance",true);
+            character.AddExtraStat(StatsType.CritChance, 1, "AkoCritChance", true);
             character.AddExtraStat(StatsType.CritRatio, 1, "AkoCritRatio", true);
             character.AkoAddedCrit++;
         }
@@ -108,8 +108,20 @@ public abstract class CharacterObserverBase
     {
         CustomLogger.Log(this, $"{character.characterStats.name} is dying.");
     }
-    public virtual bool BeforeDying()
+    public virtual bool BeforeDying(CharacterCTRL parent)
     {
+        CustomLogger.Log(this, $"Check {parent} undying");
+        if (!Augument125_Triggered && parent.isAugment125Reinforced)
+        {
+            Augument125_Triggered = true;
+            parent.Heal((int)parent.GetStat(StatsType.Health), parent);
+
+            Effect effect = EffectFactory.CreateInvincibleEffect(1, parent);
+            Effect stunEffect = EffectFactory.CreateStunEffect(1, parent);
+            parent.effectCTRL.AddEffect(effect, parent);
+            parent.effectCTRL.AddEffect(stunEffect, parent);
+            return true;
+        }
         return false;
     }
 
@@ -155,7 +167,11 @@ public abstract class CharacterObserverBase
     {
         CustomLogger.Log(this, $"{character.characterStats.name} Logistic.");
     }
-    public virtual void OnBattleEnd(bool isVictory)
+    public virtual void OnBattleStart()
+    {
+
+    }
+    public virtual void OnBattleEnd(bool isVictory, CharacterCTRL parent)
     {
         string result = isVictory ? "victory" : "defeat";
         CustomLogger.Log(this, $"Battle ended with {result}.");
@@ -291,8 +307,12 @@ public class AyaneObserver : CharacterObserverBase
             .FirstOrDefault();
         if (highestAttackCharacter != null)
         {
-            Effect resistance = EffectFactory.CreateAyaneResistanceBuff(20, 2f, character);
-            highestAttackCharacter.effectCTRL.AddEffect(resistance, highestAttackCharacter);
+            Effect effect = EffectFactory.UnStatckableStatsEffct(20, "AyaneResistanceBuff", 20f, StatsType.Resistence, character, false, true);
+            effect.SetActions(
+                (character) => character.ModifyStats(StatsType.Resistence, effect.Value, effect.Source),
+                (character) => character.ModifyStats(StatsType.Resistence, -effect.Value, effect.Source)
+            );
+            highestAttackCharacter.effectCTRL.AddEffect(effect, highestAttackCharacter);
         }
     }
 }
@@ -467,6 +487,14 @@ public class HoshinoObserver : CharacterObserverBase
         int amount = character.ActiveSkill.GetCharacterLevel()[character.star].Data4;
         character.AddPercentageBonus(StatsType.Null, StatsType.Resistence, amount, "HoshinoPassive");
     }
+    public override int BeforeHealing(CharacterCTRL characterCTRL, int amount)
+    {
+        if (SelectedAugments.Instance.CheckAugmetExist(100))
+        {
+            amount = (int)(amount * 1.2f);
+        }
+        return base.BeforeHealing(characterCTRL, amount);
+    }
 }
 public class IzunaObserver : CharacterObserverBase
 {
@@ -554,8 +582,6 @@ public class MisakiObserver : CharacterObserverBase
     void Detonate(CharacterCTRL character)
     {
         MisakiObserver misakiObserver = character.characterObserver as MisakiObserver;
-
-        // 建立快照清單，避免修改 Dictionary 時拋出例外
         List<KeyValuePair<GameObject, HexNode>> fragments = new List<KeyValuePair<GameObject, HexNode>>(misakiObserver.FragmentNodes);
 
         int count = 0;
@@ -588,13 +614,12 @@ public class MisakiObserver : CharacterObserverBase
             }
             item.GetHit(dmg1, character, DamageSourceType.Skill.ToString(), iscrit);
         }
-        bool active = true;
+        bool active = false;
         if (GameController.Instance.CheckCharacterEnhance(34, true))
         {
-
-            if (Utility.GetRand(character) >= 30)
+            if (Utility.GetRand(character) >= 70)
             {
-                active = false;
+                active = true;
             }
         }
         fragment.SetActive(active);
@@ -603,6 +628,20 @@ public class MisakiObserver : CharacterObserverBase
             misakiObserver.FragmentNodes.Remove(fragment);
             misakiObserver.Fragments.Remove(fragment);
         }
+    }
+    public override void OnDying(CharacterCTRL character)
+    {
+        MisakiObserver misakiObserver = character.characterObserver as MisakiObserver;
+        foreach (var item in misakiObserver.Fragments)
+        {
+            GameObject.Destroy(item.gameObject);
+        }
+        misakiObserver.FragmentNodes.Clear();
+        misakiObserver.Fragments.Clear();
+    }
+    public override void OnBattleEnd(bool isVictory, CharacterCTRL c)
+    {
+
     }
 }
 public class MiyuObserver : CharacterObserverBase
@@ -665,7 +704,7 @@ public class ShirokoObserver : CharacterObserverBase
     public override void CharacterUpdate()
     {
 
-        if (GameController.Instance.CheckCharacterEnhance(31,true) && !ctrl.CurrentHex.IsBattlefield)
+        if (GameController.Instance.CheckCharacterEnhance(31, true) && !ctrl.CurrentHex.IsBattlefield)
         {
             Shiroko_Terror_AugmentCheck shiroko_Terror_AugmentCheck = ctrl.GetComponent<Shiroko_Terror_AugmentCheck>();
             shiroko_Terror_AugmentCheck.parent = ctrl;
@@ -718,7 +757,7 @@ public class TsubakiObserver : CharacterObserverBase
         }
 
     }
-    public override void OnBattleEnd(bool isVictory)
+    public override void OnBattleEnd(bool isVictory, CharacterCTRL c)
     {
         triggerCount = 1;
     }
@@ -728,9 +767,8 @@ public class TsurugiObserver : CharacterObserverBase
     private bool trigger;
     private TsurugiActiveSkill skill;
     private CharacterCTRL parent;
-    public int DamageIncrease = 0;
 
-    public override void OnBattleEnd(bool isVictory)
+    public override void OnBattleEnd(bool isVictory, CharacterCTRL c)
     {
         trigger = true;
     }
@@ -738,7 +776,7 @@ public class TsurugiObserver : CharacterObserverBase
     {
         character.AddExtraStat(StatsType.Lifesteal, 150, "TsurugiLifeSteal", false);
     }
-    public override bool BeforeDying()
+    public override bool BeforeDying(CharacterCTRL parent)
     {
         if (trigger)
         {
@@ -750,10 +788,6 @@ public class TsurugiObserver : CharacterObserverBase
             return true;
         }
         return false;
-    }
-    public override int DamageModifier(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
-    {
-        return (int)(damage * (1+(DamageIncrease * 0.01f)));
     }
     public override void OnKilledEnemy(CharacterCTRL character, string detailedSource, CharacterCTRL characterDies)
     {
@@ -772,7 +806,7 @@ public class TsurugiObserver : CharacterObserverBase
     }
     public override void OnAttacking(CharacterCTRL character)
     {
-        if (character.Target == null)return;
+        if (character.Target == null) return;
         character.transform.LookAt(character.Target.transform);
         HexNode origin = character.CurrentHex;
         HexNode targetHex = character.Target.GetComponent<CharacterCTRL>().CurrentHex;
@@ -867,7 +901,7 @@ public class Shiroko_Terror_Observer : CharacterObserverBase
     public override void OnAttacking(CharacterCTRL character)
     {
         base.OnAttacking(character);
-        if (skillCTRL.droneCTRL != null&& character.Target != null)
+        if (skillCTRL.droneCTRL != null && character.Target != null)
         {
             skillCTRL.droneCTRL.AssistAttack(character.Target.GetComponent<CharacterCTRL>(), character);
         }
@@ -1013,7 +1047,7 @@ public class GlobalBaseObserver : CharacterObserverBase
     {
         if (character.traitController.GetAcademy() == Traits.Gehenna)
         {
-            PressureManager.Instance.IncreasePressure(1);
+            PressureManager.Instance.AddPressure(1);
         }
         base.OnKilledEnemy(character, detailedSource, characterDies);
     }
@@ -1076,7 +1110,7 @@ public class GlobalBaseObserver : CharacterObserverBase
     {
         CustomLogger.Log(this, $"{character.characterStats.name} Logistic.");
     }
-    public override void OnBattleEnd(bool isVictory)
+    public override void OnBattleEnd(bool isVictory, CharacterCTRL c)
     {
         string result = isVictory ? "victory" : "defeat";
         CustomLogger.Log(this, $"Battle ended with {result}.");
@@ -1091,7 +1125,7 @@ public class GlobalBaseObserver : CharacterObserverBase
     }
     public override void OncharacterEnabled(CharacterCTRL character)
     {
-        if (GameController.Instance.CheckSpecificCharacterEnhanced(character,11,character.IsAlly))
+        if (GameController.Instance.CheckSpecificCharacterEnhanced(character, 11, character.IsAlly))
         {
             character.AddPercentageBonus(StatsType.Health, StatsType.Attack, 5, "SumireActiveSkill");
         }
@@ -1107,6 +1141,9 @@ public class GlobalBaseObserver : CharacterObserverBase
     }
     public override int DamageModifier(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
+        int be4 = damage;
+        damage = (int)(damage * (1 + source.GetStat(StatsType.DamageIncrease) * 0.01f));
+        CustomLogger.Log(this, $"before = {be4} ,after = {damage}");
         if (source.traitController.GetAcademy() == Traits.Gehenna)
         {
             damage = (int)((1 + PressureManager.Instance.GetPressure(source.IsAlly) * 0.15f) * damage);

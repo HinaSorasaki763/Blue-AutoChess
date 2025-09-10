@@ -1,4 +1,5 @@
 ﻿// MillenniumObserver.cs
+using GameEnum;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -25,9 +26,9 @@ public class MillenniumObserver : CharacterObserverBase
     {
         DataStackManager.Instance.UpdateIndicator();
     }
-    public override void OnBattleEnd(bool isVictory)
+    public override void OnBattleEnd(bool isVictory, CharacterCTRL c)
     {
-        base.OnBattleEnd(isVictory);
+        base.OnBattleEnd(isVictory,c);
     }
     public override Dictionary<int, TraitLevelStats> GetTraitObserverLevel()
     {
@@ -60,8 +61,14 @@ public class MillenniumObserver : CharacterObserverBase
     }
     private void OnIncreaseDataLayer()
     {
+        if (SelectedAugments.Instance.CheckAugmetExist(120)) return;
         int stack = GetTraitObserverLevel()[traitLevel].Data1;
-        DataStackManager.Instance.IncreaseDataStack(stack);
+        if (character.CurrentHex.oasis)
+        {
+            stack += Mathf.Max(1, (int)(stack * 0.5f));
+        }
+        DataStackManager.Instance.AddDataStack(stack);
+
         CustomLogger.Log(this, $"{character.name} 增加了 {stack} 层数据层数。当前总层数：{DataStackManager.Instance.CurrentDataStack}");
     }
 
@@ -73,5 +80,16 @@ public class MillenniumObserver : CharacterObserverBase
             isAlive = false;
             Debug.Log($"[MillenniumObserver] {character.name} 已死亡，停止增加数据层数。");
         }
+    }
+    public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
+    {
+        if (SelectedAugments.Instance.CheckAugmetExist(120))
+        {
+            if (Utility.CheckExecuted(target, source, GetTraitObserverLevel()[traitLevel].Data1 * 0.01f, detailedSource))
+            {
+                DataStackManager.Instance.AddDataStack(10);
+            }
+        }
+
     }
 }

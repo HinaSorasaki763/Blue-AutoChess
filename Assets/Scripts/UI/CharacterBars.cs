@@ -79,6 +79,7 @@ public class CharacterBars : MonoBehaviour
 
     public void InitBars()
     {
+
         HealthSlider.SetMaxValue(CharacterCTRL.GetStat(StatsType.Health));
         CustomLogger.Log(this,$"set character {CharacterCTRL.name} max health = {CharacterCTRL.GetStat(StatsType.Health)}, max = {HealthSlider.sliderComponent.maxValue}");
         HealthSlider.SetMinValue(0);
@@ -86,9 +87,9 @@ public class CharacterBars : MonoBehaviour
         ManaSlider.SetMinValue(0);
         strongestMark.SetActive(false);  // 默認情況下隱藏
     }
-
     void UpdateUIs()
     {
+        HealthSlider.SetMaxValue(CharacterCTRL.GetStat(StatsType.Health));
         starImage.sprite = StarSprites[CharacterCTRL.star - 1];
         HealthSlider.UpdateValue(CharacterCTRL.GetStat(StatsType.currHealth, false));
         ManaSlider.UpdateValue(CharacterCTRL.GetStat(StatsType.Mana, false));

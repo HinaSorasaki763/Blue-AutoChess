@@ -41,7 +41,7 @@ public class EffectCTRL : MonoBehaviour
                     existingEffect.UpdateValue(existingEffect.Value + effect.Value, c);
                     UpdateEffectNames();
                 }
-                if (effect.Value > existingEffect.Value && !existingEffect.Stackable)
+                if (!existingEffect.Stackable)
                 {
                     existingEffect.UpdateValue(effect.Value, c);
                     UpdateEffectNames();
@@ -216,22 +216,22 @@ public static class EffectFactory
 
 
 
-    public static Effect UnStatckableStatsEffct(float duration, string source, float amount, StatsType statsType, CharacterCTRL parent, bool isPermanent)
+    public static Effect UnStatckableStatsEffct(float duration, string source, float amount, StatsType statsType, CharacterCTRL parent, bool isPermanent,bool isLogistic = false)
     {
         return new Effect(
             EffectType.Positive,
             ModifierType.None,
             amount,
-            $"{source} adjust {statsType} {amount}",
+            $"{source}",
             isPermanent,
             null,
             null,
             duration,
             SpecialEffectType.None,
             parent,
-            true,
-            ClearEffectCondition.Never,
             false,
+            ClearEffectCondition.Never,
+            isLogistic,
             true
         );
     }
@@ -345,7 +345,22 @@ public static class EffectFactory
             (character) => character.EmptyEffectFunction(),
             (character) => character.EmptyEffectFunction(),
             duration,
-            SpecialEffectType.Invincible,
+            SpecialEffectType.None,
+            parent
+        );
+    }
+    public static Effect CreateHyakkiyakoObserverAttackSpeedEffct(int attackPowerIncrease, float duration, CharacterCTRL parent)
+    {
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.DamageDealt,
+            attackPowerIncrease,
+            "HyakkiyakoObserver_AttackSpeed",
+            true,
+            (character) => character.EmptyEffectFunction(),
+            (character) => character.EmptyEffectFunction(),
+            duration,
+            SpecialEffectType.None,
             parent
         );
     }
@@ -380,26 +395,6 @@ public static class EffectFactory
             false,
             (character) => character.ModifyStats(StatsType.CritRatio, critRatio),
             (character) => character.ModifyStats(StatsType.CritRatio, -critRatio),
-            duration,
-            SpecialEffectType.None,
-            parent,
-            false,
-            ClearEffectCondition.Never,
-            true,
-            true
-        );
-    }
-
-    public static Effect CreateAyaneResistanceBuff(int resistance, float duration, CharacterCTRL parent)
-    {
-        return new Effect(
-            EffectType.Positive,
-            ModifierType.DamageDealt,
-            resistance,
-            "AyaneResistanceBuff",
-            false,
-            (character) => character.ModifyStats(StatsType.Resistence, resistance),
-            (character) => character.ModifyStats(StatsType.Resistence, -resistance),
             duration,
             SpecialEffectType.None,
             parent,
@@ -564,13 +559,17 @@ public static class EffectFactory
     {
         Dictionary<int, TraitLevelStats> statsByStarLevel = new Dictionary<int, TraitLevelStats>()
         {
+            {0, new TraitLevelStats(6,30,2)},
             {1, new TraitLevelStats(6,30,2)},
             {2, new TraitLevelStats(8,45,3)},
             {3, new TraitLevelStats(10,70,5)},
             {4, new TraitLevelStats(12,70,10)}
         };
         int effectiveness = statsByStarLevel[level].Data2 * (isAbydos ? 1 : -1);
-
+        if (SelectedAugments.Instance.CheckAugmetExist(100))
+        {
+            effectiveness = 0;
+        }
         return new Effect(
             isAbydos ? EffectType.Positive : EffectType.Negative,
             ModifierType.None,
@@ -579,6 +578,29 @@ public static class EffectFactory
             false,
             (character) => character.AbydosBuff(isAbydos, effectiveness, statsByStarLevel[level].Data3, true),
             (character) => character.AbydosBuff(isAbydos, -effectiveness, statsByStarLevel[level].Data3, false),
+            1,
+            SpecialEffectType.None,
+            null
+        );
+    }
+    public static Effect CreateAbydosMillenniumEffect(int level)
+    {
+        Dictionary<int, TraitLevelStats> statsByStarLevel = new Dictionary<int, TraitLevelStats>()
+        {
+            {1, new TraitLevelStats(2)},
+            {2, new TraitLevelStats(3)},
+            {3, new TraitLevelStats(5)},
+            {4, new TraitLevelStats(10)}
+        };
+        int percent = statsByStarLevel[level].Data1;
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            "AbydosMillenniumEffect",
+            false,
+            (character) => character.AbydosMillenniumBuff(percent,true),
+            (character) => character.AbydosMillenniumBuff(percent, false),
             1,
             SpecialEffectType.None,
             null
@@ -749,6 +771,24 @@ public static class EffectFactory
             SpecialEffectType.None,
             null
         );
+    }
+
+    public static Effect HyakkiyakoDyingEffect()
+    {
+
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            "HyakkiyakoDyingEffect",
+            false,
+            (character) => character.HyakkiyakoDyingEffectStart(),
+            (character) => character.HyakkiyakoDyingEffectEnd(),
+            1,
+            SpecialEffectType.None,
+            null
+        );
+
     }
     public static Effect OverTimeEffect()
     {

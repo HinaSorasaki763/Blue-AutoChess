@@ -142,6 +142,14 @@ public class StaticObject : CharacterCTRL
         int currHealth = (int)GetStat(StatsType.currHealth);
         int currMana = (int)GetStat(StatsType.Mana);
         stats.SetStat(StatsType.Health, MaxHealth_StaticObj);
+
+        if (effectCTRL.GetStatsEffects().Count > 0)
+        {
+            foreach (var item in effectCTRL.GetStatsEffects())
+            {
+                item.OnRemove.Invoke(this);
+            }
+        }
         stats.AddFrom(ExtraPernamentStats);
         stats.AddFrom(GameController.Instance.TeamExtraStats);
         if (effectCTRL.GetStatsEffects().Count > 0)

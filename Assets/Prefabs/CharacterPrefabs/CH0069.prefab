@@ -4257,6 +4257,7 @@ MonoBehaviour:
   CurrentHex: {fileID: 0}
   HexWhenBattleStart: {fileID: 0}
   PreTarget: {fileID: 0}
+  IsDragable: 1
   IsAlly: 0
   allyLayer:
     serializedVersion: 2
@@ -4268,9 +4269,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   characterStats: {fileID: 11400000, guid: b731abf93178a8d4dacf03428d975420, type: 2}
-  characterBars: {fileID: 0}
-  allyParent: {fileID: 0}
-  enemyParent: {fileID: 0}
+  star: 0
   stats:
     stats:
     - statType: 0
@@ -4387,47 +4386,51 @@ MonoBehaviour:
       value: 0
     - statType: 20
       value: 0
-  star: 0
-  modifierCTRL: {fileID: 0}
-  effectCTRL: {fileID: 0}
-  IsHeroicEnhanced: 0
-  FaceDirectionLock: 0
-  ManaLock: 0
-  enterBattle: 0
-  isAlive: 1
-  IsCastingAbility: 0
-  isWalking: 0
-  IsDying: 0
-  isMarked: 0
-  isCCImmune: 0
-  Invincible: 0
-  AntiHeal: 0
-  Overtime: 0
-  AntiHealRatio: 0
-  Taunted: 0
-  attackRate: 5
-  WakamoMark: 0
-  dmgRecivedOnWakamoMarked: 0
-  stunned: 0
-  FirePoint: {fileID: 6785243035821884817}
-  GetHitPoint: {fileID: 6823596854267453372}
-  DetectedPos: {x: 0, y: 0, z: 0}
-  AudioManager: {fileID: 0}
-  traitController: {fileID: 0}
-  customAnimator: {fileID: 0}
-  isTargetable: 1
-  isShirokoTerror: 0
-  droneCTRL: {fileID: 0}
-  isObj: 0
-  Logistic_dummy: {fileID: 0}
-  equipmentManager: {fileID: 0}
-  critTransferAmount: 0
-  StealManaCount: 0
   DealtDamageThisRound: 0
   TakeDamageThisRound: 0
   AkoAddedCrit: 0
   SpecialSkillStack: 0
+  critTransferAmount: 0
+  StealManaCount: 0
+  characterBars: {fileID: 0}
+  modifierCTRL: {fileID: 0}
+  effectCTRL: {fileID: 0}
+  equipmentManager: {fileID: 0}
+  traitController: {fileID: 0}
+  customAnimator: {fileID: 0}
+  AudioManager: {fileID: 0}
+  isAlive: 1
+  enterBattle: 0
+  isWalking: 0
+  IsDying: 0
+  IsCastingAbility: 0
+  IsHeroicEnhanced: 0
+  ManaLock: 0
+  stunned: 0
+  isMarked: 0
+  Taunted: 0
+  Invincible: 0
+  isCCImmune: 0
+  AntiHeal: 0
+  AntiHealRatio: 0
+  Overtime: 0
+  isTargetable: 1
+  FaceDirectionLock: 0
   Undying: 0
+  WakamoMark: 0
+  dmgRecivedOnWakamoMarked: 0
+  DetectedPos: {x: 0, y: 0, z: 0}
+  FirePoint: {fileID: 6785243035821884817}
+  GetHitPoint: {fileID: 6823596854267453372}
+  Halo: {fileID: 0}
+  allyParent: {fileID: 0}
+  enemyParent: {fileID: 0}
+  isObj: 0
+  Logistic_dummy: {fileID: 0}
+  isShirokoTerror: 0
+  droneCTRL: {fileID: 0}
+  OGBody: {fileID: 2183658008865838274}
+  materials: []
 --- !u!95 &8388447069001492355
 Animator:
   serializedVersion: 5
@@ -4483,6 +4486,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
+  character: {fileID: 0}
   animatorSpeed: 0
   animationLock: 0
 --- !u!114 &7897058333482018332

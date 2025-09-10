@@ -49,7 +49,10 @@ public class Shop : MonoBehaviour
         RefreshButton.interactable = gold >= 2;
     }
 
-    public void GoldLessRefresh() => GetCharacter();
+    public void GoldLessRefresh()
+    {
+        GetCharacter();
+    }
 
     public void Refresh()
     {
@@ -58,7 +61,7 @@ public class Shop : MonoBehaviour
             freeReroll--;
         else
             GameController.Instance.AddGold(-2);
-
+        
         GetCharacter();
     }
 
@@ -115,7 +118,11 @@ public class Shop : MonoBehaviour
         RoundProbability p = roundProbabilityData.roundProbabilities[currentRound];
 
         int count = 5 - (ResourcePool.Instance.ally.GetSpecificTrait(Traits.SRT) >= 2 ? 1 : 0);
-
+        if (SelectedAugments.Instance.CheckAugmetExist(126))
+        {
+            count = 5;
+            SRTManager.instance.AddStat(UnityEngine.Random.Range(0, 4));
+        }
         for (int i = 0; i < count; i++)
         {
             float rand = UnityEngine.Random.Range(0, 100);

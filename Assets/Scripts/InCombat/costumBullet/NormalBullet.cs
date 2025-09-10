@@ -160,7 +160,7 @@ public class NormalBullet : MonoBehaviour
 
     private void HitTarget(CharacterCTRL enemy)
     {
-        // 觸發所有效果
+        if (parent == null || !parent.gameObject.activeInHierarchy) return;
         foreach (var effect in hitEffects)
         {
             effect.ApplyEffect(enemy, parent);

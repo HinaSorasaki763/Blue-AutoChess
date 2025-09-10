@@ -19,7 +19,7 @@ public class SellGrid : MonoBehaviour
 
     private void RemoveCharacter(CharacterCTRL character)
     {
-        // 從父物件中移除角色
+        character.equipmentManager.RemoveAllItem();
         character.transform.parent.GetComponent<CharacterParent>().childCharacters.Remove(character.gameObject);
         Destroy(character.gameObject);
     }
