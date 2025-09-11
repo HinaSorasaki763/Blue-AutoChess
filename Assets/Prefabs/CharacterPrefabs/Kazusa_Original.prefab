@@ -2119,7 +2119,6 @@ GameObject:
   - component: {fileID: -4534430757743621238}
   - component: {fileID: 6776336510045782717}
   - component: {fileID: -648582472141109908}
-  - component: {fileID: -4121367408248979759}
   - component: {fileID: -7717406360332267542}
   - component: {fileID: 8726365886887774315}
   - component: {fileID: 488527691012532487}
@@ -2325,6 +2324,10 @@ MonoBehaviour:
   isTargetable: 1
   FaceDirectionLock: 0
   Undying: 0
+  CanWalk: 1
+  CanAttack: 1
+  InStasis: 0
+  isAugment125Reinforced: 0
   WakamoMark: 0
   dmgRecivedOnWakamoMarked: 0
   DetectedPos: {x: 0, y: 0, z: 0}
@@ -2339,6 +2342,7 @@ MonoBehaviour:
   droneCTRL: {fileID: 0}
   OGBody: {fileID: 5713443199892693430}
   materials: []
+  OGMat: []
 --- !u!95 &4077051768628862334
 Animator:
   serializedVersion: 5
@@ -2449,18 +2453,6 @@ MonoBehaviour:
   effectNames: []
   characterCTRL: {fileID: 0}
 --- !u!114 &-648582472141109908
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3532183096576915177}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d166ca0c523f59641ab22e288092a104, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &-4121367408248979759
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

@@ -1,9 +1,8 @@
+using GameEnum;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using GameEnum;
-using UnityEngine.EventSystems;
-using System.Collections.Generic;
 
 public class TraitUI : MonoBehaviour
 {
@@ -40,7 +39,7 @@ public class TraitUI : MonoBehaviour
 
     private void OnTraitClicked()
     {
-        descriptionText.text = TraitDescriptions.Instance.Output[trait] +"\n"+TraitDescriptions.Instance.GetTraitDescription(trait);
+        descriptionText.text = TraitDescriptions.Instance.Output[trait] + "\n" + TraitDescriptions.Instance.GetTraitDescription(trait);
         TraitPanelManager.Instance.OpenPanel(descriptionPanel);
 
         foreach (var traitImage in ImageTraits)

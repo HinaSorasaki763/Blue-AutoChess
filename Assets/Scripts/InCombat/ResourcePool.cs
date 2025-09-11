@@ -136,7 +136,6 @@ public class ResourcePool : MonoBehaviour
 
     IEnumerator InitializeAll()
     {
-        // 資源載入
         LoadResources<Character>("1Cost", ref OneCostCharacter);
         LoadResources<Character>("2Cost", ref TwoCostCharacter);
         LoadResources<Character>("3Cost", ref ThreeCostCharacter);

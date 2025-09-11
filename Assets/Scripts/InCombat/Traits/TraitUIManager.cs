@@ -33,6 +33,7 @@ public class TraitUIManager : MonoBehaviour
         activeTraitUIs.Clear();
         TraitPanelManager.Instance.ClearAllPanels();
         List<KeyValuePair<Traits, int>> sortedTraits = new List<KeyValuePair<Traits, int>>(traitCounts);
+        sortedTraits.RemoveAll(kvp => kvp.Key == Traits.None);
         sortedTraits.Sort((pair1, pair2) => pair2.Value.CompareTo(pair1.Value)); // 按照角色數量排序
 
         // 生成新的羈絆 UI
