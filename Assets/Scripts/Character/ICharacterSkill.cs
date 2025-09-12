@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using Unity.VisualScripting;
 using UnityEditor;
+using UnityEditor.iOS.Xcode;
 using UnityEngine;
 public abstract class CharacterSkillBase
 {
@@ -1416,6 +1417,94 @@ public class IzunaEnhancedSkill : CharacterSkillBase//獲得技能"瞬間出現�
     {
         base.ExecuteSkill(skillContext);
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Izuna Skill");
+    }
+}
+public class KasumiSkill : CharacterSkillBase
+{
+    private Dictionary<int, StarLevelStats> statsByStarLevel;
+    public int BaseDmg;
+    public int DmgRatio;
+    public int PressureRatio;
+    public int CastedCount;
+    public KasumiSkill()
+    {
+
+    }
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(10,50,1,0,1.5f)},
+            {2, new StarLevelStats(15,60,1,0,2.0f)},
+            {3, new StarLevelStats(23,72,2,0,3.0f)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        BaseDmg = stats.Data1;
+        DmgRatio = stats.Data2;
+        PressureRatio = stats.Data3;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack()) + PressureRatio * PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly);
+    }
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CastedCount++;
+        HexNode targetHex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent, 10, true, true, skillContext.currHex);
+        skillContext.Parent.GetComponent<Kasumi_DrillCTRL>().GetDrill(targetHex.Position);
+        skillContext.Parent.StartCoroutine(DelayDmgAndStun(targetHex, skillContext.Parent));
+    }
+    public IEnumerator DelayDmgAndStun(HexNode h,CharacterCTRL parent)
+    {
+        yield return new WaitForSeconds(0.33f);
+        List<CharacterCTRL> c = new List<CharacterCTRL>();
+        bool enhanced = false;
+        if (CastedCount >=3)
+        {
+            CastedCount -= 3;
+            enhanced = true;
+        }
+        SkillContext skill = parent.GetSkillContext();
+        int dmg = GetAttackCoefficient(skill);
+
+        foreach (HexNode neighbor in SpawnGrid.Instance.GetHexNodesWithinRange(h, 3))
+        {
+            if (neighbor.OccupyingCharacter != null && neighbor.OccupyingCharacter.IsAlly != parent.IsAlly)
+            {
+
+                if (!enhanced)
+                {
+
+                    (bool iscrit, int dmg1) = skill.Parent.CalculateCrit(dmg);
+                    Effect stunEffect = EffectFactory.CreateStunEffect(1f, neighbor.OccupyingCharacter);
+                    neighbor.OccupyingCharacter.effectCTRL.AddEffect(stunEffect, neighbor.OccupyingCharacter);
+                    neighbor.OccupyingCharacter.AudioManager.PlayCrowdControlledSound();
+                    neighbor.SetColorState(ColorState.TemporaryYellow, 1f);
+                    neighbor.OccupyingCharacter.GetHit(dmg1,parent,"KasumiExSkill",iscrit);
+                }
+                else
+                {
+                    (bool iscrit, int dmg1) = skill.Parent.CalculateCrit(dmg);
+                    neighbor.OccupyingCharacter.GetHit(dmg1*3, parent, "KasumiExSkill", iscrit);
+                }
+
+            }
+
+        }
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+
+        return new KasumiEnhancedSkill(this);
+    }
+}
+public class KasumiEnhancedSkill : CharacterSkillBase
+{
+    private KasumiSkill originalSkill;
+    public KasumiEnhancedSkill(KasumiSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
     }
 }
 public class KayokoSkill : CharacterSkillBase//佳代子(Kayoko)對大範圍敵人造成少量傷害及恐懼

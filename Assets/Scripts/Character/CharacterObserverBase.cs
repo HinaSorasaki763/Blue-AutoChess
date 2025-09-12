@@ -547,6 +547,10 @@ public class KayokoObserver : CharacterObserverBase
         base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
     }
 }
+public class KasumiObserver : CharacterObserverBase
+{
+
+}
 public class MisakiObserver : CharacterObserverBase
 {
     public List<GameObject> Fragments = new List<GameObject>();

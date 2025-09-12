@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class TeamEditorUI : MonoBehaviour
 {
     [SerializeField] private TraitDescriptionDatabase traitDescriptionDatabase;
-    [SerializeField] private Transform traitButtonParent;   // 放 Trait 按鈕的父物件
+    [SerializeField] private Transform traitButtonParent;   // 放 Trait/Level 按鈕的父物件
     [SerializeField] private Transform traitButtonPrefab;   // Trait 按鈕預置
     [SerializeField] private Transform characterButtonParent; // 放角色按鈕的父物件
     [SerializeField] private Transform characterButtonPrefab; // 角色按鈕預置
@@ -18,14 +18,15 @@ public class TeamEditorUI : MonoBehaviour
     private void Start()
     {
         CreateTraitButtons();
+        CreateLevelButtons();
     }
 
     void CreateTraitButtons()
     {
         // 排序：先 IsAcademy，再依 trait 名稱字母排序
         var sorted = traitDescriptionDatabase.traitDescriptions
-            .OrderByDescending(td => td.IsAcademy)   // true 在前
-            .ThenBy(td => td.trait.ToString())       // 再依名稱
+            .OrderByDescending(td => td.IsAcademy)
+            .ThenBy(td => td.trait.ToString())
             .ToList();
 
         foreach (var traitData in sorted)
@@ -55,12 +56,37 @@ public class TeamEditorUI : MonoBehaviour
         }
     }
 
+    void CreateLevelButtons()
+    {
+        for (int lvl = 1; lvl <= 5; lvl++)
+        {
+            var btn = Instantiate(traitButtonPrefab, traitButtonParent);
+
+            // 顯示 Level 文字
+            var text = btn.GetComponentInChildren<TextMeshProUGUI>();
+            if (text != null) text.text = $"Level {lvl}";
+
+            // 移除 Trait 圖標
+            var traitObj = btn.Find("Trait");
+            if (traitObj != null) traitObj.gameObject.SetActive(false);
+
+            // 綁定事件
+            var button = btn.GetComponentInChildren<Button>();
+            if (button != null)
+            {
+                int j = lvl;
+                button.onClick.AddListener(() => ShowCharactersWithLevel(j));
+            }
+
+        }
+    }
 
     void ShowCharactersWithTrait(TraitDescriptionData data)
     {
         TraitsName.text = data.name;
         TraitsEffect.text = TraitDescriptions.Instance.GetTraitDescription(data.trait);
         Traits trait = data.trait;
+
         foreach (Transform child in characterButtonParent)
             Destroy(child.gameObject);
 
@@ -79,12 +105,14 @@ public class TeamEditorUI : MonoBehaviour
             var traitsRoot = charUI.Find("Traits");
             if (traitsRoot != null)
             {
-                var traitImages = traitsRoot.GetComponentsInChildren<Image>(true);
-                traitImages = traitImages.Where(img => img.transform != traitsRoot).ToArray();
+                var traitImages = traitsRoot.GetComponentsInChildren<Image>(true)
+                                            .Where(img => img.transform != traitsRoot)
+                                            .ToArray();
 
                 var traitSprites = character.Traits
-                    .Select(t => traitDescriptionDatabase.traitDescriptions.FirstOrDefault(td => td.trait == t)?.sprite)
-                    .Where(s => s != null)
+                    .Select(t => traitDescriptionDatabase.traitDescriptions.FirstOrDefault(td => td.trait == t))
+                    .Where(td => td != null)
+                    .Select(td => td.sprite)
                     .ToList();
 
                 for (int i = 0; i < traitImages.Length; i++)
@@ -102,4 +130,64 @@ public class TeamEditorUI : MonoBehaviour
             }
         }
     }
+
+    void ShowCharactersWithLevel(int level)
+    {
+        TraitsName.text = $"Level {level}";
+        TraitsEffect.text = string.Empty;
+
+        foreach (Transform child in characterButtonParent)
+            Destroy(child.gameObject);
+
+        var allCharacters = ResourcePool.Instance.Lists.SelectMany(list => list);
+
+        // 過濾符合 level 的角色
+        var filtered = allCharacters.Where(c => c.Level == level);
+
+        // 排序：依角色 traits 的最小 enum 值排序
+        var sorted = filtered.OrderBy(c =>
+        {
+            return c.Traits != null && c.Traits.Count > 0
+                ? c.Traits.Min(t => (int)t)
+                : int.MaxValue; // 沒有 traits 的排到最後
+        });
+
+        foreach (var character in sorted)
+        {
+            var charUI = Instantiate(characterButtonPrefab, characterButtonParent);
+
+            // 主角頭像
+            var mainImage = charUI.GetComponentInChildren<Image>();
+            if (mainImage != null) mainImage.sprite = character.Sprite;
+
+            // Traits 子物件
+            var traitsRoot = charUI.Find("Traits");
+            if (traitsRoot != null)
+            {
+                var traitImages = traitsRoot.GetComponentsInChildren<Image>(true)
+                                            .Where(img => img.transform != traitsRoot)
+                                            .ToArray();
+
+                var traitSprites = character.Traits
+                    .Select(t => traitDescriptionDatabase.traitDescriptions.FirstOrDefault(td => td.trait == t))
+                    .Where(td => td != null)
+                    .Select(td => td.sprite)
+                    .ToList();
+
+                for (int i = 0; i < traitImages.Length; i++)
+                {
+                    if (i < traitSprites.Count)
+                    {
+                        traitImages[i].sprite = traitSprites[i];
+                        traitImages[i].enabled = true;
+                    }
+                    else
+                    {
+                        traitImages[i].enabled = false;
+                    }
+                }
+            }
+        }
+    }
+
 }

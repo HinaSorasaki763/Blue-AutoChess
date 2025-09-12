@@ -2161,6 +2161,7 @@ public class CharacterCTRL : MonoBehaviour
     { 38, () => new NullObserver() },
     { 39, () => new SaoriObserver() },
     { 40, () => new TokiObserver() },
+
     {504, () => new NullObserver() },
 };
 
@@ -2209,6 +2210,7 @@ public class CharacterCTRL : MonoBehaviour
         { 39, () => new Saori_Skill()},
         { 40, () => new Toki_Skill()},
         { 41, () => new Panchan_Skill()},
+        { 42,() => new KasumiSkill()},
         {  504, () => new HarunaSkill()},
     };
     #endregion
