@@ -11,8 +11,7 @@ public class Kasumi_Drill : MonoBehaviour
     public void StartDrop(Vector3 target)
     {
         child.SetActive(true);
-        transform.position = new Vector3(-3f, 3f, -3f);
-        transform.LookAt(target);
+        transform.position = target + new Vector3(-3f, 3f, -3f); 
         StartCoroutine(DropRoutine(target));
     }
 

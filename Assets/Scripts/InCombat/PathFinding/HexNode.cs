@@ -36,6 +36,8 @@ public class HexNode : MonoBehaviour
     public bool isDesertified = false;
     public bool TempDesert = false;
     public bool TempDesert1;
+    public bool KasumiEnhancedSkill_mark = false;
+    public bool KasumiEnhancedSkill_steamed = false;
     public bool oasis = false;
     public bool isAllyHex;
 
