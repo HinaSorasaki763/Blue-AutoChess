@@ -289,16 +289,6 @@ public class HexNode : MonoBehaviour
 
         UpdateTileColor();
     }
-    public void SetColor(Color color)
-    {
-        Renderer renderer = head.GetComponent<Renderer>();
-        if (renderer != null)
-        {
-            Material tileMaterial = renderer.material;
-            tileMaterial.color = color;
-            renderer.material = tileMaterial;
-        }
-    }
 
     public void AddNeighbor(HexNode neighbor)
     {

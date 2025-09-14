@@ -3190,6 +3190,152 @@ public class MiyuEnhancedSkill : CharacterSkillBase//被動不變，主動新增
         bullet.GetComponent<NormalBullet>().Initialize(dmg1, skillContext.Parent.GetTargetLayer(), skillContext.Parent, 20f, skillContext.Parent.GetTarget(), true, iscrit, hitEffect);
     }
 }
+public class MeguSkill : CharacterSkillBase
+{
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(50,115)},
+            {2, new StarLevelStats(70,150)},
+            {3, new StarLevelStats(125,230)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
+    public override void ExecuteSkill(SkillContext ctx)
+    {
+        HexNode target = ctx.Parent.GetTargetCTRL().CurrentHex;
+        HexNode nearest = null;
+        float minDist = float.MaxValue;
+        foreach (var neighbor in ctx.Parent.CurrentHex.Neighbors)
+        {
+            float dist = Vector3.Distance(target.Position, neighbor.Position);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                nearest = neighbor;
+            }
+        }
+        Vector3 offset = ctx.Parent.CurrentHex.Position - nearest.Position;
+        HexNode mirror = SpawnGrid.Instance.GetHexNodeByPosition(nearest.Position - offset);
+        List<HexNode> targetHex = GetHexSet(nearest, mirror, 2);
+        foreach (var item in targetHex)
+        {
+            item.SetColorState(ColorState.TemporaryYellow, 1f);
+        }
+    }
+    public List<HexNode> GetHexSet(HexNode center, HexNode target, int range)
+    {
+        // 六邊形的 6 個方向 (cube 坐標)
+        Vector3Int[] directions = new Vector3Int[]
+        {
+        new Vector3Int(+1, -1, 0),   // 0°
+        new Vector3Int(+1, 0, -1),   // 60°
+        new Vector3Int(0, +1, -1),   // 120°
+        new Vector3Int(-1, +1, 0),   // 180°
+        new Vector3Int(-1, 0, +1),   // 240°
+        new Vector3Int(0, -1, +1)    // 300°
+        };
+
+        // 找出 target 與 center 的方向
+        int bestDir = 0;
+        int dx = target.X - center.X;
+        int dy = target.Y - center.Y;
+        int dz = target.Z - center.Z;
+        int minDist = int.MaxValue;
+
+        for (int i = 0; i < 6; i++)
+        {
+            int diff = Mathf.Abs(dx - directions[i].x)
+                     + Mathf.Abs(dy - directions[i].y)
+                     + Mathf.Abs(dz - directions[i].z);
+            if (diff < minDist)
+            {
+                minDist = diff;
+                bestDir = i;
+            }
+        }
+
+        // 基準方向 ±60°
+        int[] dirIndex = new int[]
+        {
+        bestDir,
+        (bestDir + 1) % 6,
+        (bestDir + 5) % 6
+        };
+
+        HashSet<HexNode> result = new HashSet<HexNode>();
+        Queue<HexNode> frontier = new Queue<HexNode>();
+        frontier.Enqueue(center);
+
+        for (int step = 0; step < range; step++)
+        {
+            int count = frontier.Count;
+            for (int i = 0; i < count; i++)
+            {
+                HexNode node = frontier.Dequeue();
+                foreach (int d in dirIndex)
+                {
+                    int nx = node.X + directions[d].x;
+                    int ny = node.Y + directions[d].y;
+                    int nz = node.Z + directions[d].z;
+
+                    string key = SpawnGrid.Instance.CubeCoordinatesToKey(nx, ny, nz);
+                    if (SpawnGrid.Instance.hexNodes.TryGetValue(key, out HexNode next))
+                    {
+                        if (result.Add(next))
+                            frontier.Enqueue(next);
+                    }
+                }
+            }
+        }
+
+        return result.ToList();
+    }
+
+
+
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new MeguEnhancedSkill(this);
+    }
+}
+public class MeguEnhancedSkill : CharacterSkillBase
+{
+    private MeguSkill originalSkill;
+    public MeguEnhancedSkill(MeguSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(150,350)},
+            {2, new StarLevelStats(250,475)},
+            {3, new StarLevelStats(400,585)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        
+    }
+}
 public class Moe_Skill : CharacterSkillBase //萌(Moe)對矩形範圍內造成dot傷害
 {
     public override Dictionary<int, StarLevelStats> GetCharacterLevel()

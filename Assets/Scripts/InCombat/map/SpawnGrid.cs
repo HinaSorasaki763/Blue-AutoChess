@@ -237,7 +237,7 @@ public class SpawnGrid : MonoBehaviour
         CustomLogger.Log(this, "No empty hex found.");
         return null;
     }
-    private string CubeCoordinatesToKey(int x, int y, int z) => $"{x},{y},{z}";
+    public string CubeCoordinatesToKey(int x, int y, int z) => $"{x},{y},{z}";
 
     public HexNode GetHexNodeByPosition(Vector3 position)
     {

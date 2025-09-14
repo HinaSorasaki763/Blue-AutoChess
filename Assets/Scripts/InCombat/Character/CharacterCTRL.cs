@@ -1238,6 +1238,7 @@ public class CharacterCTRL : MonoBehaviour
             Range = 5,
             duration = 2f,
             currHex = CurrentHex,
+            TargetHex = GetTargetCTRL().CurrentHex,
             CurrentTarget = GetTargetCTRL(),
             CharacterLevel = 1
         };
@@ -2211,6 +2212,7 @@ public class CharacterCTRL : MonoBehaviour
         { 40, () => new Toki_Skill()},
         { 41, () => new Panchan_Skill()},
         { 42,() => new KasumiSkill()},
+        { 43,() => new MeguSkill()},
         {  504, () => new HarunaSkill()},
     };
     #endregion
