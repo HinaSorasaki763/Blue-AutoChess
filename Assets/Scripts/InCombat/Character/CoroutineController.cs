@@ -1,6 +1,7 @@
 using GameEnum;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CoroutineController : MonoBehaviour
@@ -17,14 +18,14 @@ public class CoroutineController : MonoBehaviour
     {
         parent = gameObject.GetComponent<CharacterCTRL>();
     }
-    public void StartShootingCoroutine(BarrageObserver observer, float duration, float interval, float angle, int intervalAngle)
+    public void StartShootingCoroutine(BarrageObserver observer, float duration, float interval, float angle, int intervalAngle,bool penetrate)
     {
         if (shootingCoroutine != null)
         {
             StopCoroutine(shootingCoroutine);
         }
         bestAngle = angle;
-        shootingCoroutine = StartCoroutine(ShootingCoroutine(observer, duration, interval, intervalAngle));
+        shootingCoroutine = StartCoroutine(ShootingCoroutine(observer, duration, interval, intervalAngle, penetrate));
     }
     public void StopShootingCoroutine()
     {
@@ -60,12 +61,7 @@ public class CoroutineController : MonoBehaviour
         int bulletsPerWave = scatter / angle;
         int waveCount = Mathf.CeilToInt(duration * 2f / interval);
         int totalBullets = bulletsPerWave * waveCount;
-
-        SkillPrefab bulletType = penetrateBullet
-            ? SkillPrefab.PenetrateTrailedBullet
-            : SkillPrefab.NormalTrailedBullet;
-
-        ResourcePool.Instance.Prewarm(bulletType, totalBullets);
+        ResourcePool.Instance.Prewarm(SkillPrefab.NormalTrailedBullet, totalBullets);
     }
 
     // 透過動畫事件觸發的公開方法
@@ -76,7 +72,7 @@ public class CoroutineController : MonoBehaviour
         if (currentObserver != null)
         {
             currentObserver.Character.transform.rotation = Quaternion.Euler(0, bestAngle, 0);
-            StartShootingCoroutine(currentObserver, skillDuration, interval, bestAngle, currentObserver.IntervalAngle);
+            StartShootingCoroutine(currentObserver, skillDuration, interval, bestAngle, currentObserver.IntervalAngle,penetrate);
         }
         else
         {
@@ -103,7 +99,7 @@ public class CoroutineController : MonoBehaviour
         }
     }
 
-    private IEnumerator ShootingCoroutine(BarrageObserver observer, float duration, float interval, int angle)
+    private IEnumerator ShootingCoroutine(BarrageObserver observer, float duration, float interval, int angle,bool penetrate)
     {
         float elapsedTime = 0f;
         float scatterAngle = observer.GetAngle();
@@ -113,7 +109,7 @@ public class CoroutineController : MonoBehaviour
             for (int i = 0; i < numBullets; i++)
             {
                 float bulletAngle = bestAngle - (scatterAngle / 2) + i * angle;
-                observer.ScatterBulletAtAngle(bulletAngle);
+                observer.ScatterBulletAtAngle(bulletAngle,penetrate);
             }
             yield return new WaitForSeconds(interval);
 

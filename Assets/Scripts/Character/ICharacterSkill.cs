@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using Unity.VisualScripting;
 using UnityEditor;
-using UnityEditor.iOS.Xcode;
 using UnityEngine;
 public abstract class CharacterSkillBase
 {
@@ -1023,7 +1022,7 @@ public class SumireEnhancedSkill : CharacterSkillBase//每施放一次技能就�
     public override void ExecuteSkill(SkillContext skillContext)
     {
 
-        skillContext.Parent.AddExtraStat(StatsType.Health, 100,"SumireAddHealth",true);
+        skillContext.Parent.AddExtraStat(StatsType.Health, 100, "SumireAddHealth", true);
         GameController.Instance.SumireAddedHealth += 100;
         var sumireActiveSkill = skillContext.Parent.GetComponent<SumireActiveSkill>();
         if (sumireActiveSkill == null)
@@ -1455,12 +1454,12 @@ public class KasumiSkill : CharacterSkillBase
         skillContext.Parent.GetComponent<Kasumi_DrillCTRL>().GetDrill(targetHex.Position);
         skillContext.Parent.StartCoroutine(DelayDmgAndStun(targetHex, skillContext.Parent));
     }
-    public IEnumerator DelayDmgAndStun(HexNode h,CharacterCTRL parent)
+    public IEnumerator DelayDmgAndStun(HexNode h, CharacterCTRL parent)
     {
         yield return new WaitForSeconds(0.33f);
         List<CharacterCTRL> c = new List<CharacterCTRL>();
         bool enhanced = false;
-        if (CastedCount >=3)
+        if (CastedCount >= 3)
         {
             CastedCount -= 3;
             enhanced = true;
@@ -1481,12 +1480,12 @@ public class KasumiSkill : CharacterSkillBase
                     neighbor.OccupyingCharacter.effectCTRL.AddEffect(stunEffect, neighbor.OccupyingCharacter);
                     neighbor.OccupyingCharacter.AudioManager.PlayCrowdControlledSound();
                     neighbor.SetColorState(ColorState.TemporaryYellow, 1f);
-                    neighbor.OccupyingCharacter.GetHit(dmg1,parent,"KasumiExSkill",iscrit);
+                    neighbor.OccupyingCharacter.GetHit(dmg1, parent, "KasumiExSkill", iscrit);
                 }
                 else
                 {
                     (bool iscrit, int dmg1) = skill.Parent.CalculateCrit(dmg);
-                    neighbor.OccupyingCharacter.GetHit(dmg1*3, parent, "KasumiExSkill", iscrit);
+                    neighbor.OccupyingCharacter.GetHit(dmg1 * 3, parent, "KasumiExSkill", iscrit);
                 }
 
             }
@@ -1578,7 +1577,7 @@ public class KasumiEnhancedSkill : CharacterSkillBase
                 }
             }
         }
-        CharacterParent characterParent = parent.IsAlly ?ResourcePool.Instance.enemy: ResourcePool.Instance.ally;
+        CharacterParent characterParent = parent.IsAlly ? ResourcePool.Instance.enemy : ResourcePool.Instance.ally;
         HashSet<CharacterCTRL> list = new HashSet<CharacterCTRL>();
         foreach (var item in characterParent.GetBattleFieldCharacter())
         {
@@ -2159,6 +2158,74 @@ public class TsubakiEnhancedSkill : CharacterSkillBase//生命值掉落到40%以
                 item.effectCTRL.AddEffect(effect, item);
             }
         }
+    }
+}
+public class YukariSkill : CharacterSkillBase
+{
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(50,80,5,2)},
+            {2, new StarLevelStats(75,125,10,2)},
+            {3, new StarLevelStats(125,250,15,3)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseShield = stats.Data1;
+        int manaRatio = stats.Data2;
+        int healthRatio = stats.Data3;
+        CharacterParent characterParent = skillContext.Parent.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+        return BaseShield + (int)(manaRatio * 0.0001f * skillContext.Parent.GetAttack() * characterParent.YukariManacount) + (int)(healthRatio * 0.01f + skillContext.Parent.GetStat(StatsType.Health));
+    }
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CharacterParent characterParent = skillContext.Parent.IsAlly ? ResourcePool.Instance.enemy : ResourcePool.Instance.ally;
+
+        foreach (var item in characterParent.GetBattleFieldCharacter())
+        {
+            int dmg = GetAttackCoefficient(skillContext);
+            (bool iscrit, int dmg1) = skillContext.Parent.CalculateCrit(dmg);
+            item.GetHit(dmg1, skillContext.Parent, "YukariExSkill", iscrit);
+        }
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new YukariEnhancedSkill(this);
+    }
+}
+public class YukariEnhancedSkill : CharacterSkillBase
+{
+    private YukariSkill originalSkill;
+    public YukariEnhancedSkill(YukariSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(50,80,5,2)},
+            {2, new StarLevelStats(75,125,10,2)},
+            {3, new StarLevelStats(125,250,15,3)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseShield = stats.Data1;
+        int ShieldRatio = stats.Data2;
+        int healthRatio = stats.Data3;
+        return BaseShield + (int)(ShieldRatio * 0.01f * skillContext.Parent.GetAttack()) + (int)(healthRatio * 0.01f + skillContext.Parent.GetStat(StatsType.Health));
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+
     }
 }
 public class YuukaSkill : CharacterSkillBase//優香(yuuka)跳到三格內友軍最多的格子，給予他們基於自己最大生命值的護盾。
@@ -3225,12 +3292,36 @@ public class MeguSkill : CharacterSkillBase
         }
         Vector3 offset = ctx.Parent.CurrentHex.Position - nearest.Position;
         HexNode mirror = SpawnGrid.Instance.GetHexNodeByPosition(nearest.Position - offset);
-        List<HexNode> targetHex = GetHexSet(nearest, mirror, 2);
+        BarrageObserver barrageObserver = ctx.Parent.traitController.GetObserverForTrait(Traits.Barrage) as BarrageObserver;
+        List<HexNode> targetHex = GetHexSet(nearest, mirror, barrageObserver.CastTimes + 1);
         foreach (var item in targetHex)
         {
             item.SetColorState(ColorState.TemporaryYellow, 1f);
         }
+        ctx.Parent.StartCoroutine(BurnInRange(targetHex, ctx));
     }
+    public IEnumerator BurnInRange(List<HexNode> targethex, SkillContext ctx)
+    {
+        int repeatCount = 10;
+        float interval = 5 / 30f;
+
+        for (int i = 0; i < repeatCount; i++)
+        {
+            foreach (var item in targethex)
+            {
+                CharacterCTRL c = item.OccupyingCharacter;
+                if (c != null && c.IsAlly != ctx.Parent.IsAlly)
+                {
+                    int dmg = GetAttackCoefficient(ctx);
+                    (bool iscrit, int dmg1) = ctx.Parent.CalculateCrit(dmg);
+                    c.GetHit(dmg1, c, "MeguSkill", iscrit);
+                }
+            }
+
+            yield return new WaitForSeconds(interval);
+        }
+    }
+
     public List<HexNode> GetHexSet(HexNode center, HexNode target, int range)
     {
         // 六邊形的 6 個方向 (cube 坐標)
@@ -3333,7 +3424,7 @@ public class MeguEnhancedSkill : CharacterSkillBase
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        
+
     }
 }
 public class Moe_Skill : CharacterSkillBase //萌(Moe)對矩形範圍內造成dot傷害
@@ -3603,6 +3694,52 @@ public class TokiEnhancedSkill : CharacterSkillBase
 public class Panchan_Skill : CharacterSkillBase
 {
 
+}
+public class RengeSkill : CharacterSkillBase
+{
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(50,185,20,0,1f)},
+            {2, new StarLevelStats(75,270,10,0,1f)},
+            {3, new StarLevelStats(125, 410, 0, 0, 1f)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+
+
+    }
+    public override bool Barrage_penetrate()
+    {
+        return true;
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new RengeEnhancedskill(this);
+    }
+}
+public class RengeEnhancedskill : CharacterSkillBase
+{
+    private RengeSkill originalSkill;
+    public RengeEnhancedskill(RengeSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        base.ExecuteSkill(skillContext);
+    }
 }
 public class StarLevelStats
 {

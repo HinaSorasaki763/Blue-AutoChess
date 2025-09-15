@@ -12,7 +12,7 @@ public class BarrageObserver : CharacterObserverBase
     public float BestAngle;
     private int dmg = 1;
     private int Level;
-    private int CastTimes;
+    public int CastTimes;
     public int IntervalAngle;
     public int InitAngle;
     public BarrageObserver(int level, CharacterCTRL character)
@@ -45,10 +45,6 @@ public class BarrageObserver : CharacterObserverBase
         InitAngle = character.characterStats.BarrageInitAngle;
         CustomLogger.Log(this, $"BarrageObserver OnCastedSkill {character.name}");
         CoroutineController coroutineController = character.GetComponent<CoroutineController>();
-        if (coroutineController == null)
-        {
-            coroutineController = character.gameObject.AddComponent<CoroutineController>();
-        }
         List<HexNode> bestSectorNodes = FindBestSector();
         float bestAngle = BestAngle;
 
@@ -161,36 +157,7 @@ public class BarrageObserver : CharacterObserverBase
         return count;
     }
 
-    private List<HexNode> GetNodesInSector(Vector3 origin, float angleStart, float angleEnd)
-    {
-        List<HexNode> nodesInSector = new List<HexNode>();
-
-        foreach (var node in SpawnGrid.Instance.hexNodes.Values)
-        {
-            Vector3 directionToNode = node.Position - origin;
-            float distanceToNode = directionToNode.magnitude;
-            if (distanceToNode > maxDistance)
-                continue;
-
-            float angleToNode = Vector3.SignedAngle(Character.transform.forward, directionToNode, Vector3.up);
-            angleToNode = (angleToNode + 360) % 360;
-            float adjustedStart = (angleStart + 360) % 360;
-            float adjustedEnd = (angleEnd + 360) % 360;
-
-            bool inRange = adjustedStart <= adjustedEnd
-                ? (angleToNode >= adjustedStart && angleToNode <= adjustedEnd)
-                : (angleToNode >= adjustedStart || angleToNode <= adjustedEnd);
-
-            if (inRange)
-            {
-                nodesInSector.Add(node);
-            }
-        }
-
-        return nodesInSector;
-    }
-
-    public void ScatterBulletAtAngle(float bulletAngle)
+    public void ScatterBulletAtAngle(float bulletAngle,bool penetrate)
     {
         Vector3 direction = Quaternion.Euler(0, bulletAngle, 0) * Vector3.forward;
         Vector3 targetPosition = Character.transform.position + direction * maxDistance;
@@ -208,7 +175,8 @@ public class BarrageObserver : CharacterObserverBase
             l.Add(new HinaSkillEffect());
         }
         (bool iscrit, int dmg1) = Character.CalculateCrit(dmg);
-        bullet.GetComponent<NormalBullet>().Initialize(dmg1, Character.GetTargetLayer(), Character, 15f, Character.GetTarget(), true, iscrit, l, 20, true, targetPosition);
+        bullet.GetComponent<NormalBullet>().Initialize(dmg1, Character.GetTargetLayer(), Character, 15f, Character.GetTarget(), true, iscrit, l, 20, true, targetPosition,penetrate);
+
     }
 
 }

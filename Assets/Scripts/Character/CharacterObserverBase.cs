@@ -1087,7 +1087,9 @@ public class GlobalBaseObserver : CharacterObserverBase
 
     public override void OnCastedSkill(CharacterCTRL character)
     {
-        base.OnCastedSkill(character);
+        int mana = (int)character.GetStat(StatsType.MaxMana);
+        CharacterParent characterParent = character.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+        characterParent.YukariManacount += mana;
     }
     public override void OnSkillFinished(CharacterCTRL character)
     {

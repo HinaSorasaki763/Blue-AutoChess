@@ -22,6 +22,7 @@ public class Character : ScriptableObject
     [TextArea(3, 10)]
     public List<string> EnhancedSkillTooltips = new List<string>(2);
     public bool isObj;
+    public bool CanPutBack = true;
 
     public bool TestEnhanceSkill;
     public bool TestBuildInvinvicble;

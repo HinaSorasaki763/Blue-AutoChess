@@ -20,6 +20,7 @@ public class CharacterParent : MonoBehaviour
     public bool Shiroko_Terror_Postponed = false;
     private bool Shiroko_Terror_Tempmark = false;
     public List<String> BattleingCharacterNames = new List<string>();
+    public int YukariManacount;
     public void Start()
     {
 
@@ -329,6 +330,7 @@ public class CharacterParent : MonoBehaviour
             {
                 item.GetComponent<CharacterCTRL>().ResetToBeforeBattle();
             }
+            YukariManacount = 0;
             GameStageManager.Instance.NotifyTeamDefeated(this);//TODO:黑子的邏輯需要再修正
         }
     }

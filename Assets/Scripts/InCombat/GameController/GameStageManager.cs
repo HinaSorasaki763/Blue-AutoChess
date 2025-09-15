@@ -267,7 +267,7 @@ public class GameStageManager : MonoBehaviour
             int count = 0;
             foreach (var item in ResourcePool.Instance.ally.GetBattleFieldCharacter())
             {
-                if (!item.characterStats.logistics)
+                if (item.characterStats.CanPutBack)
                 {
                     count++;
                 }

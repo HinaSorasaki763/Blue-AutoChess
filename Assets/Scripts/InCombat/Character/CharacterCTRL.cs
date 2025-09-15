@@ -2213,6 +2213,8 @@ public class CharacterCTRL : MonoBehaviour
         { 41, () => new Panchan_Skill()},
         { 42,() => new KasumiSkill()},
         { 43,() => new MeguSkill()},
+        { 44,() => new YukariSkill()},
+        { 45,() => new RengeSkill()},
         {  504, () => new HarunaSkill()},
     };
     #endregion

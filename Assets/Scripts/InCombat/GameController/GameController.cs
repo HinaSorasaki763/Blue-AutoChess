@@ -81,9 +81,9 @@ public class GameController : MonoBehaviour
         }
         if (!isBattlefield)
         {
-            if (character.characterStats.CharacterId == 41)
+            if (!character.characterStats.CanPutBack)
             {
-                PopupManager.Instance.CreatePopup($"召喚物無法被放置回備戰席!", 2);
+                PopupManager.Instance.CreatePopup($"此物件無法被放回備戰區/出售!", 2);
                 ReturnToOriginalSlot(character);
                 return (false, isBattlefield);
             }
@@ -103,7 +103,7 @@ public class GameController : MonoBehaviour
         int count = 0;
         foreach (var item in ResourcePool.Instance.ally.GetBattleFieldCharacter())
         {
-            if (!item.characterStats.logistics)
+            if (item.characterStats.CanPutBack)
             {
                 count++;
             }
@@ -149,7 +149,7 @@ public class GameController : MonoBehaviour
         {
             MoveCharacterToSlot(character, targetSlot);
         }
-        else if (!targetSlot.OccupyingCharacter.isObj || (character.CurrentHex.IsBattlefield && targetSlot.IsBattlefield))
+        else if (targetSlot.OccupyingCharacter.characterStats.CanPutBack || (character.CurrentHex.IsBattlefield && targetSlot.IsBattlefield))
         {
             SwapCharacters(character, targetSlot.OccupyingCharacter);
         }

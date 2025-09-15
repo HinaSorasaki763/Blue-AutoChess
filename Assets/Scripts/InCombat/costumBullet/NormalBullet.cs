@@ -16,12 +16,12 @@ public class NormalBullet : MonoBehaviour
     private Vector3 startPosition; // 記錄子彈起始位置
     private float maxDistance; // 最大距離
     private bool isCrit;
-    private bool isSkillBullet;
+    public bool isSkillBullet;
     private List<HitEffect> hitEffects = new List<HitEffect>();
     private bool isBarrage;
     private Vector3 targetPos;
     private bool IsNormalAttack;
-    private bool penetrate;
+    public bool penetrate;
     private string detailedSource;
     void Awake()
     {
@@ -80,19 +80,18 @@ public class NormalBullet : MonoBehaviour
         {
 
             var enemy = other.GetComponent<CharacterCTRL>();
-            if (enemy != null && !isSkillBullet && enemy == Target.GetComponent<CharacterCTRL>())
+            if (enemy != null && !isSkillBullet)
             {
                 HitTarget(enemy);
                 DisableBullet();
             }
-            if (enemy != null && isSkillBullet)
+            else
             {
                 HitTarget(enemy);
                 if (!penetrate)
                 {
                     DisableBullet();
                 }
-
             }
         }
     }
@@ -180,10 +179,6 @@ public class NormalBullet : MonoBehaviour
         {
             enemy.GetHit(damage, parent, DamageSourceType.NormalAttack.ToString(), isCrit);
         }
-
-
-
-        DisableBullet();
     }
     private void CheckMaxDistance()
     {

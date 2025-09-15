@@ -80,9 +80,9 @@ public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         (bool, bool) tuple = GameController.Instance.TryMoveCharacter(characterCTRL, PreSelectedGrid);
         if (PreSelectedGrid != null && PreSelectedGrid.CompareTag("SellGrid"))
         {
-            if (characterCTRL.characterStats.CharacterId == 41)
+            if (!characterCTRL.characterStats.CanPutBack)
             {
-                PopupManager.Instance.CreatePopup($"召喚物無法被放置回備戰席!", 2);
+                PopupManager.Instance.CreatePopup($"此物件無法被放回備戰區/出售!", 2);
                 return;
             }
             PreSelectedGrid.GetComponent<SellGrid>().OnCharacterEnter(characterCTRL);

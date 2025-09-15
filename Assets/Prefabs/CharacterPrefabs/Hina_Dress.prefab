@@ -4666,6 +4666,7 @@ GameObject:
   - component: {fileID: 5106247246578634889}
   - component: {fileID: -8277782931221881604}
   - component: {fileID: 8250764906151278063}
+  - component: {fileID: -4180509195738464069}
   m_Layer: 0
   m_Name: Hina_Dress
   m_TagString: Untagged
@@ -4727,6 +4728,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 0}
+  character: {fileID: 0}
+  animatorSpeed: 0
+  animationLock: 0
 --- !u!114 &-8277782931221881604
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4836,6 +4840,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &-4180509195738464069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6823499690782449839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474cbecd7e839924089d8f2f18c85380, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PreSelectedGrid: {fileID: 0}
 --- !u!1 &6825372208200080735
 GameObject:
   m_ObjectHideFlags: 0
