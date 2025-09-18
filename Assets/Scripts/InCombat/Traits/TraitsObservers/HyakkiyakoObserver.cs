@@ -169,7 +169,7 @@ public class HyakkiyakoObserver : CharacterObserverBase
     public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
         CustomLogger.Log(this, $"character {source} dealt {damage} to {target} at {Time.time}");
-        if (false)
+        if (SelectedAugments.Instance.CheckAugmetExist(118) && Utility.GetRandfloat(source) >=0.5f)
         {
             TrinityManager.Instance.AddStack(target.transform.position, detailedSource, target.CurrentHex, source);
         }

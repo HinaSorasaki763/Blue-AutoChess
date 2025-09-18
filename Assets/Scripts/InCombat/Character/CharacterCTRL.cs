@@ -2162,7 +2162,8 @@ public class CharacterCTRL : MonoBehaviour
     { 38, () => new NullObserver() },
     { 39, () => new SaoriObserver() },
     { 40, () => new TokiObserver() },
-
+    { 46, () => new HimariObserver()},
+    { 47, () => new KarinObserver()},
     {504, () => new NullObserver() },
 };
 
@@ -2215,6 +2216,8 @@ public class CharacterCTRL : MonoBehaviour
         { 43,() => new MeguSkill()},
         { 44,() => new YukariSkill()},
         { 45,() => new RengeSkill()},
+        { 46, ()=> new HimariSkill()},
+        { 47, ()=> new KarinSkill()},
         {  504, () => new HarunaSkill()},
     };
     #endregion

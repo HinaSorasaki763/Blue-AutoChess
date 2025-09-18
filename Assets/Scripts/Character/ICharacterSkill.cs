@@ -8,6 +8,7 @@ using System.Text;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 public abstract class CharacterSkillBase
 {
     public virtual Dictionary<int, StarLevelStats> GetCharacterLevel()
@@ -1418,6 +1419,54 @@ public class IzunaEnhancedSkill : CharacterSkillBase//獲得技能"瞬間出現�
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Izuna Skill");
     }
 }
+public class KarinSkill : CharacterSkillBase
+{
+    public int BaseDmg;
+    public int DmgRatio;
+    public int PressureRatio;
+    public KarinSkill()
+    {
+
+    }
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(5,8,1,0,0.25f)},
+            {2, new StarLevelStats(60,8,1,0,0.25f)},
+            {3, new StarLevelStats(999,219,10,0,0.25f)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        BaseDmg = stats.Data1;
+        DmgRatio = stats.Data2;
+        PressureRatio = stats.Data3;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack()) + PressureRatio * PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly);
+    }
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CharacterCTRL lowestHpenemy = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true)[0];
+        GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
+        int dmg = GetAttackCoefficient(skillContext);
+        (bool iscrit, int dmg1) = skillContext.Parent.CalculateCrit(dmg);
+        bullet.GetComponent<NormalBullet>().Initialize(dmg1, skillContext.Parent.GetTargetLayer(), skillContext.Parent, 15f, lowestHpenemy.gameObject, true, iscrit);
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new KarinEnhancedSkill(this);
+    }
+}
+public class KarinEnhancedSkill : CharacterSkillBase
+{
+    private KarinSkill originalSkill;
+    public KarinEnhancedSkill(KarinSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+}
 public class KasumiSkill : CharacterSkillBase
 {
     private Dictionary<int, StarLevelStats> statsByStarLevel;
@@ -2451,6 +2500,58 @@ public class HinaEnhancedSkill : CharacterSkillBase//子彈可以穿過單位，
     {
         base.ExecuteSkill(skillContext);
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Hina Skill");
+    }
+}
+public class HimariSkill : CharacterSkillBase
+{
+    public int BaseDmg;
+    public int DmgRatio;
+    public int PressureRatio;
+    public HimariSkill()
+    {
+
+    }
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(5,8,1,0,0.25f)},
+            {2, new StarLevelStats(60,8,1,0,0.25f)},
+            {3, new StarLevelStats(999,219,10,0,0.25f)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        BaseDmg = stats.Data1;
+        DmgRatio = stats.Data2;
+        PressureRatio = stats.Data3;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack()) + PressureRatio * PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly);
+    }
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        CharacterParent characterParent = skillContext.Parent.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+        CharacterCTRL ally = Utility.GetSpecificCharacters(characterParent.GetBattleFieldCharacter(), StatsType.Attack, false, 1, true)[0];
+        int amount = (int)ally.GetStat(StatsType.Attack);
+        Effect effect = EffectFactory.StatckableStatsEffct(5, "Himari", 1, StatsType.Attack, skillContext.Parent, false);
+        effect.SetActions(
+            (character) => character.ModifyStats(StatsType.Attack, effect.Value, effect.Source),
+            (character) => character.ModifyStats(StatsType.Attack, -effect.Value, effect.Source)
+        );
+        ally.effectCTRL.AddEffect(effect, skillContext.Parent);
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new HimariEnhancedSkill(this);
+    }
+}
+public class HimariEnhancedSkill : CharacterSkillBase
+{
+    private HimariSkill originalSkill;
+    public HimariEnhancedSkill(HimariSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
     }
 }
 public class HoshinoSkill : CharacterSkillBase//星野(Hoshino)架起護盾，往前方一格以及左右兩格造成數波傷害

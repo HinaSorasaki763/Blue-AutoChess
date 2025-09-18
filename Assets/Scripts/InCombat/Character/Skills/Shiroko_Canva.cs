@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,7 +5,7 @@ using UnityEngine.UI;
 public class Shiroko_Canva : MonoBehaviour
 {
     public List<Image> images = new List<Image>();
-    public static Shiroko_Canva Instance = new Shiroko_Canva();
+    public static Shiroko_Canva Instance;
     public GameObject parent;
     private CharacterCTRL reserving;
     public void Awake()

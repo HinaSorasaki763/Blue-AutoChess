@@ -436,6 +436,16 @@ public class HinaObserver : CharacterObserverBase
 {
 
 }
+public class HimariObserver : CharacterObserverBase
+{
+    public override void OnAttacking(CharacterCTRL character)
+    {
+        CharacterParent characterParent = character.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+        CharacterCTRL ally = Utility.GetSpecificCharacters(characterParent.GetBattleFieldCharacter(), StatsType.Attack, false, 1, true)[0];
+        ally.Addmana(5);
+        base.OnAttacking(character);
+    }
+}
 public class HiyoriObserver : CharacterObserverBase
 {
     public override void OnLogistic(CharacterCTRL character)
@@ -550,6 +560,29 @@ public class KayokoObserver : CharacterObserverBase
 public class KasumiObserver : CharacterObserverBase
 {
 
+}
+public class KarinObserver : CharacterObserverBase
+{
+    public override int BeforeDealtDmg(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
+    {
+        float hp = target.GetHealthPercentage();
+        float dmgbonus =
+            hp > 0.7f ? 0f :
+            hp > 0.5f ? Mathf.Lerp(0f, 0.1f, Mathf.InverseLerp(0.7f, 0.5f, hp)) :
+            hp > 0.2f ? Mathf.Lerp(0.1f, 0.5f, Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.5f, 0.2f, hp))) :
+            0.5f;
+
+        return base.BeforeDealtDmg(source, target, (int)(damage * dmgbonus), detailedSource, iscrit);
+    }
+    public override void OnLogistic(CharacterCTRL character)
+    {
+        character.Addmana(10);
+        SkillContext skillContext = character.GetSkillContext();
+        GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
+        CharacterCTRL lowestHpenemy = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true)[0];
+        (bool iscrit, int dmg1) = skillContext.Parent.CalculateCrit(character.GetAttack());
+        bullet.GetComponent<NormalBullet>().Initialize(dmg1, skillContext.Parent.GetTargetLayer(), skillContext.Parent, 15f, lowestHpenemy.gameObject, true, iscrit);
+    }
 }
 public class MisakiObserver : CharacterObserverBase
 {
