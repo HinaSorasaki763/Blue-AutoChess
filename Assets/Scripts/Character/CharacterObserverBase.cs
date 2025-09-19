@@ -85,6 +85,21 @@ public abstract class CharacterObserverBase
                 target.Executed(source, detailedSource);
             }
         }
+        if (source.effectCTRL.HaveEffect("SakurakoBuff"))
+        {
+            CharacterParent characterParent = source.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+            int amount = characterParent.SakurakoSkillDmg;
+            if (GameController.Instance.CheckCharacterEnhance(49, source.IsAlly))
+            {
+                target.GetHitByTrueDamage(amount, source, "SakurakoSkillEffect", false);
+                CustomLogger.Log(this, $"dealt {amount} as SakurakoSkillEffect's truedmg");
+            }
+            else
+            {
+                target.GetHit(amount, source, "SakurakoSkillEffect", false, false);
+                CustomLogger.Log(this, $"dealt {amount} as SakurakoSkillEffect normal dmg");
+            }
+        }
     }
 
     public virtual void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource, bool recursion)
@@ -554,7 +569,6 @@ public class KayokoObserver : CharacterObserverBase
                 FearManager.Instance.ApplyFear(source, list, source.ActiveSkill.GetCharacterLevel()[source.star].Data5 + PressureManager.Instance.GetPressure(source.IsAlly) * 0.01f);
             }
         }
-        base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
     }
 }
 public class KasumiObserver : CharacterObserverBase
@@ -1056,7 +1070,6 @@ public class GlobalBaseObserver : CharacterObserverBase
         {
             source.OnCrit();
         }
-        base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
     }
 
     public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource, bool recursion)

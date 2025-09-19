@@ -1,4 +1,5 @@
 using GameEnum;
+using System.Collections;
 using System.Collections.Generic;
 
 public class RapidfireObserver : CharacterObserverBase
@@ -6,6 +7,7 @@ public class RapidfireObserver : CharacterObserverBase
     private CharacterCTRL parent;
     private Effect RapidfireObserverEffect;
     private int level;
+    private int stack;
     public override Dictionary<int, TraitLevelStats> GetTraitObserverLevel()
     {
         Dictionary<int, TraitLevelStats> statsByStarLevel = new Dictionary<int, TraitLevelStats>()
@@ -24,7 +26,7 @@ public class RapidfireObserver : CharacterObserverBase
         this.level = level;
         this.parent = character;
         character.effectCTRL.characterCTRL = character;
-        Effect effect = EffectFactory.StatckableStatsEffct(0,"RapidfireObserver", 0, StatsType.AttackSpeed,parent,true);
+        Effect effect = EffectFactory.UnStatckableStatsEffct(0,"RapidfireObserver", 0, StatsType.AttackSpeed,parent,true);
         effect.SetActions(
             (character) => character.ModifyStats(StatsType.AttackSpeed, effect.Value, effect.Source),
             (character) => character.ModifyStats(StatsType.AttackSpeed, -effect.Value, effect.Source)
@@ -34,14 +36,22 @@ public class RapidfireObserver : CharacterObserverBase
     }
     public override void OnBattleEnd(bool isVictory, CharacterCTRL c)
     {
-        RapidfireObserverEffect.UpdateValue(0,parent);
+        stack = 0;
     }
     public override void OnAttacking(CharacterCTRL character)
     {
         if (!activated) return;
+        stack++;
         base.OnAttacking(character);
         CustomLogger.Log(this,$"character {character } override onAttacking , attakspeed = {character.GetStat(StatsType.AttackSpeed)}");
         float val = GetTraitObserverLevel()[level].Data1 * 0.01f;
-        RapidfireObserverEffect.AddValue(val);
+        float amount = stack * val;
+        Effect effect = EffectFactory.StatckableStatsEffct(0, "RapidfireObserver", val, StatsType.AttackSpeed, parent, true);
+        effect.SetActions(
+            (character) => character.ModifyStats(StatsType.AttackSpeed, effect.Value, effect.Source),
+            (character) => character.ModifyStats(StatsType.AttackSpeed, -effect.Value, effect.Source)
+        );
+        parent.effectCTRL.AddEffect(effect, parent);
+
     }
 }

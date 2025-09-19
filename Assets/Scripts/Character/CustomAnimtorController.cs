@@ -31,7 +31,17 @@ public class CustomAnimatorController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        animatorSpeed = animator.speed;
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        if (stateInfo.IsName("Hina_Original_Normal_Attack_Ing"))
+        {
+            animatorSpeed = animator.speed;
+        }
+        else
+        {
+            animatorSpeed = 1f;
+        }
+
     }
     public (string, float) GetAnimationClipInfo(int order)
     {
@@ -143,7 +153,6 @@ public class CustomAnimatorController : MonoBehaviour
                 animator.SetBool("Moving", true);
                 break;
             case CharacterState.Attacking:
-                animator.speed = character.GetStat(StatsType.AttackSpeed);
                 animator.SetBool("Attacking", true);
                 animator.SetBool("HaveTarget", true);
                 break;
@@ -151,7 +160,6 @@ public class CustomAnimatorController : MonoBehaviour
                 animator.SetBool("PickedUp", true);
                 break;
             case CharacterState.CastSkill:
-                if (character.characterStats.CharacterId == 16) animator.speed = character.GetStat(StatsType.AttackSpeed);
                 animator.SetBool("CastSkill", true);
                 break;
             case CharacterState.HaveTarget:

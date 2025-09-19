@@ -58,7 +58,7 @@ MonoBehaviour:
       value: 0
   Health: 8403000054060000581b0000
   Attack: 520000007b000000b9000000
-  Traits: 040000000500000006000000
+  Traits: 04000000050000000d000000
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
@@ -81,5 +81,6 @@ MonoBehaviour:
     take {data1} + {data2}% \xD7 {Attack} damage (Final: {Final}). \r\nIf the target
     is killed, a full copy of the skill effect is triggered at the death location.\r\n"
   isObj: 0
+  CanPutBack: 1
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

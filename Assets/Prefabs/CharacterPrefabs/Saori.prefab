@@ -3967,7 +3967,6 @@ GameObject:
   - component: {fileID: 2695242294094730000}
   - component: {fileID: 6390721004971371910}
   - component: {fileID: 7057119943379442316}
-  - component: {fileID: 8444703784630955792}
   m_Layer: 0
   m_Name: Saori
   m_TagString: Character
@@ -4208,6 +4207,7 @@ MonoBehaviour:
   CanWalk: 1
   CanAttack: 1
   InStasis: 0
+  isAugment125Reinforced: 0
   WakamoMark: 0
   dmgRecivedOnWakamoMarked: 0
   DetectedPos: {x: 0, y: 0, z: 0}
@@ -4452,19 +4452,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &8444703784630955792
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6847314680756331378}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 642bc75772efce143adab14c975c5a9a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Audio: {fileID: 11400000, guid: 7efa3c0d1f41f5e4e885a86d22f23d89, type: 2}
 --- !u!1 &6943497027739057832
 GameObject:
   m_ObjectHideFlags: 0

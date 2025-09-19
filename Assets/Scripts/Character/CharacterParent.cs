@@ -21,6 +21,7 @@ public class CharacterParent : MonoBehaviour
     private bool Shiroko_Terror_Tempmark = false;
     public List<String> BattleingCharacterNames = new List<string>();
     public int YukariManacount;
+    public int SakurakoSkillDmg;
     public void Start()
     {
 

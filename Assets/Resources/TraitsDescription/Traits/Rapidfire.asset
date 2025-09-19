@@ -21,18 +21,18 @@ MonoBehaviour:
   - Students gain attack speed with each normal attack, up to a certain limit.
   thresholds:
   - level: 0
-    requiredCount: 2
+    requiredCount: 0
     effectValue: 0
     effectDescription: 
   - level: 1
-    requiredCount: 4
+    requiredCount: 2
     effectValue: 0
     effectDescription: 
   - level: 2
-    requiredCount: 6
+    requiredCount: 4
     effectValue: 0
     effectDescription: 
   - level: 3
-    requiredCount: 8
+    requiredCount: 6
     effectValue: 0
     effectDescription: 

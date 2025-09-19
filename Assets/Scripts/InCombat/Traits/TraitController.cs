@@ -214,9 +214,13 @@ public class TraitController : MonoBehaviour
         float lifesteal = character.GetStat(StatsType.Lifesteal);
         character.Heal((int)(dmg * lifesteal / 100), character);
     }
-    public int ModifyDamageTaken(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool iscrit)
+    public int ModifyDamageTaken(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool iscrit,bool recursion)
     {
-        sourceCharacter.traitController.OnDealtDmg(character, amount, detailedSource, iscrit);
+        if (recursion)
+        {
+            sourceCharacter.traitController.OnDealtDmg(character, amount, detailedSource, iscrit);
+        }
+
         DamageStatisticsManager.Instance.UpdateDamageTaken(character, amount);
         DamageStatisticsManager.Instance.UpdateDamage(sourceCharacter, amount);
         foreach (var observer in traitObservers.Values)

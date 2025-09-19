@@ -98,15 +98,20 @@ public class NormalBullet : MonoBehaviour
     public void DisableBullet()
     {
         damage = 0;
-        gameObject.SetActive(false);
         hitEffects.Clear();
         isBarrage = false;
         targetPos = default;
+        gameObject.SetActive(false);
+
     }
     void Update()
     {
         MoveTowardsTarget();
         CheckMaxDistance();
+        if (GameStageManager.Instance.CurrGamePhase == GamePhase.Preparing)
+        {
+            DisableBullet();
+        }
     }
     private bool HitWallLayer(Collider collider)
     {
@@ -415,6 +420,23 @@ public class WakamoEnhancedSkillEffect : HitEffect
     {
         Effect effect = EffectFactory.WakamoEnhancedMark(source, 20);
         target.effectCTRL.AddEffect(effect, target);
+    }
+}
+public class SakurakoSkillEffect : HitEffect
+{
+    public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
+    {
+        CharacterParent characterParent = source.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+        int amount = characterParent.SakurakoSkillDmg;
+        target.GetHitByTrueDamage(amount, source, "SakurakoSkillEffect", false);
+        if (GameController.Instance.CheckCharacterEnhance(49, source.IsAlly))
+        {
+            target.GetHitByTrueDamage(amount,source,"SakurakoSkillEffect",false);
+        }
+        else
+        {
+            target.GetHit(amount, source, "SakurakoSkillEffect", false,false);
+        }
     }
 }
 

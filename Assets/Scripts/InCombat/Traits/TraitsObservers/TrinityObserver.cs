@@ -36,7 +36,6 @@ public class TrinityObserver : CharacterObserverBase
     public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
         if (!activated) return;
-        base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
         CustomLogger.Log(this, $"character {source} dealt {damage} to {target} at {Time.time}");
         TrinityManager.Instance.AddStack(target.transform.position,detailedSource,target.CurrentHex,source);
     }

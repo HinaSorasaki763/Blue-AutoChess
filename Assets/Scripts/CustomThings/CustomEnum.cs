@@ -1670,7 +1670,6 @@ namespace GameEnum
         }
         public void AddValue(float valAdded)
         {
-            OnRemove.Invoke(Parent);
             Value += valAdded;
             OnApply.Invoke(Parent);
             CustomLogger.Log(this, $"source {Parent} added {valAdded} , value = {Value}");

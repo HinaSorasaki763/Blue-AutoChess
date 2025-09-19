@@ -632,7 +632,7 @@ public class CharacterCTRL : MonoBehaviour
     }
 
 
-    private void HandleAttacking()
+    public void HandleAttacking()
     {
         customAnimator.animator.speed = GetStat(StatsType.AttackSpeed);
         if (!ManaLock && characterStats.CharacterId != 41)
@@ -1098,6 +1098,10 @@ public class CharacterCTRL : MonoBehaviour
         CritCorrection();
         LifeStealCorrection();
         DodgeCorrection();
+        if (GetStat(StatsType.AttackSpeed) >=5)
+        {
+            SetStat(StatsType.AttackSpeed, 5);
+        }
     }
 
     private StatsContainer BuildBaseStats()
@@ -1561,7 +1565,7 @@ public class CharacterCTRL : MonoBehaviour
         {
             dmgRecivedOnWakamoMarked += (int)(amount * wakamoMarkRatio);
         }
-        CustomLogger.Log(this, $"{name} get hit by {sourceCharacter}'s {detailedSource} with {amount} iscrit:{isCrit}");
+        CustomLogger.Log(this, $"{name} get hit by {sourceCharacter}'s {detailedSource} with {amount} iscrit:{isCrit} ,trueDmg");
         while (amount > 0 && shields.Count > 0)
         {
             Shield shield = shields[0];
@@ -1649,13 +1653,12 @@ public class CharacterCTRL : MonoBehaviour
         }
         float ratio = r / (100 + r);
         finalAmount = (int)(finalAmount * (1 - ratio));
-
-        finalAmount = traitController.ModifyDamageTaken(finalAmount, sourceCharacter, detailedSource, isCrit);
         if (!SaoriEnhanced)
         {
             finalAmount = (int)(finalAmount * (1 - GetStat(StatsType.PercentageResistence) / 100f));
         }
         finalAmount = (int)MathF.Max(finalAmount, 1);
+        finalAmount = traitController.ModifyDamageTaken(finalAmount, sourceCharacter, detailedSource, isCrit, recursion);
         bool getEffect = false;
         if (isCrit)
         {
@@ -1667,13 +1670,17 @@ public class CharacterCTRL : MonoBehaviour
             dmgRecivedOnWakamoMarked += (int)(finalAmount * wakamoMarkRatio);
         }
         CustomLogger.Log(this, $"{name} get hit by {sourceCharacter}'s {detailedSource} with {amount} iscrit:{isCrit} as {detailedSource}");
-        foreach (var item in observers)
+        if (recursion) 
         {
-            CustomLogger.Log(this, $"observer = {item.GetType()}");
-            item.GetHit(this, sourceCharacter, finalAmount, isCrit, detailedSource, true);
+            foreach (var item in observers)
+            {
+                CustomLogger.Log(this, $"observer = {item.GetType()}");
+                item.GetHit(this, sourceCharacter, finalAmount, isCrit, detailedSource, true);
+            }
+            traitController.NotifyGetHit(this, sourceCharacter, finalAmount, isCrit, detailedSource);
+            equipmentManager.OnParentGethit(this, sourceCharacter, finalAmount, isCrit, detailedSource);
         }
-        traitController.NotifyGetHit(this, sourceCharacter, finalAmount, isCrit, detailedSource);
-        equipmentManager.OnParentGethit(this, sourceCharacter, finalAmount, isCrit, detailedSource);
+
         while (finalAmount > 0 && shields.Count > 0)
         {
             Shield shield = shields[0];
@@ -2218,6 +2225,8 @@ public class CharacterCTRL : MonoBehaviour
         { 45,() => new RengeSkill()},
         { 46, ()=> new HimariSkill()},
         { 47, ()=> new KarinSkill()},
+        { 48, ()=> new SeiyaSkill()},
+        { 49, () => new SakurakoSkill()},
         {  504, () => new HarunaSkill()},
     };
     #endregion

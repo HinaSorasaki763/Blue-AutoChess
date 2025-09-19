@@ -9,6 +9,7 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
+using static Unity.VisualScripting.Member;
 public abstract class CharacterSkillBase
 {
     public virtual Dictionary<int, StarLevelStats> GetCharacterLevel()
@@ -804,6 +805,121 @@ public class SerikaEnhancedSkill : CharacterSkillBase//施放技能後的該段�
         skillContext.Parent.effectCTRL.AddEffect(effect, skillContext.Parent);
         skillContext.Parent.effectCTRL.AddEffect(effect1, skillContext.Parent);
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Serika Skill");
+    }
+}
+public class SeiyaSkill : CharacterSkillBase
+{
+    public SeiyaSkill()
+    {
+
+    }
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(10)},
+            {2, new StarLevelStats(15)},
+            {3, new StarLevelStats(20)}
+        };
+        return statsByStarLevel;
+    }
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new SeiyaEnhancedSkill(this);
+    }
+}
+public class SeiyaEnhancedSkill : CharacterSkillBase
+{
+    private SeiyaSkill originalSkill;
+    public SeiyaEnhancedSkill(SeiyaSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(10)},
+            {2, new StarLevelStats(15)},
+            {3, new StarLevelStats(20)}
+        };
+        return statsByStarLevel;
+    }
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+
+    }
+}
+public class SakurakoSkill : CharacterSkillBase
+{
+    public SakurakoSkill()
+    {
+
+    }
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(50,20)},
+            {2, new StarLevelStats(70,30)},
+            {3, new StarLevelStats(100,45)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int basedmg = stats.Data1;
+        int dmgRatio = stats.Data2;
+        return basedmg + (int)(dmgRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+        Effect effect = EffectFactory.SakurakoBuff();
+        Effect effect1 = EffectFactory.SakurakoBuff();
+        CharacterParent characterParent = skillContext.Parent.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+        characterParent.SakurakoSkillDmg = GetAttackCoefficient(skillContext);
+        CharacterCTRL c = DamageStatisticsManager.Instance.GetTopDamageDealer(skillContext.Parent.IsAlly);
+        c.effectCTRL.AddEffect(effect, skillContext.Parent);
+        skillContext.Parent.effectCTRL.AddEffect(effect1, skillContext.Parent);
+    }
+    public override CharacterSkillBase GetHeroicEnhancedSkill()
+    {
+        return new SakurakoEnhancedSkill(this);
+    }
+}
+public class SakurakoEnhancedSkill : CharacterSkillBase
+{
+    private SakurakoSkill originalSkill;
+    public SakurakoEnhancedSkill(SakurakoSkill originalSkill)
+    {
+        this.originalSkill = originalSkill;
+    }
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(10)},
+            {2, new StarLevelStats(15)},
+            {3, new StarLevelStats(20)}
+        };
+        return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int baseHeal = stats.Data1;
+        int healRatio = stats.Data2;
+        int boxAmount = stats.Data3;
+        return baseHeal + (int)(healRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
+    public override void ExecuteSkill(SkillContext skillContext)
+    {
+
     }
 }
 public class SerinaSkill : CharacterSkillBase//serina治癒生命值最低的友軍

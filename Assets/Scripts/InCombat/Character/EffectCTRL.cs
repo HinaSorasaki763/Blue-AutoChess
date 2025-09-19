@@ -606,6 +606,21 @@ public static class EffectFactory
             null
         );
     }
+    public static Effect SakurakoBuff()
+    {
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            "SakurakoBuff",
+            false,
+            (character) => character.EmptyEffectFunction(),
+            (character) => character.EmptyEffectFunction(),
+            5,
+            SpecialEffectType.None,
+            null
+        );
+    }
     public static Effect AbydosEnhancedMark()
     {
         return new Effect(

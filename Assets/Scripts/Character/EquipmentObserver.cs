@@ -118,7 +118,6 @@ public class Amulet_GlovesObserver : CharacterObserverBase
     {
         CustomLogger.Log(this, $"character {source} attacking with Cap_GloveObserver to {target}");
         source.StealMana(target);
-        base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
     }
 }
 public class Amulet_HairbandObserver : CharacterObserverBase
@@ -184,7 +183,6 @@ public class Bag_GlovesObserver : CharacterObserverBase
         {
             target.GetHit((int)(target.GetStat(StatsType.currHealth) * 0.04f), source, "Amulet_WatchObserver", iscrit);
         }
-        base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
     }
 }
 public class Bag_HairbandObserver : CharacterObserverBase
@@ -203,7 +201,6 @@ public class Bag_WatchObserver : CharacterObserverBase
     {
         Effect effect = EffectFactory.CreateAntiHealEffect(5, target);
         target.effectCTRL.AddEffect(effect,target);
-        base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
     }
 }
 public class Cap_CapObserver : CharacterObserverBase
@@ -232,7 +229,6 @@ public class Cap_GlovesObserver : CharacterObserverBase
             additionHitCount--;
             target.GetHit(dmg, source, "Cap_GlovesObserver", iscrit);
         }
-        base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
     }
 }
 public class Cap_HairbandObserver : CharacterObserverBase
@@ -270,7 +266,6 @@ public class Cap_WatchObserver : CharacterObserverBase
             );
             source.effectCTRL.AddEffect(effect,source);
         }
-        base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
     }
 }
 public class Gloves_GlovesObserver : CharacterObserverBase
@@ -308,10 +303,8 @@ public class Gloves_WatchObserver : CharacterObserverBase
                     (character) => character.ModifyStats(StatsType.AttackSpeed, -effect.Value, effect.Source)
                 );
                 source.effectCTRL.AddEffect(effect,source);
-
             }
         }
-        base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
     }
 }
 public class Hairband_HairbandObserver : CharacterObserverBase
@@ -342,7 +335,6 @@ public class Hairband_WatchObserver : CharacterObserverBase
         {
             count++;
         }
-        base.OnDamageDealt(source, target, damage, detailedSource, iscrit);
     }
     public override void GetHit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource = "default", bool recursion = true)
     {

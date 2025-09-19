@@ -33,7 +33,7 @@ public class StaticObject : CharacterCTRL
     public override void GetHit(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit,bool recursion = true)
     {
         if (!isAlive) return;
-        base.GetHit(amount, sourceCharacter, detailedSource, isCrit);
+        base.GetHit(amount, sourceCharacter, detailedSource, isCrit,recursion);
         if (isAlive && gameObject.activeInHierarchy && Time.time - lastShakeTime >= shakeCooldown)
         {
             lastShakeTime = Time.time;
