@@ -45,7 +45,6 @@ public class RapidfireObserver : CharacterObserverBase
         base.OnAttacking(character);
         CustomLogger.Log(this,$"character {character } override onAttacking , attakspeed = {character.GetStat(StatsType.AttackSpeed)}");
         float val = GetTraitObserverLevel()[level].Data1 * 0.01f;
-        float amount = stack * val;
         Effect effect = EffectFactory.StatckableStatsEffct(0, "RapidfireObserver", val, StatsType.AttackSpeed, parent, true);
         effect.SetActions(
             (character) => character.ModifyStats(StatsType.AttackSpeed, effect.Value, effect.Source),

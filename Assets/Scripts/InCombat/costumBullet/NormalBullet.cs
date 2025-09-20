@@ -108,7 +108,7 @@ public class NormalBullet : MonoBehaviour
     {
         MoveTowardsTarget();
         CheckMaxDistance();
-        if (GameStageManager.Instance.CurrGamePhase == GamePhase.Preparing)
+        if (GameStageManager.Instance.CurrGamePhase == GamePhase.Preparing || (!isSkillBullet && !Target.activeInHierarchy))
         {
             DisableBullet();
         }

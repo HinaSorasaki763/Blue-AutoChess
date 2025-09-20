@@ -1639,16 +1639,16 @@ MonoBehaviour:
   WakamoMark: 0
   dmgRecivedOnWakamoMarked: 0
   DetectedPos: {x: 0, y: 0, z: 0}
-  FirePoint: {fileID: 0}
-  GetHitPoint: {fileID: 0}
-  Halo: {fileID: 0}
+  FirePoint: {fileID: 5449691953301582441}
+  GetHitPoint: {fileID: 2516278319778461423}
+  Halo: {fileID: 4925937441968421885}
   allyParent: {fileID: 0}
   enemyParent: {fileID: 0}
   isObj: 0
   Logistic_dummy: {fileID: 0}
   isShirokoTerror: 0
   droneCTRL: {fileID: 0}
-  OGBody: {fileID: 0}
+  OGBody: {fileID: 6962231072162243720}
   materials: []
   OGMat: []
 --- !u!114 &4636112518341873042
@@ -1691,12 +1691,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.49622372, y: 1.0439681, z: 0.53193897}
+  m_Center: {x: 0.018117681, y: 0.6335848, z: 0.0014909208}
 --- !u!95 &-524518764332929989
 Animator:
   serializedVersion: 5
@@ -1707,7 +1707,7 @@ Animator:
   m_GameObject: {fileID: 2510755518308092570}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 22100000, guid: 80e8361717c8e7c44bc059eff3a4747a, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

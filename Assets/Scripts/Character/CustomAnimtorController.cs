@@ -33,13 +33,14 @@ public class CustomAnimatorController : MonoBehaviour
     {
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
+        animatorSpeed = animator.speed;
         if (stateInfo.IsName("Hina_Original_Normal_Attack_Ing"))
         {
-            animatorSpeed = animator.speed;
+            
         }
         else
         {
-            animatorSpeed = 1f;
+        //    animatorSpeed = 1f;
         }
 
     }

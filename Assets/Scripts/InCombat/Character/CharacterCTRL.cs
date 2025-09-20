@@ -382,7 +382,7 @@ public class CharacterCTRL : MonoBehaviour
             {
                 DetectedPos = CurrentHex.transform.position + new Vector3(0, 0.3f, 0);
                 customAnimator.TryGetBool(customAnimator.animator, "CastSkill", out bool b);
-                if (!(stunned || IsFeared || b || effectCTRL.HaveEffect("Stun")))
+                if (!(stunned || IsFeared || b || effectCTRL.HaveEffect("Stun")||IsCastingAbility))
                 {
                     HandleTargetFinding();
                     HandleAttack(canAttack);
@@ -542,6 +542,7 @@ public class CharacterCTRL : MonoBehaviour
         ActiveSkill.ExecuteSkill(skillContext);
         traitController.CastedSkill();
         equipmentManager.OnParentCastedSkill();
+        IsCastingAbility = true;
         foreach (var item in observers)
         {
             item.OnCastedSkill(this);
@@ -632,9 +633,9 @@ public class CharacterCTRL : MonoBehaviour
     }
 
 
-    public void HandleAttacking()
+    public void HandleAttacking(bool ChangeSpeed = true)
     {
-        customAnimator.animator.speed = GetStat(StatsType.AttackSpeed);
+        if (ChangeSpeed) customAnimator.animator.speed = GetStat(StatsType.AttackSpeed);
         if (!ManaLock && characterStats.CharacterId != 41)
         {
             Addmana(10);
@@ -647,6 +648,7 @@ public class CharacterCTRL : MonoBehaviour
         equipmentManager.OnParentAttack();
         AugmentEventHandler.Instance.Attacking(this);
     }
+
     public (float, float) BeforeApplyingNegetiveEffect(float length, float effectiveness)
     {
         float finallength = length;
@@ -924,11 +926,11 @@ public class CharacterCTRL : MonoBehaviour
             customAnimator.animator.SetInteger("SkillID", i);
         }
         float sec1 = customAnimator.GetAnimationClipInfo(animationIndex).Item2;
+        CustomLogger.Log(this, $"character {characterStats.name}animation sec = {sec1}");
         if (characterStats.CharacterId == 16)
         {
             sec1 /= GetStat(StatsType.AttackSpeed);
         }
-        float sec = sec1 / 3f;
         var clipInfoList = customAnimator.GetAllClipInfos();
 
         for (int j = 0; j < clipInfoList.Count; j++)
@@ -936,19 +938,19 @@ public class CharacterCTRL : MonoBehaviour
             var (name, length) = clipInfoList[j];
             CustomLogger.Log(this, $"index = {j}, name = {name}, length = {length}");
         }
-        StartCoroutine(CastSkillWaitTime(sec));
+        StartCoroutine(CastSkillWaitTime(sec1));
     }
     public IEnumerator CastSkillWaitTime(float sec)
     {
+        CustomLogger.Log(this, $"character {characterStats.name} wait sec = {sec}, time = {Time.time}");
         yield return new WaitForSeconds(sec);
         if (enterBattle)
         {
             SetAnimatorStateToAttack();
             customAnimator.animator.SetBool("CastSkill", false);
         }
-        yield return new WaitForSeconds(sec * 2 - 0.1f);
+        CustomLogger.Log(this, $"character {characterStats.name} after wait {sec}, time = {Time.time}");
         AfterCastSkill();
-        yield return new WaitForSeconds(0.1f);
     }
     public float GetHealthPercentage() => GetStat(StatsType.currHealth) / (float)GetStat(StatsType.Health);
     public float GetExtraStat(StatsType statsType) => ExtraPernamentStats.GetStat(statsType);
@@ -1101,6 +1103,10 @@ public class CharacterCTRL : MonoBehaviour
         if (GetStat(StatsType.AttackSpeed) >=5)
         {
             SetStat(StatsType.AttackSpeed, 5);
+        }
+        if (GetStat(StatsType.MaxMana) <= 30)
+        {
+            SetStat(StatsType.MaxMana, 30);
         }
     }
 
@@ -1365,6 +1371,7 @@ public class CharacterCTRL : MonoBehaviour
                 }
             }
         }
+
         var hitColliders = Physics.OverlapSphere(transform.position, 50, GetTargetLayer());
         GameObject closestTarget = null;
         float closestDistance = Mathf.Infinity;

@@ -153,6 +153,13 @@ public class DamageStatisticsManager : MonoBehaviour
             .OrderByDescending(c => c.DealtDamageThisRound)
             .FirstOrDefault();
     }
+    public List<CharacterCTRL> GetCharacterListByDamage(bool isAlly)
+    {
+        return allCharacters
+            .Where(c => c.IsAlly == isAlly)
+            .OrderByDescending(c => c.DealtDamageThisRound)
+            .ToList();
+    }
 
     public CharacterCTRL GetTopDamageTaken(bool isAlly)
     {

@@ -90,6 +90,7 @@ public class CharacterBars : MonoBehaviour
     void UpdateUIs()
     {
         HealthSlider.SetMaxValue(CharacterCTRL.GetStat(StatsType.Health));
+        ManaSlider.SetMaxValue(CharacterCTRL.GetStat(StatsType.MaxMana));
         starImage.sprite = StarSprites[CharacterCTRL.star - 1];
         HealthSlider.UpdateValue(CharacterCTRL.GetStat(StatsType.currHealth, false));
         ManaSlider.UpdateValue(CharacterCTRL.GetStat(StatsType.Mana, false));

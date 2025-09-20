@@ -24,12 +24,12 @@ public class SakurakoCustomSkill : MonoBehaviour
     {
         character.ManaLock = true;
         int totalBullets = 12;
-        int totalFrames = 80;
-        float interval = totalFrames / (float)totalBullets / 30f; // ´«ºâ¦¨¬í¡A°²³] 60FPS
+        int totalFrames = 90;
+        float interval = (totalFrames / (float)totalBullets) / 30f; 
 
         for (int i = 0; i < totalBullets; i++)
         {
-            character.HandleAttacking();
+            character.HandleAttacking(false);
             GameObject bullet = ResourcePool.Instance.SpawnObject(
                 SkillPrefab.NormalTrailedBullet,
                 character.FirePoint.position,
@@ -45,8 +45,8 @@ public class SakurakoCustomSkill : MonoBehaviour
                 character.GetTargetLayer(),
                 character,
                 15f,
-                character.GetTarget(),
-                true,
+                enemy.gameObject,
+                false,
                 iscrit,
                 null,
                 20,

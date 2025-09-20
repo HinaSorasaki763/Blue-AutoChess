@@ -10,6 +10,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 using static Unity.VisualScripting.Member;
+using static UnityEditor.Progress;
 public abstract class CharacterSkillBase
 {
     public virtual Dictionary<int, StarLevelStats> GetCharacterLevel()
@@ -809,6 +810,7 @@ public class SerikaEnhancedSkill : CharacterSkillBase//施放技能後的該段�
 }
 public class SeiyaSkill : CharacterSkillBase
 {
+    public int castTime = 0;
     public SeiyaSkill()
     {
 
@@ -817,15 +819,45 @@ public class SeiyaSkill : CharacterSkillBase
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(10)},
-            {2, new StarLevelStats(15)},
-            {3, new StarLevelStats(20)}
+            {1, new StarLevelStats(100,250)},
+            {2, new StarLevelStats(140,265)},
+            {3, new StarLevelStats(180,300)}
         };
         return statsByStarLevel;
     }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int baseshield = stats.Data1;
+        int shieldRatio = stats.Data2;
+        return baseshield + (int)(shieldRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
+        castTime++;
+        var characterList = DamageStatisticsManager.Instance.GetCharacterListByDamage(skillContext.Parent.IsAlly);
+        CharacterCTRL character = null;
+        for (int i = 0; i < characterList.Count; i++)
+        {
+            if (characterList[i].GetStat(StatsType.MaxMana) > 30)
+            {
+                character = characterList[i];
+                break;
+            }
+        }
 
+        Effect effect = EffectFactory.StatckableStatsEffct(0, "SeiyaReduceMana", 10, StatsType.MaxMana, skillContext.Parent, true);
+        effect.SetActions(
+            (character) => character.ModifyStats(StatsType.MaxMana, -effect.Value, effect.Source),
+            (character) => character.ModifyStats(StatsType.MaxMana, effect.Value, effect.Source)
+        );
+        character.effectCTRL.AddEffect(effect, skillContext.Parent);
+        if (castTime >=3)
+        {
+            castTime -= 3;
+            character.AddShield(GetAttackCoefficient(skillContext),5f,skillContext.Parent);
+            skillContext.Parent.AddShield(GetAttackCoefficient(skillContext), 5f, skillContext.Parent);
+        }
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
     {

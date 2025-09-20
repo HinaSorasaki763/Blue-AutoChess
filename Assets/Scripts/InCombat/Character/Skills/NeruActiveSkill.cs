@@ -36,17 +36,6 @@ public class NeruActiveSkill : MonoBehaviour
 
         }
         bulletComponent.Initialize(dmg, parent.GetTargetLayer(), parent, 20, go, false, iscrit, hitEffect);
-        HandleAttacking();
-    }
-    private void HandleAttacking()
-    {
-        parent.customAnimator.animator.speed = parent.GetStat(StatsType.AttackSpeed);
-        foreach (var item in parent.observers)
-        {
-            item.OnAttacking(parent);
-        }
-        parent.traitController.Attacking();
-        parent.equipmentManager.OnParentAttack();
-        AugmentEventHandler.Instance.Attacking(parent);
+        parent.HandleAttacking(false);
     }
 }
