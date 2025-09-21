@@ -503,8 +503,8 @@ public static class EffectFactory
             amount,
             "AkoActiveSkillBuff",
             true,
-            (character) => character.ModifyMultipleStats(modifiers, "BuffEffect"),
-            (character) => character.ModifyMultipleStats(modifiers, "BuffEffect", isRevert: true),
+            (character) => character.ModifyMultipleStats(modifiers, "AkoBuffEffect"),
+            (character) => character.ModifyMultipleStats(modifiers, "AkoBuffEffect", isRevert: true),
             duration,
             SpecialEffectType.None,
             parent,
@@ -739,7 +739,30 @@ public static class EffectFactory
         );
 
     }
+    public static Effect CreateSeiyaEnhancedSkillBuff(int amount, float duration, CharacterCTRL parent)
+    {
+        var modifiers = new Dictionary<StatsType, float>
+        {
+            { StatsType.Attack, amount },
+        };
 
+
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            amount,
+            "SeiyaEnhancedSkillBuff",
+            true,
+            (character) => character.ModifyMultipleStats(modifiers, "SeiyaBuffEffect"),
+            (character) => character.ModifyMultipleStats(modifiers, "SeiyaBuffEffect", isRevert: true),
+            duration,
+            SpecialEffectType.None,
+            parent,
+            false,
+            ClearEffectCondition.OnSkillCastFinished
+        );
+
+    }
     public static Effect MiyuEnhancedSkillEffect()
     {
 

@@ -1128,7 +1128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 642bc75772efce143adab14c975c5a9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Audio: {fileID: 0}
+  Audio: {fileID: 11400000, guid: 516df5a50e7e0da498e53ee8f263a8fd, type: 2}
 --- !u!114 &6360785608271281321
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1314,6 +1314,10 @@ MonoBehaviour:
   isTargetable: 1
   FaceDirectionLock: 0
   Undying: 0
+  CanWalk: 1
+  CanAttack: 1
+  InStasis: 0
+  isAugment125Reinforced: 0
   WakamoMark: 0
   dmgRecivedOnWakamoMarked: 0
   DetectedPos: {x: 0, y: 0, z: 0}
@@ -1328,6 +1332,7 @@ MonoBehaviour:
   droneCTRL: {fileID: 0}
   OGBody: {fileID: 38606486369153338}
   materials: []
+  OGMat: []
 --- !u!114 &2167126574950903736
 MonoBehaviour:
   m_ObjectHideFlags: 0

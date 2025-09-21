@@ -127,7 +127,7 @@ public class NormalBullet : MonoBehaviour
     {
         if (Target != null && Target.activeInHierarchy)
         {
-            if (!isBarrage )
+            if (!isBarrage)
             {
                 Vector3 targetPosWithFixedY = new Vector3(Target.GetComponent<CharacterCTRL>().GetHitPoint.position.x, transform.position.y, Target.GetComponent<CharacterCTRL>().GetHitPoint.position.z);
                 transform.position += speed * Time.deltaTime * (targetPosWithFixedY - transform.position).normalized;
@@ -219,7 +219,7 @@ public class MikaSkillEffect : HitEffect
         StarLevelStats stats = source.ActiveSkill.GetCharacterLevel()[target.star];
         int BaseDamage = stats.Data1;
         int DamageRatio = stats.Data2;
-        int dmg = BaseDamage + DamageRatio * (int)(source.GetStat(StatsType.Attack)*0.01f);
+        int dmg = BaseDamage + DamageRatio * (int)(source.GetStat(StatsType.Attack) * 0.01f);
         (bool iscrit, int dmg1) = source.CalculateCrit(dmg);
         source.StartCoroutine(target.Explosion(dmg1, 2, target.CurrentHex, source, 100 / 30f, DamageSourceType.Skill.ToString(), iscrit));
     }
@@ -428,14 +428,13 @@ public class SakurakoSkillEffect : HitEffect
     {
         CharacterParent characterParent = source.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
         int amount = characterParent.SakurakoSkillDmg;
-        target.GetHitByTrueDamage(amount, source, "SakurakoSkillEffect", false);
         if (GameController.Instance.CheckCharacterEnhance(49, source.IsAlly))
         {
-            target.GetHitByTrueDamage(amount,source,"SakurakoSkillEffect",false);
+            target.GetHitByTrueDamage(amount, source, "SakurakoSkillEffect", false);
         }
         else
         {
-            target.GetHit(amount, source, "SakurakoSkillEffect", false,false);
+            target.GetHit(amount, source, "SakurakoSkillEffect", false, false);
         }
     }
 }

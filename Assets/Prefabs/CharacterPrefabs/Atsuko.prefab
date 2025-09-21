@@ -1027,7 +1027,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 642bc75772efce143adab14c975c5a9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Audio: {fileID: 0}
+  Audio: {fileID: 11400000, guid: 7ad10aa8e9886ad4092dd46975e5cee9, type: 2}
 --- !u!114 &7657171954497531888
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1216,6 +1216,7 @@ MonoBehaviour:
   CanWalk: 1
   CanAttack: 1
   InStasis: 0
+  isAugment125Reinforced: 0
   WakamoMark: 0
   dmgRecivedOnWakamoMarked: 0
   DetectedPos: {x: 0, y: 0, z: 0}

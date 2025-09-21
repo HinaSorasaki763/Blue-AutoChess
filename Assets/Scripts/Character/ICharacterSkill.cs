@@ -875,15 +875,33 @@ public class SeiyaEnhancedSkill : CharacterSkillBase
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(10)},
-            {2, new StarLevelStats(15)},
-            {3, new StarLevelStats(20)}
+            {1, new StarLevelStats(10,100,75)},
+            {2, new StarLevelStats(15,125,100)},
+            {3, new StarLevelStats(20,175,125)}
         };
         return statsByStarLevel;
     }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int baseshield = stats.Data2;
+        int shieldRatio = stats.Data3;
+        return baseshield + (int)(shieldRatio * 0.01f * skillContext.Parent.GetAttack());
+    }
+
     public override void ExecuteSkill(SkillContext skillContext)
     {
-
+        Effect effect = EffectFactory.CreateSeiyaEnhancedSkillBuff(GetCharacterLevel()[skillContext.Parent.star].Data1, 0, skillContext.Parent);
+        Effect effect1 = EffectFactory.StatckableStatsEffct(0, "SeiyaReduceMana", 10, StatsType.MaxMana, skillContext.Parent, true);
+        effect1.SetActions(
+            (character) => character.ModifyStats(StatsType.MaxMana, -effect.Value, effect.Source),
+            (character) => character.ModifyStats(StatsType.MaxMana, effect.Value, effect.Source)
+        );
+        CharacterCTRL c = DamageStatisticsManager.Instance.GetTopDamageDealer(skillContext.Parent.IsAlly);
+        c.effectCTRL.AddEffect(effect1,c);
+        c.effectCTRL.AddEffect(effect, c);
+        c.AddShield(GetAttackCoefficient(skillContext), 5f, skillContext.Parent);
+        skillContext.Parent.AddShield(GetAttackCoefficient(skillContext), 5f, skillContext.Parent);
     }
 }
 public class SakurakoSkill : CharacterSkillBase
@@ -935,23 +953,28 @@ public class SakurakoEnhancedSkill : CharacterSkillBase
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(10)},
-            {2, new StarLevelStats(15)},
-            {3, new StarLevelStats(20)}
+            {1, new StarLevelStats(50,20)},
+            {2, new StarLevelStats(70,30)},
+            {3, new StarLevelStats(100,45)}
         };
         return statsByStarLevel;
     }
     public override int GetAttackCoefficient(SkillContext skillContext)
     {
         StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
-        int baseHeal = stats.Data1;
-        int healRatio = stats.Data2;
-        int boxAmount = stats.Data3;
-        return baseHeal + (int)(healRatio * 0.01f * skillContext.Parent.GetAttack());
+        int basedmg = stats.Data1;
+        int dmgRatio = stats.Data2;
+        return basedmg + (int)(dmgRatio * 0.01f * skillContext.Parent.GetAttack());
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-
+        Effect effect = EffectFactory.SakurakoBuff();
+        Effect effect1 = EffectFactory.SakurakoBuff();
+        CharacterParent characterParent = skillContext.Parent.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+        characterParent.SakurakoSkillDmg = GetAttackCoefficient(skillContext);
+        CharacterCTRL c = DamageStatisticsManager.Instance.GetTopDamageDealer(skillContext.Parent.IsAlly);
+        c.effectCTRL.AddEffect(effect, skillContext.Parent);
+        skillContext.Parent.effectCTRL.AddEffect(effect1, skillContext.Parent);
     }
 }
 public class SerinaSkill : CharacterSkillBase//serina治癒生命值最低的友軍
@@ -1210,8 +1233,6 @@ public class AkoSkill : CharacterSkillBase
         Effect effect = EffectFactory.CreateAkoActiveSkillBuff(GetCharacterLevel()[skillContext.Parent.star].Data1, 0, skillContext.Parent);
         CharacterCTRL c = DamageStatisticsManager.Instance.GetTopDamageDealer(skillContext.Parent.IsAlly);
         c.effectCTRL.AddEffect(effect, c);
-        CustomLogger.Log(this, $"{DamageStatisticsManager.Instance.GetTopDamageDealer(skillContext.Parent.IsAlly)} getting buff {effect.GetType()}");
-        base.ExecuteSkill(skillContext);
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
     {
@@ -1734,7 +1755,7 @@ public class KasumiEnhancedSkill : CharacterSkillBase
     public IEnumerator DelayDmgAndStun(HexNode h, CharacterCTRL parent)
     {
         yield return new WaitForSeconds(0.33f);
-        List<CharacterCTRL> c = new List<CharacterCTRL>();
+
         CastedCount++;
         bool enhanced = false;
         if (CastedCount >= 2)
@@ -1742,56 +1763,58 @@ public class KasumiEnhancedSkill : CharacterSkillBase
             CastedCount -= 2;
             enhanced = true;
         }
+
         SkillContext skill = parent.GetSkillContext();
         int dmg = GetAttackCoefficient(skill);
-        foreach (var item in SpawnGrid.Instance.GetHexNodesWithinRange(h, 3))
-        {
-            if (item.KasumiEnhancedSkill_mark)
-            {
-                item.KasumiEnhancedSkill_steamed = true;
-            }
-            item.KasumiEnhancedSkill_mark = true;
-        }
-        foreach (HexNode neighbor in SpawnGrid.Instance.GetHexNodesWithinRange(h, 3))
-        {
-            if (neighbor.OccupyingCharacter != null && neighbor.OccupyingCharacter.IsAlly != parent.IsAlly)
-            {
 
-                if (!enhanced)
-                {
-
-                    (bool iscrit, int dmg1) = skill.Parent.CalculateCrit(dmg);
-                    Effect stunEffect = EffectFactory.CreateStunEffect(1f, neighbor.OccupyingCharacter);
-                    neighbor.OccupyingCharacter.effectCTRL.AddEffect(stunEffect, neighbor.OccupyingCharacter);
-                    neighbor.OccupyingCharacter.AudioManager.PlayCrowdControlledSound();
-                    neighbor.SetColorState(ColorState.TemporaryYellow, 1f);
-                    neighbor.OccupyingCharacter.GetHit(dmg1, parent, "KasumiExSkill", iscrit);
-                }
-                else
-                {
-                    (bool iscrit, int dmg1) = skill.Parent.CalculateCrit(dmg);
-                    neighbor.OccupyingCharacter.GetHit(dmg1 * 3, parent, "KasumiExSkill", iscrit);
-                }
-            }
-        }
-        CharacterParent characterParent = parent.IsAlly ? ResourcePool.Instance.enemy : ResourcePool.Instance.ally;
-        HashSet<CharacterCTRL> list = new HashSet<CharacterCTRL>();
-        foreach (var item in characterParent.GetBattleFieldCharacter())
+        // 標記範圍內的格子
+        foreach (var node in SpawnGrid.Instance.GetHexNodesWithinRange(h, 3))
         {
-            foreach (var neighbor in item.CurrentHex.Neighbors)
+            if (node.KasumiEnhancedSkill_mark)
+                node.KasumiEnhancedSkill_steamed = true;
+
+            node.KasumiEnhancedSkill_mark = true;
+        }
+
+        // 攻擊敵人
+        foreach (HexNode node in SpawnGrid.Instance.GetHexNodesWithinRange(h, 3))
+        {
+            var target = node.OccupyingCharacter;
+            if (target == null || target.IsAlly == parent.IsAlly) continue;
+
+            (bool iscrit, int dmg1) = skill.Parent.CalculateCrit(dmg);
+
+            if (!enhanced)
             {
-                if (neighbor.KasumiEnhancedSkill_steamed)
-                {
-                    list.Add(item);
-                }
+                target.effectCTRL.AddEffect(
+                    EffectFactory.CreateStunEffect(1f, target), target
+                );
+                target.AudioManager.PlayCrowdControlledSound();
+                node.SetColorState(ColorState.TemporaryYellow, 1f);
+                target.GetHit(dmg1, parent, "KasumiExSkill", iscrit);
+            }
+            else
+            {
+                target.GetHit(dmg1 * 3, parent, "KasumiExSkill", iscrit);
             }
         }
-        foreach (var item in list)
+
+        // 對蒸氣標記的敵人追加傷害
+        CharacterParent enemySide = parent.IsAlly ? ResourcePool.Instance.enemy : ResourcePool.Instance.ally;
+        HashSet<CharacterCTRL> extraTargets = new HashSet<CharacterCTRL>();
+
+        foreach (var ch in enemySide.GetBattleFieldCharacter())
+            foreach (var n in ch.CurrentHex.Neighbors)
+                if (n.KasumiEnhancedSkill_steamed)
+                    extraTargets.Add(ch);
+
+        foreach (var t in extraTargets)
         {
             (bool iscrit, int dmg1) = skill.Parent.CalculateCrit(dmg);
-            item.GetHit(dmg1, parent, "KasumiExSkill", iscrit);
+            t.GetHit(dmg1, parent, "KasumiExSkill", iscrit);
         }
     }
+
 }
 public class KayokoSkill : CharacterSkillBase//佳代子(Kayoko)對大範圍敵人造成少量傷害及恐懼
 {
@@ -3530,25 +3553,20 @@ public class MeguSkill : CharacterSkillBase
         HexNode target = ctx.Parent.GetTargetCTRL().CurrentHex;
         HexNode nearest = null;
         float minDist = float.MaxValue;
-        foreach (var neighbor in ctx.Parent.CurrentHex.Neighbors)
+        foreach (var n in ctx.Parent.CurrentHex.Neighbors)
         {
-            float dist = Vector3.Distance(target.Position, neighbor.Position);
-            if (dist < minDist)
-            {
-                minDist = dist;
-                nearest = neighbor;
-            }
+            float d = Vector3.Distance(target.Position, n.Position);
+            if (d < minDist) { minDist = d; nearest = n; }
         }
+        if (nearest == null) return;
         Vector3 offset = ctx.Parent.CurrentHex.Position - nearest.Position;
         HexNode mirror = SpawnGrid.Instance.GetHexNodeByPosition(nearest.Position - offset);
-        BarrageObserver barrageObserver = ctx.Parent.traitController.GetObserverForTrait(Traits.Barrage) as BarrageObserver;
-        List<HexNode> targetHex = GetHexSet(nearest, mirror, barrageObserver.CastTimes + 1);
-        foreach (var item in targetHex)
-        {
-            item.SetColorState(ColorState.TemporaryYellow, 1f);
-        }
+        var observer = ctx.Parent.traitController.GetObserverForTrait(Traits.Barrage) as BarrageObserver;
+        List<HexNode> targetHex = GetHexSet(nearest, mirror, observer.CastTimes + 1);
+        targetHex.ForEach(n => n.SetColorState(ColorState.TemporaryYellow, 1f));
         ctx.Parent.StartCoroutine(BurnInRange(targetHex, ctx));
     }
+
     public IEnumerator BurnInRange(List<HexNode> targethex, SkillContext ctx)
     {
         int repeatCount = 10;
@@ -3574,42 +3592,26 @@ public class MeguSkill : CharacterSkillBase
     public List<HexNode> GetHexSet(HexNode center, HexNode target, int range)
     {
         // 六邊形的 6 個方向 (cube 坐標)
-        Vector3Int[] directions = new Vector3Int[]
+        Vector3Int[] dirs =
         {
-        new Vector3Int(+1, -1, 0),   // 0°
-        new Vector3Int(+1, 0, -1),   // 60°
-        new Vector3Int(0, +1, -1),   // 120°
-        new Vector3Int(-1, +1, 0),   // 180°
-        new Vector3Int(-1, 0, +1),   // 240°
-        new Vector3Int(0, -1, +1)    // 300°
-        };
+        new Vector3Int(+1, -1, 0),
+        new Vector3Int(+1, 0, -1),
+        new Vector3Int(0, +1, -1),
+        new Vector3Int(-1, +1, 0),
+        new Vector3Int(-1, 0, +1),
+        new Vector3Int(0, -1, +1)
+    };
 
-        // 找出 target 與 center 的方向
-        int bestDir = 0;
-        int dx = target.X - center.X;
-        int dy = target.Y - center.Y;
-        int dz = target.Z - center.Z;
-        int minDist = int.MaxValue;
-
+        // 找出最接近 target 的方向
+        int dx = target.X - center.X, dy = target.Y - center.Y, dz = target.Z - center.Z;
+        int bestDir = 0, minDist = int.MaxValue;
         for (int i = 0; i < 6; i++)
         {
-            int diff = Mathf.Abs(dx - directions[i].x)
-                     + Mathf.Abs(dy - directions[i].y)
-                     + Mathf.Abs(dz - directions[i].z);
-            if (diff < minDist)
-            {
-                minDist = diff;
-                bestDir = i;
-            }
+            int diff = Mathf.Abs(dx - dirs[i].x) + Mathf.Abs(dy - dirs[i].y) + Mathf.Abs(dz - dirs[i].z);
+            if (diff < minDist) { minDist = diff; bestDir = i; }
         }
 
-        // 基準方向 ±60°
-        int[] dirIndex = new int[]
-        {
-        bestDir,
-        (bestDir + 1) % 6,
-        (bestDir + 5) % 6
-        };
+        int[] dirIndex = { bestDir, (bestDir + 1) % 6, (bestDir + 5) % 6 };
 
         HashSet<HexNode> result = new HashSet<HexNode>();
         Queue<HexNode> frontier = new Queue<HexNode>();
@@ -3623,25 +3625,15 @@ public class MeguSkill : CharacterSkillBase
                 HexNode node = frontier.Dequeue();
                 foreach (int d in dirIndex)
                 {
-                    int nx = node.X + directions[d].x;
-                    int ny = node.Y + directions[d].y;
-                    int nz = node.Z + directions[d].z;
-
-                    string key = SpawnGrid.Instance.CubeCoordinatesToKey(nx, ny, nz);
-                    if (SpawnGrid.Instance.hexNodes.TryGetValue(key, out HexNode next))
-                    {
-                        if (result.Add(next))
-                            frontier.Enqueue(next);
-                    }
+                    Vector3Int offset = dirs[d];
+                    string key = SpawnGrid.Instance.CubeCoordinatesToKey(node.X + offset.x, node.Y + offset.y, node.Z + offset.z);
+                    if (SpawnGrid.Instance.hexNodes.TryGetValue(key, out HexNode next) && result.Add(next))
+                        frontier.Enqueue(next);
                 }
             }
         }
-
         return result.ToList();
     }
-
-
-
     public override CharacterSkillBase GetHeroicEnhancedSkill()
     {
         return new MeguEnhancedSkill(this);
@@ -3671,9 +3663,94 @@ public class MeguEnhancedSkill : CharacterSkillBase
         int DmgRatio = stats.Data2;
         return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
     }
-    public override void ExecuteSkill(SkillContext skillContext)
+    public override void ExecuteSkill(SkillContext ctx)
     {
+        HexNode target = ctx.Parent.GetTargetCTRL().CurrentHex;
+        HexNode nearest = null;
+        float minDist = float.MaxValue;
 
+        foreach (var n in ctx.Parent.CurrentHex.Neighbors)
+        {
+            float d = Vector3.Distance(target.Position, n.Position);
+            if (d < minDist) { minDist = d; nearest = n; }
+        }
+        if (nearest == null) return;
+        Vector3 offset = ctx.Parent.CurrentHex.Position - nearest.Position;
+        HexNode mirror = SpawnGrid.Instance.GetHexNodeByPosition(nearest.Position - offset);
+        var observer = ctx.Parent.traitController.GetObserverForTrait(Traits.Barrage) as BarrageObserver;
+        ctx.Parent.transform.LookAt(mirror.transform);
+        List<HexNode> targetHex = GetHexSet(nearest, mirror, observer.CastTimes + 4);
+
+        targetHex.ForEach(n => n.SetColorState(ColorState.TemporaryYellow, 1f));
+        ctx.Parent.StartCoroutine(BurnInRange(targetHex, ctx));
+    }
+
+    public IEnumerator BurnInRange(List<HexNode> targethex, SkillContext ctx)
+    {
+        int repeatCount = 10;
+        float interval = 5 / 30f;
+
+        for (int i = 0; i < repeatCount; i++)
+        {
+            foreach (var item in targethex)
+            {
+                CharacterCTRL c = item.OccupyingCharacter;
+                if (c != null && c.IsAlly != ctx.Parent.IsAlly)
+                {
+                    int dmg = GetAttackCoefficient(ctx);
+                    (bool iscrit, int dmg1) = ctx.Parent.CalculateCrit(dmg);
+                    c.GetHit(dmg1, c, "MeguSkill", iscrit);
+                }
+            }
+
+            yield return new WaitForSeconds(interval);
+        }
+    }
+
+    public List<HexNode> GetHexSet(HexNode center, HexNode target, int range)
+    {
+        // 六邊形的 6 個方向 (cube 坐標)
+        Vector3Int[] dirs =
+        {
+        new Vector3Int(+1, -1, 0),
+        new Vector3Int(+1, 0, -1),
+        new Vector3Int(0, +1, -1),
+        new Vector3Int(-1, +1, 0),
+        new Vector3Int(-1, 0, +1),
+        new Vector3Int(0, -1, +1)
+    };
+
+        // 找出最接近 target 的方向
+        int dx = target.X - center.X, dy = target.Y - center.Y, dz = target.Z - center.Z;
+        int bestDir = 0, minDist = int.MaxValue;
+        for (int i = 0; i < 6; i++)
+        {
+            int diff = Mathf.Abs(dx - dirs[i].x) + Mathf.Abs(dy - dirs[i].y) + Mathf.Abs(dz - dirs[i].z);
+            if (diff < minDist) { minDist = diff; bestDir = i; }
+        }
+
+        int[] dirIndex = { bestDir, (bestDir + 1) % 6, (bestDir + 5) % 6 };
+
+        HashSet<HexNode> result = new HashSet<HexNode>();
+        Queue<HexNode> frontier = new Queue<HexNode>();
+        frontier.Enqueue(center);
+
+        for (int step = 0; step < range; step++)
+        {
+            int count = frontier.Count;
+            for (int i = 0; i < count; i++)
+            {
+                HexNode node = frontier.Dequeue();
+                foreach (int d in dirIndex)
+                {
+                    Vector3Int offset = dirs[d];
+                    string key = SpawnGrid.Instance.CubeCoordinatesToKey(node.X + offset.x, node.Y + offset.y, node.Z + offset.z);
+                    if (SpawnGrid.Instance.hexNodes.TryGetValue(key, out HexNode next) && result.Add(next))
+                        frontier.Enqueue(next);
+                }
+            }
+        }
+        return result.ToList();
     }
 }
 public class Moe_Skill : CharacterSkillBase //萌(Moe)對矩形範圍內造成dot傷害

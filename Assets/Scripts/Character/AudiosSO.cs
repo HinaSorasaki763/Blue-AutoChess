@@ -9,6 +9,7 @@ public class AudiosSO : ScriptableObject
     public List<AudioClip> OnDefeated = new();
     public List<AudioClip> OnVictory = new();
     public List<AudioClip> StarUp = new ();
+    public List<AudioClip> OnAttack = new ();
     public AudioClip PickedUp;
     public AudioClip Buffed;
     public AudioClip Dodged;

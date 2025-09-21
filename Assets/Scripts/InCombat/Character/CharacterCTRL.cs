@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
 public class CharacterCTRL : MonoBehaviour
 {
@@ -220,11 +221,9 @@ public class CharacterCTRL : MonoBehaviour
         AddObserver(globalObserver);
         if (characterSkills.TryGetValue(characterId, out var characterSkillFunc))
         {
-            CustomLogger.Log(this, $"characterId {characterId} getting {characterSkillFunc} TestEnhanceSkill");
             var baseSkill = characterSkillFunc();
             if (GameController.Instance.CheckCharacterEnhance(characterStats.CharacterId, IsAlly))
             {
-                CustomLogger.Log(this, $"characterId {characterId} getting {characterSkillFunc} TestEnhanceSkill");
                 ActiveSkill = baseSkill.GetHeroicEnhancedSkill();
             }
             else
@@ -635,6 +634,7 @@ public class CharacterCTRL : MonoBehaviour
 
     public void HandleAttacking(bool ChangeSpeed = true)
     {
+        AudioManager.PlayOnAttack();
         if (ChangeSpeed) customAnimator.animator.speed = GetStat(StatsType.AttackSpeed);
         if (!ManaLock && characterStats.CharacterId != 41)
         {
@@ -1107,6 +1107,10 @@ public class CharacterCTRL : MonoBehaviour
         if (GetStat(StatsType.MaxMana) <= 30)
         {
             SetStat(StatsType.MaxMana, 30);
+        }
+        if (GameController.Instance.CheckSpecificCharacterEnhanced(this, 43,IsAlly))
+        {
+            AddStat(StatsType.Range,3,false);
         }
     }
 

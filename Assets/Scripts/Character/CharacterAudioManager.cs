@@ -82,7 +82,12 @@ public class CharacterAudioManager : MonoBehaviour
         int rand = Random.Range(0, Audio.OnVictory.Count);
         PlayClip(Audio.OnVictory[rand]);
     }
-
+    public void PlayOnAttack()
+    {
+        if (Audio == null || Audio.OnAttack.Count == 0) return;
+        int rand = Random.Range(0, Audio.OnAttack.Count);
+        PlayClip(Audio.OnAttack[rand]);
+    }
     public void PlayCastExSkillSound()
     {
         if (Audio == null || Audio.ExSkillAudios.Count == 0) return;

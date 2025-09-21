@@ -1,8 +1,6 @@
 using GameEnum;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
 
 public class Shop : MonoBehaviour
@@ -61,7 +59,7 @@ public class Shop : MonoBehaviour
             freeReroll--;
         else
             GameController.Instance.AddGold(-2);
-        
+
         GetCharacter();
     }
 
@@ -250,7 +248,12 @@ public class Shop : MonoBehaviour
         if (characterList.Count > 0)
         {
             int randIndex = UnityEngine.Random.Range(0, characterList.Count);
-            return characterList[randIndex].CharacterId;
+            int result = characterList[randIndex].CharacterId;
+            if (SelectedAugments.Instance.CheckAugmetExist(4) && result == 4)
+            {
+                result += 500;
+            }
+            return result;
         }
         return -1;
     }
