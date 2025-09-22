@@ -118,6 +118,7 @@
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\Miyako_Drone.cs" />
     <Compile Include="Assets\Scripts\UI\ToggleUI.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\ModifierCTRL.cs" />
+    <Compile Include="Assets\Scripts\FireBase\FirestoreUploader.cs" />
     <Compile Include="Assets\Firebase\FirebaseAI\Safety.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\HyakkiyakoObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitUIManager.cs" />
@@ -184,6 +185,7 @@
     <Compile Include="Assets\Scripts\InCombat\costumBullet\NormalBullet.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\ObserverRelated\TrinityManager.cs" />
     <Compile Include="Assets\Scripts\UI\StartMenu\TwoButtonsToggle.cs" />
+    <Compile Include="Assets\Scripts\FireBase\FirestoreConverter.cs" />
     <Compile Include="Assets\Firebase\FirebaseAI\RequestOptions.cs" />
     <Compile Include="Assets\Scripts\Character\ICharacterSkill.cs" />
     <Compile Include="Assets\Firebase\FirebaseAI\Imagen\ImagenResponse.cs" />
@@ -556,11 +558,32 @@
     <Reference Include="UnityEditor.UnityConnectModule">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2022.3.6f1\Editor\Data\Managed\UnityEngine\UnityEditor.UnityConnectModule.dll</HintPath>
     </Reference>
+    <Reference Include="Firebase.AppCheck">
+      <HintPath>Assets\Firebase\Plugins\Firebase.AppCheck.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.Analytics">
+      <HintPath>Assets\Firebase\Plugins\Firebase.Analytics.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Collections.LowLevel.ILSupport">
       <HintPath>Library\PackageCache\com.unity.collections@1.2.4\Unity.Collections.LowLevel.ILSupport\Unity.Collections.LowLevel.ILSupport.dll</HintPath>
     </Reference>
+    <Reference Include="Firebase.App">
+      <HintPath>Assets\Firebase\Plugins\Firebase.App.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.Firestore">
+      <HintPath>Assets\Firebase\Plugins\Firebase.Firestore.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.TaskExtension">
+      <HintPath>Assets\Firebase\Plugins\Firebase.TaskExtension.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.Auth">
+      <HintPath>Assets\Firebase\Plugins\Firebase.Auth.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
       <HintPath>Library\PackageCache\com.unity.visualscripting@1.8.0\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.Crashlytics">
+      <HintPath>Assets\Firebase\Plugins\Firebase.Crashlytics.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>Library\PackageCache\com.unity.nuget.newtonsoft-json@3.2.1\Runtime\Newtonsoft.Json.dll</HintPath>
@@ -568,32 +591,11 @@
     <Reference Include="Mono.Cecil">
       <HintPath>Library\PackageCache\com.unity.nuget.mono-cecil@1.11.4\Mono.Cecil.dll</HintPath>
     </Reference>
-    <Reference Include="Firebase.App">
-      <HintPath>Assets\Firebase\Plugins\Firebase.App.dll</HintPath>
-    </Reference>
-    <Reference Include="Firebase.TaskExtension">
-      <HintPath>Assets\Firebase\Plugins\Firebase.TaskExtension.dll</HintPath>
-    </Reference>
-    <Reference Include="Google.MiniJson">
-      <HintPath>Assets\Firebase\Plugins\Google.MiniJson.dll</HintPath>
-    </Reference>
     <Reference Include="Firebase.Platform">
       <HintPath>Assets\Firebase\Plugins\Firebase.Platform.dll</HintPath>
     </Reference>
-    <Reference Include="Firebase.Analytics">
-      <HintPath>Assets\Firebase\Plugins\Firebase.Analytics.dll</HintPath>
-    </Reference>
-    <Reference Include="Firebase.AppCheck">
-      <HintPath>Assets\Firebase\Plugins\Firebase.AppCheck.dll</HintPath>
-    </Reference>
-    <Reference Include="Firebase.Auth">
-      <HintPath>Assets\Firebase\Plugins\Firebase.Auth.dll</HintPath>
-    </Reference>
-    <Reference Include="Firebase.Crashlytics">
-      <HintPath>Assets\Firebase\Plugins\Firebase.Crashlytics.dll</HintPath>
-    </Reference>
-    <Reference Include="Firebase.Firestore">
-      <HintPath>Assets\Firebase\Plugins\Firebase.Firestore.dll</HintPath>
+    <Reference Include="Google.MiniJson">
+      <HintPath>Assets\Firebase\Plugins\Google.MiniJson.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.iOS.Extensions.Xcode">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2022.3.6f1\Editor\Data\PlaybackEngines\iOSSupport\UnityEditor.iOS.Extensions.Xcode.dll</HintPath>

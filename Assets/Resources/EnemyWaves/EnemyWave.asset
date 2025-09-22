@@ -13,24 +13,38 @@ MonoBehaviour:
   m_Name: EnemyWave
   m_EditorClassIdentifier: 
   EnemyName: enemy 0
+  AugmentID: ffffffffffffffffffffffff
   gridSlots:
   - GridIndex: 60
     CharacterID: 1
+    Level: 0
     EquipmentIDs: ffffffffffffffffffffffff
+    DummyGridIndex: 0
   - GridIndex: 56
     CharacterID: 13
+    Level: 0
     EquipmentIDs: ffffffffffffffffffffffff
+    DummyGridIndex: 0
   - GridIndex: 63
     CharacterID: 8
+    Level: 0
     EquipmentIDs: ffffffffffffffffffffffff
+    DummyGridIndex: 0
   - GridIndex: 38
     CharacterID: 6
+    Level: 0
     EquipmentIDs: ffffffffffffffffffffffff
+    DummyGridIndex: 0
   logisticSlot1:
     GridIndex: 0
     CharacterID: -1
+    Level: 0
     EquipmentIDs: ffffffffffffffffffffffff
+    DummyGridIndex: 0
   logisticSlot2:
     GridIndex: 0
     CharacterID: -1
+    Level: 0
     EquipmentIDs: ffffffffffffffffffffffff
+    DummyGridIndex: 0
+  Pressurestack: 0

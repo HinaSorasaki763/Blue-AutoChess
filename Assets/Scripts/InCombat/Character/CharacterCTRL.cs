@@ -157,6 +157,7 @@ public class CharacterCTRL : MonoBehaviour
     #region Unity Lifecycle Methods
     public void ResetToBeforeBattle()
     {
+        GetComponent<BoxCollider>().enabled = true;
         if (fearCorutine != null)
         {
             StopCoroutine(fearCorutine);
@@ -189,6 +190,9 @@ public class CharacterCTRL : MonoBehaviour
         fearSource = null;
         fearDuration = 0;
         effectCTRL.ClearAllEffect();
+        SetStat(StatsType.Mana, 0);
+        int health =  (int)GetStat(StatsType.Health);
+        SetStat(StatsType.currHealth, health);
     }
     public virtual void OnEnable()
     {

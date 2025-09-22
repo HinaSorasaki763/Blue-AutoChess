@@ -2,7 +2,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using GameEnum;
-
+using Firebase.Firestore;
+using System;
+using System.Threading.Tasks;
 public class EnemySpawner : MonoBehaviour
 {
     public static EnemySpawner Instance;
@@ -33,7 +35,7 @@ public class EnemySpawner : MonoBehaviour
     // Step 2: Randomly select three enemy waves
     public void SelectRandomEnemyWaves()
     {
-        selectedEnemyWaves = enemyWaves.OrderBy(x => Random.value).Take(3).ToList();
+        selectedEnemyWaves = enemyWaves.OrderBy(x => UnityEngine.Random.value).Take(3).ToList();
         foreach (var wave in selectedEnemyWaves)
         {
             RevealTwoRandomCharacters(wave);
@@ -55,7 +57,7 @@ public class EnemySpawner : MonoBehaviour
             }
             return;
         }
-        var revealedCharacters = availableSlots.OrderBy(x => Random.value).Take(2).ToList();
+        var revealedCharacters = availableSlots.OrderBy(x => UnityEngine.Random.value).Take(2).ToList();
         foreach (var slot in revealedCharacters)
         {
             
@@ -75,6 +77,90 @@ public class EnemySpawner : MonoBehaviour
         chosenWave = selectedEnemyWaves[waveIndex];
         SpawnEnemiesNextStage(chosenWave);
     }
+    public void SpawnOpponentTeam(DocumentSnapshot opponentDoc)
+    {
+        if (opponentDoc == null)
+        {
+            Debug.LogError("Opponent doc is null.");
+            return;
+        }
+        var data = opponentDoc.ToDictionary();
+        if (!data.TryGetValue("slots", out object slotsObj) || !(slotsObj is List<object> slotsList))
+        {
+            Debug.LogError("Opponent doc has no valid slots.");
+            return;
+        }
+        foreach (var item in enemyParent.childCharacters)
+        {
+            Destroy(item.GetComponent<CharacterCTRL>().characterBars);
+            Destroy(item);
+        }
+        foreach (var slotObj in slotsList)
+        {
+            var slotDict = slotObj as Dictionary<string, object>;
+            if (slotDict == null) continue;
+            int charId = Convert.ToInt32(slotDict["CharacterID"]);
+            int gridIndex = Convert.ToInt32(slotDict["GridIndex"]);
+            int star = Convert.ToInt32(slotDict["Star"]);
+
+            if (!SpawnGrid.Instance.indexToCubeKey.TryGetValue(gridIndex, out string cubeKey))
+            {
+                Debug.LogError($"No cube key for GridIndex={gridIndex}");
+                continue;
+            }
+            if (!SpawnGrid.Instance.hexNodes.TryGetValue(cubeKey, out HexNode hexNode))
+            {
+                Debug.LogError($"No HexNode for cubeKey={cubeKey}");
+                continue;
+            }
+            Character characterData = ResourcePool.Instance.GetCharacterByID(charId);
+            if (characterData == null)
+            {
+                Debug.LogError($"No Character found for ID={charId}");
+                continue;
+            }
+            GameObject go = ResourcePool.Instance.SpawnCharacterAtPosition(
+                characterData.Model,
+                hexNode.Position,
+                hexNode,
+                enemyParent,
+                isAlly: false,
+                star
+            );
+            CharacterCTRL ctrl = go.GetComponent<CharacterCTRL>();
+            if (ctrl == null)
+            {
+                Debug.LogError($"Spawned character {charId} has no CharacterCTRL.");
+                continue;
+            }
+            if (slotDict.TryGetValue("EquipmentID", out object equipObj) && equipObj is List<object> equipList)
+            {
+                foreach (var e in equipList)
+                {
+                    int equipmentId = Convert.ToInt32(e);
+                    if (equipmentId == -1) continue;
+                    IEquipment template = EquipmentManager.Instance.GetEquipmentByID(equipmentId);
+                    if (template != null)
+                    {
+                        IEquipment newEquipment = template.Clone();
+                        CharacterObserverBase observer = ItemObserverFactory.GetObserverByIndex(newEquipment.Id);
+                        if (observer != null)
+                            newEquipment.Observer = observer;
+
+                        ctrl.EquipItem(newEquipment);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"No Equipment found for ID={equipmentId}");
+                    }
+                }
+            }
+            Debug.Log($"Opponent CharID={charId} spawned at {hexNode.Position}");
+        }
+        ResourcePool.Instance.enemy.UpdateTraitEffects();
+        ResourcePool.Instance.ally.UpdateTraitEffects();
+    }
+
 
     public void SpawnEnemiesNextStage(EnemyWave enemyWave)
     {
@@ -195,7 +281,7 @@ public class EnemySpawner : MonoBehaviour
         {
             return availableSlots; // 若角色數量不足兩個，返回所有角色
         }
-        return availableSlots.OrderBy(x => Random.value).Take(2).ToList(); // 隨機揭露兩個角色
+        return availableSlots.OrderBy(x => UnityEngine.Random.value).Take(2).ToList(); // 隨機揭露兩個角色
     }
 
 }

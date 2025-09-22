@@ -64,6 +64,15 @@ public class CharacterEquipmentManager : MonoBehaviour
         }
 
     }
+    public List<int> GetEquipmentID()
+    {
+        List<int> ints = new List<int>();
+        foreach (var item in equippedItems)
+        {
+            ints.Add(item.Id);
+        }
+        return ints;
+    }
     public bool BeforeDying()
     {
         bool undying = false;

@@ -466,7 +466,8 @@ public class CharacterParent : MonoBehaviour
                 {
                     logisticsDummies[character].GetComponent<CharacterCTRL>().CurrentHex.HardReserve(logisticsDummies[character].GetComponent<CharacterCTRL>());
                     logisticsDummies[character].SetActive(true);
-                    StaticObject staticObj = logisticsDummies[character].gameObject.GetComponent<StaticObject>();
+                    StaticObject staticObj = logisticsDummies[character].GetComponent<StaticObject>();
+                    character.Logistic_dummy = logisticsDummies[character];
                     staticObj.RefreshDummy(character);
                 }
                 else
@@ -486,6 +487,7 @@ public class CharacterParent : MonoBehaviour
                     bar.SetBarsParent(obj.transform);
                     staticObj.RefreshDummy(character);
                     logisticsDummies[character] = obj;
+                    character.Logistic_dummy = logisticsDummies[character];
                     ctrl.CurrentHex = h;
                     ctrl.IsAlly = true;
                     h.OccupyingCharacter = ctrl;

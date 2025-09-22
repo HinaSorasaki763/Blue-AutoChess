@@ -1820,3 +1820,11 @@ public static class EnemyWaveConverter
         return wave;
     }
 }
+public class WaveGridSlotData
+{
+    public int GridIndex;
+    public int CharacterID;
+    public int Star;
+    public List<int> EquipmentID = new List<int>();
+    public int DummyGridIndex;
+}

@@ -16,6 +16,7 @@ public class EnemyWave : ScriptableObject
     }
 
     public string EnemyName;
+    public int[] AugmentID = new int[3] { -1, -1, -1 };
     public List<GridSlotData> gridSlots = new List<GridSlotData>();
     public GridSlotData logisticSlot1 = new GridSlotData();
     public GridSlotData logisticSlot2 = new GridSlotData();

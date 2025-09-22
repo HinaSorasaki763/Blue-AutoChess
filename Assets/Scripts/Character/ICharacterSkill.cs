@@ -3563,6 +3563,7 @@ public class MeguSkill : CharacterSkillBase
         HexNode mirror = SpawnGrid.Instance.GetHexNodeByPosition(nearest.Position - offset);
         var observer = ctx.Parent.traitController.GetObserverForTrait(Traits.Barrage) as BarrageObserver;
         List<HexNode> targetHex = GetHexSet(nearest, mirror, observer.CastTimes + 1);
+        targetHex.Add(nearest);
         targetHex.ForEach(n => n.SetColorState(ColorState.TemporaryYellow, 1f));
         ctx.Parent.StartCoroutine(BurnInRange(targetHex, ctx));
     }
@@ -3680,7 +3681,7 @@ public class MeguEnhancedSkill : CharacterSkillBase
         var observer = ctx.Parent.traitController.GetObserverForTrait(Traits.Barrage) as BarrageObserver;
         ctx.Parent.transform.LookAt(mirror.transform);
         List<HexNode> targetHex = GetHexSet(nearest, mirror, observer.CastTimes + 4);
-
+        //targetHex.Add(nearest);
         targetHex.ForEach(n => n.SetColorState(ColorState.TemporaryYellow, 1f));
         ctx.Parent.StartCoroutine(BurnInRange(targetHex, ctx));
     }

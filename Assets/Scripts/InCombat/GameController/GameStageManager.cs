@@ -2,6 +2,7 @@ using GameEnum;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI; // 安砞眤ㄏノ Unity  UI ╰参
@@ -36,7 +37,7 @@ public class GameStageManager : MonoBehaviour
     private Dictionary<int, Action> stageRewardMapping;
     public RewardPopup rewardPopup;
     readonly int OvertimeThreshold = 30;
-
+    private FirestoreUploader uploader;
     public int WinStreak { get; private set; } = 0; // 硈秤Ω计
     public int LoseStreak { get; private set; } = 0; // 硈毖Ω计
 
@@ -50,17 +51,30 @@ public class GameStageManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
+        continueButton.onClick.AddListener(Advance);
         continueButton.onClick.AddListener(OnContinueButtonClicked);
         endGamePopup.SetActive(false);
         InitializeFloorRewardMapping();
     }
-
-    public void Start()
+    async void Start()
     {
         CalculateGold();
         PressureManager.Instance.UpdateIndicater();
+        uploader = new FirestoreUploader();
+        await uploader.InitializeAsync();
+        var opponents = await uploader.GetRandomOpponentsAsync(12, 8, 3);
+        StartCoroutine(SpawnEnemyTeam(opponents));
+        foreach (var doc in opponents)
+        {
+            Debug.Log($"Use Opponent: {doc.Id}");
+        }
     }
+    private IEnumerator SpawnEnemyTeam(List<Firebase.Firestore.DocumentSnapshot> documentSnapshots)
+    {
+        yield return new WaitForSeconds(5);
+        EnemySpawner.Instance.SpawnOpponentTeam(documentSnapshots[0]);
+    }
+
     private IEnumerator ShowEndGamePopup(bool isEnemy)
     {
         ChangeGamePhase(GamePhase.Preparing);
@@ -143,16 +157,16 @@ public class GameStageManager : MonoBehaviour
         ResourcePool.Instance.enemy.Trigger109();
         yield return new WaitForSeconds(1.5f);
         ResourcePool.Instance.enemy.TriggerOnBoard();
-        
+
         startBattle.Raise();
         startBattleFlag = true;
         AbydosManager.Instance.UpdateDesertifiedTiles();
     }
-    private void OnContinueButtonClicked()
+    private void Advance()
     {
-        endGamePopup.SetActive(false);
         ResourcePool.Instance.enemy.ClearAllCharacter();
         DataStackManager.Instance.CheckDataStackRewards();
+        endGamePopup.SetActive(false);
         if (SelectedAugments.Instance.CheckAugmetExist(103))
         {
             IEquipment equipment = Utility.GetSpecificEquipment(29);
@@ -165,25 +179,70 @@ public class GameStageManager : MonoBehaviour
         }
         foreach (var item in ResourcePool.Instance.ally.childCharacters)
         {
+
             CharacterCTRL c = item.GetComponent<CharacterCTRL>();
-            item.SetActive(true);
             c.ResetToBeforeBattle();
-            if (!c.characterStats.logistics)
+            if (c.HexWhenBattleStart != null)
             {
-                if (c.HexWhenBattleStart != null)
-                {
-                    c.HexWhenBattleStart.HardReserve(c);
-                    item.transform.position = c.HexWhenBattleStart.Position + offset;
-                }
-            }
-            else
-            {
+                c.HexWhenBattleStart.HardReserve(c);
+                item.transform.position = c.HexWhenBattleStart.Position + offset;
 
             }
-
         }
-
         AdvanceStage();
+    }
+    private void OnContinueButtonClicked()
+    {
+        List<WaveGridSlotData> waveGridSlotDatas = new List<WaveGridSlotData>();
+        foreach (var item in ResourcePool.Instance.ally.childCharacters)
+        {
+            CharacterCTRL c = item.GetComponent<CharacterCTRL>();
+
+            item.SetActive(true);
+
+            if (c.HexWhenBattleStart != null)
+            {
+                WaveGridSlotData slotData = new WaveGridSlotData();
+                slotData.CharacterID = c.characterStats.CharacterId;
+                if (c.HexWhenBattleStart == null || c.HexWhenBattleStart.Index == -1 || c.characterStats.CharacterId == 999) continue;
+                slotData.GridIndex = c.HexWhenBattleStart.Index;
+                slotData.Star = c.star;
+                if (c.characterStats.logistics)
+                {
+                    slotData.DummyGridIndex = c.Logistic_dummy.GetComponent<StaticObject>().CurrentHex.Index;
+                }
+                slotData.EquipmentID = c.equipmentManager.GetEquipmentID();
+                waveGridSlotDatas.Add(slotData);
+                Debug.Log(
+                    $"[SlotData] CharID={slotData.CharacterID}, " +
+                    $"Grid={slotData.GridIndex}, " +
+                    $"Star={slotData.Star}, " +
+                    $"DummyGrid={slotData.DummyGridIndex}, " +
+                    $"Equip=[{string.Join(",", slotData.EquipmentID)}]"
+                );
+            }
+        }
+        SaveTeamInBackground(waveGridSlotDatas);
+
+    }
+    private void SaveTeamInBackground(List<WaveGridSlotData> waveGridSlotDatas)
+    {
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await uploader.UploadTeamAsync("player123", 5, 12, 8, waveGridSlotDatas);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Background upload failed: {ex}");
+            }
+        });
+    }
+
+    public void StorePosition()
+    {
+
     }
     public void ResetBattleData()
     {
