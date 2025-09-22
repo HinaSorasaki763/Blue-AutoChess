@@ -63,6 +63,28 @@
     <Compile Include="Assets\Editor\CustomModelImporter.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Assets\Firebase\Editor\FirebaseCrashlytics_version-13.2.0_manifest.txt" />
+    <None Include="Assets\Firebase\Editor\FirebaseAI_version-13.2.0_manifest.txt" />
+    <None Include="Assets\ExternalDependencyManager\Editor\1.2.186\Google.IOSResolver.dll" />
+    <None Include="Assets\Firebase\Editor\FirebaseAuth_version-13.2.0_manifest.txt" />
+    <None Include="Assets\Firebase\Editor\Firebase.Crashlytics.Editor.dll" />
+    <None Include="Assets\ExternalDependencyManager\Editor\Google.VersionHandler.dll" />
+    <None Include="Assets\ExternalDependencyManager\Editor\1.2.186\Google.PackageManagerResolver.dll" />
+    <None Include="Assets\ExternalDependencyManager\Editor\1.2.186\Google.VersionHandlerImpl.dll" />
+    <None Include="Assets\Firebase\Editor\FirebaseFirestore_version-13.2.0_manifest.txt" />
+    <None Include="Assets\ExternalDependencyManager\Editor\external-dependency-manager_version-1.2.186_manifest.txt" />
+    <None Include="Assets\Firebase\Editor\FirebaseAnalytics_version-13.2.0_manifest.txt" />
+    <None Include="Assets\ExternalDependencyManager\Editor\1.2.186\Google.JarResolver.dll" />
+    <None Include="Assets\Firebase\Editor\AuthDependencies.xml" />
+    <None Include="Assets\Firebase\Editor\FirebaseAppCheck_version-13.2.0_manifest.txt" />
+    <None Include="Assets\Firebase\Editor\FirestoreDependencies.xml" />
+    <None Include="Assets\Firebase\Editor\AppCheckDependencies.xml" />
+    <None Include="Assets\Firebase\Editor\AppDependencies.xml" />
+    <None Include="Assets\Firebase\Editor\AnalyticsDependencies.xml" />
+    <None Include="Assets\Firebase\Editor\CrashlyticsDependencies.xml" />
+    <None Include="Assets\Firebase\Editor\Firebase.Editor.dll" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="UnityEngine">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2022.3.6f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
     </Reference>
@@ -359,6 +381,36 @@
     </Reference>
     <Reference Include="unityplastic">
       <HintPath>Library\PackageCache\com.unity.collab-proxy@2.0.5\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.App">
+      <HintPath>Assets\Firebase\Plugins\Firebase.App.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.TaskExtension">
+      <HintPath>Assets\Firebase\Plugins\Firebase.TaskExtension.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.VersionHandler">
+      <HintPath>Assets\ExternalDependencyManager\Editor\Google.VersionHandler.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.MiniJson">
+      <HintPath>Assets\Firebase\Plugins\Google.MiniJson.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.Platform">
+      <HintPath>Assets\Firebase\Plugins\Firebase.Platform.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.Analytics">
+      <HintPath>Assets\Firebase\Plugins\Firebase.Analytics.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.AppCheck">
+      <HintPath>Assets\Firebase\Plugins\Firebase.AppCheck.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.Auth">
+      <HintPath>Assets\Firebase\Plugins\Firebase.Auth.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.Crashlytics">
+      <HintPath>Assets\Firebase\Plugins\Firebase.Crashlytics.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.Firestore">
+      <HintPath>Assets\Firebase\Plugins\Firebase.Firestore.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>Library\PackageCache\com.unity.ext.nunit@1.0.6\net35\unity-custom\nunit.framework.dll</HintPath>

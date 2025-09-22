@@ -14,7 +14,6 @@ public class PressureManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            CurrentPressure = 100;
             DontDestroyOnLoad(gameObject);
         }
         else

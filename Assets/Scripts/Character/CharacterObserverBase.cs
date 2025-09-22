@@ -1198,7 +1198,7 @@ public class GlobalBaseObserver : CharacterObserverBase
         CustomLogger.Log(this, $"before = {be4} ,after = {damage}");
         if (source.traitController.GetAcademy() == Traits.Gehenna)
         {
-            damage = (int)((1 + PressureManager.Instance.GetPressure(source.IsAlly) * 0.15f) * damage);
+            damage = (int)((1 + PressureManager.Instance.GetPressure(source.IsAlly) * 0.05f) * damage);
         }
         if (detailedSource == "HiyoriSkill" && target.effectCTRL.GetEffect("HiyoriMark") != null)
         {

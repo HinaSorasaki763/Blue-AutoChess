@@ -125,6 +125,7 @@ public class NormalBullet : MonoBehaviour
 
     private void MoveTowardsTarget()
     {
+        
         if (Target != null && Target.activeInHierarchy)
         {
             if (!isBarrage)

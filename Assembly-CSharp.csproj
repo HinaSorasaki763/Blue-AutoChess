@@ -62,9 +62,11 @@
     <Compile Include="Assets\Scripts\UnitTest_.cs" />
     <Compile Include="Assets\Scripts\InCombat\costumBullet\HealPack.cs" />
     <Compile Include="Assets\Scripts\UI\RewardPopup.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\FunctionCalling.cs" />
     <Compile Include="Assets\Scripts\UI\OpponentSelectionUI.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\AegisObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\ResourcePool.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\LiveSession.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\Shiroko_Terror_AugmentCheck.cs" />
     <Compile Include="Assets\Scripts\InCombat\GameController\GameStageManager.cs" />
     <Compile Include="Assets\Scripts\Network\NetworkUIManager.cs" />
@@ -81,6 +83,7 @@
     <Compile Include="Assets\Scripts\Enemy\EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\CustomThings\ShirokoTerror_animCTRL.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\ShirokoActiveSkill.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\LiveGenerationConfig.cs" />
     <Compile Include="Assets\Scripts\Character\CharacterAudioManager.cs" />
     <Compile Include="Assets\Scripts\UI\Battle_Number\TextEffectPool.cs" />
     <Compile Include="Assets\Scripts\Character\SkillAnimationReplacer.cs" />
@@ -95,13 +98,16 @@
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsEffectManager.cs" />
     <Compile Include="Assets\Scripts\Character\EquipmentObserver.cs" />
     <Compile Include="Assets\Resources\RoundProbabilityData\RoundProbabilityData.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\Internal\FirebaseInterops.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Equipment\CombinationRouteSO.cs" />
     <Compile Include="Assets\Scripts\UI\FloatingText.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\AriusObserver.cs" />
     <Compile Include="Assets\Scripts\UI\EquipmentTooltip.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\Citation.cs" />
     <Compile Include="Assets\Scripts\UI\DescriptionPanel.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\LogisticObserver.cs" />
     <Compile Include="Assets\Scripts\UI\AugmentInspecting.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\Chat.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\ObserverRelated\AbydosManager.cs" />
     <Compile Include="Assets\Scripts\Network\DedicatedServerManager.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
@@ -112,6 +118,7 @@
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\Miyako_Drone.cs" />
     <Compile Include="Assets\Scripts\UI\ToggleUI.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\ModifierCTRL.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\Safety.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\HyakkiyakoObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitUIManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\map\Wall.cs" />
@@ -142,6 +149,7 @@
     <Compile Include="Assets\Scripts\CustomThings\CustomEnum.cs" />
     <Compile Include="Assets\Scripts\Enemy\EnemyWave.cs" />
     <Compile Include="Assets\Scripts\InCombat\Shop\SellGrid.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\FirebaseAI.cs" />
     <Compile Include="Assets\Scripts\InCombat\GameController\MessagePopup.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\Aegis\WallFade.cs" />
     <Compile Include="Assets\Scripts\UI\EffectCanvas.cs" />
@@ -154,6 +162,7 @@
     <Compile Include="Assets\Scripts\Character\CharacterParent.cs" />
     <Compile Include="Assets\Scripts\UI\SelectedAugments.cs" />
     <Compile Include="Assets\Scripts\DeveloperTool\DeveloperTool.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\Imagen\ImagenConfig.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\Kasumi_Drill.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\Atsuko_Drone.cs" />
     <Compile Include="Assets\Scripts\CustomThings\GoldRotate.cs" />
@@ -162,28 +171,37 @@
     <Compile Include="Assets\Scripts\InCombat\Bench\GridSlots.cs" />
     <Compile Include="Assets\Scripts\UI\References.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\MillenniumObserver.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\Internal\InternalHelpers.cs" />
     <Compile Include="Assets\Scripts\InCombat\Shop\Shop.cs" />
     <Compile Include="Assets\Scripts\Character\Character.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\EffectCTRL.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\RapidfireObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\StaticObject.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitData\TraitDescriptionDatabase.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\Internal\HttpHelpers.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\CountTokensResponse.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\LiveSessionResponse.cs" />
     <Compile Include="Assets\Scripts\InCombat\costumBullet\NormalBullet.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\ObserverRelated\TrinityManager.cs" />
     <Compile Include="Assets\Scripts\UI\StartMenu\TwoButtonsToggle.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\RequestOptions.cs" />
     <Compile Include="Assets\Scripts\Character\ICharacterSkill.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\Imagen\ImagenResponse.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitDescriptions.cs" />
     <Compile Include="Assets\Scripts\UI\HandleObject.cs" />
     <Compile Include="Assets\Scripts\Player\Player.cs" />
     <Compile Include="Assets\Scripts\Augments\AugmentEventHandler.cs" />
     <Compile Include="Assets\Scripts\Enemy\Editor_HexTile.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\Observers.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\ModalityTokenCount.cs" />
     <Compile Include="Assets\Scripts\UI\IReward.cs" />
     <Compile Include="Assets\Scripts\InCombat\Hexagon\IHexagon.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\TsurugiActiveSkill.cs" />
     <Compile Include="Assets\Scripts\InCombat\Shop\ShopButton.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\GenerateContentResponse.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Equipment\EquipmentManager.cs" />
     <Compile Include="Assets\Scripts\UI\Option.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\Schema.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitUI.cs" />
     <Compile Include="Assets\Scripts\UI\BGMManager.cs" />
     <Compile Include="Assets\Scripts\UI\TooltipManager.cs" />
@@ -192,6 +210,7 @@
     <Compile Include="Assets\Scripts\InCombat\map\SpawnGrid.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\TokiActiveSkill.cs" />
     <Compile Include="Assets\Scripts\InCombat\GameController\GameController.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\ModelContent.cs" />
     <Compile Include="Assets\Scripts\GlobalAudioManager.cs" />
     <Compile Include="Assets\Scripts\UI\DamageStatisticsManager.cs" />
     <Compile Include="Assets\Scripts\UI\ShowAugment.cs" />
@@ -202,7 +221,9 @@
     <Compile Include="Assets\Scripts\InCombat\PathFinding\HexNode.cs" />
     <Compile Include="Assets\Scripts\Augments\AugmentFactory.cs" />
     <Compile Include="Assets\Scripts\CustomThings\Balancing_SO.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\Internal\EnumConverters.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\DisruptorObserver.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\Imagen\ImagenModel.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\CoroutineController.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\HoshinoShotgunSkill.cs" />
     <Compile Include="Assets\Scripts\UI\WarningPanel.cs" />
@@ -215,14 +236,20 @@
     <Compile Include="Assets\Scripts\Augments\AugmentConfig.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\NeruActiveSkill.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitEffectApplier.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\ResponseModality.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\Imagen\ImagenSafety.cs" />
     <Compile Include="Assets\Scripts\UI\CharacterBars.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\GenerationConfig.cs" />
     <Compile Include="Assets\Scripts\UI\SliderCTRL.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Equipment\CharacterEquipmentManager.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\Candidate.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Equipment\EquipmentSO.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\BarrageObserver.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\GenerativeModel.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\ObserverRelated\SRTManager.cs" />
     <Compile Include="Assets\Scripts\Augments\Augment.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Equipment\EquipmentItemUI.cs" />
+    <Compile Include="Assets\Firebase\FirebaseAI\LiveGenerativeModel.cs" />
     <Compile Include="Assets\Scripts\UI\TeamEditorUI.cs" />
     <Compile Include="Assets\Scripts\UI\TraitsText.cs" />
     <Compile Include="Assets\Scripts\CustomThings\Shiroko_Terror_DroneCTRL.cs" />
@@ -232,25 +259,51 @@
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Overlay.shader" />
+    <None Include="Assets\Firebase\Plugins\x86_64\FirebaseCppFirestore.dll" />
+    <None Include="Assets\Firebase\Plugins\iOS\Firebase.AppCheck.dll" />
+    <None Include="Assets\Firebase\Plugins\Firebase.Analytics.dll" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap.shader" />
+    <None Include="Assets\Firebase\Plugins\iOS\Firebase.Analytics.dll" />
+    <None Include="Assets\Firebase\Plugins\Firebase.App.dll" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
+    <None Include="Assets\Firebase\m2repository\com\google\firebase\firebase-firestore-unity\maven-metadata.xml" />
+    <None Include="Assets\Firebase\Plugins\x86_64\FirebaseCppAppCheck.dll" />
+    <None Include="Assets\Firebase\Plugins\x86_64\FirebaseCppAnalytics.dll" />
+    <None Include="Assets\Firebase\Plugins\x86_64\FirebaseCppAuth.dll" />
+    <None Include="Assets\Firebase\Plugins\iOS\Firebase.Firestore.dll" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
+    <None Include="Assets\Firebase\Plugins\Firebase.TaskExtension.dll" />
+    <None Include="Assets\Firebase\m2repository\com\google\firebase\firebase-app-unity\maven-metadata.xml" />
+    <None Include="Assets\Firebase\Plugins\Firebase.Auth.dll" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface.shader" />
     <None Include="Assets\TextMesh Pro\Sprites\EmojiOne Attribution.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap-Custom-Atlas.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile SSD.shader" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
+    <None Include="Assets\Firebase\Plugins\x86_64\FirebaseCppApp-13_2_0.dll" />
+    <None Include="Assets\Firebase\m2repository\com\google\firebase\firebase-analytics-unity\maven-metadata.xml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Properties.cginc" />
+    <None Include="Assets\Firebase\m2repository\com\google\firebase\firebase-auth-unity\maven-metadata.xml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
+    <None Include="Assets\Firebase\Plugins\iOS\Firebase.Auth.dll" />
+    <None Include="Assets\Firebase\Plugins\Firebase.Crashlytics.dll" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
+    <None Include="Assets\Firebase\Plugins\Firebase.Firestore.dll" />
+    <None Include="Assets\Firebase\Plugins\Firebase.AppCheck.dll" />
+    <None Include="Assets\Firebase\Plugins\iOS\Firebase.Crashlytics.dll" />
     <None Include="Assets\Shaders\VerticalFadeShader.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
+    <None Include="Assets\Firebase\Plugins\Firebase.Platform.dll" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
+    <None Include="Assets\Firebase\m2repository\com\google\firebase\firebase-crashlytics-unity\maven-metadata.xml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />
+    <None Include="Assets\Firebase\Plugins\Google.MiniJson.dll" />
     <None Include="Assets\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile.shader" />
+    <None Include="Assets\Firebase\Plugins\iOS\Firebase.App.dll" />
+    <None Include="Assets\Firebase\m2repository\com\google\firebase\firebase-appcheck-unity\maven-metadata.xml" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Sprite.shader" />
   </ItemGroup>
   <ItemGroup>
@@ -514,6 +567,33 @@
     </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>Library\PackageCache\com.unity.nuget.mono-cecil@1.11.4\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.App">
+      <HintPath>Assets\Firebase\Plugins\Firebase.App.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.TaskExtension">
+      <HintPath>Assets\Firebase\Plugins\Firebase.TaskExtension.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.MiniJson">
+      <HintPath>Assets\Firebase\Plugins\Google.MiniJson.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.Platform">
+      <HintPath>Assets\Firebase\Plugins\Firebase.Platform.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.Analytics">
+      <HintPath>Assets\Firebase\Plugins\Firebase.Analytics.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.AppCheck">
+      <HintPath>Assets\Firebase\Plugins\Firebase.AppCheck.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.Auth">
+      <HintPath>Assets\Firebase\Plugins\Firebase.Auth.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.Crashlytics">
+      <HintPath>Assets\Firebase\Plugins\Firebase.Crashlytics.dll</HintPath>
+    </Reference>
+    <Reference Include="Firebase.Firestore">
+      <HintPath>Assets\Firebase\Plugins\Firebase.Firestore.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.iOS.Extensions.Xcode">
       <HintPath>C:\Program Files\Unity\Hub\Editor\2022.3.6f1\Editor\Data\PlaybackEngines\iOSSupport\UnityEditor.iOS.Extensions.Xcode.dll</HintPath>

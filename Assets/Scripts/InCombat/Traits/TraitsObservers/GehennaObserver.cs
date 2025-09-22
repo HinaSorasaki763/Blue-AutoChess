@@ -69,7 +69,7 @@ public class GehennaObserver : CharacterObserverBase
     }
     public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
-        List<int> i = new List<int>() { 3, 4, 504, 12, 15, 17, 25 };//角色編號
+        List<int> i = new List<int>() { 3, 4, 504, 12, 15, 17, 25, 42, 43 };//角色編號
         if (detailedSource != "GehennaTraitDamage" && !i.Contains(source.characterStats.CharacterId))
         {
             int dmg = damage * (int)(PressureManager.Instance.GetPressure(source.IsAlly) * 0.01f);
