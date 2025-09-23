@@ -28,7 +28,7 @@ public class MillenniumObserver : CharacterObserverBase
     }
     public override void OnBattleEnd(bool isVictory, CharacterCTRL c)
     {
-        base.OnBattleEnd(isVictory,c);
+        base.OnBattleEnd(isVictory, c);
     }
     public override Dictionary<int, TraitLevelStats> GetTraitObserverLevel()
     {
@@ -61,7 +61,7 @@ public class MillenniumObserver : CharacterObserverBase
     }
     private void OnIncreaseDataLayer()
     {
-        if (SelectedAugments.Instance.CheckAugmetExist(120)) return;
+        if (SelectedAugments.Instance.CheckAugmetExist(120, character.IsAlly)) return;
         int stack = GetTraitObserverLevel()[traitLevel].Data1;
         if (character.CurrentHex.oasis)
         {
@@ -83,7 +83,7 @@ public class MillenniumObserver : CharacterObserverBase
     }
     public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
-        if (SelectedAugments.Instance.CheckAugmetExist(120))
+        if (SelectedAugments.Instance.CheckAugmetExist(120, source.IsAlly))
         {
             if (Utility.CheckExecuted(target, source, GetTraitObserverLevel()[traitLevel].Data1 * 0.01f, detailedSource))
             {

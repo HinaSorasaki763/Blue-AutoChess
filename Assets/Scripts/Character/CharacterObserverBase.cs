@@ -514,7 +514,7 @@ public class HoshinoObserver : CharacterObserverBase
     }
     public override int BeforeHealing(CharacterCTRL characterCTRL, int amount)
     {
-        if (SelectedAugments.Instance.CheckAugmetExist(100))
+        if (SelectedAugments.Instance.CheckAugmetExist(100,characterCTRL.IsAlly))
         {
             amount = (int)(amount * 1.2f);
         }
@@ -1097,7 +1097,7 @@ public class GlobalBaseObserver : CharacterObserverBase
     {
         if (character.traitController.GetAcademy() == Traits.Gehenna)
         {
-            PressureManager.Instance.AddPressure(1);
+            PressureManager.Instance.AddPressure(1,character.IsAlly);
         }
         base.OnKilledEnemy(character, detailedSource, characterDies);
     }

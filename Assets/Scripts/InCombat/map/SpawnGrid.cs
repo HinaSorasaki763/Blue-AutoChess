@@ -465,7 +465,7 @@ public class SpawnGrid : MonoBehaviour
 
     public void SetDesertifiedTiles(int count, int randomKey)
     {
-        if (SelectedAugments.Instance.CheckAugmetExist(102))
+        if (SelectedAugments.Instance.CheckAugmetExist(102, true))
         {
             count = 64;
         }

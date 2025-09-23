@@ -70,7 +70,7 @@ public class Shop : MonoBehaviour
         if (ResourcePool.Instance.ally.GetSpecificTrait(Traits.SRT) >= 2 && SRT_RandStatIndex != -1)
         {
             GameController.Instance.AddGold(-2);
-            SRTManager.instance.AddStat(SRT_RandStatIndex);
+            SRTManager.instance.AddStat(SRT_RandStatIndex,true);
             SRT_RandStatIndex = -1;
             ShopButtons[index].interactable = false;
             images[index].color = new Color(1, 1, 1, 0);
@@ -116,10 +116,10 @@ public class Shop : MonoBehaviour
         RoundProbability p = roundProbabilityData.roundProbabilities[currentRound];
 
         int count = 5 - (ResourcePool.Instance.ally.GetSpecificTrait(Traits.SRT) >= 2 ? 1 : 0);
-        if (SelectedAugments.Instance.CheckAugmetExist(126))
+        if (SelectedAugments.Instance.CheckAugmetExist(126,true))
         {
             count = 5;
-            SRTManager.instance.AddStat(UnityEngine.Random.Range(0, 4));
+            SRTManager.instance.AddStat(UnityEngine.Random.Range(0, 4),true);
         }
         for (int i = 0; i < count; i++)
         {
@@ -249,7 +249,7 @@ public class Shop : MonoBehaviour
         {
             int randIndex = UnityEngine.Random.Range(0, characterList.Count);
             int result = characterList[randIndex].CharacterId;
-            if (SelectedAugments.Instance.CheckAugmetExist(4) && result == 4)
+            if (SelectedAugments.Instance.CheckAugmetExist(4, true) && result == 4)
             {
                 result += 500;
             }

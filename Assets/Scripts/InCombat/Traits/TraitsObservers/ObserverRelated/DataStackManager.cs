@@ -51,7 +51,7 @@ public class DataStackManager : MonoBehaviour
             if (CurrentDataStack >= floorKey && !claimedFloors.Contains(floorKey))
             {
                 floorRewardMapping[floorKey]?.Invoke();
-                if (SelectedAugments.Instance.CheckAugmetExist(121))
+                if (SelectedAugments.Instance.CheckAugmetExist(121,true))
                 {
                     int amount = (int)(SRTManager.instance.SRT_Mill_CostMoney / 10) * (floorKey/100);
                     for (int i = 0; i < amount; i++)
@@ -183,11 +183,11 @@ public class DataStackManager : MonoBehaviour
 
     public void AddDataStack(int amount)
     {
-        if (SelectedAugments.Instance.CheckAugmetExist(111))
+        if (SelectedAugments.Instance.CheckAugmetExist(111,true))
         {
-            if (SelectedAugments.Instance.CheckIfConditionMatch(111))
+            if (SelectedAugments.Instance.CheckIfConditionMatch(111,true))
             {
-                PressureManager.Instance.AddPressure(amount);
+                PressureManager.Instance.AddPressure(amount,true);
                 DataStackManager.Instance.AddDataStack(amount);
                 return;
             }

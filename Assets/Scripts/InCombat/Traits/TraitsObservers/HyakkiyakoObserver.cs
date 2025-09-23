@@ -61,9 +61,9 @@ public class HyakkiyakoObserver : CharacterObserverBase
         float currHealth = character.GetStat(StatsType.currHealth);
         float newHealth = currHealth - amount;
         float newPercentage = newHealth / maxHealth;
-        if (SelectedAugments.Instance.CheckAugmetExist(117) && !augment117_triggered)
+        if (SelectedAugments.Instance.CheckAugmetExist(117,character.IsAlly) && !augment117_triggered)
         {
-            float SRT_HyakkiyakoThreshold = character.GetStat(StatsType.Health) - SRTManager.instance.GetStats().GetStat(StatsType.Health);
+            float SRT_HyakkiyakoThreshold = character.GetStat(StatsType.Health) - BattlingProperties.Instance.GetSRTStats(character.IsAlly).GetStat(StatsType.Health);
             if (newHealth <= SRT_HyakkiyakoThreshold)
             {
                 newHealth = SRT_HyakkiyakoThreshold;
@@ -145,7 +145,7 @@ public class HyakkiyakoObserver : CharacterObserverBase
     }
     public override bool BeforeDying(CharacterCTRL parent)
     {
-        if (!SelectedAugments.Instance.CheckAugmetExist(119)) return false;
+        if (!SelectedAugments.Instance.CheckAugmetExist(119,parent.IsAlly)) return false;
         if (augment119_triggered) return false;
         else
         {
@@ -169,7 +169,7 @@ public class HyakkiyakoObserver : CharacterObserverBase
     public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
         CustomLogger.Log(this, $"character {source} dealt {damage} to {target} at {Time.time}");
-        if (SelectedAugments.Instance.CheckAugmetExist(118) && Utility.GetRandfloat(source) >=0.5f)
+        if (SelectedAugments.Instance.CheckAugmetExist(118,source.IsAlly) && Utility.GetRandfloat(source) >=0.5f)
         {
             TrinityManager.Instance.AddStack(target.transform.position, detailedSource, target.CurrentHex, source);
         }

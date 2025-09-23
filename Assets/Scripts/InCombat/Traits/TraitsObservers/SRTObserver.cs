@@ -25,7 +25,7 @@ public class SRTObserver : CharacterObserverBase
     }
     public override void ActivateTrait()
     {
-        if (SelectedAugments.Instance.CheckAugmetExist(107))
+        if (SelectedAugments.Instance.CheckAugmetExist(107, true))
         {
             CharacterParent c = ResourcePool.Instance.ally;
             List<CharacterCTRL> Arius = c.GetCharacterWithTraits(Traits.Arius);

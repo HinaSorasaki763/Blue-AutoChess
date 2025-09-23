@@ -1,5 +1,4 @@
 using GameEnum;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -21,7 +20,7 @@ public abstract class Augment
     {
 
     }
-    public virtual void Trigger()
+    public virtual void Trigger(bool isally)
     {
 
     }
@@ -33,9 +32,9 @@ public abstract class Augment
 }
 public class CharacterEnhanceAugment : Augment
 {
-    public CharacterEnhanceAugment(AugmentConfig config) : base(config) 
+    public CharacterEnhanceAugment(AugmentConfig config) : base(config)
     {
-        
+
     }
     public override void Apply()
     {
@@ -209,20 +208,24 @@ public class AcademyAugment : Augment
 
         CustomLogger.Log(this, $"{academyAugment.Name} special effect from AcademyAugment ,{academyAugment.Name}");
     }
-    public override void Trigger()
+    public override void Trigger(bool isally)
     {
+        if (!isally)
+        {
+            CustomLogger.LogError(this, $"is not ally,cant trigger");
+        }
         switch (config.augmentIndex)
         {
             case 109:
-                Gehenna_AriusAugment gehenna_ = new Gehenna_AriusAugment( config);
-                gehenna_.Trigger();
+                Gehenna_AriusAugment gehenna_ = new Gehenna_AriusAugment(config);
+                gehenna_.Trigger(isally);
                 break;
             default:
-                CustomLogger.LogError(this,$"Augment {config.augmentIndex} is triggered but not having an actual method");
+                CustomLogger.LogError(this, $"Augment {config.augmentIndex} is triggered but not having an actual method");
                 break;
             case 124:
                 SRTAugment SRTAugment = new SRTAugment(config);
-                SRTAugment.Trigger();
+                SRTAugment.Trigger(isally);
                 break;
         }
     }
@@ -257,9 +260,9 @@ public class Gehenna_AriusAugment : AcademyAugment
         }
 
     }
-    public override void Trigger()
+    public override void Trigger(bool isally)
     {
-        PressureManager.Instance.AddPressure(200);
+        PressureManager.Instance.AddPressure(200, true);
     }
 }
 public class Trinity_GehennaAugment : AcademyAugment
@@ -277,7 +280,7 @@ public class Abydos_SRTAugment : AcademyAugment
     public Abydos_SRTAugment(AugmentConfig config) : base(config) { }
     public override void Apply()
     {
-        
+
     }
 }
 public class Abydos_GehennaAugment : AcademyAugment
@@ -285,9 +288,9 @@ public class Abydos_GehennaAugment : AcademyAugment
     public Abydos_GehennaAugment(AugmentConfig config) : base(config) { }
     public override void Apply()
     {
-        
+
     }
-    public override void Trigger()
+    public override void Trigger(bool isally)
     {
         ResourcePool.Instance.GetRandCharacterPrefab(25);
         ResourcePool.Instance.GetRandCharacterPrefab(26);
@@ -296,7 +299,8 @@ public class Abydos_GehennaAugment : AcademyAugment
     {
         int stars = ResourcePool.Instance.ally
             .GetNoneRepeatCharacterOnField()
-            .Where(c => {
+            .Where(c =>
+            {
                 var academy = c.traitController.GetAcademy();
                 return academy == Traits.Abydos || academy == Traits.Gehenna;
             })
@@ -341,7 +345,7 @@ public class AriusAugment : AcademyAugment
     public AriusAugment(AugmentConfig config) : base(config) { }
     public override void Apply()
     {
-        
+
     }
 }
 public class AbydosAugment : AcademyAugment
@@ -390,7 +394,7 @@ public class SRT_MillenniumAugment : AcademyAugment
     {
         CustomLogger.Log(this, $"{config.augmentName} special effect from {config.augmentName}");
     }
-    public override void Trigger()
+    public override void Trigger(bool isally)
     {
         for (int i = 0; i < 2; i++)
         {
@@ -414,7 +418,7 @@ public class SRTAugment : AcademyAugment
     {
         CustomLogger.Log(this, $"{config.augmentName} special effect from {config.augmentName}");
     }
-    public override void Trigger()
+    public override void Trigger(bool isally)
     {
         CustomLogger.Log(this, $"Trigger {config.augmentName} special effect from {config.augmentName}");
         int rand = UnityEngine.Random.Range(25, 31);
@@ -445,7 +449,7 @@ public class TrinityAugment : AcademyAugment
 public class Abydos_AriusAugment : AcademyAugment
 {
     public Abydos_AriusAugment(AugmentConfig config) : base(config) { }
-    public override void Apply() 
+    public override void Apply()
     {
         ResourcePool.Instance.GetRandCharacterPrefab(26);
         for (int i = 0; i < 2; i++)
@@ -465,7 +469,7 @@ public class Abydos_AriusAugment : AcademyAugment
 public class Abydos_HyakkiyakoAugment : AcademyAugment
 {
     public Abydos_HyakkiyakoAugment(AugmentConfig config) : base(config) { }
-    public override void Apply() 
+    public override void Apply()
     {
         for (int i = 0; i < 2; i++)
         {
@@ -485,7 +489,7 @@ public class Abydos_HyakkiyakoAugment : AcademyAugment
 public class Abydos_MillenniumAugment : AcademyAugment
 {
     public Abydos_MillenniumAugment(AugmentConfig config) : base(config) { }
-    public override void Apply() 
+    public override void Apply()
     {
         IEquipment equipment = Utility.GetSpecificEquipment(29);
         EquipmentManager.Instance.AddEquipmentItem(equipment);
@@ -507,7 +511,7 @@ public class Abydos_MillenniumAugment : AcademyAugment
 public class Abydos_TrinityAugment : AcademyAugment
 {
     public Abydos_TrinityAugment(AugmentConfig config) : base(config) { }
-    public override void Apply() 
+    public override void Apply()
     {
         for (int i = 0; i < 2; i++)
         {
@@ -527,7 +531,7 @@ public class Abydos_TrinityAugment : AcademyAugment
 public class Gehenna_HyakkiyakoAugment : AcademyAugment
 {
     public Gehenna_HyakkiyakoAugment(AugmentConfig config) : base(config) { }
-    public override void Apply() 
+    public override void Apply()
     {
         for (int i = 0; i < 2; i++)
         {
@@ -547,7 +551,7 @@ public class Gehenna_HyakkiyakoAugment : AcademyAugment
 public class Gehenna_MillenniumAugment : AcademyAugment
 {
     public Gehenna_MillenniumAugment(AugmentConfig config) : base(config) { }
-    public override void Apply() 
+    public override void Apply()
     {
         for (int i = 0; i < 2; i++)
         {
@@ -599,7 +603,7 @@ public class Gehenna_MillenniumAugment : AcademyAugment
 public class Gehenna_SRTAugment : AcademyAugment
 {
     public Gehenna_SRTAugment(AugmentConfig config) : base(config) { }
-    public override void Apply() 
+    public override void Apply()
     {
         for (int i = 0; i < 2; i++)
         {
@@ -619,7 +623,7 @@ public class Gehenna_SRTAugment : AcademyAugment
 public class Gehenna_TrinityAugment : AcademyAugment
 {
     public Gehenna_TrinityAugment(AugmentConfig config) : base(config) { }
-    public override void Apply() 
+    public override void Apply()
     {
         for (int i = 0; i < 2; i++)
         {
@@ -639,7 +643,7 @@ public class Gehenna_TrinityAugment : AcademyAugment
 public class GehennaAugment : AcademyAugment
 {
     public GehennaAugment(AugmentConfig config) : base(config) { }
-    public override void Apply() 
+    public override void Apply()
     {
         BenchManager.Instance.AddToBench(Utility.GetSpecificCharacterToSpawn(41));
         for (int i = 0; i < 2; i++)
@@ -659,7 +663,7 @@ public class GehennaAugment : AcademyAugment
 public class Hyakkiyako_AriusAugment : AcademyAugment
 {
     public Hyakkiyako_AriusAugment(AugmentConfig config) : base(config) { }
-    public override void Apply() 
+    public override void Apply()
     {
         for (int i = 0; i < 2; i++)
         {
@@ -739,7 +743,7 @@ public class Hyakkiyako_TrinityAugment : AcademyAugment
 public class HyakkiyakoAugment : AcademyAugment
 {
     public HyakkiyakoAugment(AugmentConfig config) : base(config) { }
-    public override void Apply() 
+    public override void Apply()
     {
         for (int i = 0; i < 2; i++)
         {
@@ -798,7 +802,7 @@ public class Millennium_TrinityAugment : AcademyAugment
 public class Trinity_AriusAugment : AcademyAugment
 {
     public Trinity_AriusAugment(AugmentConfig config) : base(config) { }
-    public override void Apply() 
+    public override void Apply()
     {
         AriusManager.Instance.RemoveSelector();
         for (int i = 0; i < 2; i++)
@@ -880,7 +884,7 @@ public class AddManaObserver : CharacterObserverBase
     }
     public override void OnAttacking(CharacterCTRL character)
     {
-        character.Addmana( amount);
+        character.Addmana(amount);
         base.OnAttacking(character);
     }
 }

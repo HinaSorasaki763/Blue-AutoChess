@@ -8,7 +8,6 @@ public class PressureManager : MonoBehaviour
     public TraitsText TraitText;
     public int SRT_GehennaStack;
     public bool Augment109Triggered = false;
-    public bool Augment109CondMatch = false;
     private void Awake()
     {
         if (Instance == null)
@@ -31,23 +30,24 @@ public class PressureManager : MonoBehaviour
         else return EnemyTraitRelated.Instance.GetPressure();
 
     }
-    public void AddPressure(int amount)
+    public void AddPressure(int amount,bool isally)
     {
+        if (!isally)return;
         CurrentPressure += amount;
         SRT_GehennaStack += amount;
-        if (SelectedAugments.Instance.CheckAugmetExist(111))
+        if (SelectedAugments.Instance.CheckAugmetExist(111,true))
         {
-            if (!SelectedAugments.Instance.CheckIfConditionMatch(111))
+            if (!SelectedAugments.Instance.CheckIfConditionMatch(111,true))
             {
                 DataStackManager.Instance.AddDataStack(CurrentPressure);
                 return;
             }
         }
-        if (SelectedAugments.Instance.CheckAugmetExist(112) && SRT_GehennaStack >= 100)
+        if (SelectedAugments.Instance.CheckAugmetExist(112,true) && SRT_GehennaStack >= 100)
         {
             SRT_GehennaStack -= 100;
             int rand = Random.Range(0, 5);
-            SRTManager.instance.AddSRT_GehennaStat(rand);
+            SRTManager.instance.AddSRT_GehennaStat(rand,true);
         }
         UpdateIndicater();
     }
@@ -77,11 +77,11 @@ public class PressureManager : MonoBehaviour
     }
     public void HandleAugment109()
     {
-        if (!SelectedAugments.Instance.CheckAugmetExist(109)) return;
-        if (!Augment109CondMatch && !Augment109Triggered)
+        if (!SelectedAugments.Instance.CheckAugmetExist(109, true)) return;
+        if (!Augment109Triggered)
         {
             Augment109Triggered = true;
-            SelectedAugments.Instance.TriggerAugment(109);
+            SelectedAugments.Instance.TriggerAugment(109,true);
         }
     }
 }

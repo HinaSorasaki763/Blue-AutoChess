@@ -44,7 +44,7 @@ public class AbydosManager : MonoBehaviour
         {
             SRT_AbydosAugmentAffectedHpCount -= 1000;
             int rand = Random.Range(0, 5);
-            SRTManager.instance.AddStat(rand);
+            SRTManager.instance.AddStat(rand,true);
         }
     }
     public void Check102Stack(CharacterCTRL c )//TODO: add this

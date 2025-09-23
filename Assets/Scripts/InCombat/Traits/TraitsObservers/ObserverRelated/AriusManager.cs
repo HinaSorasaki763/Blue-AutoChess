@@ -113,7 +113,7 @@ public class AriusManager : MonoBehaviour
 
             if (!includeSonOfGod)
             {
-                if (SelectedAugments.Instance.CheckAugmetExist(125) && item.traitController.GetAcademy() == Traits.Trinity)
+                if (SelectedAugments.Instance.CheckAugmetExist(125, isally) && item.traitController.GetAcademy() == Traits.Trinity)
                 {
                     validCharacters.Add(item);
                 }

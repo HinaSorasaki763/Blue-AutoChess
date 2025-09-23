@@ -61,13 +61,11 @@ public class GameStageManager : MonoBehaviour
         CalculateGold();
         PressureManager.Instance.UpdateIndicater();
         uploader = new FirestoreUploader();
+
         await uploader.InitializeAsync();
         var opponents = await uploader.GetRandomOpponentsAsync(12, 8, 3);
         StartCoroutine(SpawnEnemyTeam(opponents));
-        foreach (var doc in opponents)
-        {
-            Debug.Log($"Use Opponent: {doc.Id}");
-        }
+
     }
     private IEnumerator SpawnEnemyTeam(List<Firebase.Firestore.DocumentSnapshot> documentSnapshots)
     {
@@ -167,7 +165,7 @@ public class GameStageManager : MonoBehaviour
         ResourcePool.Instance.enemy.ClearAllCharacter();
         DataStackManager.Instance.CheckDataStackRewards();
         endGamePopup.SetActive(false);
-        if (SelectedAugments.Instance.CheckAugmetExist(103))
+        if (SelectedAugments.Instance.CheckAugmetExist(103, true))
         {
             IEquipment equipment = Utility.GetSpecificEquipment(29);
             EquipmentManager.Instance.AddEquipmentItem(equipment);
@@ -205,11 +203,11 @@ public class GameStageManager : MonoBehaviour
                 WaveGridSlotData slotData = new WaveGridSlotData();
                 slotData.CharacterID = c.characterStats.CharacterId;
                 if (c.HexWhenBattleStart == null || c.HexWhenBattleStart.Index == -1 || c.characterStats.CharacterId == 999) continue;
-                slotData.GridIndex = c.HexWhenBattleStart.Index;
+                slotData.GridIndex = 65 - c.HexWhenBattleStart.Index;
                 slotData.Star = c.star;
                 if (c.characterStats.logistics)
                 {
-                    slotData.DummyGridIndex = c.Logistic_dummy.GetComponent<StaticObject>().CurrentHex.Index;
+                    slotData.DummyGridIndex = 65 - c.Logistic_dummy.GetComponent<StaticObject>().CurrentHex.Index;
                 }
                 slotData.EquipmentID = c.equipmentManager.GetEquipmentID();
                 waveGridSlotDatas.Add(slotData);
@@ -275,11 +273,11 @@ public class GameStageManager : MonoBehaviour
     {
 
         currentRound++;
-        if (defeatedTeam.isEnemy)
+        if (!defeatedTeam.isally)
         {
             netWin++;
             WinStreak++;
-            if (SelectedAugments.Instance.CheckAugmetExist(102))
+            if (SelectedAugments.Instance.CheckAugmetExist(102, true))
             {
                 foreach (var item in ResourcePool.Instance.ally.GetBattleFieldCharacter())
                 {
@@ -291,7 +289,7 @@ public class GameStageManager : MonoBehaviour
                 }
             }
             PressureManager.Instance.HandleAugment109();
-            if (SelectedAugments.Instance.CheckAugmetExist(116))
+            if (SelectedAugments.Instance.CheckAugmetExist(116, true))
             {
                 DataStackManager.Instance.floorRewardMapping[LoseStreak * 100].Invoke();
             }
@@ -306,7 +304,7 @@ public class GameStageManager : MonoBehaviour
             OnVictory(enemyParent, defeatedTeam);
         }
 
-        StartCoroutine(ShowEndGamePopup(defeatedTeam.isEnemy));
+        StartCoroutine(ShowEndGamePopup(!defeatedTeam.isally));
     }
 
     public void GainSupply()
@@ -366,7 +364,7 @@ public class GameStageManager : MonoBehaviour
     {
         startBattleFlag = false;
         DamageStatisticsManager.Instance.Reset125();
-        if (SelectedAugments.Instance.CheckAugmetExist(125))
+        if (SelectedAugments.Instance.CheckAugmetExist(125, true))
         {
             CharacterCTRL c = DamageStatisticsManager.Instance.GetAugment125Character(true);
             if (c == null)
@@ -378,10 +376,9 @@ public class GameStageManager : MonoBehaviour
         DamageStatisticsManager.Instance.ClearAll();
         BugReportLogger.Instance.EndBattle();
         enteringBattleCounter = 0;
-        Debug.Log(winningTeam.isEnemy ? "敵方勝利！" : "友方勝利！");
+        Debug.Log(winningTeam.isally ? "友方勝利！" : "敵方勝利！");
         EndBattleModal.Instance.currData = DataStackManager.Instance.GetData();
-        // 判斷玩家是否陣亡
-        if (winningTeam.isEnemy)
+        if (!winningTeam.isally)
         {
             int damage = CalculateDamageTaken(CurrentStage);
             PlayerHealth -= damage;
@@ -389,11 +386,9 @@ public class GameStageManager : MonoBehaviour
             if (PlayerHealth <= 0)
             {
                 Debug.Log("玩家已經陣亡！遊戲結束");
-                // 遊戲結束的邏輯
             }
         }
         EndBattleModal.Instance.UpdateHealth(PlayerHealth);
-
         foreach (var item in winningTeam.childCharacters)
         {
             if (item.activeInHierarchy)
@@ -450,7 +445,7 @@ public class GameStageManager : MonoBehaviour
         int gold = GameController.Instance.GetGoldAmount();
         int streakBonus = CalculateStreakBonus() * 2;
         int interest = GetInterest(gold);
-        if (SelectedAugments.Instance.CheckAugmetExist(126)) interest = 0;
+        if (SelectedAugments.Instance.CheckAugmetExist(126, true)) interest = 0;
         int amount = streakBonus + CurrentStage * 2 + 10 + interest;
         GameController.Instance.AddGold(amount);
         CustomLogger.Log(this, $"Gold: {gold}, Streak Bonus: {streakBonus},stagebouns = {CurrentStage + 3}, Total: {amount}");
@@ -458,7 +453,7 @@ public class GameStageManager : MonoBehaviour
     public int GetInterest(int gold)
     {
         int max = 5;
-        if (SelectedAugments.Instance.CheckAugmetExist(116))
+        if (SelectedAugments.Instance.CheckAugmetExist(116, true))
         {
             max = 7;
         }

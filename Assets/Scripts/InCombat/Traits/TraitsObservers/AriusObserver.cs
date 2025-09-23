@@ -17,7 +17,7 @@ public class AriusObserver : CharacterObserverBase
     }
     public override void ActivateTrait()
     {
-        if (SelectedAugments.Instance.CheckAugmetExist(107))
+        if (SelectedAugments.Instance.CheckAugmetExist(107,parent.IsAlly))
         {
             CharacterParent c = ResourcePool.Instance.ally;
             List<CharacterCTRL> Arius = c.GetCharacterWithTraits(Traits.Arius);
@@ -36,7 +36,7 @@ public class AriusObserver : CharacterObserverBase
         );
         parent.effectCTRL.AddEffect(effect, parent);
         CharacterParent Characterparent = parent.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
-        if (SelectedAugments.Instance.CheckAugmetExist(125))
+        if (SelectedAugments.Instance.CheckAugmetExist(125,parent.IsAlly))
         {
 
         }
@@ -45,7 +45,7 @@ public class AriusObserver : CharacterObserverBase
             item.effectCTRL.AddEffect(effect, item);
         }
         isactive = true;
-        if (!(SelectedAugments.Instance.CheckAugmetExist(100) || SelectedAugments.Instance.CheckAugmetExist(125)))
+        if (!(SelectedAugments.Instance.CheckAugmetExist(100, parent.IsAlly) || SelectedAugments.Instance.CheckAugmetExist(125, parent.IsAlly)))
         {
             AriusManager.Instance.GetSelector();
         }
@@ -100,14 +100,14 @@ public class AriusObserver : CharacterObserverBase
     public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
         bool active = false;
-        if (SelectedAugments.Instance.CheckAugmetExist(108))
+        if (SelectedAugments.Instance.CheckAugmetExist(108, parent.IsAlly))
         {
             CharacterCTRL god = AriusManager.Instance.SonOfGod;
             int healAmount = (int)(damage * GetTraitObserverLevel()[traitLevel].Data2 * 0.01f);
             god.Heal(healAmount, parent);
             return;
         }
-        else if (SelectedAugments.Instance.CheckAugmetExist(100))
+        else if (SelectedAugments.Instance.CheckAugmetExist(100, parent.IsAlly))
         {
             CharacterParent characterParent = source.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
             CharacterCTRL god = characterParent.GetStrongestCharacterByID(26);
@@ -133,7 +133,7 @@ public class AriusObserver : CharacterObserverBase
             int healamount = (int)(damage * GetTraitObserverLevel()[traitLevel].Data2 * 0.01f);
             lowest.Heal(healamount, parent);
         }
-        if (SelectedAugments.Instance.CheckAugmetExist(120))
+        if (SelectedAugments.Instance.CheckAugmetExist(120, parent.IsAlly))
         {
             if (Utility.CheckExecuted(target, source, GetTraitObserverLevel()[traitLevel].Data1 * 0.01f, detailedSource))
             {
@@ -178,7 +178,7 @@ public class AriusObserver : CharacterObserverBase
     }
     public override void CharacterStart(CharacterCTRL character)
     {
-        if (!SelectedAugments.Instance.CheckAugmetExist(108)) return;
+        if (!SelectedAugments.Instance.CheckAugmetExist(108, parent.IsAlly)) return;
         if (parent == AriusManager.Instance.SonOfGod)
         {
             CustomLogger.Log(this, $"{character.name} is son of god ,108 activated");
@@ -189,7 +189,7 @@ public class AriusObserver : CharacterObserverBase
     }
     public override void CharacterUpdate()
     {
-        if (!SelectedAugments.Instance.CheckAugmetExist(108) || !parent.InStasis) return;
+        if (!SelectedAugments.Instance.CheckAugmetExist(108, parent.IsAlly) || !parent.InStasis) return;
         if (Condition())
         {
             parent.customAnimator.animator.Update(0);

@@ -37,7 +37,7 @@ public class GehennaObserver : CharacterObserverBase
         int amount = GetTraitObserverLevel()[traitLevel].Data1;
         if (character.IsAlly)
         {
-            PressureManager.Instance.AddPressure(amount);
+            PressureManager.Instance.AddPressure(amount,character.IsAlly);
         }
         else
         {
@@ -53,7 +53,7 @@ public class GehennaObserver : CharacterObserverBase
         {
             if (character.IsAlly)
             {
-                PressureManager.Instance.AddPressure(1);
+                PressureManager.Instance.AddPressure(1, true);
             }
             Debug.Log($"[GehennaObserver] 回合胜利，原有的威壓：{PressureManager.Instance.GetPressure(true)}，威压层数增加 {GameController.Instance.GetAliveCount()}。");
         }

@@ -37,17 +37,17 @@ public class TrinityManager : MonoBehaviour
     public void TriggerComet(Vector3 targetPosition, string detailSource, HexNode h, CharacterCTRL c)
     {
         
-        if (SelectedAugments.Instance.CheckAugmetExist(122))
+        if (SelectedAugments.Instance.CheckAugmetExist(122,c.IsAlly))
         {
             HexNode he = SpawnGrid.Instance.GetHexNodeByPosition(targetPosition);
             targetPosition = SpawnGrid.Instance.FindBestHexNode(c, 2, true, false, he).Position;
         }
-        if (SelectedAugments.Instance.CheckAugmetExist(118))
+        if (SelectedAugments.Instance.CheckAugmetExist(118,c.IsAlly))
         {
             HexNode he = SpawnGrid.Instance.GetHexNodeByPosition(targetPosition);
             targetPosition = SpawnGrid.Instance.FindBestHexNode(c, 2, false, false, he).Position;
         }
-        if (SelectedAugments.Instance.CheckAugmetExist(127))
+        if (SelectedAugments.Instance.CheckAugmetExist(127, c.IsAlly))
         {
             GiveDessert(c);
         }
@@ -192,7 +192,7 @@ public class TrinityManager : MonoBehaviour
         }
         if (c == null) yield break;
         comet.transform.position = targetPosition;
-        if (SelectedAugments.Instance.CheckAugmetExist(105))
+        if (SelectedAugments.Instance.CheckAugmetExist(105, c.IsAlly))
         {
             h.TempDesert = true;
             h.TempDesert1 = false;
@@ -202,18 +202,18 @@ public class TrinityManager : MonoBehaviour
         (bool iscrit, int dmg1) = c.CalculateCrit(dmg);
 
         int range = 1;
-        if (SelectedAugments.Instance.CheckAugmetExist(113))
+        if (SelectedAugments.Instance.CheckAugmetExist(113, c.IsAlly))
         {
             float ratio = PressureManager.Instance.GetPressure(true) * 0.01f;
             dmg1 = (int)(dmg1 * (1 + ratio));
-            PressureManager.Instance.AddPressure(5);
+            PressureManager.Instance.AddPressure(5, c.IsAlly);
             range = 2;
         }
-        if (SelectedAugments.Instance.CheckAugmetExist(122))
+        if (SelectedAugments.Instance.CheckAugmetExist(122, c.IsAlly))
         {
             range++;
         }
-        if (SelectedAugments.Instance.CheckAugmetExist(118))
+        if (SelectedAugments.Instance.CheckAugmetExist(118, c.IsAlly))
         {
             foreach (var item in Utility.GetCharacterInrange(h, range, c, false))
             {

@@ -11,7 +11,7 @@ public class CharacterParent : MonoBehaviour
 {
     public List<GameObject> childCharacters = new();
     public GameEvent startBattle;
-    public bool isEnemy;
+    public bool isally;
     public Dictionary<Traits, int> currTraits = new Dictionary<Traits, int>();
     public bool IsBattling = false;
     private List<GameObject> totems = new List<GameObject>();
@@ -259,7 +259,7 @@ public class CharacterParent : MonoBehaviour
     {
         childCharacters.Add(obj);
         GetEmptyObserver(obj.GetComponent<CharacterCTRL>());
-        if (!isEnemy)
+        if (isally)
         {
             CheckAndCombineCharacters();
         }
@@ -317,7 +317,7 @@ public class CharacterParent : MonoBehaviour
 
 
             }
-            if (Shiroko_Terror_Postponed && !isEnemy)
+            if (Shiroko_Terror_Postponed && isally)
             {
                 if (Shiroko_Terror_Tempmark) return;
                 Shiroko_Terror_Tempmark = true;
@@ -348,8 +348,8 @@ public class CharacterParent : MonoBehaviour
     }
     public void Trigger109()
     {
-        if (!SelectedAugments.Instance.CheckAugmetExist(109)) return;
-        if (isEnemy)
+        if (!SelectedAugments.Instance.CheckAugmetExist(109,isally)) return;
+        if (!isally)
         {
             int[] ids = { 34, 32, 39 };
 
@@ -397,12 +397,12 @@ public class CharacterParent : MonoBehaviour
             int characterCount = traitCounts[trait];
             sb.AppendLine($"{trait} 拥有 {characterCount} 名角色激活");
             totalActivatedTraits += characterCount;
-            ApplyTraitEffect(trait, characterCount, battlefieldCharacters, isEnemy);
+            ApplyTraitEffect(trait, characterCount, battlefieldCharacters, !isally);
         }
         sb.AppendLine($"激活的羁绊数量总和：{totalActivatedTraits}");
         CustomLogger.Log(this, sb.ToString());
         currTraits = traitCounts;
-        if (!isEnemy)
+        if (isally)
         {
             TraitUIManager.Instance.UpdateTraitUI(traitCounts);
         }
@@ -414,11 +414,11 @@ public class CharacterParent : MonoBehaviour
         {
             item.SetActive(false);
         }
-        if (!isEnemy && GameStageManager.Instance.CurrGamePhase == GamePhase.Preparing)
+        if (isally && GameStageManager.Instance.CurrGamePhase == GamePhase.Preparing)
         {
             UpdateLogisticsDummies(battlefieldCharacters);
         }
-        if (SelectedAugments.Instance.CheckAugmetExist(124) && !SelectedAugments.Instance.TriggeredIndex.Contains(124))
+        if (SelectedAugments.Instance.CheckAugmetExist(124,isally) && !SelectedAugments.Instance.TriggeredIndex.Contains(124))
         {
             int srtCount = 0;
             foreach (var item in childCharacters)
@@ -431,7 +431,7 @@ public class CharacterParent : MonoBehaviour
             }
             if (srtCount >= 15)
             {
-                SelectedAugments.Instance.TriggerAugment(124);
+                SelectedAugments.Instance.TriggerAugment(124,isally);
             }
 
         }
@@ -448,7 +448,7 @@ public class CharacterParent : MonoBehaviour
             int characterCount = traitCounts[trait];
             sb.AppendLine($"{trait} 拥有 {characterCount} 名角色激活");
             totalActivatedTraits += characterCount;
-            ApplyTraitEffect(trait, characterCount, battlefieldCharacters, isEnemy);
+            ApplyTraitEffect(trait, characterCount, battlefieldCharacters, !isally);
         }
     }
     private void UpdateLogisticsDummies(List<CharacterCTRL> battlefieldCharacters)

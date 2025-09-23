@@ -23,7 +23,7 @@ public class AbydosObserver : CharacterObserverBase
     }
     public override void OnEnterBattleField(CharacterCTRL character)
     {
-        if (SelectedAugments.Instance.CheckIfConditionMatch(102))
+        if (SelectedAugments.Instance.CheckIfConditionMatch(102,character.IsAlly))
         {
             character.AddPercentageBonus(StatsType.Null, StatsType.Health, AbydosManager.Instance.Augment102_EarnedCount * 5, "Augment102");
             character.AddPercentageBonus(StatsType.Null, StatsType.Attack, AbydosManager.Instance.Augment102_EarnedCount * 5, "Augment102");
@@ -31,7 +31,7 @@ public class AbydosObserver : CharacterObserverBase
             character.AddPercentageBonus(StatsType.Null, StatsType.Resistence, AbydosManager.Instance.Augment102_EarnedCount * 5, "Augment102");
         }
         
-        if (SelectedAugments.Instance.CheckIfConditionMatch(107))
+        if (SelectedAugments.Instance.CheckIfConditionMatch(107, character.IsAlly))
         {
             AriusManager.Instance.AddArius(character);
         }

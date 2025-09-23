@@ -555,7 +555,7 @@ public static class EffectFactory
         );
 
     }
-    public static Effect CreateAbydosEffect(bool isAbydos, int level)
+    public static Effect CreateAbydosEffect(bool isAbydos, int level,bool isally)
     {
         Dictionary<int, TraitLevelStats> statsByStarLevel = new Dictionary<int, TraitLevelStats>()
         {
@@ -566,7 +566,7 @@ public static class EffectFactory
             {4, new TraitLevelStats(12,70,10)}
         };
         int effectiveness = statsByStarLevel[level].Data2 * (isAbydos ? 1 : -1);
-        if (SelectedAugments.Instance.CheckAugmetExist(100))
+        if (SelectedAugments.Instance.CheckAugmetExist(100,isally))
         {
             effectiveness = 0;
         }

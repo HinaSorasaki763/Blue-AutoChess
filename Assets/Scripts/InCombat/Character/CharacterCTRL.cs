@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 public class CharacterCTRL : MonoBehaviour
 {
@@ -191,7 +190,7 @@ public class CharacterCTRL : MonoBehaviour
         fearDuration = 0;
         effectCTRL.ClearAllEffect();
         SetStat(StatsType.Mana, 0);
-        int health =  (int)GetStat(StatsType.Health);
+        int health = (int)GetStat(StatsType.Health);
         SetStat(StatsType.currHealth, health);
     }
     public virtual void OnEnable()
@@ -363,10 +362,10 @@ public class CharacterCTRL : MonoBehaviour
                 {
                     CustomLogger.Log(this, "CurrentHex.isDesertified");
                     bool isAbydos = traitController.GetAcademy() == Traits.Abydos;
-                    Effect effect = EffectFactory.CreateAbydosEffect(isAbydos, AbydosManager.Instance.level);
+                    Effect effect = EffectFactory.CreateAbydosEffect(isAbydos, AbydosManager.Instance.level,IsAlly);
                     CustomLogger.Log(this, $"isabydos = {isAbydos}, effect = {effect.Source}");
                     effectCTRL.AddEffect(effect, this);
-                    if (SelectedAugments.Instance.CheckAugmetExist(106) && !effectCTRL.HaveEffect("AbydosMark"))
+                    if (SelectedAugments.Instance.CheckAugmetExist(106, IsAlly) && !effectCTRL.HaveEffect("AbydosMark"))
                     {
                         Effect effect1 = EffectFactory.CreateStunEffect(5f, this);
                         Effect effect2 = EffectFactory.AbydosEnhancedMark();
@@ -385,7 +384,7 @@ public class CharacterCTRL : MonoBehaviour
             {
                 DetectedPos = CurrentHex.transform.position + new Vector3(0, 0.3f, 0);
                 customAnimator.TryGetBool(customAnimator.animator, "CastSkill", out bool b);
-                if (!(stunned || IsFeared || b || effectCTRL.HaveEffect("Stun")||IsCastingAbility))
+                if (!(stunned || IsFeared || b || effectCTRL.HaveEffect("Stun") || IsCastingAbility))
                 {
                     HandleTargetFinding();
                     HandleAttack(canAttack);
@@ -806,7 +805,7 @@ public class CharacterCTRL : MonoBehaviour
         {
             int health = (int)(GetStat(StatsType.Health) * (isAbydos ? 1 : -1) * data3 * 0.01f);
             AddStat(StatsType.currHealth, health);
-            if (SelectedAugments.Instance.CheckAugmetExist(104))
+            if (SelectedAugments.Instance.CheckAugmetExist(104, IsAlly) && IsAlly)
             {
                 AbydosManager.Instance.AddSRTCounter(Math.Abs(health));
             }
@@ -1087,7 +1086,7 @@ public class CharacterCTRL : MonoBehaviour
                 item.OnApply.Invoke(this);
             }
         }
-        if (SelectedAugments.Instance.CheckAugmetExist(101))
+        if (SelectedAugments.Instance.CheckAugmetExist(101, IsAlly))
         {
             int id = characterStats.CharacterId;
             int partnerId = id == 25 ? 26 : id == 26 ? 25 : -1;
@@ -1104,7 +1103,7 @@ public class CharacterCTRL : MonoBehaviour
         CritCorrection();
         LifeStealCorrection();
         DodgeCorrection();
-        if (GetStat(StatsType.AttackSpeed) >=5)
+        if (GetStat(StatsType.AttackSpeed) >= 5)
         {
             SetStat(StatsType.AttackSpeed, 5);
         }
@@ -1112,9 +1111,9 @@ public class CharacterCTRL : MonoBehaviour
         {
             SetStat(StatsType.MaxMana, 30);
         }
-        if (GameController.Instance.CheckSpecificCharacterEnhanced(this, 43,IsAlly))
+        if (GameController.Instance.CheckSpecificCharacterEnhanced(this, 43, IsAlly))
         {
-            AddStat(StatsType.Range,3,false);
+            AddStat(StatsType.Range, 3, false);
         }
     }
 
@@ -1132,26 +1131,26 @@ public class CharacterCTRL : MonoBehaviour
         result.AddFrom(GameController.Instance.TeamExtraStats);
 
         if (traitController.HasTrait(Traits.SRT))
-            result.AddFrom(SRTManager.instance.GetStats());
+            result.AddFrom(BattlingProperties.Instance.GetSRTStats(IsAlly));
 
-        if (traitController.HasTrait(Traits.Abydos) && SelectedAugments.Instance.CheckAugmetExist(104))
-            result.AddFrom(SRTManager.instance.GetStats().MultiplyBy(0.5f));
-        if (traitController.HasTrait(Traits.Arius) && SelectedAugments.Instance.CheckAugmetExist(117))
-            result.AddFrom(SRTManager.instance.GetStats());
-        if (traitController.HasTrait(Traits.Arius) && !SelectedAugments.Instance.CheckIfConditionMatch(107))
-            result.AddFrom(SRTManager.instance.GetStats());
-        if (traitController.HasTrait(Traits.Arius) && SelectedAugments.Instance.CheckAugmetExist(125))
-            result.AddFrom(SRTManager.instance.GetStats());
-        if (characterStats.CharacterId == 41 && SelectedAugments.Instance.CheckAugmetExist(114))
+        if (traitController.HasTrait(Traits.Abydos) && SelectedAugments.Instance.CheckAugmetExist(104, IsAlly))
+            result.AddFrom(BattlingProperties.Instance.GetSRTStats(IsAlly).MultiplyBy(0.5f));
+        if (traitController.HasTrait(Traits.Arius) && SelectedAugments.Instance.CheckAugmetExist(117, IsAlly))
+            result.AddFrom(BattlingProperties.Instance.GetSRTStats(IsAlly));
+        if (traitController.HasTrait(Traits.Arius) && !SelectedAugments.Instance.CheckIfConditionMatch(107, IsAlly))
+            result.AddFrom(BattlingProperties.Instance.GetSRTStats(IsAlly));
+        if (traitController.HasTrait(Traits.Arius) && SelectedAugments.Instance.CheckAugmetExist(125, IsAlly))
+            result.AddFrom(BattlingProperties.Instance.GetSRTStats(IsAlly));
+        if (characterStats.CharacterId == 41 && SelectedAugments.Instance.CheckAugmetExist(114, IsAlly))
             result.AddFrom(GetComponent<Panchan_AnimatorCTRL>().GetExtraStats());
-        if (SelectedAugments.Instance.CheckAugmetExist(107))
+        if (SelectedAugments.Instance.CheckAugmetExist(107, IsAlly))
         {
             CharacterParent c = ResourcePool.Instance.ally;
             List<CharacterCTRL> Arius = c.GetCharacterWithTraits(Traits.Arius);
             List<CharacterCTRL> SRT = c.GetCharacterWithTraits(Traits.SRT);
             if (Utility.CompareTwoGroups(SRT, Arius))
             {
-                result.AddFrom(SRTManager.instance.GetStats());
+                result.AddFrom(BattlingProperties.Instance.GetSRTStats(IsAlly));
             }
         }
 
@@ -1685,7 +1684,7 @@ public class CharacterCTRL : MonoBehaviour
             dmgRecivedOnWakamoMarked += (int)(finalAmount * wakamoMarkRatio);
         }
         CustomLogger.Log(this, $"{name} get hit by {sourceCharacter}'s {detailedSource} with {amount} iscrit:{isCrit} as {detailedSource}");
-        if (recursion) 
+        if (recursion)
         {
             foreach (var item in observers)
             {

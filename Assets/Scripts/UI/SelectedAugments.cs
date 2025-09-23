@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class SelectedAugments : MonoBehaviour
 {
     public List<Augment> selectedAugments = new List<Augment>(); // 儲存已選擇的強化選項
+    public List<Augment> enemySelectedAugments = new List<Augment>();
     public List<Button> buttons = new List<Button>();
     public static SelectedAugments Instance; // 單例模式
     public Sprite LockedSprite;
@@ -30,9 +31,10 @@ public class SelectedAugments : MonoBehaviour
             buttons[i].onClick.AddListener(() => ShowAugment(index));
         }
     }
-    public bool CheckAugmetExist(int index)
+    public bool CheckAugmetExist(int index, bool isally)
     {
-        return selectedAugments.Exists(item => item.config.augmentIndex == index);
+        List<Augment> l = isally ? selectedAugments : enemySelectedAugments;
+        return l.Exists(item => item.config.augmentIndex == index);
     }
 
     public void AddAugment(Augment augment)
@@ -58,7 +60,7 @@ public class SelectedAugments : MonoBehaviour
         string description = language == 0 ? selectedAugments[index].Description : selectedAugments[index].DescriptionEnglish;
         descriptions[index].text = description;
     }
-    public void TriggerAugment(int index)
+    public void TriggerAugment(int index,bool isally)
     {
         if (TriggeredIndex.Contains(index)) return;
         foreach (Augment augment in selectedAugments)
@@ -66,7 +68,7 @@ public class SelectedAugments : MonoBehaviour
             if (augment.config.augmentIndex == index)
             {
                 TriggeredIndex.Add(augment.config.augmentIndex);
-                augment.Trigger();
+                augment.Trigger(isally);
 
             }
         }
@@ -76,10 +78,10 @@ public class SelectedAugments : MonoBehaviour
     /// </summary>
     /// <param name="index"></param>
     /// <returns></returns>
-    public bool CheckIfConditionMatch(int index)
+    public bool CheckIfConditionMatch(int index, bool isally)
     {
-        
-        if (!CheckAugmetExist(index))
+
+        if (!CheckAugmetExist(index, isally))
         {
             return false;
         }
