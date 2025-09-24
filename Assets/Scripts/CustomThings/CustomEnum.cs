@@ -807,6 +807,39 @@ namespace GameEnum
                 stat.value = 0;
             }
         }
+        public List<Stat> GetAllStats()
+        {
+            List<Stat> copy = new List<Stat>();
+            foreach (var stat in stats)
+            {
+                copy.Add(stat.Clone());
+            }
+            return copy;
+        }
+        public static StatsContainer FromDict(Dictionary<string, object> dict)
+        {
+            StatsContainer container = new StatsContainer();
+
+            foreach (var kvp in dict)
+            {
+                if (Enum.TryParse(kvp.Key, out StatsType type))
+                {
+                    // Firestore float/double 都可能是 System.Double
+                    float val = 0f;
+                    if (kvp.Value is long l) val = l;
+                    else if (kvp.Value is double d) val = (float)d;
+                    else if (kvp.Value is float f) val = f;
+
+                    container.SetStat(type, val);
+                }
+                else
+                {
+                    Debug.LogWarning($"Unknown stat key: {kvp.Key}");
+                }
+            }
+
+            return container;
+        }
     }
     [Serializable]
     public class Stat

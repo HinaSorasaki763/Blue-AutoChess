@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class SelectedAugments : MonoBehaviour
 {
     public List<Augment> selectedAugments = new List<Augment>(); // 儲存已選擇的強化選項
-    public List<Augment> enemySelectedAugments = new List<Augment>();
+    public List<int> enemySelectedAugments = new();
     public List<Button> buttons = new List<Button>();
     public static SelectedAugments Instance; // 單例模式
     public Sprite LockedSprite;
@@ -33,8 +33,8 @@ public class SelectedAugments : MonoBehaviour
     }
     public bool CheckAugmetExist(int index, bool isally)
     {
-        List<Augment> l = isally ? selectedAugments : enemySelectedAugments;
-        return l.Exists(item => item.config.augmentIndex == index);
+        if (isally) return selectedAugments.Exists(item => item.config.augmentIndex == index);
+        else return enemySelectedAugments.Exists(item => item == index);
     }
 
     public void AddAugment(Augment augment)
@@ -59,6 +59,15 @@ public class SelectedAugments : MonoBehaviour
         int language = PlayerSettings.SelectedDropdownValue;
         string description = language == 0 ? selectedAugments[index].Description : selectedAugments[index].DescriptionEnglish;
         descriptions[index].text = description;
+    }
+    public List<int> GetAugmentIndex()
+    {
+        List<int> idx = new List<int>();
+        foreach (var item in selectedAugments)
+        {
+            idx.Add(item.config.augmentIndex);
+        }
+        return idx;
     }
     public void TriggerAugment(int index,bool isally)
     {

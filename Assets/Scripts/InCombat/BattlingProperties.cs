@@ -37,6 +37,20 @@ public class BattlingProperties : MonoBehaviour
         StatsContainer statsContainer = isAlly ? Ally_SRT_GehennaPernamentStats : Enemy_SRT_GehennaPernamentStats;
         statsContainer.AddValue(statsType, amount);
     }
+    public void SetSRTStats(StatsContainer statsContainer,bool isAlly)
+    {
+        StatsContainer s = isAlly ? Ally_SRTPernamentStats : Enemy_SRTPernamentStats;
+        StatsContainer newStats = new StatsContainer();
+        newStats.AddFrom(statsContainer);
+        s = newStats;
+    }
+    public void SetSRT_GehennaStats(StatsContainer statsContainer,bool isAlly)
+    {
+        StatsContainer s = isAlly ? Ally_SRT_GehennaPernamentStats : Enemy_SRT_GehennaPernamentStats;
+        StatsContainer newStats = new StatsContainer();
+        newStats.AddFrom(statsContainer);
+        s = newStats;
+    }
     // Update is called once per frame
     void Update()
     {

@@ -2386,20 +2386,20 @@ public class YukariSkill : CharacterSkillBase
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(50,80,5,2)},
-            {2, new StarLevelStats(75,125,10,2)},
-            {3, new StarLevelStats(125,250,15,3)}
+            {1, new StarLevelStats(50,80,75,2)},
+            {2, new StarLevelStats(75,125,125,2)},
+            {3, new StarLevelStats(125,250,375,3)}
         };
         return statsByStarLevel;
     }
     public override int GetAttackCoefficient(SkillContext skillContext)
     {
         StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
-        int BaseShield = stats.Data1;
-        int manaRatio = stats.Data2;
-        int healthRatio = stats.Data3;
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        int manaRatio = stats.Data3;
         CharacterParent characterParent = skillContext.Parent.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
-        return BaseShield + (int)(manaRatio * 0.0001f * skillContext.Parent.GetAttack() * characterParent.YukariManacount) + (int)(healthRatio * 0.01f + skillContext.Parent.GetStat(StatsType.Health));
+        return BaseDmg + (int)(manaRatio * 0.0001f * skillContext.Parent.GetAttack() * characterParent.YukariManacount) + (int)(DmgRatio * 0.01f + skillContext.Parent.GetStat(StatsType.Attack));
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
@@ -2428,21 +2428,21 @@ public class YukariEnhancedSkill : CharacterSkillBase
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(50,80,5,2)},
-            {2, new StarLevelStats(75,125,10,2)},
-            {3, new StarLevelStats(125,250,15,3)}
+            {1, new StarLevelStats(50,80,75,2)},
+            {2, new StarLevelStats(75,125,125,2)},
+            {3, new StarLevelStats(125,250,375,3)}
         };
         return statsByStarLevel;
     }
     public override int GetAttackCoefficient(SkillContext skillContext)
     {
         StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
-        int BaseShield = stats.Data1;
-        int ShieldRatio = stats.Data2;
-        int healthRatio = stats.Data3;
-        return BaseShield + (int)(ShieldRatio * 0.01f * skillContext.Parent.GetAttack()) + (int)(healthRatio * 0.01f + skillContext.Parent.GetStat(StatsType.Health));
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        int manaRatio = stats.Data3;
+        CharacterParent characterParent = skillContext.Parent.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+        return BaseDmg + (int)(manaRatio * 0.0001f * skillContext.Parent.GetAttack() * characterParent.YukariManacount) + (int)(DmgRatio * 0.01f + skillContext.Parent.GetStat(StatsType.Attack));
     }
-
     public override void ExecuteSkill(SkillContext skillContext)
     {
 
@@ -2686,9 +2686,9 @@ public class HimariSkill : CharacterSkillBase
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(5,8,1,0,0.25f)},
-            {2, new StarLevelStats(60,8,1,0,0.25f)},
-            {3, new StarLevelStats(999,219,10,0,0.25f)}
+            {1, new StarLevelStats(25,8,1,0,0.25f)},
+            {2, new StarLevelStats(35,8,1,0,0.25f)},
+            {3, new StarLevelStats(45,219,10,0,0.25f)}
         };
         return statsByStarLevel;
     }
@@ -2705,7 +2705,7 @@ public class HimariSkill : CharacterSkillBase
         CharacterParent characterParent = skillContext.Parent.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
         CharacterCTRL ally = Utility.GetSpecificCharacters(characterParent.GetBattleFieldCharacter(), StatsType.Attack, false, 1, true)[0];
         int amount = (int)ally.GetStat(StatsType.Attack);
-        Effect effect = EffectFactory.StatckableStatsEffct(5, "Himari", 1, StatsType.Attack, skillContext.Parent, false);
+        Effect effect = EffectFactory.StatckableStatsEffct(5, "Himari", GetCharacterLevel()[skillContext.CharacterLevel].Data1, StatsType.Attack, skillContext.Parent, false);
         effect.SetActions(
             (character) => character.ModifyStats(StatsType.Attack, effect.Value, effect.Source),
             (character) => character.ModifyStats(StatsType.Attack, -effect.Value, effect.Source)
@@ -3535,9 +3535,9 @@ public class MeguSkill : CharacterSkillBase
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(50,115)},
-            {2, new StarLevelStats(70,150)},
-            {3, new StarLevelStats(125,230)}
+            {1, new StarLevelStats(50,115,1,0,0)},
+            {2, new StarLevelStats(80,130,1,0,0)},
+            {3, new StarLevelStats(110,175,2,0,0)}
         };
         return statsByStarLevel;
     }
@@ -3546,7 +3546,8 @@ public class MeguSkill : CharacterSkillBase
         StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
         int BaseDmg = stats.Data1;
         int DmgRatio = stats.Data2;
-        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+        int PressureRatio = stats.Data3;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack()) + (int)(PressureRatio * PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly));
     }
     public override void ExecuteSkill(SkillContext ctx)
     {

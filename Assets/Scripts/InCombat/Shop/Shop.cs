@@ -249,6 +249,10 @@ public class Shop : MonoBehaviour
         {
             int randIndex = UnityEngine.Random.Range(0, characterList.Count);
             int result = characterList[randIndex].CharacterId;
+            if (!SelectedAugments.Instance.CheckAugmetExist(4, true) && result == 504)
+            {
+                result = 4;
+            }
             if (SelectedAugments.Instance.CheckAugmetExist(4, true) && result == 4)
             {
                 result += 500;

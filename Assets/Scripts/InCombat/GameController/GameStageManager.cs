@@ -71,6 +71,7 @@ public class GameStageManager : MonoBehaviour
     {
         yield return new WaitForSeconds(5);
         EnemySpawner.Instance.SpawnOpponentTeam(documentSnapshots[0]);
+
     }
 
     private IEnumerator ShowEndGamePopup(bool isEnemy)
@@ -229,7 +230,8 @@ public class GameStageManager : MonoBehaviour
         {
             try
             {
-                await uploader.UploadTeamAsync("player123", 5, 12, 8, waveGridSlotDatas);
+                StatsContainer statsContainer = BattlingProperties.Instance.GetSRTStats(true);
+                await uploader.UploadTeamAsync("player123", 5, 12, 8, waveGridSlotDatas,statsContainer,SelectedAugments.Instance.GetAugmentIndex());
             }
             catch (Exception ex)
             {

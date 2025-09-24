@@ -85,6 +85,28 @@ public class EnemySpawner : MonoBehaviour
             return;
         }
         var data = opponentDoc.ToDictionary();
+        StatsContainer statsContainer = null;
+        if (data.TryGetValue("stats", out object statsObj) && statsObj is Dictionary<string, object> statsDict)
+        {
+            statsContainer = StatsContainer.FromDict(statsDict);
+        }
+        else
+        {
+            Debug.LogWarning("Opponent doc has no valid stats, using empty StatsContainer.");
+            statsContainer = new StatsContainer();
+        }
+        BattlingProperties.Instance.SetSRTStats(statsContainer, false);
+        if (data.TryGetValue("SelectedAugments", out object augmentsObj) && augmentsObj is List<object> augList)
+        {
+            List<int> selectedAugments = augList.Select(a => Convert.ToInt32(a)).ToList();
+            SelectedAugments.Instance.enemySelectedAugments.Clear();
+            SelectedAugments.Instance.enemySelectedAugments = selectedAugments;
+        }
+        else
+        {
+            Debug.LogWarning("Opponent doc has no valid SelectedAugments.");
+        }
+
         if (!data.TryGetValue("slots", out object slotsObj) || !(slotsObj is List<object> slotsList))
         {
             Debug.LogError("Opponent doc has no valid slots.");

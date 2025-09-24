@@ -5,6 +5,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GameEnum;
+using System;
 
 public class FirestoreUploader
 {
@@ -24,7 +26,14 @@ public class FirestoreUploader
         }
     }
 
-    public async Task UploadTeamAsync(string playerId, int round, int totalGames, int winGames, List<WaveGridSlotData> slots)
+    public async Task UploadTeamAsync(
+    string playerId,
+    int round,
+    int totalGames,
+    int winGames,
+    List<WaveGridSlotData> slots,
+    StatsContainer statsContainer,
+    List<int> SelectedAugments)
     {
         Debug.Log("Start Upload");
 
@@ -36,7 +45,15 @@ public class FirestoreUploader
 
         try
         {
+            // slots Âà´«
             var slotDicts = slots.Select(FirestoreConverter.ToDict).ToList();
+
+            // stats Âà´«
+            var statsDict = new Dictionary<string, object>();
+            foreach (var stat in statsContainer.GetAllStats())
+            {
+                statsDict[stat.statType.ToString()] = stat.value;
+            }
 
             var data = new Dictionary<string, object>
         {
@@ -45,6 +62,8 @@ public class FirestoreUploader
             { "totalGames", totalGames },
             { "winGames", winGames },
             { "slots", slotDicts },
+            { "stats", statsDict },
+            { "SelectedAugments",SelectedAugments},
             { "timestamp", Timestamp.GetCurrentTimestamp() },
             { "tag", "testbuild" }
         };
@@ -52,11 +71,12 @@ public class FirestoreUploader
             var result = await db.Collection("teams").AddAsync(data);
             Debug.Log($"Team uploaded. DocID={result.Id}");
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             Debug.LogError($"Upload failed: {e.Message}\n{e.StackTrace}");
         }
     }
+
 
 
     public async Task<List<DocumentSnapshot>> GetRandomOpponentsAsync(int totalGames, int winGames, int count = 3)
