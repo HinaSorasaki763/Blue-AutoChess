@@ -58,16 +58,18 @@ MonoBehaviour:
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
-  - "\u5C0D\u7576\u524D\u76EE\u6A19\u767C\u52D5\u591A\u6BB5\u653B\u64CA\uFF0C\n\u6BCF\u6BB5\u9020\u6210
-    {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C\n\u53EF\u89F8\u767C\u591A\u6B21\u547D\u4E2D\u6548\u679C\u3002"
-  - "Neru launches a multi-hit attack against her current target, \r\nwith each hit
-    dealing {data1} + ({data2}% \xD7  {Attack}) damage (Final: {Final}). \r\nEach
-    instance of damage from this skill triggers an on-hit effect.\r\n"
+  - "\u88AB\u52D5:\u6BCF\u7576\u5C3C\u797F\u7684\u653B\u64CA\u547D\u4E2D\u6642\uFF0C\u5728\u672C\u56DE\u5408\u589E\u52A0\u653B\u64CA\u529B\u3002\n\u5C0D\u7576\u524D\u76EE\u6A19\u767C\u52D5\u591A\u6BB5\u653B\u64CA\uFF0C\n\u6BCF\u6BB5\u9020\u6210
+    {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C\n\u4E14\u53EF\u89F8\u767C\u591A\u6B21\u547D\u4E2D\u6548\u679C\u3002"
+  - "Passive: Each time Neru's attacks hit, she gains increased Attack for the rest
+    of this round.\r\n\r\n\nNeru launches a multi-hit attack against her current
+    target, \r\nwith each hit dealing {data1} + ({data2}% \xD7  {Attack}) damage
+    (Final: {Final}). \r\nEach instance of damage from this skill triggers an on-hit
+    effect.\r\n"
   EnhancedSkillTooltips:
   - "\u88AB\u52D5:\u5C3C\u797F(Neru)\u6BCF\u7576\u653B\u64CA\u547D\u4E2D\u6642\uFF0C\u5728\u672C\u56DE\u5408\u589E\u52A0\u653B\u64CA\u529B\u3002\n\u5C3C\u797F(Neru)\u5C0D\u7576\u524D\u76EE\u6A19\u767C\u52D5\u591A\u6BB5\u653B\u64CA\uFF0C\u6BCF\u6BB5\u9020\u6210
     {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C\u6BCF\u4E00\u6B21\u6B64\u6280\u80FD\u6240\u9020\u6210\u7684\u50B7\u5BB3\u90FD\u6703\u89F8\u767C\u4E00\u6B21\u547D\u4E2D\u6548\u679C\u3002\n\u73FE\u5728\u6280\u80FD\u6240\u767C\u5C04\u7684\u5B50\u5F48\u9084\u6703\u5F48\u5C04\u5230\u9130\u8FD1\u6575\u4EBA\u4E00\u6B21(\u76E1\u53EF\u80FD\u5F48\u5C04\u5230\u4E0D\u540C\u6575\u4EBA)\uFF0C\u9020\u6210{data3}%\u7684\u539F\u59CB\u50B7\u5BB3\uFF0C\u4F46\u89F8\u767C\u5168\u984D\u547D\u4E2D\u6548\u679C\uFF0C\u82E5\u7121\u5176\u9918\u6575\u4EBA\u5247\u5C0D\u540C\u4E00\u6575\u4EBA\u7D50\u7B97\u50B7\u5BB3\u548C\u547D\u4E2D\u6548\u679C\u3002"
-  - "Passive: Each time Neru's attacks hit, she gains increased Attack for the remainder
-    of the turn.\r\n\r\nActive: Neru launches a multi-hit attack against her current
+  - "Passive: Each time Neru's attacks hit, she gains increased Attack for the rest
+    of this round.\r\n\r\nActive: Neru launches a multi-hit attack against her current
     target, \r\nwith each hit dealing {data1} + ({data2}% \xD7 {Attack}) damage (Final:
     {Final}). \r\nEach instance of damage from this skill triggers an on-hit effect.
     \r\nAdditionally, bullets now bounce once to a nearby enemy (prioritizing different
@@ -75,5 +77,6 @@ MonoBehaviour:
     triggering on-hit effects. \r\nIf no other enemies are available, the bounce
     damage and on-hit effect are applied again to the same enemy.\r\n"
   isObj: 0
+  CanPutBack: 1
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

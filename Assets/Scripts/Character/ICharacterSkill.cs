@@ -8,9 +8,6 @@ using System.Text;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
-using static Unity.VisualScripting.Member;
-using static UnityEditor.Progress;
 public abstract class CharacterSkillBase
 {
     public virtual Dictionary<int, StarLevelStats> GetCharacterLevel()
@@ -3593,7 +3590,6 @@ public class MeguSkill : CharacterSkillBase
 
     public List<HexNode> GetHexSet(HexNode center, HexNode target, int range)
     {
-        // 六邊形的 6 個方向 (cube 坐標)
         Vector3Int[] dirs =
         {
         new Vector3Int(+1, -1, 0),

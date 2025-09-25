@@ -514,7 +514,7 @@ public class HoshinoObserver : CharacterObserverBase
     }
     public override int BeforeHealing(CharacterCTRL characterCTRL, int amount)
     {
-        if (SelectedAugments.Instance.CheckAugmetExist(100,characterCTRL.IsAlly))
+        if (SelectedAugments.Instance.CheckAugmetExist(100, characterCTRL.IsAlly))
         {
             amount = (int)(amount * 1.2f);
         }
@@ -860,43 +860,80 @@ public class TsurugiObserver : CharacterObserverBase
         if (character.Target == null) return;
         character.transform.LookAt(character.Target.transform);
         HexNode origin = character.CurrentHex;
-        HexNode targetHex = character.Target.GetComponent<CharacterCTRL>().CurrentHex;
-        int range = 1;
+        HexNode target = character.Target.GetComponent<CharacterCTRL>().CurrentHex;
         if (skill.Enhancing)
         {
             skill.SpecialAttackCount--;
-            range++;
             if (skill.SpecialAttackCount <= 0)
             {
                 skill.ResetAttackType();
             }
         }
-
-        List<HexNode> candidates = Utility.GetHexInRange(origin, range);
-        Vector3 forward = (origin.Position - targetHex.Position).normalized;
-        List<HexNode> affectedHex = new List<HexNode>();
-
-        foreach (var hex in candidates)
+        HexNode nearest = null;
+        float minDist = float.MaxValue;
+        foreach (var n in character.CurrentHex.Neighbors)
         {
-            if (hex == targetHex) continue;
-
-            Vector3 dir = (origin.Position - hex.Position).normalized;
-            float angle = Vector3.Angle(forward, dir);
-
-            if (Mathf.Abs(angle) <= 61)
-            {
-                affectedHex.Add(hex);
-                CustomLogger.Log(this, $"Get {hex.name} on {hex.Position} with angle {angle} ,{dir} compare to {forward}");
-            }
+            float d = Vector3.Distance(target.Position, n.Position);
+            if (d < minDist) { minDist = d; nearest = n; }
         }
-
-        foreach (var item in Utility.GetCharacterInSet(affectedHex, character, false))
+        if (nearest == null) return;
+        Vector3 offset = character.CurrentHex.Position - nearest.Position;
+        HexNode mirror = SpawnGrid.Instance.GetHexNodeByPosition(nearest.Position - offset);
+        var observer = character.traitController.GetObserverForTrait(Traits.Barrage) as BarrageObserver;
+        List<HexNode> targetHex = GetHexSet(nearest, mirror, observer.CastTimes + 1);
+        targetHex.Add(nearest);
+        targetHex.ForEach(n => n.SetColorState(ColorState.TemporaryYellow, 1f));
+        foreach (var item in Utility.GetCharacterInSet(targetHex, character, false))
         {
             (bool iscrit, int dmg1) = character.CalculateCrit((int)character.GetStat(StatsType.Attack));
             item.GetHit(dmg1, character, DamageSourceType.NormalAttack.ToString(), iscrit);
         }
-    }
 
+    }
+    public List<HexNode> GetHexSet(HexNode center, HexNode target, int range)
+    {
+        Vector3Int[] dirs =
+        {
+        new Vector3Int(+1, -1, 0),
+        new Vector3Int(+1, 0, -1),
+        new Vector3Int(0, +1, -1),
+        new Vector3Int(-1, +1, 0),
+        new Vector3Int(-1, 0, +1),
+        new Vector3Int(0, -1, +1)
+    };
+
+        // 找出最接近 target 的方向
+        int dx = target.X - center.X, dy = target.Y - center.Y, dz = target.Z - center.Z;
+        int bestDir = 0, minDist = int.MaxValue;
+        for (int i = 0; i < 6; i++)
+        {
+            int diff = Mathf.Abs(dx - dirs[i].x) + Mathf.Abs(dy - dirs[i].y) + Mathf.Abs(dz - dirs[i].z);
+            if (diff < minDist) { minDist = diff; bestDir = i; }
+        }
+
+        int[] dirIndex = { bestDir, (bestDir + 1) % 6, (bestDir + 5) % 6 };
+
+        HashSet<HexNode> result = new HashSet<HexNode>();
+        Queue<HexNode> frontier = new Queue<HexNode>();
+        frontier.Enqueue(center);
+
+        for (int step = 0; step < range; step++)
+        {
+            int count = frontier.Count;
+            for (int i = 0; i < count; i++)
+            {
+                HexNode node = frontier.Dequeue();
+                foreach (int d in dirIndex)
+                {
+                    Vector3Int offset = dirs[d];
+                    string key = SpawnGrid.Instance.CubeCoordinatesToKey(node.X + offset.x, node.Y + offset.y, node.Z + offset.z);
+                    if (SpawnGrid.Instance.hexNodes.TryGetValue(key, out HexNode next) && result.Add(next))
+                        frontier.Enqueue(next);
+                }
+            }
+        }
+        return result.ToList();
+    }
 }
 public class NeruObserver : CharacterObserverBase
 {
@@ -1097,7 +1134,7 @@ public class GlobalBaseObserver : CharacterObserverBase
     {
         if (character.traitController.GetAcademy() == Traits.Gehenna)
         {
-            PressureManager.Instance.AddPressure(1,character.IsAlly);
+            PressureManager.Instance.AddPressure(1, character.IsAlly);
         }
         base.OnKilledEnemy(character, detailedSource, characterDies);
     }
