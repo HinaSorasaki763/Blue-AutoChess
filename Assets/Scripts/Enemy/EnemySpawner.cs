@@ -85,7 +85,7 @@ public class EnemySpawner : MonoBehaviour
             return;
         }
         var data = opponentDoc.ToDictionary();
-        StatsContainer statsContainer = null;
+        StatsContainer statsContainer = new StatsContainer();
         if (data.TryGetValue("stats", out object statsObj) && statsObj is Dictionary<string, object> statsDict)
         {
             statsContainer = StatsContainer.FromDict(statsDict);

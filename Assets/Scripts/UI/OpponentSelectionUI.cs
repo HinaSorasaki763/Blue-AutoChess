@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
+using Firebase.Firestore;
+using System;
 
 public class OpponentSelectionUI : MonoBehaviour
 {
@@ -34,35 +36,53 @@ public class OpponentSelectionUI : MonoBehaviour
         UpdateSelectionIndicators(-1);
     }
 
-    public void Show(List<EnemyWave> waves)
+    public void Show(List<DocumentSnapshot> opponents)
     {
         panel.SetActive(true);
+
         for (int i = 0; i < opponentPanels.Count; i++)
         {
-            if (i < waves.Count)
+            if (i < opponents.Count)
             {
                 opponentPanels[i].SetActive(true);
-                var revealedSlots = enemySpawner.GetRevealedCharacters(waves[i]);
 
-                // 顯示揭露的角色圖片
+                var data = opponents[i].ToDictionary();
+
+                // 嘗試讀 slots
+                if (!data.TryGetValue("slots", out object slotsObj) || !(slotsObj is List<object> slotsList))
+                {
+                    Debug.LogError("Opponent doc has no valid slots.");
+                    opponentPanels[i].SetActive(false);
+                    continue;
+                }
+
+                // 顯示角色圖片
                 for (int j = 0; j < opponentImages[i].Count; j++)
                 {
-                    if (j < revealedSlots.Count)
+                    if (j < slotsList.Count)
                     {
-                        Character characterData = ResourcePool.Instance.GetCharacterByID(revealedSlots[j].CharacterID);
-                        opponentImages[i][j].sprite = characterData.Sprite;
+                        var slotDict = slotsList[j] as Dictionary<string, object>;
+                        if (slotDict == null) continue;
+
+                        int charId = Convert.ToInt32(slotDict["CharacterID"]);
+                        Character characterData = ResourcePool.Instance.GetCharacterByID(charId);
+
+                        if (characterData != null)
+                            opponentImages[i][j].sprite = characterData.Sprite;
+                        else
+                            opponentImages[i][j].sprite = null;
                     }
                     else
                     {
-                        opponentImages[i][j].sprite = null; // 如果沒有足夠的揭露角色，清空圖片
+                        opponentImages[i][j].sprite = null;
                     }
                 }
 
                 // 更新角色總數顯示
-                characterCountTexts[i].text = $"character count: {waves[i].gridSlots.Count}";
+                characterCountTexts[i].text = $"character count: {slotsList.Count}";
 
-                // 設定按鈕的點擊事件，傳入當前的索引
-                int index = i; // 使用局部變數避免閉包問題
+                // 設定按鈕事件
+                int index = i;
                 opponentButtons[i].onClick.RemoveAllListeners();
                 opponentButtons[i].onClick.AddListener(() => SelectOpponent(index));
             }

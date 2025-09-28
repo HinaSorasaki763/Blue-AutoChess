@@ -1,8 +1,10 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class StartMenuController : MonoBehaviour
 {
+    public TextMeshProUGUI PlayerName;
     public void StartGame()
     {
         // 加载场景，确保场景名正确
@@ -24,5 +26,13 @@ public class StartMenuController : MonoBehaviour
     public void BGMPlay()
     {
         BGMManager.Instance.ToggleBGM();
+    }
+    public void Update()
+    {
+        if (PlayerName.gameObject.activeInHierarchy)
+        {
+            PlayerName.text = PlayerSession.Instance.Data.Name;
+        }
+
     }
 }

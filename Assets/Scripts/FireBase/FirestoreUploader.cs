@@ -26,14 +26,7 @@ public class FirestoreUploader
         }
     }
 
-    public async Task UploadTeamAsync(
-    string playerId,
-    int round,
-    int totalGames,
-    int winGames,
-    List<WaveGridSlotData> slots,
-    StatsContainer statsContainer,
-    List<int> SelectedAugments)
+    public async Task UploadTeamAsync(TeamData teamData)
     {
         Debug.Log("Start Upload");
 
@@ -46,24 +39,24 @@ public class FirestoreUploader
         try
         {
             // slots Âà´«
-            var slotDicts = slots.Select(FirestoreConverter.ToDict).ToList();
+            var slotDicts = teamData.slots.Select(FirestoreConverter.ToDict).ToList();
 
             // stats Âà´«
             var statsDict = new Dictionary<string, object>();
-            foreach (var stat in statsContainer.GetAllStats())
+            foreach (var stat in teamData.statsContainer.GetAllStats())
             {
                 statsDict[stat.statType.ToString()] = stat.value;
             }
 
             var data = new Dictionary<string, object>
         {
-            { "playerId", playerId },
-            { "round", round },
-            { "totalGames", totalGames },
-            { "winGames", winGames },
+            { "playerId", teamData.playerId },
+            { "round", teamData.round },
+            { "totalGames", teamData.totalGames },
+            { "winGames", teamData.winGames },
             { "slots", slotDicts },
             { "stats", statsDict },
-            { "SelectedAugments",SelectedAugments},
+            { "SelectedAugments", teamData.selectedAugments },
             { "timestamp", Timestamp.GetCurrentTimestamp() },
             { "tag", "testbuild" }
         };
@@ -137,4 +130,15 @@ public class FirestoreUploader
             Debug.Log(doc.ToDictionary().ToDebugString());
         }
     }
+}
+public class TeamData
+{
+    public string Name;
+    public string playerId;
+    public int round;
+    public int totalGames;
+    public int winGames;
+    public List<WaveGridSlotData> slots;
+    public StatsContainer statsContainer;
+    public List<int> selectedAugments;
 }

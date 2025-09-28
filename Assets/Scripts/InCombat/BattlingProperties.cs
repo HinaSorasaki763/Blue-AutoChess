@@ -6,7 +6,6 @@ using UnityEngine;
 public class BattlingProperties : MonoBehaviour
 {
     public static BattlingProperties Instance;
-    public bool IsAlly;
     public StatsContainer Ally_SRTPernamentStats = new StatsContainer();
     public StatsContainer Ally_SRT_GehennaPernamentStats = new StatsContainer();
     public StatsContainer Enemy_SRTPernamentStats = new StatsContainer();

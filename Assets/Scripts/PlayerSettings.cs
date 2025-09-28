@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +8,7 @@ public class PlayerSettings : MonoBehaviour
 {
     public static PlayerSettings Instance;
     public static int SelectedDropdownValue;
+
 
     [SerializeField] private TMPro.TMP_Dropdown LanguageDropdown;
     private List<string> dropdownOptions = new List<string> { "¤¤¤å", "English" };
@@ -40,4 +42,5 @@ public class PlayerSettings : MonoBehaviour
         PlayerPrefs.SetInt("MyDropdownSelection", newValue);
         PlayerPrefs.Save();
     }
+
 }

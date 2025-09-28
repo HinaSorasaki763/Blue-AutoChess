@@ -126,6 +126,7 @@
     <Compile Include="Assets\Scripts\UI\EquipmentUIManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\Kasumi_DrillCTRL.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\AtsukoDroneCTRL.cs" />
+    <Compile Include="Assets\Scripts\FireBase\PlayerSession.cs" />
     <Compile Include="Assets\Scripts\InCombat\costumBullet\TrailedBullet.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\PercisionObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\AbydosObserver.cs" />
@@ -213,6 +214,7 @@
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\TokiActiveSkill.cs" />
     <Compile Include="Assets\Scripts\InCombat\GameController\GameController.cs" />
     <Compile Include="Assets\Firebase\FirebaseAI\ModelContent.cs" />
+    <Compile Include="Assets\Scripts\FireBase\FirebaseAuthManager.cs" />
     <Compile Include="Assets\Scripts\GlobalAudioManager.cs" />
     <Compile Include="Assets\Scripts\UI\DamageStatisticsManager.cs" />
     <Compile Include="Assets\Scripts\UI\ShowAugment.cs" />
@@ -222,6 +224,7 @@
     <Compile Include="Assets\Scripts\Enemy\PVE_EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\InCombat\PathFinding\HexNode.cs" />
     <Compile Include="Assets\Scripts\Augments\AugmentFactory.cs" />
+    <Compile Include="Assets\Scripts\FireBase\AuthUIController.cs" />
     <Compile Include="Assets\Scripts\CustomThings\Balancing_SO.cs" />
     <Compile Include="Assets\Firebase\FirebaseAI\Internal\EnumConverters.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\DisruptorObserver.cs" />

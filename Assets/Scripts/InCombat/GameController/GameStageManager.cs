@@ -1,3 +1,4 @@
+using Firebase.Firestore;
 using GameEnum;
 using System;
 using System.Collections;
@@ -38,6 +39,7 @@ public class GameStageManager : MonoBehaviour
     public RewardPopup rewardPopup;
     readonly int OvertimeThreshold = 30;
     private FirestoreUploader uploader;
+    private List<DocumentSnapshot> temp = new();
     public int WinStreak { get; private set; } = 0; // 連勝次數
     public int LoseStreak { get; private set; } = 0; // 連敗次數
 
@@ -63,14 +65,14 @@ public class GameStageManager : MonoBehaviour
         uploader = new FirestoreUploader();
 
         await uploader.InitializeAsync();
-        var opponents = await uploader.GetRandomOpponentsAsync(12, 8, 3);
-        StartCoroutine(SpawnEnemyTeam(opponents));
+        var opponents = await uploader.GetRandomOpponentsAsync(currentRound, currentRound, 3);
+        temp = opponents;
+        opponentSelectionUI.Show(opponents);
 
     }
-    private IEnumerator SpawnEnemyTeam(List<Firebase.Firestore.DocumentSnapshot> documentSnapshots)
+    private void SpawnEnemyTeam(int id)
     {
-        yield return new WaitForSeconds(5);
-        EnemySpawner.Instance.SpawnOpponentTeam(documentSnapshots[0]);
+        EnemySpawner.Instance.SpawnOpponentTeam(temp[id]);
 
     }
 
@@ -86,10 +88,7 @@ public class GameStageManager : MonoBehaviour
     public void StartBattle()
     {
         if (CurrGamePhase == GamePhase.Battling) return;
-        // 隨機選擇三個敵人波次並顯示選擇 UI
-        //TODO: 根據玩家選擇決定波次，目前PVE不需要
-        /*EnemySpawner.Instance.SelectRandomEnemyWaves();
-        opponentSelectionUI.Show(EnemySpawner.Instance.selectedEnemyWaves);*/
+
         if (ResourcePool.Instance.enemy.childCharacters.Count != 0)
         {
             StartCoroutine(StartBattleCorutine());
@@ -128,9 +127,7 @@ public class GameStageManager : MonoBehaviour
             Debug.LogError("No opponent selected.");
             return;
         }
-
-        // 根據選擇的對手波次生成敵人
-        EnemySpawner.Instance.PlayerSelectWave(selectedIndex);
+        SpawnEnemyTeam(selectedIndex);
         opponentSelectionUI.Hide();
         StartCoroutine(StartBattleCorutine());
         EndBattleModal.Instance.lastPressure = PressureManager.Instance.GetPressure(true);
@@ -219,19 +216,67 @@ public class GameStageManager : MonoBehaviour
                     $"DummyGrid={slotData.DummyGridIndex}, " +
                     $"Equip=[{string.Join(",", slotData.EquipmentID)}]"
                 );
+
             }
         }
-        SaveTeamInBackground(waveGridSlotDatas);
-
+        StatsContainer statsContainer = BattlingProperties.Instance.GetSRTStats(true);
+        int i = currentRound;
+        var teamData = new TeamData
+        {
+            Name = PlayerSession.Instance.Data.Name,
+            playerId = PlayerSession.Instance.Data.Uid,
+            round = i,
+            totalGames = i,
+            winGames = i,
+            slots = waveGridSlotDatas,
+            statsContainer = statsContainer,
+            selectedAugments = SelectedAugments.Instance.GetAugmentIndex()
+        };
+        SaveTeamInBackground(teamData);
     }
-    private void SaveTeamInBackground(List<WaveGridSlotData> waveGridSlotDatas)
+    private void AddFakeData()
+    {
+        for (int i = 0; i < 20; i++)
+        {
+            List<WaveGridSlotData> waveGridSlotDatas = new List<WaveGridSlotData>();
+            for (int j = 0; j < 3; j++)
+            {
+                WaveGridSlotData slotData = new WaveGridSlotData();
+                slotData.CharacterID = 999;
+                slotData.GridIndex = 35 + j;
+                slotData.Star = 1;
+                slotData.EquipmentID = new List<int> { };
+                waveGridSlotDatas.Add(slotData);
+                Debug.Log(
+                    $"[SlotData] CharID={slotData.CharacterID}, " +
+                    $"Grid={slotData.GridIndex}, " +
+                    $"Star={slotData.Star}, " +
+                    $"DummyGrid={slotData.DummyGridIndex}, " +
+                    $"Equip=[{string.Join(",", slotData.EquipmentID)}]"
+                );
+                StatsContainer statsContainer = new StatsContainer();
+                var teamData = new TeamData
+                {
+                    Name = PlayerSession.Instance.Data.Name,
+                    playerId = "TestBuildDummy",
+                    round = i,
+                    totalGames = i,
+                    winGames = i,
+                    slots = waveGridSlotDatas,
+                    statsContainer = statsContainer,
+                    selectedAugments = SelectedAugments.Instance.GetAugmentIndex()
+                };
+                SaveTeamInBackground(teamData);
+            }   
+        }
+    }
+    private void SaveTeamInBackground(TeamData teamData)
     {
         _ = Task.Run(async () =>
         {
             try
             {
-                StatsContainer statsContainer = BattlingProperties.Instance.GetSRTStats(true);
-                await uploader.UploadTeamAsync("player123", 5, 12, 8, waveGridSlotDatas,statsContainer,SelectedAugments.Instance.GetAugmentIndex());
+                await uploader.UploadTeamAsync(teamData);
             }
             catch (Exception ex)
             {
@@ -239,6 +284,7 @@ public class GameStageManager : MonoBehaviour
             }
         });
     }
+
 
     public void StorePosition()
     {
