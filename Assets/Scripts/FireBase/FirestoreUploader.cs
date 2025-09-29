@@ -50,6 +50,7 @@ public class FirestoreUploader
 
             var data = new Dictionary<string, object>
         {
+            { "playerName",teamData.Name },
             { "playerId", teamData.playerId },
             { "round", teamData.round },
             { "totalGames", teamData.totalGames },

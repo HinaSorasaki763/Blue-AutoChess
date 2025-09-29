@@ -1,9 +1,9 @@
-using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
-using TMPro;
 using Firebase.Firestore;
 using System;
+using System.Collections.Generic;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class OpponentSelectionUI : MonoBehaviour
 {
@@ -15,6 +15,7 @@ public class OpponentSelectionUI : MonoBehaviour
     public List<Image> opponentImages2;
     public List<Image> opponentImages3;
     public List<Button> opponentButtons; // 每個長條中的選擇按鈕
+    public List<string> opponentNames = new();
     public List<TextMeshProUGUI> selectionIndicators; // 指示目前被選取的對手
     public List<TextMeshProUGUI> characterCountTexts; // 顯示每個對手的角色總數
 
@@ -39,7 +40,7 @@ public class OpponentSelectionUI : MonoBehaviour
     public void Show(List<DocumentSnapshot> opponents)
     {
         panel.SetActive(true);
-
+        opponentNames.Clear();
         for (int i = 0; i < opponentPanels.Count; i++)
         {
             if (i < opponents.Count)
@@ -77,9 +78,14 @@ public class OpponentSelectionUI : MonoBehaviour
                         opponentImages[i][j].sprite = null;
                     }
                 }
+                data.TryGetValue("playerName", out object name);
+                string enemyName = string.Empty;
+                if (name != null)
+                {
+                    enemyName = name.ToString();
+                }
+                opponentNames.Add(enemyName);
 
-                // 更新角色總數顯示
-                characterCountTexts[i].text = $"character count: {slotsList.Count}";
 
                 // 設定按鈕事件
                 int index = i;
@@ -107,10 +113,12 @@ public class OpponentSelectionUI : MonoBehaviour
             if (i == selectedIndex)
             {
                 selectionIndicators[i].text = "selecting";
+                characterCountTexts[i].text = opponentNames[i];
             }
             else
             {
                 selectionIndicators[i].text = "";
+                characterCountTexts[i].text = "";
             }
         }
     }

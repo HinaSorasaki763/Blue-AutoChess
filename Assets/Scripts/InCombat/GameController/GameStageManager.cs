@@ -63,12 +63,10 @@ public class GameStageManager : MonoBehaviour
         CalculateGold();
         PressureManager.Instance.UpdateIndicater();
         uploader = new FirestoreUploader();
-
         await uploader.InitializeAsync();
         var opponents = await uploader.GetRandomOpponentsAsync(currentRound, currentRound, 3);
         temp = opponents;
-        opponentSelectionUI.Show(opponents);
-
+        
     }
     private void SpawnEnemyTeam(int id)
     {
@@ -87,20 +85,7 @@ public class GameStageManager : MonoBehaviour
     }
     public void StartBattle()
     {
-        if (CurrGamePhase == GamePhase.Battling) return;
-
-        if (ResourcePool.Instance.enemy.childCharacters.Count != 0)
-        {
-            StartCoroutine(StartBattleCorutine());
-            return;
-        }
-        GameController.Instance.SerinaEnhancedSkill_CritCount = 0;
-        PVE_EnemySpawner.Instance.SpawnEnemiesNextStage();
-        opponentSelectionUI.Hide();
-        StartCoroutine(StartBattleCorutine());
-        EndBattleModal.Instance.lastPressure = PressureManager.Instance.GetPressure(true);
-        EndBattleModal.Instance.lastData = DataStackManager.Instance.GetData();
-        SpawnGrid.Instance.SavePreparationPositions();
+        opponentSelectionUI.Show(temp);
     }
     public void SimulateAdvanceRound()
     {
@@ -257,7 +242,7 @@ public class GameStageManager : MonoBehaviour
                 StatsContainer statsContainer = new StatsContainer();
                 var teamData = new TeamData
                 {
-                    Name = PlayerSession.Instance.Data.Name,
+                    Name = $"TestBuildDummy Round{i}",
                     playerId = "TestBuildDummy",
                     round = i,
                     totalGames = i,
