@@ -27,7 +27,7 @@ public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHan
             GetComponent<CustomAnimatorController>().ChangeState(CharacterState.PickedUp);
 
         }
-
+        SpawnGrid.Instance.WallParent.SetActive(true);
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100f, LayerMask.GetMask("Grid")))
         {
             transform.position = hit.collider.transform.position + Vector3.up * 0.5f;
@@ -76,7 +76,7 @@ public class CharacterDrager : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         {
             GetComponent<CustomAnimatorController>().ChangeState(CharacterState.Idling);
         }
-
+        SpawnGrid.Instance.WallParent.SetActive(false);
         (bool, bool) tuple = GameController.Instance.TryMoveCharacter(characterCTRL, PreSelectedGrid);
         if (PreSelectedGrid != null && PreSelectedGrid.CompareTag("SellGrid"))
         {

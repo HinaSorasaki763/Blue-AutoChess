@@ -17,7 +17,7 @@ public class AuthUIController : MonoBehaviour
 
     void Start()
     {
-        authManager = FindObjectOfType<FirebaseAuthManager>();
+        authManager = FindFirstObjectByType<FirebaseAuthManager>();
         ShowLoginUI();
         PlayerSession.Instance.LoadLocal();
         if (PlayerSession.Instance.Data != null)

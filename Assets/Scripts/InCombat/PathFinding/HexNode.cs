@@ -275,6 +275,20 @@ public class HexNode : MonoBehaviour
             renderer.material = tileMaterial; // Ensure the material is applied
         }
     }
+    public void CreateFloatingPiece(Color color, float duration = 0f)
+    {
+        GameObject go = Instantiate(ResourcePool.Instance.ColorHexPrefab, transform.position + new Vector3(0, 0.3f, 0), Quaternion.Euler(-90, 0, 0));
+        Renderer renderer = go.GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            renderer.material.color = color;
+        }
+        if (duration > 0f)
+        {
+            Destroy(go, duration);
+        }
+    }
+
 
     public void SetColorState(ColorState state, float duration = 0f)
     {

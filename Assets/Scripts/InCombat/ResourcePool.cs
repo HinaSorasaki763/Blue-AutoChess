@@ -57,6 +57,7 @@ public class ResourcePool : MonoBehaviour
     public Sprite WakamosSprite;
     public Canvas EffectCanva;
     public Material BlackMat;
+    public GameObject ColorHexPrefab;
     private void Awake()
     {
         if (Instance != null && Instance != this)

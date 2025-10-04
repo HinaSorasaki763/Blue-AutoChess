@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8bf10c22e4ad45f478b5480360e4c8e6, type: 2}
+  - {fileID: 2100000, guid: c8c3e8ed30a2a1348a039a49f1de1e78, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -196,7 +196,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Position: {x: 0, y: 0, z: 0}
-  OccupyingCharacter: {fileID: 0}
+  EditMode: 0
+  occupyingCharacter: {fileID: 0}
   Neighbors: []
   gCost: 0
   hCost: 0
@@ -211,6 +212,11 @@ MonoBehaviour:
   IsBattlefield: 1
   IsLogistics: 0
   isDesertified: 0
+  TempDesert: 0
+  TempDesert1: 0
+  KasumiEnhancedSkill_mark: 0
+  KasumiEnhancedSkill_steamed: 0
+  oasis: 0
   isAllyHex: 0
   isBurning: 0
   currentColorState: 0

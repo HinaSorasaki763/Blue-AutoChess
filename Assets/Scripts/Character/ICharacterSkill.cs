@@ -1694,7 +1694,7 @@ public class KasumiSkill : CharacterSkillBase
                     Effect stunEffect = EffectFactory.CreateStunEffect(1f, neighbor.OccupyingCharacter);
                     neighbor.OccupyingCharacter.effectCTRL.AddEffect(stunEffect, neighbor.OccupyingCharacter);
                     neighbor.OccupyingCharacter.AudioManager.PlayCrowdControlledSound();
-                    neighbor.SetColorState(ColorState.TemporaryYellow, 1f);
+                    neighbor.CreateFloatingPiece(Color.yellow, 1f);
                     neighbor.OccupyingCharacter.GetHit(dmg1, parent, "KasumiExSkill", iscrit);
                 }
                 else
@@ -1787,7 +1787,7 @@ public class KasumiEnhancedSkill : CharacterSkillBase
                     EffectFactory.CreateStunEffect(1f, target), target
                 );
                 target.AudioManager.PlayCrowdControlledSound();
-                node.SetColorState(ColorState.TemporaryYellow, 1f);
+                node.CreateFloatingPiece(Color.yellow, 1f);
                 target.GetHit(dmg1, parent, "KasumiExSkill", iscrit);
             }
             else
@@ -2037,7 +2037,7 @@ public class MineSkill : CharacterSkillBase//美彌(Mine)跳躍到敵人最多�
                 neighbor.OccupyingCharacter.effectCTRL.AddEffect(stunEffect, neighbor.OccupyingCharacter);
                 neighbor.OccupyingCharacter.AudioManager.PlayCrowdControlledSound();
             }
-            neighbor.SetColorState(ColorState.TemporaryYellow, .5f);
+            neighbor.CreateFloatingPiece(Color.yellow, 1f);
         }
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
@@ -3562,7 +3562,7 @@ public class MeguSkill : CharacterSkillBase
         var observer = ctx.Parent.traitController.GetObserverForTrait(Traits.Barrage) as BarrageObserver;
         List<HexNode> targetHex = GetHexSet(nearest, mirror, observer.CastTimes + 1);
         targetHex.Add(nearest);
-        targetHex.ForEach(n => n.SetColorState(ColorState.TemporaryYellow, 1f));
+        targetHex.ForEach(n => n.CreateFloatingPiece(Color.yellow, 1f));
         ctx.Parent.StartCoroutine(BurnInRange(targetHex, ctx));
     }
 
@@ -3679,7 +3679,7 @@ public class MeguEnhancedSkill : CharacterSkillBase
         ctx.Parent.transform.LookAt(mirror.transform);
         List<HexNode> targetHex = GetHexSet(nearest, mirror, observer.CastTimes + 4);
         //targetHex.Add(nearest);
-        targetHex.ForEach(n => n.SetColorState(ColorState.TemporaryYellow, 1f));
+        targetHex.ForEach(n => n.CreateFloatingPiece(Color.yellow, 1f));
         ctx.Parent.StartCoroutine(BurnInRange(targetHex, ctx));
     }
 

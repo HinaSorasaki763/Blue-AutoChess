@@ -24,7 +24,6 @@ public class AegisObserver : CharacterObserverBase
     }
     public override void OnCastedSkill(CharacterCTRL character)
     {
-        base.OnCastedSkill(character);
         CustomLogger.Log(this,$"character at {character.CurrentHex.Position} casted skill");
         List<HexNode> inner = Utility.GetHexInRange(character.CurrentHex, 1);
         List<HexNode> outer = Utility.GetHexInRange(character.CurrentHex, 2);
@@ -34,7 +33,7 @@ public class AegisObserver : CharacterObserverBase
             {
                 if (!inner.Contains(neighbor))
                 {
-                    SpawnGrid.Instance.CreateWallIfNotExist(item, neighbor, character.IsAlly);
+                    SpawnGrid.Instance.CreateWallIfNotExist(item, neighbor, character.IsAlly,false);
                 }
             }
 

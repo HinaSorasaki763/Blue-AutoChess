@@ -24,7 +24,7 @@ public class OpponentSelectionUI : MonoBehaviour
 
     void Start()
     {
-        enemySpawner = FindObjectOfType<EnemySpawner>();
+        enemySpawner = FindFirstObjectByType<EnemySpawner>();
         panel.SetActive(false); // 一開始隱藏選擇 UI
         startBattleButton.interactable = false;
 

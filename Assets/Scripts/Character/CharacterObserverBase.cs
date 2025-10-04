@@ -882,7 +882,7 @@ public class TsurugiObserver : CharacterObserverBase
         var observer = character.traitController.GetObserverForTrait(Traits.Barrage) as BarrageObserver;
         List<HexNode> targetHex = GetHexSet(nearest, mirror, observer.CastTimes + 1);
         targetHex.Add(nearest);
-        targetHex.ForEach(n => n.SetColorState(ColorState.TemporaryYellow, 1f));
+        targetHex.ForEach(n => n.CreateFloatingPiece(Color.yellow,1f));
         foreach (var item in Utility.GetCharacterInSet(targetHex, character, false))
         {
             (bool iscrit, int dmg1) = character.CalculateCrit((int)character.GetStat(StatsType.Attack));

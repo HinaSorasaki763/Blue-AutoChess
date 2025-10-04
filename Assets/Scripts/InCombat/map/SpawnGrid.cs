@@ -13,12 +13,17 @@ public class SpawnGrid : MonoBehaviour
     public Dictionary<int, string> indexToCubeKey = new Dictionary<int, string>();
     private Dictionary<HexNode, CharacterCTRL> preparationPositions = new Dictionary<HexNode, CharacterCTRL>();
     public HashSet<string> createdAllyWalls = new HashSet<string>();
+    public HashSet<string> createdNotINteractableAllyWalls = new HashSet<string>();
+    public HashSet<string> createdNotINteractableLogisticAllyWalls = new HashSet<string>();
     public HashSet<string> createdEnemyWalls = new HashSet<string>();
     public List<GameObject> activeWalls = new List<GameObject>();
     public CharacterParent allyParent;
     private readonly Vector3 offset = new Vector3(0, 0.14f, 0);
     public HexNode LogisticNode1, LogisticNode2;
     public CharacterCTRL Logistic1, Logistic2;
+    public Texture2D mapTexture;
+    public Material hexMaterial;
+    public GameObject WallParent;
     void OnEnable()
     {
         Instance = this;
@@ -104,7 +109,9 @@ public class SpawnGrid : MonoBehaviour
     {
         for (int i = 0; i < gridSize * gridSize; i++)
         {
-            int col = i / gridSize, row = i % gridSize;
+            int col = i / gridSize;
+            int row = i % gridSize;
+
             float xPos = row * hexWidth + (col % 2 == 1 ? oddRowOffset : 0);
             float zPos = col * hexHeight;
             Vector3 pos = new Vector3(xPos, 0, zPos);
@@ -115,8 +122,9 @@ public class SpawnGrid : MonoBehaviour
             node.Position = pos;
             node.Index = i;
 
-            // Assign cube coordinates
-            int q = row - (col - (col & 1)) / 2, r = col;
+            // Cube coords
+            int q = row - (col - (col & 1)) / 2;
+            int r = col;
             node.X = q;
             node.Y = -q - r;
             node.Z = r;
@@ -124,23 +132,37 @@ public class SpawnGrid : MonoBehaviour
             string cubeCoordKey = CubeCoordinatesToKey(node.X, node.Y, node.Z);
             hexNodes[cubeCoordKey] = node;
             indexToCubeKey[i] = cubeCoordKey;
-            if (i < 32)
-            {
-                node.isAllyHex = true;
-            }
-            else
-            {
-                node.isAllyHex = false;
-            }
+            node.isAllyHex = i < 32;
         }
 
+        // 先初始化鄰居
         InitializeNeighbors();
+
+        // 在有鄰居資訊後生成牆壁
+        foreach (var node in hexNodes.Values)
+        {
+            if (node.Index <= 31)
+            {
+                CreateWallsAroundNodeWithBoundary(node, false);
+            }
+        }
+        CreateWallsForIsolatedNode(LogisticNode1, true);
+        CreateWallsForIsolatedNode(LogisticNode2, true);
+        foreach (var item in BenchManager.Instance.benchSlots)
+        {
+            CreateWallsForSquareNode(item.GetComponent<HexNode>());
+        }
+        WallParent.SetActive(false);
         ResourcesInitialized.Raise();
         foreach (var item in hexNodes.Values)
         {
             item.SetColorState(GameEnum.ColorState.Default);
         }
+
     }
+
+
+
     /// <summary>
     /// 取得從 (startCol, startRow) 開始、寬度為 width、高度固定 3 的六角格清單。
     /// </summary>
@@ -549,7 +571,7 @@ public class SpawnGrid : MonoBehaviour
 
 
 
-    public void CreateWallIfNotExist(HexNode node, HexNode neighbor, bool isAlly)
+    public void CreateWallIfNotExist(HexNode node, HexNode neighbor, bool isAlly, bool normal)
     {
         string wallKey = GetWallKey(node, neighbor);
         HashSet<string> wallSet = isAlly ? createdAllyWalls : createdEnemyWalls;
@@ -560,11 +582,127 @@ public class SpawnGrid : MonoBehaviour
         }
 
         wallSet.Add(wallKey);
-        CreateWall(node, neighbor, wallKey, isAlly);
+        CreateWall(node, neighbor, wallKey, isAlly, normal);
+
+    }
+    private static readonly Vector3[] SquareDirections =
+    {
+        new Vector3(1, 0, 0),   // 右
+        new Vector3(-1, 0, 0),  // 左
+        new Vector3(0, 0, 1),   // 上
+        new Vector3(0, 0, -1)   // 下
+    };
+
+    public void CreateWallsForSquareNode(HexNode node)
+    {
+        foreach (var dir in SquareDirections)
+        {
+            // 依照你的 hexWidth/hexHeight 來決定格子邊長
+            Vector3 offset = new Vector3(dir.x * 1, 0, dir.z * 1);
+
+            Vector3 midPos = node.transform.position + offset * 0.5f;
+            float angle = Mathf.Atan2(offset.z, offset.x) * Mathf.Rad2Deg;
+            Quaternion rotation = Quaternion.Euler(0, -angle, 0);
+
+            GameObject wallObj = ResourcePool.Instance.GetWall(new Vector3(midPos.x, 0.64f, midPos.z));
+            wallObj.transform.localScale = new Vector3(0.03f, 1, 1f);
+            wallObj.transform.rotation = rotation;
+            wallObj.GetComponent<BoxCollider>().enabled = false;
+            wallObj.transform.SetParent(WallParent.transform, false);
+
+            // 黑色
+            wallObj.GetComponent<Renderer>().material.color = Color.black;
+        }
     }
 
+    public void CreateWallsForIsolatedNode(HexNode node, bool isNotInteractable)
+    {
+        foreach (var dir in CubeDirections)
+        {
+            Vector3 offset = HexDirectionToWorldOffset(dir);
+            Vector3 midPos = node.transform.position + offset * 0.5f;
+            float angle = Mathf.Atan2(offset.z, offset.x) * Mathf.Rad2Deg;
+            Quaternion rotation = Quaternion.Euler(0, -angle, 0);
 
-    private void CreateWall(HexNode node, HexNode neighbor, string wallKey, bool isAllyWall)
+            GameObject wallObj = ResourcePool.Instance.GetWall(new Vector3(midPos.x, 0.64f, midPos.z));
+            wallObj.transform.rotation = rotation;
+            wallObj.GetComponent<BoxCollider>().enabled = false;
+            wallObj.transform.SetParent(WallParent.transform, false);
+
+            if (isNotInteractable)
+            {
+                wallObj.GetComponent<Renderer>().material.color = Color.green;
+            }
+        }
+    }
+
+    public void CreateWallsAroundNodeWithBoundary(HexNode node, bool isNotInteractable)
+    {
+        foreach (var dir in CubeDirections)
+        {
+            string neighborKey = CubeCoordinatesToKey(node.X + dir.x, node.Y + dir.y, node.Z + dir.z);
+
+            // 內部牆
+            if (hexNodes.TryGetValue(neighborKey, out HexNode neighbor))
+            {
+                string wallKey = GetWallKey(node, neighbor);
+
+                // 根據是否可互動，挑選不同的集合
+                HashSet<string> wallSet = !isNotInteractable ? createdNotINteractableAllyWalls : createdNotINteractableLogisticAllyWalls;
+
+                if (!wallSet.Contains(wallKey))
+                {
+                    wallSet.Add(wallKey);
+
+                    // 建立牆
+                    GameObject wallObj = CreateWall(node, neighbor, wallKey, true, true);
+
+                    // 設定顏色
+                    if (isNotInteractable)
+                    {
+                        wallObj.GetComponent<Renderer>().material.color = Color.green;
+                    }
+                }
+            }
+            else
+            {
+                // 外圍邊界牆
+                Vector3 offset = HexDirectionToWorldOffset(dir);
+                Vector3 midPos = node.transform.position + offset * 0.5f;
+                float angle = Mathf.Atan2(offset.z, offset.x) * Mathf.Rad2Deg;
+                Quaternion rotation = Quaternion.Euler(0, -angle, 0);
+
+                GameObject wallObj = ResourcePool.Instance.GetWall(new Vector3(midPos.x, 0.64f, midPos.z));
+                wallObj.transform.rotation = rotation;
+                wallObj.GetComponent<BoxCollider>().enabled = false;
+                wallObj.transform.SetParent(WallParent.transform, false);
+
+                if (isNotInteractable)
+                {
+                    wallObj.GetComponent<Renderer>().material.color = Color.green;
+                }
+            }
+        }
+    }
+
+    // 把 cube 方向轉成世界座標偏移（取決於你的 hexWidth / hexHeight）
+    private Vector3 HexDirectionToWorldOffset((int x, int y, int z) dir)
+    {
+        // 這裡假設你用的是 axial 坐標轉換過來的 layout
+        // x 對應 q, z 對應 r
+        float xOffset = hexWidth * (dir.x + dir.z * 0.5f);
+        float zOffset = hexHeight * (dir.z);
+        return new Vector3(xOffset, 0, zOffset);
+    }
+
+    private static readonly (int x, int y, int z)[] CubeDirections =
+    {
+        (1, -1, 0), (1, 0, -1), (0, 1, -1),
+        (-1, 1, 0), (-1, 0, 1), (0, -1, 1)
+    };
+
+
+    private GameObject CreateWall(HexNode node, HexNode neighbor, string wallKey, bool isAllyWall, bool normal)
     {
         Vector3 pos = (node.transform.position + neighbor.transform.position) / 2;
         Vector3 direction = (neighbor.transform.position - node.transform.position).normalized;
@@ -574,10 +712,20 @@ public class SpawnGrid : MonoBehaviour
         Quaternion rotation = Quaternion.Euler(0, -angle, 0);
         GameObject wallObj = ResourcePool.Instance.GetWall(Pos);
         wallObj.transform.rotation = rotation;
-        Wall wall = wallObj.GetComponent<Wall>();
-        wall.SetWallType(isAllyWall);
-        wall.StartWallLifetime(wallKey, isAllyWall);
-        activeWalls.Add(wallObj);
+        if (normal)
+        {
+            wallObj.GetComponent<BoxCollider>().enabled = false;
+            wallObj.transform.SetParent(WallParent.transform, false);
+        }
+        if (!normal)
+        {
+            wallObj.GetComponent<BoxCollider>().enabled = true;
+            Wall wall = wallObj.GetComponent<Wall>();
+            wall.SetWallType(isAllyWall);
+            wall.StartWallLifetime(wallKey, isAllyWall, 100);
+            activeWalls.Add(wallObj);
+        }
+        return wallObj;
     }
 
 

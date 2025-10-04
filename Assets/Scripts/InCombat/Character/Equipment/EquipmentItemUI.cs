@@ -55,7 +55,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
     void Start()
     {
-        canvas = FindObjectOfType<Canvas>();
+        canvas = FindFirstObjectByType<Canvas>();
 
         // 獲取 GridLayoutGroup
         gridLayoutGroup = GetComponentInParent<GridLayoutGroup>();
@@ -105,7 +105,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                                 HexNode hexNode = result.gameObject.GetComponent<HexNode>();
                                 if (hexNode.IsDesertified())
                                 {
-                                    hexNode.SetColorState(ColorState.TemporaryYellow, Time.deltaTime*2);
+                                    hexNode.CreateFloatingPiece(Color.yellow, 1f);
                                 }
 
                             }
