@@ -1,6 +1,7 @@
 using Firebase.Firestore;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,9 +22,10 @@ public class OpponentSelectionUI : MonoBehaviour
 
     private EnemySpawner enemySpawner;
     private int selectedOpponentIndex = -1;
-
+    FirebaseAuthManager authManager;
     void Start()
     {
+        authManager = FindFirstObjectByType<FirebaseAuthManager>();
         enemySpawner = FindFirstObjectByType<EnemySpawner>();
         panel.SetActive(false); // 一開始隱藏選擇 UI
         startBattleButton.interactable = false;
@@ -37,7 +39,7 @@ public class OpponentSelectionUI : MonoBehaviour
         UpdateSelectionIndicators(-1);
     }
 
-    public void Show(List<DocumentSnapshot> opponents)
+    public async Task Show(List<DocumentSnapshot> opponents)
     {
         panel.SetActive(true);
         opponentNames.Clear();
@@ -78,13 +80,13 @@ public class OpponentSelectionUI : MonoBehaviour
                         opponentImages[i][j].sprite = null;
                     }
                 }
-                data.TryGetValue("playerName", out object name);
-                string enemyName = string.Empty;
-                if (name != null)
+                if (data.TryGetValue("playerId", out object idObj))
                 {
-                    enemyName = name.ToString();
+                    string playerId = idObj.ToString();
+                    string enemyName = await authManager.GetPlayerNameById(playerId);
+                    opponentNames.Add(enemyName);
+
                 }
-                opponentNames.Add(enemyName);
 
 
                 // 設定按鈕事件

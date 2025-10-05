@@ -65,6 +65,7 @@
     <Compile Include="Assets\Firebase\FirebaseAI\FunctionCalling.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\AegisObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\Shiroko_Terror_AugmentCheck.cs" />
+    <Compile Include="Assets\Scripts\UI\BackgroundCatalog.cs" />
     <Compile Include="Assets\Scripts\Network\NetworkUIManager.cs" />
     <Compile Include="Assets\Scripts\GameEvent\GameEvent.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\ArisActiveSkill.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="Assets\Scripts\Character\EquipmentObserver.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Equipment\CombinationRouteSO.cs" />
     <Compile Include="Assets\Scripts\UI\EquipmentTooltip.cs" />
+    <Compile Include="Assets\Scripts\UI\PlayerProfile.cs" />
     <Compile Include="Assets\Scripts\UI\DescriptionPanel.cs" />
     <Compile Include="Assets\Firebase\FirebaseAI\Chat.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\ObserverRelated\AbydosManager.cs" />
@@ -113,6 +115,7 @@
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\ShizukoActiveSkill.cs" />
     <Compile Include="Assets\Scripts\InCombat\Bench\GridSlots.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\MillenniumObserver.cs" />
+    <Compile Include="Assets\Scripts\UI\CatalogBootstrap.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\StaticObject.cs" />
     <Compile Include="Assets\Firebase\FirebaseAI\CountTokensResponse.cs" />
     <Compile Include="Assets\Scripts\InCombat\costumBullet\NormalBullet.cs" />
@@ -144,6 +147,7 @@
     <Compile Include="Assets\Scripts\UI\SliderCTRL.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Equipment\CharacterEquipmentManager.cs" />
     <Compile Include="Assets\Firebase\FirebaseAI\Candidate.cs" />
+    <Compile Include="Assets\Scripts\UI\IDCardUI.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Equipment\EquipmentSO.cs" />
     <Compile Include="Assets\Scripts\InCombat\BattlingProperties.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\ObserverRelated\SRTManager.cs" />
@@ -233,6 +237,7 @@
     <Compile Include="Assets\Scripts\InCombat\Hexagon\IHexagon.cs" />
     <Compile Include="Assets\Scripts\InCombat\Character\Skills\TsurugiActiveSkill.cs" />
     <Compile Include="Assets\Firebase\FirebaseAI\Schema.cs" />
+    <Compile Include="Assets\Scripts\UI\CharacterCatalog.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitUI.cs" />
     <Compile Include="Assets\Scripts\UI\BGMManager.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitController.cs" />
@@ -241,6 +246,7 @@
     <Compile Include="Assets\Scripts\UI\ShowAugment.cs" />
     <Compile Include="Assets\Scripts\InCombat\Traits\TraitsObservers\SRTObserver.cs" />
     <Compile Include="Assets\Scripts\PlayerSettings.cs" />
+    <Compile Include="Assets\Scripts\UI\IDCardEditorBindings.cs" />
     <Compile Include="Assets\Scripts\Enemy\PVE_EnemySpawner.cs" />
     <Compile Include="Assets\Scripts\InCombat\PathFinding\HexNode.cs" />
     <Compile Include="Assets\Scripts\FireBase\AuthUIController.cs" />
@@ -1429,10 +1435,6 @@
     </Reference>
     <Reference Include="Unity.Networking.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Networking.Editor.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Unity.VSCode.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.RenderPipelines.Universal.Editor">

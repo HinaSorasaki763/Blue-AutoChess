@@ -27,6 +27,7 @@ public class EnemyWaveRuntimeEditor : MonoBehaviour
     public List<List<Character>> Lists = new();
     public Sprite HexagonImage;
     public List<IEquipment> availableEquipments = new List<IEquipment>();
+    public Color Color;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -46,7 +47,8 @@ public class EnemyWaveRuntimeEditor : MonoBehaviour
     {
         if (selectedTile!= null)
         {
-            selectedTile.GetComponent<Image>().color = Color.white;
+            selectedTile.GetComponent<Image>().color = Color;
+            
         }
 
         selectedTile = tile;

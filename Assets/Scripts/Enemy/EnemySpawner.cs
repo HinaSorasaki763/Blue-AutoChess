@@ -48,13 +48,6 @@ public class EnemySpawner : MonoBehaviour
         List<EnemyWave.GridSlotData> availableSlots = wave.gridSlots.Where(x => x.CharacterID != -1).ToList();
         if (availableSlots.Count <= 2)
         {
-            Debug.LogWarning($"Wave {wave.EnemyName} has less than or equal to two characters, revealing all.");
-            // 璝à︹计秖ぃìㄢ钡处臩┮Τà︹
-            foreach (var slot in availableSlots)
-            {
-                // 安砞Τ处臩à︹矪瞶よΑ琌砞﹚à︹陪ボ篈
-                Debug.Log($"Revealed character: {slot.CharacterID}");
-            }
             return;
         }
         var revealedCharacters = availableSlots.OrderBy(x => UnityEngine.Random.value).Take(2).ToList();

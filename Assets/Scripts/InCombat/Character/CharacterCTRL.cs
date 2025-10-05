@@ -339,11 +339,6 @@ public class CharacterCTRL : MonoBehaviour
         TriggerManualUpdate();
     }
 
-    void Awake()
-    {
-
-    }
-
     public virtual void Update()
     {
 

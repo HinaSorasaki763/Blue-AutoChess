@@ -27,5 +27,6 @@ public class CustomModelImporter : AssetPostprocessor
         CustomLogger.Log(this, $"OnPreprocessTexture() - {assetPath}");
         TextureImporter textureImporter = (TextureImporter)assetImporter;
         textureImporter.textureType = TextureImporterType.Sprite;
+        textureImporter.spriteImportMode = SpriteImportMode.Single;
     }
 }

@@ -73,4 +73,30 @@ public class FirebaseAuthManager : MonoBehaviour
         user = null;
         Debug.Log("¤wµn¥X");
     }
+
+    public async Task<string> GetPlayerNameById(string uid)
+    {
+        try
+        {
+            DocumentSnapshot doc = await FirebaseFirestore.DefaultInstance
+                .Collection("users")
+                .Document(uid)
+                .GetSnapshotAsync();
+
+            if (doc.Exists && doc.ContainsField("name"))
+            {
+                return doc.GetValue<string>("name");
+            }
+            else
+            {
+                Debug.LogWarning($"No name found for UID={uid}");
+                return "Unknown Player";
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed to get name for UID={uid}: {e.Message}");
+            return "Unknown Player";
+        }
+    }
 }
