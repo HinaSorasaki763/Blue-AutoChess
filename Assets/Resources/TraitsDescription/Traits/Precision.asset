@@ -15,14 +15,15 @@ MonoBehaviour:
   IsAcademy: 0
   trait: 6
   sprite: {fileID: 21300000, guid: b78e15b5d2c97a94fb3e2625af8bf97d, type: 3}
-  description: 'Precision
+  descrtipns:
+  - "\u7576\u666E\u901A\u653B\u64CA/\u6280\u80FD\u547D\u4E2D\u9810\u671F\u76EE\u6A19\u6642\uFF0C\u9020\u6210\u7684\u50B7\u5BB3\u589E\u52A0{data1}%\u3002\u5728\u5148\u524D\u689D\u4EF6\u6210\u7ACB\u7684\u60C5\u6CC1\u4E0B\uFF0C\u64CA\u6BBA\u4E86\u6575\u4EBA\uFF0C\u5247\u6062\u5FA910\u9B54\u529B\u3002"
+  - 'When a normal attack or skill hits its intended target, damage dealt is increased
+    by {data1}%.
+
+    If the enemy is defeated under this condition, restore 10
+    mana.
 
 '
-  descrtipns:
-  - "\u6280\u80FD\u7784\u6E96\u7576\u524D\u6575\u4EBA\uFF0C\u7576\u547D\u4E2D\u9810\u671F\u76EE\u6A19\u6642\uFF0C\u9020\u6210\u7684\u50B7\u5BB3\u589E\u52A0\u3002\u5982\u679C\u64CA\u6BBA\u76EE\u6A19\uFF0C\u4E14\u5148\u524D\u689D\u4EF6\u6210\u7ACB\uFF0C\u5247\u6062\u5FA9\u5C11\u91CF\u9B54\u529B\u3002"
-  - ' Skills target the current enemy. If the skill hits the expected target, it
-    deals increased damage. If the target is killed, a small amount of mana is restored,
-    provided the first condition is met.'
   thresholds:
   - level: 1
     requiredCount: 2

@@ -15,12 +15,10 @@ MonoBehaviour:
   IsAcademy: 0
   trait: 10
   sprite: {fileID: 21300000, guid: 9e206e1b9c5cf604caf86120a290032a, type: 3}
-  description: 
   descrtipns:
-  - "\u63A7\u5834\u6642\u9593/\u8CA0\u9762\u6548\u679C\u6642\u9593\u5EF6\u9577\u3002"
-  - Applies various special effects to interfere with opponents, causing crowd control
-    or negative statuses. Unlocking their synergy extends the duration of these crowd
-    control or negative effects.
+  - "\u6240\u6709\u53CB\u8ECD\u6240\u65BD\u52A0\u7684\u8CA0\u9762\u6548\u679C\u63A7\u5834\u6642\u9593\u5EF6\u9577{data1}%\uFF0C\u8CA0\u9762\u6578\u503C\u589E\u52A0{data2}%\u3002"
+  - All allied debuffs have their crowd control duration increased by {data1}% and
+    their negative effect values amplified by {data2}%.
   thresholds:
   - level: 1
     requiredCount: 2

@@ -9,8 +9,8 @@ public class SupermacyObserver : CharacterObserverBase
     {
         Dictionary<int, TraitLevelStats> statsByStarLevel = new Dictionary<int, TraitLevelStats>()
         {
-            {0, new TraitLevelStats(15)},
-            {1, new TraitLevelStats(0)},
+            {0, new TraitLevelStats(0)},
+            {1, new TraitLevelStats(15)},
             {2, new TraitLevelStats(0)},
             {3, new TraitLevelStats(30)}
         };

@@ -84,7 +84,58 @@ public class TeamEditorUI : MonoBehaviour
     void ShowCharactersWithTrait(TraitDescriptionData data)
     {
         TraitsName.text = data.name;
-        TraitsEffect.text = TraitDescriptions.Instance.GetTraitDescription(data.trait);
+        CharacterObserverBase observer = null;
+        switch (data.trait)
+        {
+            case Traits.Abydos: observer = new AbydosObserver(0, null); break;
+            case Traits.Gehenna: observer = new GehennaObserver(0, null); break;
+            case Traits.Hyakkiyako: observer = new HyakkiyakoObserver(0, null); break;
+            case Traits.Millennium: observer = new MillenniumObserver(0, null); break;
+            case Traits.Trinity: observer = new TrinityObserver(0, null); break;
+            case Traits.Supremacy: observer = new SupermacyObserver(0, null); break;
+            case Traits.Precision: observer = new PrecisionObserver(0, null); break;
+            case Traits.Barrage: observer = new BarrageObserver(0, null); break;
+            case Traits.Aegis: observer = new AegisObserver(0, null); break;
+            case Traits.Healer: observer = new HealerObserver(0, null); break;
+            case Traits.Disruptor: observer = new DisruptorObserver(0, null); break;
+            case Traits.RapidFire: observer = new RapidfireObserver(0, null); break;
+            case Traits.logistic: observer = new LogisticObserver(0, null); break;
+            case Traits.Mystic: observer = new MysticObserver(0, null); break;
+            case Traits.Arius: observer = new AriusObserver(0, null); break;
+            case Traits.SRT: observer = new SRTObserver(0, null); break;
+            case Traits.None: observer = new NoneObserver(0, null); break;
+            default: break;
+        }
+
+        if (observer == null)
+        {
+            TraitsEffect.text = TraitDescriptions.Instance.GetTraitDescription(data.trait);
+            return;
+        }
+
+        Dictionary<int, TraitLevelStats> statsByLevel = observer.GetTraitObserverLevel();
+        var replacements = new Dictionary<string, string>();
+
+        // 根據實際包含的所有 key，自動生成所有層數的字串
+        foreach (int i in Enumerable.Range(1, 5))
+        {
+            string key = $"data{i}";
+
+            List<string> values = new List<string>();
+
+            foreach (var kvp in statsByLevel.OrderBy(k => k.Key))
+            {
+                if (kvp.Key == 0) continue;
+                TraitLevelStats stats = kvp.Value;
+                object val = typeof(TraitLevelStats).GetField($"Data{i}").GetValue(stats);
+                values.Add(val.ToString());
+            }
+
+            replacements[key] = string.Join("/", values);
+        }
+
+        string rawDesc = TraitDescriptions.Instance.GetTraitDescription(data.trait);
+        TraitsEffect.text = StringPlaceholderReplacer.ReplacePlaceholders(rawDesc, replacements);
         Traits trait = data.trait;
 
         foreach (Transform child in characterButtonParent)
@@ -96,12 +147,9 @@ public class TeamEditorUI : MonoBehaviour
         foreach (var character in filtered)
         {
             var charUI = Instantiate(characterButtonPrefab, characterButtonParent);
-
-            // 主角頭像
             var mainImage = charUI.GetComponentInChildren<Image>();
             if (mainImage != null) mainImage.sprite = character.Sprite;
 
-            // Traits 子物件
             var traitsRoot = charUI.Find("Traits");
             if (traitsRoot != null)
             {
@@ -130,6 +178,7 @@ public class TeamEditorUI : MonoBehaviour
             }
         }
     }
+
 
     void ShowCharactersWithLevel(int level)
     {

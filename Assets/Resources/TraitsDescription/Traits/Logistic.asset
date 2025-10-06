@@ -15,15 +15,14 @@ MonoBehaviour:
   IsAcademy: 0
   trait: 12
   sprite: {fileID: 21300000, guid: 8ad246c187207e4488880e089113a425, type: 3}
-  description: 
   descrtipns:
   - "\u7121\u6CD5\u9032\u884C\u6B63\u5E38\u7684\u666E\u901A\u653B\u64CA\u4E14\u4E0D\u6703\u88AB\u8996\u70BA\u76EE\u6A19\u3002\u666E\u901A\u653B\u64CA\u88AB\u66FF\u63DB\u70BA\u5404\u7A2E\u7279\u6B8A\u6548\u679C\uFF0C\u4F46\u4ECD\u6703\u89F8\u767C\"\u7576\u767C\u52D5\u666E\u901A\u653B\u64CA\u6642......\"\u7684\u7279\u6B8A\u6548\u679C\u3002\u5728\u4E0A\u5834\u5F8C\u52E4\u55AE\u4F4D\u6642\uFF0C\u6703\u5728\u524D\u7DDA\u751F\u6210\u4E00\u500B\u53EF\u4EE5\u79FB\u52D5\uFF0C\u6578\u503C\u96A8\u8457\u5F8C\u52E4\u89D2\u8272\u63D0\u5347\u7684\u5047\u4EBA\uFF0C\u5176\u4E0D\u6703\u4E3B\u52D5\u79FB\u52D5\uFF0C\u7121\u6CD5\u651C\u5E36\u88DD\u5099\uFF0C\u7121\u6CD5\u9032\u884C\u666E\u901A\u653B\u64CA\u3002"
-  - "Logistic units cannot perform normal attacks and are not treated as valid targets.
-    Their normal attacks are replaced by various special effects, but they still
-    trigger any \u201Cwhen a normal attack is made\u2026\u201D effects. When you
-    deploy a logistic unit, a movable dummy appears on the front line, with its stats
-    scaling to the logistic unit. This dummy does not move on its own, cannot equip
-    gear, and cannot perform normal attacks."
+  - "Cannot perform normal attacks and cannot be targeted.\nNormal attacks are replaced
+    with various special effects but still trigger abilities that activate \u201Cwhen
+    performing a normal attack.\u201D\nWhen a logistic unit is deployed, a dummy
+    is created on the frontline.\nThe dummy\u2019s stats scale with the logistic
+    unit\u2019s attributes, but it does not move proactively, cannot equip items,
+    and cannot perform normal attacks."
   thresholds:
   - level: 1
     requiredCount: 1

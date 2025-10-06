@@ -15,10 +15,10 @@ MonoBehaviour:
   IsAcademy: 0
   trait: 11
   sprite: {fileID: 21300000, guid: e7e82d0a1b0e5c640b93f1d20a37eac8, type: 3}
-  description: 
   descrtipns:
-  - "\u5B78\u751F\u5011\u5C07\u6703\u96A8\u8457\u6BCF\u4E00\u6B21\u666E\u901A\u653B\u64CA\u7372\u5F97\u653B\u64CA\u901F\u5EA6\uFF0C\u6709\u4E0A\u9650\u3002"
-  - Students gain attack speed with each normal attack, up to a certain limit.
+  - "\u6BCF\u89F8\u767C\u4E00\u6B21\"\u7576\u666E\u901A\u653B\u64CA\u6642\"\u7684\u6548\u679C\u6642\uFF0C\u4F7F\u5F97\u653B\u64CA\u901F\u5EA6\u4E0A\u5347{data1}%\uFF0C\u81F3\u591A\u758A\u52A020\u5C64\u3002"
+  - "Each time an effect that triggers \u201Con normal attack\u201D activates, Attack
+    Speed increases by {data1}%, stacking up to 20 times.\r\n"
   thresholds:
   - level: 0
     requiredCount: 0

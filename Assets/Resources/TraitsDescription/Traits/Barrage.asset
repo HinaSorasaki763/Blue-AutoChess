@@ -15,13 +15,12 @@ MonoBehaviour:
   IsAcademy: 0
   trait: 7
   sprite: {fileID: 21300000, guid: a40a594ebc657f04bbfa95dd6be2cc1f, type: 3}
-  description: Barrage
   descrtipns:
-  - "\u5B78\u751F\u6280\u80FD\u70BA\u7E3D\u662F\u70BA\u6563\u5F48\u985E\u578B\u3002\u6BCF\u6B21\u65BD\u653E\u6280\u80FD\u5F8C\uFF0C\u6563\u5F48\u7684\u7BC4\u570D\u90FD\u6703\u589E\u52A0\uFF0C\u4E14\u65BD\u653E\u6280\u80FD\u6642\u5C07\u6703\u66AB\u6642\u4E1F\u5931\u7576\u524D\u76EE\u6A19\uFF0C\u50BE\u5411\u65BC\u8B93\u6280\u80FD\u8986\u84CB\u6700\u591A\u7684\u6575\u65B9\u5B78\u751F\u3002"
-  - "Students with the Barrage synergy always have shotgun-type skills. Each time
-    they cast a skill, the shotgun\u2019s spread increases, and during casting they
-    temporarily lose their current target, choosing instead to cover as many enemy
-    students as possible."
+  - "\u5B78\u751F\u6280\u80FD\u70BA\u7E3D\u662F\u70BA\u6563\u5F48\u985E\u578B\u3002\u6BCF\u6B21\u65BD\u653E\u6280\u80FD\u5F8C\uFF0C\u6563\u5F48\u7684\u7BC4\u570D\u90FD\u6703\u589E\u52A0(\u6839\u64DA\u89D2\u8272\u800C\u5B9A)\uFF0C\u4E14\u65BD\u653E\u6280\u80FD\u6642\u5C07\u6703\u66AB\u6642\u4E1F\u5931\u7576\u524D\u76EE\u6A19\uFF0C\u4E26\u50BE\u5411\u65BC\u8B93\u6280\u80FD\u8986\u84CB\u6700\u591A\u7684\u6575\u65B9\u5B78\u751F\u3002"
+  - "The character\u2019s skill is always treated as a shotgun-type attack.\nEach
+    time a skill is cast, the spread range of the shotgun increases (varies by character).\nWhen
+    casting the skill, the character temporarily loses its current target and prioritizes
+    aiming the skill to cover the largest number of enemy students."
   thresholds:
   - level: 1
     requiredCount: 3

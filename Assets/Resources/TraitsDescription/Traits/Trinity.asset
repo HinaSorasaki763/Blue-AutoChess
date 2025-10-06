@@ -15,13 +15,12 @@ MonoBehaviour:
   IsAcademy: 1
   trait: 4
   sprite: {fileID: 21300000, guid: 9c95162907a46cf4f9218849f8078f85, type: 3}
-  description: Trinity
   descrtipns:
-  - "\u8056\u4E09\u4E00(trinity)\u5B78\u751F\u5728\u6210\u529F\u9020\u6210\u50B7\u5BB3\u6578\u6B21\u4E4B\u5F8C\uFF0C\u6703\u5F9E\u5929\u800C\u964D\u4E00\u679A\u652F\u63F4\u7832\u706B\uFF0C\u5728\u5176\u5468\u570D\u4E00\u683C\u5167\u9020\u6210\u56FA\u5B9A\u50B7\u5BB3\uFF0C\u6B64\u9695\u77F3\u50B7\u5BB3\u4F86\u6E90\u5C07\u6703\u88AB\u8A08\u7B97\u70BA\"\u89F8\u767C\u6B64\u9695\u77F3\u7684\u50B7\u5BB3\u4F86\u6E90\""
-  - "After successfully dealing damage a certain number of times, a support strike
-    descends from the sky, dealing fixed damage within one tile of its impact. The
-    source of this meteor\u2019s damage is considered the same as the \u201Csource
-    of the damage that triggered the meteor.\u201D"
+  - "\u8056\u4E09\u4E00\u55AE\u4F4D\u5728\u6210\u529F\u9020\u6210\u50B7\u5BB3{data2}\u6B21\u4E4B\u5F8C\uFF0C\u6703\u5F9E\u5929\u800C\u964D\u4E00\u679A\u652F\u63F4\u7832\u706B\uFF0C\u5728\u5176\u5468\u570D\u4E00\u683C\u5167\u9020\u6210({data1}+{data3}%*\u653B\u64CA\u529B)\u7684\u50B7\u5BB3\uFF0C\u6B64\u9695\u77F3\u50B7\u5BB3\u4F86\u6E90\u5C07\u6703\u88AB\u8A08\u7B97\u70BA\"\u89F8\u767C\u6B64\u9695\u77F3\u7684\u50B7\u5BB3\u4F86\u6E90\""
+  - "After successfully dealing damage {data2} times, a support bombardment strikes
+    from above, dealing ({data1} + {data3}% \xD7 Attack) damage within one tile around
+    the impact point.\nThe damage from this meteor is attributed to the unit that
+    triggered it."
   thresholds:
   - level: 1
     requiredCount: 2

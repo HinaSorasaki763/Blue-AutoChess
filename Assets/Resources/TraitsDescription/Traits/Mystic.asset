@@ -15,10 +15,12 @@ MonoBehaviour:
   IsAcademy: 0
   trait: 13
   sprite: {fileID: 21300000, guid: e946fccaba2cc9f4b8ca69ed27bce851, type: 3}
-  description: 
   descrtipns:
-  - "\u5C07\u7121\u8996\u4E00\u90E8\u5206\u6575\u4EBA\u7684\u8B77\u7532\u548C\u50B7\u5BB3\u6E1B\u514D"
-  - "Students ignore part of the enemy\u2019s armor and damage reduction."
+  - "\u4F86\u81EA\u81EA\u8EAB\u7684\u50B7\u5BB3\u50C5\u6703\u9020\u6210\u539F\u59CB\u50B7\u5BB3\u7684{data1}%\uFF0C\u5176\u9918\u50B7\u5BB3\u8F49\u800C\u9020\u6210\u771F\u5BE6\u50B7\u5BB3\u3002"
+  - 'Damage dealt by the unit itself only inflicts {data1}% of its original value;
+    the remaining damage is converted into true damage.
+
+'
   thresholds:
   - level: 2
     requiredCount: 4

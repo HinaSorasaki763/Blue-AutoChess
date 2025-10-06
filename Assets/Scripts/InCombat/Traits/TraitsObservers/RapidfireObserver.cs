@@ -42,6 +42,7 @@ public class RapidfireObserver : CharacterObserverBase
     {
         if (!activated) return;
         stack++;
+        if (stack >= 20) return;
         base.OnAttacking(character);
         CustomLogger.Log(this,$"character {character } override onAttacking , attakspeed = {character.GetStat(StatsType.AttackSpeed)}");
         float val = GetTraitObserverLevel()[level].Data1 * 0.01f;

@@ -9,8 +9,6 @@ public class TraitDescriptionData : ScriptableObject
     public Traits trait;
     public Sprite sprite;
     [TextArea(3, 10)]
-    public string description;
-    [TextArea(3, 10)]
     public string[] descrtipns;
     public List<TraitThreshold> thresholds;
 }

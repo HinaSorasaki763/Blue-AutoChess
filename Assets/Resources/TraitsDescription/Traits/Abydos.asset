@@ -15,14 +15,13 @@ MonoBehaviour:
   IsAcademy: 1
   trait: 0
   sprite: {fileID: 21300000, guid: 1b4dfc946f84c574dbff3e133b732f2d, type: 3}
-  description: Abydos
   descrtipns:
-  - "\u6839\u64DA\u5834\u4E0A\u963F\u62DC\u591A\u65AF\u5B78\u751F\u7684\u6578\u91CF\uFF0C\u751F\u6210\"\u6C99\u6F20\u5316\"\u683C\u5B50\u3002\u6211\u65B9\u963F\u62DC\u591A\u65AF\u5B78\u9662\u7684\u5B78\u751F\u7AD9\u5728\u9019\u4E9B\u683C\u5B50\u4E0A\u6642\uFF0C\u6578\u503C\u6703\u589E\u52A0\u3002\u6575\u65B9\u5B78\u751F\u6216\u5DF1\u65B9\u975E\u963F\u62DC\u591A\u65AF\u5B78\u9662\u7684\u5B78\u751F\u5C07\u53D7\u5230\u8CA0\u9762\u6548\u679C\u3002\u589E\u76CA\u6216\u8CA0\u9762\u6548\u679C\u5728\u96E2\u958B\u683C\u5B50\u5F8C\u6703\u7ACB\u523B\u88AB\u6E05\u9664\u3002"
-  - Depending on the number of Abydos students on the field, "Desertification" tiles
-    are generated. When an Abydos student is standing on these tiles, their stats
-    increase. Enemy students and allied students not from Abydos Academy receive
-    negative effects. Both positive and negative effects are removed immediately
-    when leaving the tile.
+  - "\u6839\u64DA\u5834\u4E0A\u963F\u62DC\u591A\u65AF\u5B78\u751F\u7684\u6578\u91CF\uFF0C\u751F\u6210{data1}\u500B\"\u6C99\u6F20\u5316\"\u683C\u5B50\u3002\u6211\u65B9\u963F\u62DC\u591A\u65AF\u5B78\u9662\u7684\u5B78\u751F\u7AD9\u5728\u9019\u4E9B\u683C\u5B50\u4E0A\u6642\uFF0C\u589E\u52A0{data2}%\u653B\u64CA\u901F\u5EA6\uFF0C\u4E14\u6BCF\u79D2\u56DE\u5FA9{data3}%\u751F\u547D\u503C\u3002\u6575\u65B9\u5B78\u751F\u6216\u5DF1\u65B9\u975E\u963F\u62DC\u591A\u65AF\u5B78\u9662\u7684\u5B78\u751F\u5C07\u53D7\u5230\u8CA0\u9762\u6548\u679C\u3002\u589E\u76CA\u6216\u8CA0\u9762\u6548\u679C\u5728\u96E2\u958B\u683C\u5B50\u5F8C\u6703\u7ACB\u523B\u88AB\u6E05\u9664\u3002"
+  - "Generates {data1} \u201CDesertified\u201D tiles based on the number of Abydos
+    students on the field.\nAbydos students standing on these tiles gain {data2}%
+    Attack Speed and recover {data3}% Health per second.\nEnemy students or allied
+    students not from Abydos will suffer negative effects instead.\nAll positive
+    and negative effects are immediately removed upon leaving the tiles."
   thresholds:
   - level: 1
     requiredCount: 2

@@ -15,10 +15,9 @@ MonoBehaviour:
   IsAcademy: 0
   trait: 9
   sprite: {fileID: 21300000, guid: 03feff20f863072478de7b21d69e1e6d, type: 3}
-  description: 
   descrtipns:
-  - "\u6CBB\u7642\u5E2B(Healer)\u4F7F\u5F97\u968A\u4F0D\u6CBB\u7642\u91CF\u589E\u52A0"
-  - "Increases the team\u2019s healing amount. "
+  - "\u4F7F\u5F97\u968A\u4F0D\u7372\u5F97\u7684\u6CBB\u7642\u91CF\u589E\u52A0{data1}%"
+  - Increases all healing received by the team by {data1}%.
   thresholds:
   - level: 1
     requiredCount: 2

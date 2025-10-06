@@ -216,7 +216,7 @@ public static class EffectFactory
 
 
 
-    public static Effect UnStatckableStatsEffct(float duration, string source, float amount, StatsType statsType, CharacterCTRL parent, bool isPermanent,bool isLogistic = false)
+    public static Effect UnStatckableStatsEffct(float duration, string source, float amount, StatsType statsType, CharacterCTRL parent, bool isPermanent, bool isLogistic = false)
     {
         return new Effect(
             EffectType.Positive,
@@ -555,18 +555,18 @@ public static class EffectFactory
         );
 
     }
-    public static Effect CreateAbydosEffect(bool isAbydos, int level,bool isally)
+    public static Effect CreateAbydosEffect(bool isAbydos, int level, bool isally)
     {
         Dictionary<int, TraitLevelStats> statsByStarLevel = new Dictionary<int, TraitLevelStats>()
         {
-            {0, new TraitLevelStats(6,30,2)},
-            {1, new TraitLevelStats(6,30,2)},
-            {2, new TraitLevelStats(8,45,3)},
-            {3, new TraitLevelStats(10,70,5)},
-            {4, new TraitLevelStats(12,70,10)}
+            {0, new TraitLevelStats(0,0,0)},
+            {1, new TraitLevelStats(8,30,2)},
+            {2, new TraitLevelStats(10,45,3)},
+            {3, new TraitLevelStats(12,70,5)},
+            {4, new TraitLevelStats(20,100,10)}
         };
         int effectiveness = statsByStarLevel[level].Data2 * (isAbydos ? 1 : -1);
-        if (SelectedAugments.Instance.CheckAugmetExist(100,isally))
+        if (SelectedAugments.Instance.CheckAugmetExist(100, isally))
         {
             effectiveness = 0;
         }
@@ -599,7 +599,7 @@ public static class EffectFactory
             0,
             "AbydosMillenniumEffect",
             false,
-            (character) => character.AbydosMillenniumBuff(percent,true),
+            (character) => character.AbydosMillenniumBuff(percent, true),
             (character) => character.AbydosMillenniumBuff(percent, false),
             1,
             SpecialEffectType.None,

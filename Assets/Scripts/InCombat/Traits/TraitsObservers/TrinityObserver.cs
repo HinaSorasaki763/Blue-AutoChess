@@ -18,10 +18,10 @@ public class TrinityObserver : CharacterObserverBase
         Dictionary<int, TraitLevelStats> statsByStarLevel = new Dictionary<int, TraitLevelStats>()
         {
             //基礎傷害,觸發次數,傷害倍率,點心加成
-            {0, new TraitLevelStats(30000,0,30,0)},
-            {1, new TraitLevelStats(30000,5,30,50)},
-            {2, new TraitLevelStats(500,10,40,80)},
-            {3, new TraitLevelStats(1000,15,50,200)}
+            {0, new TraitLevelStats(100,0,30,0)},
+            {1, new TraitLevelStats(250,5,30,50)},
+            {2, new TraitLevelStats(500,5,40,80)},
+            {3, new TraitLevelStats(1000,4,50,200)}
         };
         return statsByStarLevel;
     }
