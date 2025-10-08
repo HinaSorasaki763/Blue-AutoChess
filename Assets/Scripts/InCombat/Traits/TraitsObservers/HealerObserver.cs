@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 public class HealerObserver : CharacterObserverBase
 {
@@ -22,11 +20,10 @@ public class HealerObserver : CharacterObserverBase
         if (character == null) return;
         this.traitLevel = level;
         this.character = character;
+        HealerManager.instance.amount = GetTraitObserverLevel()[traitLevel].Data1;
     }
     public override int BeforeHealing(CharacterCTRL characterCTRL, int amount)
     {
-        float ratio = GetTraitObserverLevel()[traitLevel].Data1 * 0.01f;
-        amount = (int)(amount* (1+ratio));
         return base.BeforeHealing(characterCTRL, amount);
     }
 }

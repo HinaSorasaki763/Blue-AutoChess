@@ -137,6 +137,7 @@ public class GameController : MonoBehaviour
 
     private void MoveOrSwapCharacter(CharacterCTRL character, HexNode targetSlot)
     {
+        bool isBattlefield = targetSlot.IsBattlefield;
         if (character.CurrentHex == targetSlot)
         {
             Vector3 v = character.CurrentHex.transform.position;
@@ -147,6 +148,10 @@ public class GameController : MonoBehaviour
 
         if (targetSlot.OccupyingCharacter == null)
         {
+            if (!isBattlefield)
+            {
+                character.effectCTRL.ClearAllEffect();
+            }
             MoveCharacterToSlot(character, targetSlot);
         }
         else if (targetSlot.OccupyingCharacter.characterStats.CanPutBack || (character.CurrentHex.IsBattlefield && targetSlot.IsBattlefield))

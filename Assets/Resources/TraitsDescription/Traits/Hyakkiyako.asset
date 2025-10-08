@@ -27,6 +27,10 @@ MonoBehaviour:
     affected student are redirected to other targets, the student becomes untargetable
     for a short duration, and gains {data2}% Attack Speed.'
   thresholds:
+  - level: 0
+    requiredCount: 0
+    effectValue: 0
+    effectDescription: 
   - level: 1
     requiredCount: 3
     effectValue: 0

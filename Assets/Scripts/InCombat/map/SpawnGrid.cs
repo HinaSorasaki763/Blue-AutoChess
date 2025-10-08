@@ -571,7 +571,7 @@ public class SpawnGrid : MonoBehaviour
 
 
 
-    public void CreateWallIfNotExist(HexNode node, HexNode neighbor, bool isAlly, bool normal)
+    public void CreateWallIfNotExist(CharacterCTRL parent,int resist, HexNode node, HexNode neighbor, bool isAlly, bool normal)
     {
         string wallKey = GetWallKey(node, neighbor);
         HashSet<string> wallSet = isAlly ? createdAllyWalls : createdEnemyWalls;
@@ -582,7 +582,7 @@ public class SpawnGrid : MonoBehaviour
         }
 
         wallSet.Add(wallKey);
-        CreateWall(node, neighbor, wallKey, isAlly, normal);
+        CreateWall(parent, resist, node, neighbor, wallKey, isAlly, normal);
 
     }
     private static readonly Vector3[] SquareDirections =
@@ -655,7 +655,7 @@ public class SpawnGrid : MonoBehaviour
                     wallSet.Add(wallKey);
 
                     // 建立牆
-                    GameObject wallObj = CreateWall(node, neighbor, wallKey, true, true);
+                    GameObject wallObj = CreateWall(null,0, node, neighbor, wallKey, true, true);
 
                     // 設定顏色
                     if (isNotInteractable)
@@ -702,7 +702,7 @@ public class SpawnGrid : MonoBehaviour
     };
 
 
-    private GameObject CreateWall(HexNode node, HexNode neighbor, string wallKey, bool isAllyWall, bool normal)
+    private GameObject CreateWall(CharacterCTRL parent,int resist, HexNode node, HexNode neighbor, string wallKey, bool isAllyWall, bool normal)
     {
         Vector3 pos = (node.transform.position + neighbor.transform.position) / 2;
         Vector3 direction = (neighbor.transform.position - node.transform.position).normalized;
@@ -721,8 +721,9 @@ public class SpawnGrid : MonoBehaviour
         {
             wallObj.GetComponent<BoxCollider>().enabled = true;
             Wall wall = wallObj.GetComponent<Wall>();
-            wall.SetWallType(isAllyWall);
-            wall.StartWallLifetime(wallKey, isAllyWall, 100);
+            wall.InitWall(parent, isAllyWall, resist);
+
+            wall.StartWallLifetime(wallKey, isAllyWall);
             activeWalls.Add(wallObj);
         }
         return wallObj;

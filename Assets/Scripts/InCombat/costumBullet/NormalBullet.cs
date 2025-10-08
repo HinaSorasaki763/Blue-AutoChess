@@ -72,9 +72,16 @@ public class NormalBullet : MonoBehaviour
     {
         if (HitWallLayer(other))
         {
+            other.GetComponent<Wall>().GetHit(parent, damage, isCrit);
             CustomLogger.Log(this, "hitWall");
-            DisableBullet();
-
+            if (!penetrate)
+            {
+                DisableBullet();
+            }
+            else
+            {
+                damage = (int)(damage*(1- other.GetComponent<Wall>().GetResist()));
+            }
         }
         if (IsInHitLayer(other))
         {
@@ -108,14 +115,21 @@ public class NormalBullet : MonoBehaviour
     {
         MoveTowardsTarget();
         CheckMaxDistance();
-        if (GameStageManager.Instance.CurrGamePhase == GamePhase.Preparing || !Target ||(!isSkillBullet && !Target.activeInHierarchy))
+        if (GameStageManager.Instance.CurrGamePhase == GamePhase.Preparing || !Target || (!isSkillBullet && !Target.activeInHierarchy))
         {
             DisableBullet();
         }
     }
     private bool HitWallLayer(Collider collider)
     {
-        return ((1 << collider.gameObject.layer) & WallLayer) != 0;
+        if (((1 << collider.gameObject.layer) & WallLayer) == 0)
+            return false;
+        Wall wall = collider.GetComponent<Wall>();
+        if (wall == null)
+            return false;
+
+        bool isAlly = parent.IsAlly;
+        return wall.IsAllyWall != isAlly;
     }
 
     private bool IsInHitLayer(Collider other)
@@ -125,7 +139,7 @@ public class NormalBullet : MonoBehaviour
 
     private void MoveTowardsTarget()
     {
-        
+
         if (Target != null && Target.activeInHierarchy)
         {
             if (!isBarrage)

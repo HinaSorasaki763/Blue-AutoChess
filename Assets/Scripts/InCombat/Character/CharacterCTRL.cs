@@ -357,7 +357,7 @@ public class CharacterCTRL : MonoBehaviour
                 {
                     CustomLogger.Log(this, "CurrentHex.isDesertified");
                     bool isAbydos = traitController.GetAcademy() == Traits.Abydos;
-                    Effect effect = EffectFactory.CreateAbydosEffect(isAbydos, AbydosManager.Instance.level,IsAlly);
+                    Effect effect = EffectFactory.CreateAbydosEffect(isAbydos, AbydosManager.Instance.level, IsAlly);
                     CustomLogger.Log(this, $"isabydos = {isAbydos}, effect = {effect.Source}");
                     effectCTRL.AddEffect(effect, this);
                     if (SelectedAugments.Instance.CheckAugmetExist(106, IsAlly) && !effectCTRL.HaveEffect("AbydosMark"))
@@ -706,7 +706,7 @@ public class CharacterCTRL : MonoBehaviour
     }
     public virtual void Heal(int amount, CharacterCTRL source)
     {
-
+        amount = (int)(amount * (1 + HealerManager.instance.amount * 0.01f));
         amount = BeforeHealing(amount, source);
         if (AntiHeal)
         {
@@ -1770,6 +1770,7 @@ public class CharacterCTRL : MonoBehaviour
     }
     public void AddShield(int amount, float duration, CharacterCTRL source)
     {
+        amount = (int)(amount * (1 + HealerManager.instance.amount * 0.01f));
         Shield newShield = new Shield(amount, duration);
         shields.Add(newShield);
         shields.Sort((a, b) => a.remainingTime.CompareTo(b.remainingTime));

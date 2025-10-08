@@ -5,10 +5,12 @@ using System.Collections.Generic;
 public class AegisObserver : CharacterObserverBase
 {
     private CharacterCTRL character;
+    private int level;
     public AegisObserver(int level, CharacterCTRL character)
     {
         if (character == null) return;
         this.character = character;
+        this.level = level;
     }
     public override Dictionary<int, TraitLevelStats> GetTraitObserverLevel()
     {
@@ -24,16 +26,17 @@ public class AegisObserver : CharacterObserverBase
     }
     public override void OnCastedSkill(CharacterCTRL character)
     {
-        CustomLogger.Log(this,$"character at {character.CurrentHex.Position} casted skill");
+        CustomLogger.Log(this, $"character at {character.CurrentHex.Position} casted skill");
         List<HexNode> inner = Utility.GetHexInRange(character.CurrentHex, 1);
         List<HexNode> outer = Utility.GetHexInRange(character.CurrentHex, 2);
+        int resist = GetTraitObserverLevel()[level].Data3;
         foreach (var item in inner)
         {
             foreach (var neighbor in item.Neighbors)
             {
                 if (!inner.Contains(neighbor))
                 {
-                    SpawnGrid.Instance.CreateWallIfNotExist(item, neighbor, character.IsAlly,false);
+                    SpawnGrid.Instance.CreateWallIfNotExist(character, resist, item, neighbor, character.IsAlly, false);
                 }
             }
 

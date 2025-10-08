@@ -340,13 +340,17 @@ public static class EffectFactory
             EffectType.Positive,
             ModifierType.DamageDealt,
             attackPowerIncrease,
-            "HyakkiyakoObserver_AttackPower",
+            $"HyakkiyakoObserver_AttackPower",
             true,
             (character) => character.EmptyEffectFunction(),
             (character) => character.EmptyEffectFunction(),
             duration,
             SpecialEffectType.None,
-            parent
+            parent,
+            false,
+            default,
+            false,
+            true
         );
     }
     public static Effect CreateHyakkiyakoObserverAttackSpeedEffct(int attackPowerIncrease, float duration, CharacterCTRL parent)

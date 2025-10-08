@@ -14,7 +14,7 @@ public class HyakkiyakoObserver : CharacterObserverBase
     {
         Dictionary<int, TraitLevelStats> statsByStarLevel = new Dictionary<int, TraitLevelStats>()
         {//攻擊力,攻擊速度,血量閾值
-            {0, new TraitLevelStats(0,0,0)},
+            {0, new TraitLevelStats(0,0,101)},
             {1, new TraitLevelStats(20,30,60)},
             {2, new TraitLevelStats(50,50,60)},
             {3, new TraitLevelStats(130,90,60)}
@@ -26,7 +26,7 @@ public class HyakkiyakoObserver : CharacterObserverBase
         if (character == null) return;
         this.character = character;
         traitLevel = level;
-
+        character.effectCTRL.ClearEffectWithSource("HyakkiyakoObserver_AttackPower");
         character.effectCTRL.characterCTRL = character;
         float healthThreshold = GetTraitObserverLevel()[traitLevel].Data3 * 0.01f;
         if (character.GetHealthPercentage() > healthThreshold)
@@ -46,6 +46,7 @@ public class HyakkiyakoObserver : CharacterObserverBase
     public override void DeactivateTrait()
     {
         base.DeactivateTrait();
+        character.effectCTRL.ClearEffectWithSource("HyakkiyakoObserver_AttackPower");
         RemoveAttackPowerIncrease();
         RemoveAttackSpeedIncrease();
     }
@@ -53,10 +54,7 @@ public class HyakkiyakoObserver : CharacterObserverBase
     public override int OnDamageTaken(CharacterCTRL character, CharacterCTRL source, int amount)
     {
         if (!activated) return amount;
-
-
         float healthThreshold = GetTraitObserverLevel()[traitLevel].Data3 * 0.01f;
-
         float maxHealth = character.GetStat(StatsType.Health);
         float currHealth = character.GetStat(StatsType.currHealth);
         float newHealth = currHealth - amount;
@@ -98,6 +96,7 @@ public class HyakkiyakoObserver : CharacterObserverBase
 
     private void ApplyAttackPowerIncrease()
     {
+        character.effectCTRL.ClearEffectWithSource("HyakkiyakoObserver_AttackPower");
         int attackPowerIncrease = GetTraitObserverLevel()[traitLevel].Data1;
         float healthThreshold = GetTraitObserverLevel()[traitLevel].Data3 * 0.01f;
         var effect = EffectFactory.CreateHyakkiyakoObserverEffct(attackPowerIncrease, 0, character);
