@@ -22,6 +22,10 @@ MonoBehaviour:
     the end of the round, all unclaimed rewards below the threshold are automatically
     collected."
   thresholds:
+  - level: 0
+    requiredCount: 0
+    effectValue: 0
+    effectDescription: 
   - level: 1
     requiredCount: 2
     effectValue: 0

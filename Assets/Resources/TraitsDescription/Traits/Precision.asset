@@ -20,11 +20,14 @@ MonoBehaviour:
   - 'When a normal attack or skill hits its intended target, damage dealt is increased
     by {data1}%.
 
-    If the enemy is defeated under this condition, restore 10
-    mana.
+    If the enemy is defeated under this condition, restore 10 mana.
 
 '
   thresholds:
+  - level: 0
+    requiredCount: 0
+    effectValue: 0
+    effectDescription: 
   - level: 1
     requiredCount: 2
     effectValue: 0

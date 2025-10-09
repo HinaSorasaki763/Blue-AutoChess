@@ -9,7 +9,7 @@ public class Wall : MonoBehaviour
     public int life;
     public void InitWall(CharacterCTRL parent, bool isAllyWall, int resistance)
     {
-        life = 3;
+        life = 5;
         IsAllyWall = isAllyWall;
         SourceCharacter = parent;
         resistPercent = resistance;
@@ -23,8 +23,15 @@ public class Wall : MonoBehaviour
     }
     public void StartWallLifetime(string wallKey, bool isAllyWall, float duration = 5f)
     {
-        StartCoroutine(WallLifetimeCoroutine(wallKey, isAllyWall, duration));
+        StartCoroutine(DelayStart(wallKey, isAllyWall, duration));
     }
+
+    private IEnumerator DelayStart(string wallKey, bool isAllyWall, float duration)
+    {
+        yield return null; // 等一幀，確保物件已啟用
+        yield return WallLifetimeCoroutine(wallKey, isAllyWall, duration);
+    }
+
 
     private IEnumerator WallLifetimeCoroutine(string wallKey, bool isAllyWall, float duration)
     {

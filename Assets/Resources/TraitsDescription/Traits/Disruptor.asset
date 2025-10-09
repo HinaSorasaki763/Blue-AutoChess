@@ -20,6 +20,10 @@ MonoBehaviour:
   - All allied debuffs have their crowd control duration increased by {data1}% and
     their negative effect values amplified by {data2}%.
   thresholds:
+  - level: 0
+    requiredCount: 0
+    effectValue: 0
+    effectDescription: 
   - level: 1
     requiredCount: 2
     effectValue: 0

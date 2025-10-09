@@ -1292,7 +1292,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   childCharacters: []
   startBattle: {fileID: 11400000, guid: 43af1bc8378ec824f824994130637b9e, type: 2}
-  isally: 0
+  isally: 1
   IsBattling: 0
   Shiroko_Terror_Postponed: 0
   BattleingCharacterNames: []
@@ -31341,6 +31341,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 270d60a19bf40524292331195d5356fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealerManager
+  amount: 0
 --- !u!1 &1441562652
 GameObject:
   m_ObjectHideFlags: 0

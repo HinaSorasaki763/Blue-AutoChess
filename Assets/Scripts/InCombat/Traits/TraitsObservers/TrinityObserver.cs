@@ -9,7 +9,13 @@ public class TrinityObserver : CharacterObserverBase
     
     public TrinityObserver(int level, CharacterCTRL character)
     {
+        if (level == 0)
+        {
+            activated = false;
+            return;
+        }
         if (character == null) return;
+        activated = true;
         traitLevel = level;
         parent = character;
     }

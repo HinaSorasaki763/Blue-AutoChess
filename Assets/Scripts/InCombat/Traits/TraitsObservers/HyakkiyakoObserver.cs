@@ -27,12 +27,10 @@ public class HyakkiyakoObserver : CharacterObserverBase
         this.character = character;
         traitLevel = level;
         character.effectCTRL.ClearEffectWithSource("HyakkiyakoObserver_AttackPower");
+        if (level == 0) return;
         character.effectCTRL.characterCTRL = character;
         float healthThreshold = GetTraitObserverLevel()[traitLevel].Data3 * 0.01f;
-        if (character.GetHealthPercentage() > healthThreshold)
-        {
-            ApplyAttackPowerIncrease();
-        }
+        ApplyAttackPowerIncrease();
     }
 
     public override void CharacterUpdate()
@@ -126,7 +124,6 @@ public class HyakkiyakoObserver : CharacterObserverBase
     private void RemoveAttackPowerIncrease()
     {
         character.effectCTRL.ClearEffectWithSource("HyakkiyakoObserver_AttackPower");
-        float healthThreshold = GetTraitObserverLevel()[traitLevel].Data3 * 0.01f;
     }
 
 

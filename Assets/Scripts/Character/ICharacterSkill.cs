@@ -278,12 +278,20 @@ public class HarukaSkill : CharacterSkillBase//遙香(Haruka)架起護盾，並�
         BaseDmg = stats.Data1;
         DmgRatio = stats.Data2;
         PressureRatio = stats.Data3;
-        HexNode hexNode = SpawnGrid.Instance.GetHexNodeByPosition(skillContext.TargetCTRLPosition);
+        HexNode target = skillContext.Parent.GetTargetCTRL().CurrentHex;
+        HexNode nearest = null;
+        float minDist = float.MaxValue;
+        foreach (var n in skillContext.Parent.CurrentHex.Neighbors)
+        {
+            float d = Vector3.Distance(target.Position, n.Position);
+            if (d < minDist) { minDist = d; nearest = n; }
+        }
+        if (nearest == null) return;
         HexNode currentHex = skillContext.Parent.CurrentHex;
-        var commonNeighbors = hexNode.Neighbors.Intersect(currentHex.Neighbors)
+        var commonNeighbors = nearest.Neighbors.Intersect(currentHex.Neighbors)
                                .Where(h => h != currentHex)
                                .ToList();
-        commonNeighbors.Add(hexNode);
+        commonNeighbors.Add(nearest);
         bool isAlly = skillContext.Parent.IsAlly;
         foreach (var neighbor in commonNeighbors)
         {

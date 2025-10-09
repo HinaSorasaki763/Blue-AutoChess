@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 public class SpawnGrid : MonoBehaviour
 {
     const int gridSize = 8;
@@ -603,8 +604,7 @@ public class SpawnGrid : MonoBehaviour
             Vector3 midPos = node.transform.position + offset * 0.5f;
             float angle = Mathf.Atan2(offset.z, offset.x) * Mathf.Rad2Deg;
             Quaternion rotation = Quaternion.Euler(0, -angle, 0);
-
-            GameObject wallObj = ResourcePool.Instance.GetWall(new Vector3(midPos.x, 0.64f, midPos.z));
+            GameObject wallObj = Instantiate(ResourcePool.Instance.wallPrefab, new Vector3(midPos.x, 0.64f, midPos.z), rotation, WallParent.transform);
             wallObj.transform.localScale = new Vector3(0.03f, 1, 1f);
             wallObj.transform.rotation = rotation;
             wallObj.GetComponent<BoxCollider>().enabled = false;
@@ -623,8 +623,7 @@ public class SpawnGrid : MonoBehaviour
             Vector3 midPos = node.transform.position + offset * 0.5f;
             float angle = Mathf.Atan2(offset.z, offset.x) * Mathf.Rad2Deg;
             Quaternion rotation = Quaternion.Euler(0, -angle, 0);
-
-            GameObject wallObj = ResourcePool.Instance.GetWall(new Vector3(midPos.x, 0.64f, midPos.z));
+            GameObject wallObj = Instantiate(ResourcePool.Instance.wallPrefab, new Vector3(midPos.x, 0.64f, midPos.z), rotation, WallParent.transform);
             wallObj.transform.rotation = rotation;
             wallObj.GetComponent<BoxCollider>().enabled = false;
             wallObj.transform.SetParent(WallParent.transform, false);
@@ -671,8 +670,7 @@ public class SpawnGrid : MonoBehaviour
                 Vector3 midPos = node.transform.position + offset * 0.5f;
                 float angle = Mathf.Atan2(offset.z, offset.x) * Mathf.Rad2Deg;
                 Quaternion rotation = Quaternion.Euler(0, -angle, 0);
-
-                GameObject wallObj = ResourcePool.Instance.GetWall(new Vector3(midPos.x, 0.64f, midPos.z));
+                GameObject wallObj = Instantiate(ResourcePool.Instance.wallPrefab, new Vector3(midPos.x, 0.64f, midPos.z), rotation, WallParent.transform);
                 wallObj.transform.rotation = rotation;
                 wallObj.GetComponent<BoxCollider>().enabled = false;
                 wallObj.transform.SetParent(WallParent.transform, false);
@@ -710,23 +708,27 @@ public class SpawnGrid : MonoBehaviour
         Vector3 Pos = new Vector3(pos.x, 0.64f, pos.z);
         float angle = Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg;
         Quaternion rotation = Quaternion.Euler(0, -angle, 0);
-        GameObject wallObj = ResourcePool.Instance.GetWall(Pos);
-        wallObj.transform.rotation = rotation;
+
         if (normal)
         {
-            wallObj.GetComponent<BoxCollider>().enabled = false;
-            wallObj.transform.SetParent(WallParent.transform, false);
+            GameObject obj = Instantiate(ResourcePool.Instance.wallPrefab,pos,rotation,WallParent.transform);
+            obj.GetComponent<BoxCollider>().enabled = false;
+            return obj;
         }
         if (!normal)
         {
+            GameObject wallObj = ResourcePool.Instance.GetWall(Pos);
+            wallObj.SetActive(true);
+            wallObj.transform.rotation = rotation;
             wallObj.GetComponent<BoxCollider>().enabled = true;
             Wall wall = wallObj.GetComponent<Wall>();
             wall.InitWall(parent, isAllyWall, resist);
 
             wall.StartWallLifetime(wallKey, isAllyWall);
             activeWalls.Add(wallObj);
+            return wallObj;
         }
-        return wallObj;
+        else return null;
     }
 
 

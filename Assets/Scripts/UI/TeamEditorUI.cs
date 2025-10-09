@@ -115,8 +115,6 @@ public class TeamEditorUI : MonoBehaviour
 
         Dictionary<int, TraitLevelStats> statsByLevel = observer.GetTraitObserverLevel();
         var replacements = new Dictionary<string, string>();
-
-        // 根據實際包含的所有 key，自動生成所有層數的字串
         foreach (int i in Enumerable.Range(1, 5))
         {
             string key = $"data{i}";

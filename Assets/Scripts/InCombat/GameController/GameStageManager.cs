@@ -83,9 +83,9 @@ public class GameStageManager : MonoBehaviour
         endGamePopup.SetActive(true);
 
     }
-    public async Task StartBattle()
+    public void StartBattle()
     {
-        await opponentSelectionUI.Show(temp);
+        opponentSelectionUI.Show(temp);
     }
     public void SimulateAdvanceRound()
     {

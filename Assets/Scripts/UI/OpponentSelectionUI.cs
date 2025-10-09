@@ -39,10 +39,21 @@ public class OpponentSelectionUI : MonoBehaviour
         UpdateSelectionIndicators(-1);
     }
 
-    public async Task Show(List<DocumentSnapshot> opponents)
+    public void Show(List<DocumentSnapshot> opponents)
     {
         panel.SetActive(true);
         opponentNames.Clear();
+        foreach (var doc in opponents)
+        {
+            var data = doc.ToDictionary();
+            if (data.TryGetValue("playerId", out object name) && (name is string enemyName))
+            {
+                opponentNames.Add(enemyName);
+                continue;
+            }
+            else opponentNames.Add("Unknown");
+        }
+
         for (int i = 0; i < opponentPanels.Count; i++)
         {
             if (i < opponents.Count)
@@ -80,17 +91,8 @@ public class OpponentSelectionUI : MonoBehaviour
                         opponentImages[i][j].sprite = null;
                     }
                 }
-                if (data.TryGetValue("playerId", out object idObj))
-                {
-                    string playerId = idObj.ToString();
-                    string enemyName = await authManager.GetPlayerNameById(playerId);
-                    opponentNames.Add(enemyName);
-
-                }
-
-
-                // 設定按鈕事件
                 int index = i;
+                opponentNames.Add(opponentNames[i]);
                 opponentButtons[i].onClick.RemoveAllListeners();
                 opponentButtons[i].onClick.AddListener(() => SelectOpponent(index));
             }

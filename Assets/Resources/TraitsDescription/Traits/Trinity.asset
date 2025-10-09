@@ -22,6 +22,10 @@ MonoBehaviour:
     the impact point.\nThe damage from this meteor is attributed to the unit that
     triggered it."
   thresholds:
+  - level: 0
+    requiredCount: 0
+    effectValue: 0
+    effectDescription: 
   - level: 1
     requiredCount: 2
     effectValue: 0

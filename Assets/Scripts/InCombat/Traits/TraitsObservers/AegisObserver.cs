@@ -28,7 +28,6 @@ public class AegisObserver : CharacterObserverBase
     {
         CustomLogger.Log(this, $"character at {character.CurrentHex.Position} casted skill");
         List<HexNode> inner = Utility.GetHexInRange(character.CurrentHex, 1);
-        List<HexNode> outer = Utility.GetHexInRange(character.CurrentHex, 2);
         int resist = GetTraitObserverLevel()[level].Data3;
         foreach (var item in inner)
         {

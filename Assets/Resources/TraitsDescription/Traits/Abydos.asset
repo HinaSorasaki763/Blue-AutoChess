@@ -23,6 +23,10 @@ MonoBehaviour:
     students not from Abydos will suffer negative effects instead.\nAll positive
     and negative effects are immediately removed upon leaving the tiles."
   thresholds:
+  - level: 0
+    requiredCount: 0
+    effectValue: 0
+    effectDescription: 
   - level: 1
     requiredCount: 2
     effectValue: 0

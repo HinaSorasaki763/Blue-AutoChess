@@ -23,6 +23,10 @@ MonoBehaviour:
     from skills marked as \u201CPiercing\u201D will pass through the wall without
     dealing secondary damage to the unit, but their damage is reduced by {data3}%."
   thresholds:
+  - level: 0
+    requiredCount: 0
+    effectValue: 0
+    effectDescription: 
   - level: 1
     requiredCount: 2
     effectValue: 0

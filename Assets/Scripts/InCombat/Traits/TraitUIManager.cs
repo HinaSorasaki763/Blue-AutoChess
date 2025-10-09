@@ -1,5 +1,6 @@
 using GameEnum;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -46,6 +47,7 @@ public class TraitUIManager : MonoBehaviour
             {
                 // 設置 trait 屬性，確保 UI 項目對應正確的羈絆
                 uiComponent.trait = trait.Key;
+                uiComponent.characterCount = trait.Value;
             }
 
             activeTraitUIs[trait.Key] = traitUI;
@@ -57,4 +59,5 @@ public class TraitUIManager : MonoBehaviour
             text.text = $"{trait.Key} ({trait.Value})"; // 顯示羈絆名稱和角色數量
         }
     }
+    
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using GameEnum;
 using UnityEngine.UI;
+using System.Linq;
 
 public class TraitDescriptions : MonoBehaviour
 {
@@ -46,7 +47,10 @@ public class TraitDescriptions : MonoBehaviour
                 List<int> requiredCounts = new();
                 foreach (var threshold in traitData.thresholds)
                 {
-                    requiredCounts.Add(threshold.requiredCount);
+                    if (threshold.requiredCount!=0)
+                    {
+                        requiredCounts.Add(threshold.requiredCount);
+                    }
                 }
                 requiredCounts.Sort();
 
@@ -67,7 +71,6 @@ public class TraitDescriptions : MonoBehaviour
         {
             traitDescriptions[item.trait] = item.descrtipns[PlayerSettings.SelectedDropdownValue];
         }
-        
         return traitDescriptions.ContainsKey(trait) ? traitDescriptions[trait] : "No description available.";
     }
     public Sprite GetTraitImage(Traits traits)
@@ -78,4 +81,6 @@ public class TraitDescriptions : MonoBehaviour
     {
         return isAcademy[traits];
     }
+    
+
 }

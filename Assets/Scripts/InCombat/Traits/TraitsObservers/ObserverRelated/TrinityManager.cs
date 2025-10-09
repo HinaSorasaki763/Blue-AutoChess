@@ -25,7 +25,9 @@ public class TrinityManager : MonoBehaviour
     }
     public void AddStack(Vector3 v, string detailSource, HexNode h, CharacterCTRL c)
     {
+
         var observer = c.traitController.GetObserverForTrait(Traits.Trinity) as TrinityObserver;
+        if (observer.traitLevel == 0) return;
         int StackUplimit = observer.GetTraitObserverLevel()[observer.traitLevel].Data2;
         TrinityStackCount++;
         if (TrinityStackCount >= StackUplimit)

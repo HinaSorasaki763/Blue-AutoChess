@@ -22,6 +22,10 @@ MonoBehaviour:
     casting the skill, the character temporarily loses its current target and prioritizes
     aiming the skill to cover the largest number of enemy students."
   thresholds:
+  - level: 0
+    requiredCount: 0
+    effectValue: 0
+    effectDescription: 
   - level: 1
     requiredCount: 3
     effectValue: 0

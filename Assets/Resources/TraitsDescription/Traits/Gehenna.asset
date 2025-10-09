@@ -21,6 +21,10 @@ MonoBehaviour:
     student or surviving until the end of battle.\nEach stack of \u201CPressure\u201D
     slightly increases all stats and skill potency."
   thresholds:
+  - level: 0
+    requiredCount: 0
+    effectValue: 0
+    effectDescription: 
   - level: 1
     requiredCount: 3
     effectValue: 0

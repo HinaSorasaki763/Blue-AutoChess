@@ -524,7 +524,6 @@ public class CharacterParent : MonoBehaviour
         {
             if (characterCount >= threshold.requiredCount)
             {
-                // traitLevel 符合這個門檻，就暫存下來
                 matchedThreshold = threshold;
             }
             else
