@@ -9,8 +9,8 @@ public class StaticObject : CharacterCTRL
     private float lastShakeTime = 0f; // 上次旋轉效果觸發的時間
     private float shakeCooldown = 0.7f; // 旋轉效果的冷卻時間（秒）
     public CharacterCTRL parent;
-    public int MaxHealth_StaticObj = 10000;
-    public int Resistance_StaticObj;
+    public int MaxHealth_StaticObj = 8000;
+    public int Resistance_StaticObj =100;
     public override void OnEnable()
     {
         star = 1;
@@ -62,8 +62,8 @@ public class StaticObject : CharacterCTRL
         SetStat(StatsType.Health, maxhealth);
         MaxHealth_StaticObj = maxhealth;
         SetStat(StatsType.currHealth, maxhealth);
-        SetStat(StatsType.Resistence, 35);
-        Resistance_StaticObj = 35;
+        SetStat(StatsType.Resistence, resistence);
+        Resistance_StaticObj = resistence;
         SetStat(StatsType.PercentageResistence, 0);
         characterBars.InitBars();
     }
@@ -75,8 +75,7 @@ public class StaticObject : CharacterCTRL
         SetStat(StatsType.Health, maxhealth);
         MaxHealth_StaticObj = maxhealth;
         SetStat(StatsType.currHealth, maxhealth);
-        SetStat(StatsType.Resistence, 35);
-        Resistance_StaticObj = 35;
+        SetStat(StatsType.Resistence, Resistance_StaticObj);
         SetStat(StatsType.PercentageResistence, 0);
         characterBars.InitBars();
     }
@@ -139,17 +138,11 @@ public class StaticObject : CharacterCTRL
     }
     public override void RecalculateStats()
     {
+        CustomLogger.Log(this, $"{gameObject.name} RecalculateStats()");
         int currHealth = (int)GetStat(StatsType.currHealth);
         int currMana = (int)GetStat(StatsType.Mana);
         stats.SetStat(StatsType.Health, MaxHealth_StaticObj);
-
-        if (effectCTRL.GetStatsEffects().Count > 0)
-        {
-            foreach (var item in effectCTRL.GetStatsEffects())
-            {
-                item.OnRemove.Invoke(this);
-            }
-        }
+        stats.SetStat(StatsType.Resistence, Resistance_StaticObj);
         stats.AddFrom(ExtraPernamentStats);
         stats.AddFrom(GameController.Instance.TeamExtraStats);
         if (effectCTRL.GetStatsEffects().Count > 0)

@@ -1700,6 +1700,10 @@ namespace GameEnum
             Parent = c;
             Value = newValue;
             c.RecalculateStats();
+            if (c is StaticObject staticObject)
+            {
+                staticObject.RecalculateStats();
+            }
         }
         public void AddValue(float valAdded)
         {

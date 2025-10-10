@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 public abstract class CharacterSkillBase
@@ -127,7 +126,6 @@ public class ArisSkill : CharacterSkillBase//愛麗絲找到一個可以貫穿�
     {
         int level = skillContext.CharacterLevel;
         StarLevelStats stats = GetCharacterLevel()[level];
-        base.ExecuteSkill(skillContext);
         BaseDamage = stats.Data1;
         DamageRatio = stats.Data2;
         DecayFactor = stats.Data3;
@@ -368,11 +366,19 @@ public class HarunaSkill : CharacterSkillBase//羽留奈(Haruna)朝著當前生�
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(100,350,100)}, // 星級1的數據
-            {2, new StarLevelStats(150,475,150)}, // 星級2的數據
-            {3, new StarLevelStats(350,680,225)}  // 星級3的數據
+            {1, new StarLevelStats(100,350,100)},
+            {2, new StarLevelStats(150,475,150)},
+            {3, new StarLevelStats(350,680,225)}
         };
         return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        BaseDmg = stats.Data1;
+        DmgRatio = stats.Data2;
+        PressureRatio = stats.Data3;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack()) + PressureRatio * PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly);
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
@@ -410,15 +416,22 @@ public class HarunaEnhancedSkill : CharacterSkillBase//在半徑兩格區域內�
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(0,155,30)}, // 星級1的數據
-            {2, new StarLevelStats(0,230,45)}, // 星級2的數據
-            {3, new StarLevelStats(0,390,75)}  // 星級3的數據
+            {1, new StarLevelStats(100,170,30)}, // 星級1的數據
+            {2, new StarLevelStats(150,255,45)}, // 星級2的數據
+            {3, new StarLevelStats(275,420,75)}  // 星級3的數據
         };
         return statsByStarLevel;
     }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        BaseDmg = stats.Data1;
+        DmgRatio = stats.Data2;
+        PressureRatio = stats.Data3;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack()) + PressureRatio * PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly);
+    }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         skillContext.Parent.SpecialSkillStack++;
         if (skillContext.Parent.SpecialSkillStack >= 3)
         {
@@ -460,8 +473,7 @@ public class HarunaEnhancedSkill : CharacterSkillBase//在半徑兩格區域內�
         DmgRatio = stats.Data2;
         PressureRatio = stats.Data3;
         List<CharacterCTRL> characters = target.GetComponent<CharacterCTRL>().CurrentHex.GetCharacterOnNeighborHex(1, true);
-        int dmg = BaseDmg + (int)skillContext.Parent.GetStat(StatsType.Attack) * DmgRatio / 100 + PressureRatio * PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly);
-        (bool, int) tuple = skillContext.Parent.CalculateCrit(dmg);
+        (bool, int) tuple = skillContext.Parent.CalculateCrit(GetAttackCoefficient(skillContext));
         foreach (var item in characters)
         {
             item.GetHit(tuple.Item2, skillContext.Parent, "HarunaEnhancedSkill", tuple.Item1);
@@ -528,11 +540,18 @@ public class MichiruEnhancedSkill : CharacterSkillBase//火焰範圍擴大，且
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(30,155,30,75)}, // 星級1的數據
-            {2, new StarLevelStats(50,230,45,115)}, // 星級2的數據
-            {3, new StarLevelStats(70,390,75,175)}  // 星級3的數據
+            {1, new StarLevelStats(15,70,30,75)}, // 星級1的數據
+            {2, new StarLevelStats(25,115,45,115)}, // 星級2的數據
+            {3, new StarLevelStats(35,130,75,175)}  // 星級3的數據
         };
         return statsByStarLevel;
+    }
+    public override int GetAttackCoefficient(SkillContext skillContext)
+    {
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int BaseDmg = stats.Data1;
+        int DmgRatio = stats.Data2;
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
@@ -764,9 +783,9 @@ public class SerikaSkill : CharacterSkillBase//茜香(Serika)施放技能後獲�
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(10)},
-            {2, new StarLevelStats(15)},
-            {3, new StarLevelStats(20)}
+            {1, new StarLevelStats(10,0,0,0,7.5f)},
+            {2, new StarLevelStats(15,0,0,0,7.5f)},
+            {3, new StarLevelStats(20,0,0,0,7.5f)}
         };
         return statsByStarLevel;
     }
@@ -774,9 +793,19 @@ public class SerikaSkill : CharacterSkillBase//茜香(Serika)施放技能後獲�
     {
         int level = skillContext.CharacterLevel;
         StarLevelStats stats = GetCharacterLevel()[level];
-        base.ExecuteSkill(skillContext);
-        Effect effect = EffectFactory.CreateSerikaRageEffect(10, 5, skillContext.Parent);
-        skillContext.Parent.effectCTRL.AddEffect(effect, skillContext.Parent);
+        CharacterCTRL character = skillContext.Parent;
+        Effect Attackeffect = EffectFactory.UnStatckableStatsEffct(stats.Data5, "SerikaExAttack", stats.Data1, StatsType.Attack, character, false);
+        Attackeffect.SetActions(
+            (character) => character.ModifyStats(StatsType.Attack, Attackeffect.Value, Attackeffect.Source),
+            (character) => character.ModifyStats(StatsType.Attack, -Attackeffect.Value, Attackeffect.Source)
+        );
+        character.effectCTRL.AddEffect(Attackeffect, character);
+        Effect AttackSpeedeffect = EffectFactory.UnStatckableStatsEffct(stats.Data5, "SerikaExAttackSpeed", stats.Data1 * 0.01f, StatsType.AttackSpeed, character, false);
+        AttackSpeedeffect.SetActions(
+            (target) => target.ModifyStats(StatsType.AttackSpeed, AttackSpeedeffect.Value, AttackSpeedeffect.Source),
+            (target) => target.ModifyStats(StatsType.AttackSpeed, -AttackSpeedeffect.Value, AttackSpeedeffect.Source)
+        );
+        character.effectCTRL.AddEffect(AttackSpeedeffect, character);
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
     {
@@ -802,14 +831,23 @@ public class SerikaEnhancedSkill : CharacterSkillBase//施放技能後的該段�
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         int level = skillContext.CharacterLevel;
         StarLevelStats stats = GetCharacterLevel()[level];
-        base.ExecuteSkill(skillContext);
-        Effect effect = EffectFactory.CreateSerikaRageEffect(10, 5, skillContext.Parent);
-        Effect effect1 = EffectFactory.SerikaAddGold();
-        skillContext.Parent.effectCTRL.AddEffect(effect, skillContext.Parent);
-        skillContext.Parent.effectCTRL.AddEffect(effect1, skillContext.Parent);
+        CharacterCTRL character = skillContext.Parent;
+        Effect Attackeffect = EffectFactory.UnStatckableStatsEffct(stats.Data5, "SerikaExAttack", stats.Data1, StatsType.Attack, character, false);
+        Attackeffect.SetActions(
+            (character) => character.ModifyStats(StatsType.Attack, Attackeffect.Value, Attackeffect.Source),
+            (character) => character.ModifyStats(StatsType.Attack, -Attackeffect.Value, Attackeffect.Source)
+        );
+        character.effectCTRL.AddEffect(Attackeffect, character);
+        Effect AttackSpeedeffect = EffectFactory.UnStatckableStatsEffct(stats.Data5, "SerikaExAttackSpeed", stats.Data1 * 0.01f, StatsType.AttackSpeed, character, false);
+        AttackSpeedeffect.SetActions(
+            (target) => target.ModifyStats(StatsType.AttackSpeed, AttackSpeedeffect.Value, AttackSpeedeffect.Source),
+            (target) => target.ModifyStats(StatsType.AttackSpeed, -AttackSpeedeffect.Value, AttackSpeedeffect.Source)
+        );
+        character.effectCTRL.AddEffect(AttackSpeedeffect, character);
+        Effect AddGold = EffectFactory.SerikaAddGold();
+        skillContext.Parent.effectCTRL.AddEffect(AddGold, skillContext.Parent);
         CustomLogger.Log(this, $"{skillContext.Parent.gameObject.name} cast ENHANCED Serika Skill");
     }
 }
@@ -857,10 +895,10 @@ public class SeiyaSkill : CharacterSkillBase
             (character) => character.ModifyStats(StatsType.MaxMana, effect.Value, effect.Source)
         );
         character.effectCTRL.AddEffect(effect, skillContext.Parent);
-        if (castTime >=3)
+        if (castTime >= 3)
         {
             castTime -= 3;
-            character.AddShield(GetAttackCoefficient(skillContext),5f,skillContext.Parent);
+            character.AddShield(GetAttackCoefficient(skillContext), 5f, skillContext.Parent);
             skillContext.Parent.AddShield(GetAttackCoefficient(skillContext), 5f, skillContext.Parent);
         }
     }
@@ -903,7 +941,7 @@ public class SeiyaEnhancedSkill : CharacterSkillBase
             (character) => character.ModifyStats(StatsType.MaxMana, effect.Value, effect.Source)
         );
         CharacterCTRL c = DamageStatisticsManager.Instance.GetTopDamageDealer(skillContext.Parent.IsAlly);
-        c.effectCTRL.AddEffect(effect1,c);
+        c.effectCTRL.AddEffect(effect1, c);
         c.effectCTRL.AddEffect(effect, c);
         c.AddShield(GetAttackCoefficient(skillContext), 5f, skillContext.Parent);
         skillContext.Parent.AddShield(GetAttackCoefficient(skillContext), 5f, skillContext.Parent);
@@ -3552,7 +3590,7 @@ public class MeguSkill : CharacterSkillBase
         int BaseDmg = stats.Data1;
         int DmgRatio = stats.Data2;
         int PressureRatio = stats.Data3;
-        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack()) + (int)(PressureRatio * PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly));
+        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack()) + PressureRatio * PressureManager.Instance.GetPressure(skillContext.Parent.IsAlly);
     }
     public override void ExecuteSkill(SkillContext ctx)
     {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using static Firebase.AI.ModelContent;
 
 public abstract class CharacterObserverBase
 {
@@ -410,7 +411,7 @@ public class SerikaObserver : CharacterObserverBase
         base.OnAttacking(character);
         if (character.effectCTRL.GetEffect("SerikaAddGold") != null)
         {
-            if (Utility.GetRand(character) <= 50)
+            if (Utility.GetRand(character) <= 7)
             {
                 ResourcePool.Instance.GetGoldPrefab(character.CurrentHex.Position);
             }
@@ -728,18 +729,18 @@ public class MoeObserver : CharacterObserverBase
         if (GameController.Instance.CheckCharacterEnhance(37, character.IsAlly))
         {
             CharacterCTRL target = character.Target.GetComponent<CharacterCTRL>();
-            int dmg = character.GetAttack();
+            int dmg = (int)(character.GetAttack()*0.3f);
             target.CurrentHex.ApplyBurningEffect(3, dmg, 0.5f, character);//TODO: 檢查是否可以和ex疊加，數值是否正確
         }
         else
         {
             CharacterCTRL target = character.GetTargetCTRL();
-            Effect effect = EffectFactory.StatckableStatsEffct(1.5f, "Moe", -5, StatsType.Resistence, character, false);
+            Effect effect = EffectFactory.StatckableStatsEffct(0, "Moe", -5, StatsType.Resistence, character, true);
             effect.SetActions(
-                (character) => character.ModifyStats(StatsType.Resistence, effect.Value, effect.Source),
-                (character) => character.ModifyStats(StatsType.Resistence, -effect.Value, effect.Source)
+                (target) => target.ModifyStats(StatsType.Resistence, effect.Value, effect.Source),
+                (target) => target.ModifyStats(StatsType.Resistence, -effect.Value, effect.Source)
             );
-            character.effectCTRL.AddEffect(effect, target);
+            target.effectCTRL.AddEffect(effect, target);
         }
     }
 }

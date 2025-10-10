@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 public class MysticObserver : CharacterObserverBase
 {
@@ -20,8 +18,8 @@ public class MysticObserver : CharacterObserverBase
     public override int BeforeDealtDmg(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
         int ratio = GetTraitObserverLevel()[traitLevel].Data1;
-        
-        int reduced = (int)(damage * (1-ratio*0.01f));
+
+        int reduced = (int)(damage * (1 - ratio * 0.01f));
         target.GetHitByTrueDamage(reduced, source, "Mythic", iscrit);
         return reduced;
     }

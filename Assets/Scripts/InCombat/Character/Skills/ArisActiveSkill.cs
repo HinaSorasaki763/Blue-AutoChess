@@ -47,34 +47,59 @@ public class ArisActiveSkill : MonoBehaviour
         float searchRadius = 10f;
         float maxDistance = 50f;
         float beamRadius = 0.5f;
+
         var allEnemies = Physics.OverlapSphere(parent.position, searchRadius, layer)
             .Select(col => col.GetComponent<CharacterCTRL>())
             .Where(c => c != null && c.isAlive && c.isTargetable && !c.characterStats.logistics)
             .ToList();
         if (allEnemies.Count == 0) return;
+
+        // 將敵人轉為方向向量
+        var dirs = allEnemies.Select(e => (e.transform.position - parent.position).normalized).ToList();
+
+        // 計算所有兩兩角度
+        float bestAngle = 0f;
         Vector3 bestDir = Vector3.zero;
-        List<CharacterCTRL> bestHitEnemies = new();
         int maxHits = 0;
-        foreach (var target in allEnemies)
+
+        for (int i = 0; i < dirs.Count; i++)
         {
-            Vector3 direction = (target.transform.position - parent.position).normalized;
-            if (direction.sqrMagnitude < 0.0001f) continue;
-            var hits = allEnemies.Where(e =>
+            for (int j = i + 1; j < dirs.Count; j++)
             {
-                Vector3 toEnemy = e.transform.position - parent.position;
-                float proj = Vector3.Dot(toEnemy, direction);
-                if (proj < 0f || proj > maxDistance) return false;
-                float dist = Vector3.Cross(toEnemy, direction).magnitude;
-                return dist <= beamRadius;
-            }).ToList();
-            if (hits.Count > maxHits)
-            {
-                maxHits = hits.Count;
-                bestDir = direction;
-                bestHitEnemies = hits;
+                float angle = Vector3.Angle(dirs[i], dirs[j]);
+                if (angle <= 0f || angle > 180f) continue;
+
+                // 計算夾角中心方向
+                Vector3 midDir = (dirs[i] + dirs[j]).normalized;
+
+                // 在夾角範圍內每度檢查一次
+                int step = Mathf.CeilToInt(angle);
+                for (int a = -step / 2; a <= step / 2; a++)
+                {
+                    Quaternion rot = Quaternion.AngleAxis(a, Vector3.up);
+                    Vector3 checkDir = rot * midDir;
+
+                    var hits = allEnemies.Where(e =>
+                    {
+                        Vector3 toEnemy = e.transform.position - parent.position;
+                        float proj = Vector3.Dot(toEnemy, checkDir);
+                        if (proj < 0f || proj > maxDistance) return false;
+                        float dist = Vector3.Cross(toEnemy, checkDir).magnitude;
+                        return dist <= beamRadius;
+                    }).ToList();
+
+                    if (hits.Count > maxHits)
+                    {
+                        maxHits = hits.Count;
+                        bestAngle = a;
+                        bestDir = checkDir;
+                    }
+                }
             }
         }
+
         if (maxHits == 0) return;
+
         skillContext.Parent.LockDirection(bestDir);
         GameObject bullet = ResourcePool.Instance.SpawnObject(
             SkillPrefab.PenetrateTrailedBullet,
@@ -90,4 +115,5 @@ public class ArisActiveSkill : MonoBehaviour
             false
         );
     }
+
 }

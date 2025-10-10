@@ -12,7 +12,7 @@ public class CharacterCTRL : MonoBehaviour
     public HexNode CurrentHex;
     public HexNode HexWhenBattleStart;
 
-    private GameObject _target;
+    public GameObject _target;
     public GameObject Target
     {
         get
@@ -1566,10 +1566,7 @@ public class CharacterCTRL : MonoBehaviour
 
         if (!CanTakeDamage()) return;
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
-        if (isCrit)
-        {
-            TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Weak, amount, screenPos, false);
-        }
+
         if (WakamoMark)
         {
             dmgRecivedOnWakamoMarked += (int)(amount * wakamoMarkRatio);
@@ -1580,14 +1577,29 @@ public class CharacterCTRL : MonoBehaviour
             Shield shield = shields[0];
             if (shield.amount >= amount)
             {
-                TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Resist, amount, screenPos, false);
+                if (isCrit)
+                {
+                    TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Weak, amount, screenPos, false);
+                }
+                else
+                {
+                    TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Resist, amount, screenPos, false);
+                }
+
                 shield.amount -= amount;
                 AddStat(StatsType.Shield, -amount);
                 amount = 0;
             }
             else
             {
-                TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Resist, shield.amount, screenPos, false);
+                if (isCrit)
+                {
+                    TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Weak, amount, screenPos, false);
+                }
+                else
+                {
+                    TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Resist, amount, screenPos, false);
+                }
                 amount -= shield.amount;
                 AddStat(StatsType.Shield, -shield.amount);
                 shields.RemoveAt(0);
@@ -1647,6 +1659,7 @@ public class CharacterCTRL : MonoBehaviour
     }
     public virtual void GetHit(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit, bool recursion = true)
     {
+        int rawdmg = amount;
         if (!CanTakeDamage()) return;
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
         if (Dodge(sourceCharacter)) return;
@@ -1660,7 +1673,9 @@ public class CharacterCTRL : MonoBehaviour
         {
             r *= 0.75f;
         }
-        float ratio = r / (100 + r);
+        float mother = 0;
+        if (r > 0) { mother = r; }
+        float ratio = r / (100 + mother);
         finalAmount = (int)(finalAmount * (1 - ratio));
         if (!SaoriEnhanced)
         {
@@ -1678,7 +1693,7 @@ public class CharacterCTRL : MonoBehaviour
         {
             dmgRecivedOnWakamoMarked += (int)(finalAmount * wakamoMarkRatio);
         }
-        CustomLogger.Log(this, $"{name} get hit by {sourceCharacter}'s {detailedSource} with {amount} iscrit:{isCrit} as {detailedSource}");
+        CustomLogger.Log(this, $"{name} get hit by {sourceCharacter}'s {detailedSource} with {finalAmount} iscrit:{isCrit} as {detailedSource},raw dmg = {rawdmg}");
         if (recursion)
         {
             foreach (var item in observers)

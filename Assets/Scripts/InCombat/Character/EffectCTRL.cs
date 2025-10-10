@@ -34,21 +34,20 @@ public class EffectCTRL : MonoBehaviour
 
         if (existingEffect != null)
         {
-            if (existingEffect.IsPermanent)
+            if (existingEffect.Stackable)
             {
-                if (existingEffect.Stackable)
-                {
-                    existingEffect.UpdateValue(existingEffect.Value + effect.Value, c);
-                    UpdateEffectNames();
-                }
-                if (!existingEffect.Stackable)
-                {
-                    existingEffect.UpdateValue(effect.Value, c);
-                    UpdateEffectNames();
-                }
-                return;
+                int rawStat = (int)existingEffect.Value;
+                int final = (int)(existingEffect.Value + effect.Value);
+                existingEffect.UpdateValue(final, c);
+                CustomLogger.Log(this, $"Updating stackable effect{existingEffect.EffectType} from {rawStat} to {final}");
+                UpdateEffectNames();
             }
-            else
+            if (!existingEffect.Stackable)
+            {
+                existingEffect.UpdateValue(effect.Value, c);
+                UpdateEffectNames();
+            }
+            if (!existingEffect.IsPermanent)
             {
                 if (effect.EffectType == EffectType.Positive && !effect.IsLogisticBuff)
                 {
@@ -62,9 +61,8 @@ public class EffectCTRL : MonoBehaviour
                     existingEffect.Duration = newDuration;
                 }
                 UpdateEffectNames();
-                return;
             }
-
+            return;
         }
         if (effect.EffectType == EffectType.Positive && !effect.IsLogisticBuff)
         {
@@ -196,11 +194,16 @@ public static class EffectFactory
 {
     public static Effect StatckableStatsEffct(float duration, string source, float amount, StatsType statsType, CharacterCTRL parent, bool isPermanent)
     {
+        EffectType effectType = EffectType.Positive;
+        if (amount<0)
+        {
+            effectType = EffectType.Negative;
+        }
         return new Effect(
-            EffectType.Positive,
+            effectType,
             ModifierType.None,
             amount,
-            $"{source} adjust {statsType} {amount}",
+            $"{source} adjust {statsType}",
             isPermanent,
             null,
             null,
@@ -419,22 +422,6 @@ public static class EffectFactory
             false,
             (character) => character.ModifyStats(StatsType.Attack, -amount),
             (character) => character.ModifyStats(StatsType.Attack, amount),
-            duration,
-            SpecialEffectType.None,
-            parent
-        );
-    }
-
-    public static Effect CreateSerikaRageEffect(int amount, float duration, CharacterCTRL parent)
-    {
-        return new Effect(
-            EffectType.Positive,
-            ModifierType.DamageDealt,
-            amount,
-            "SerikaRageEffect",
-            false,
-            (character) => character.ModifyStats(StatsType.Attack, amount),
-            (character) => character.ModifyStats(StatsType.Attack, -amount),
             duration,
             SpecialEffectType.None,
             parent

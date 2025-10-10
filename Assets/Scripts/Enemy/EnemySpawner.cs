@@ -1,10 +1,9 @@
-using UnityEngine;
+using Firebase.Firestore;
+using GameEnum;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using GameEnum;
-using Firebase.Firestore;
-using System;
-using System.Threading.Tasks;
+using UnityEngine;
 public class EnemySpawner : MonoBehaviour
 {
     public static EnemySpawner Instance;
@@ -53,7 +52,7 @@ public class EnemySpawner : MonoBehaviour
         var revealedCharacters = availableSlots.OrderBy(x => UnityEngine.Random.value).Take(2).ToList();
         foreach (var slot in revealedCharacters)
         {
-            
+
             Debug.Log($"Revealed character: {slot.CharacterID}");
         }
     }
@@ -148,6 +147,11 @@ public class EnemySpawner : MonoBehaviour
                 Debug.LogError($"Spawned character {charId} has no CharacterCTRL.");
                 continue;
             }
+            if (charId == 999)
+            {
+                StaticObject staticObject = go.GetComponent<StaticObject>();
+                staticObject.InitNoParentDummy(8000, 100, false);
+            }
             if (slotDict.TryGetValue("EquipmentID", out object equipObj) && equipObj is List<object> equipList)
             {
                 foreach (var e in equipList)
@@ -217,7 +221,7 @@ public class EnemySpawner : MonoBehaviour
                         if (slot.CharacterID == 999)
                         {
                             StaticObject staticObject = go.GetComponent<StaticObject>();
-                            staticObject.InitNoParentDummy(10000,35,false);
+                            staticObject.InitNoParentDummy(8000, 100, false);
                         }
                         if (characterCtrl != null)
                         {
@@ -286,7 +290,7 @@ public class EnemySpawner : MonoBehaviour
             Character characterData = ResourcePool.Instance.GetCharacterByID(logisticSlot.CharacterID);
             GameObject characterPrefab = characterData.Model;
 
-            ResourcePool.Instance.SpawnCharacterAtPosition(characterPrefab, position, logisticSlotNode, enemyParent, isAlly: false,logisticSlot.Level);
+            ResourcePool.Instance.SpawnCharacterAtPosition(characterPrefab, position, logisticSlotNode, enemyParent, isAlly: false, logisticSlot.Level);
         }
     }
     public List<EnemyWave.GridSlotData> GetRevealedCharacters(EnemyWave wave)

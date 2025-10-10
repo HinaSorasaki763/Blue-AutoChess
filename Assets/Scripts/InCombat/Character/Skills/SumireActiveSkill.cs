@@ -37,11 +37,12 @@ public class SumireActiveSkill : MonoBehaviour
             skillContext.Parent.CurrentHex.Reserve(skillContext.Parent);
             yield break;
         }
-        yield return MoveBetweenNodes(obj, obj.transform.position, nextOppositeNode.Position, 21);
+        yield return MoveBetweenNodes(obj, obj.transform.position, obj.transform.position, 21);
         ShootAllEnemiesInBestNodes(bestnodes, skillContext);
         yield return MoveBetweenNodes(obj, obj.transform.position, oppositeNode.Position, 20);
         ShootAllEnemiesInBestNodes(bestnodes, skillContext);
-        yield return MoveBetweenNodes(obj, obj.transform.position, nextOppositeNode.Position, 20);
+        yield return new WaitForSeconds(2f / 30f);
+        yield return MoveBetweenNodes(obj, obj.transform.position, nextOppositeNode.Position, 19);
         nextOppositeNode.Reserve(obj.GetComponent<CharacterCTRL>());
         ShootAllEnemiesInBestNodes(bestnodes, skillContext);
     }

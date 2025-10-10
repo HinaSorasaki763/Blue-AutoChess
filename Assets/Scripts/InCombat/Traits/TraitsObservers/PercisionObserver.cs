@@ -11,15 +11,15 @@ public class PrecisionObserver : CharacterObserverBase
         Dictionary<int, TraitLevelStats> statsByStarLevel = new Dictionary<int, TraitLevelStats>()
         {
             {0, new TraitLevelStats(0)},
-            {1, new TraitLevelStats(50)},
-            {2, new TraitLevelStats(80)},
-            {3, new TraitLevelStats(125)}
+            {1, new TraitLevelStats(30)},
+            {2, new TraitLevelStats(60)},
+            {3, new TraitLevelStats(115)}
         };
         return statsByStarLevel;
     }
     public override int DamageModifier(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
-        int copy = damage;
+        int rawdmg = damage;
         if (source.Target == null)
         {
             return damage;
@@ -28,7 +28,7 @@ public class PrecisionObserver : CharacterObserverBase
         {
             damage = (int)(damage * (1 + GetTraitObserverLevel()[traitLevel].Data1 * 0.01f));
         }
-        CustomLogger.Log(this,$"from {copy} modifed to {damage}");
+        CustomLogger.Log(this,$"rawdmg from {rawdmg} modifed to {damage}");
         return damage;
     }
     public PrecisionObserver(int level, CharacterCTRL character)

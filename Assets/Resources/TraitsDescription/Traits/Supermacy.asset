@@ -16,30 +16,26 @@ MonoBehaviour:
   trait: 5
   sprite: {fileID: 21300000, guid: e6254812c8191924e90ab6781f783fd1, type: 3}
   descrtipns:
-  - "\u53EA\u6709\u7576\u5834\u4E0A\u6070\u597D\u64C1\u6709\u4E00\u540D\u5DE8\u982D\uFF0C\u6216\u662F\u6070\u597D\u6709\u4E94\u540D\u5DE8\u982D\u6642\uFF0C\u8A72\u7F88\u7D46\u624D\u6703\u555F\u7528\u3002\u5DE8\u982D\u55AE\u4F4D\u9020\u6210\u7684\u50B7\u5BB3\u5C07\u6703\u76F4\u63A5\u64CA\u6BBA\u751F\u547D\u503C\u4F4E\u65BC(15/30)%\u7684\u55AE\u4F4D\u3002"
+  - "\u53EA\u6709\u7576\u5834\u4E0A\u6070\u597D\u64C1\u6709\u4E00\u540D\u5DE8\u982D\uFF0C\u6216\u662F\u6070\u597D\u6709\u4E94\u540D\u5DE8\u982D\u6642\uFF0C\u8A72\u7F88\u7D46\u624D\u6703\u555F\u7528\u3002\u5DE8\u982D\u55AE\u4F4D\u9020\u6210\u7684\u50B7\u5BB3\u5C07\u6703\u76F4\u63A5\u64CA\u6BBA\u751F\u547D\u503C\u4F4E\u65BC{data1}%\u7684\u55AE\u4F4D\u3002"
   - 'This trait activates only when there is exactly one or exactly five Supremacy
     units on the field.
 
     Supremacy units instantly execute enemies whose HP falls
-    below (15/30)%.'
+    below {data1}%.'
   thresholds:
   - level: 0
     requiredCount: 0
     effectValue: 0
     effectDescription: 
-  - level: 0
+  - level: 1
     requiredCount: 1
     effectValue: 0
     effectDescription: 
-  - level: 1
+  - level: 2
     requiredCount: 2
     effectValue: 0
     effectDescription: 
   - level: 3
-    requiredCount: 3
-    effectValue: 0
-    effectDescription: 
-  - level: 3
-    requiredCount: 4
+    requiredCount: 5
     effectValue: 0
     effectDescription: 

@@ -1,15 +1,18 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class GlobalAudioManager : MonoBehaviour
 {
     public static GlobalAudioManager Instance;
 
-    private List<AudioSource> activeAudioSources = new List<AudioSource>();
+    // 每種類型音效的唯一播放源
+    private Dictionary<string, AudioSource> activeGroups = new Dictionary<string, AudioSource>();
+
+    // 用於記錄每個 clip 的冷卻
     private Dictionary<AudioClip, float> cooldowns = new Dictionary<AudioClip, float>();
-    private const int maxSimultaneousSounds = 5; // 最大同時播放的音效數量
-    private const float defaultCooldownTime = 1f;
+
+    private const float defaultCooldownTime = 3f;
+
     private void Awake()
     {
         if (Instance == null)
@@ -22,9 +25,14 @@ public class GlobalAudioManager : MonoBehaviour
         }
     }
 
-    public bool RequestAudioPlay(AudioSource source, AudioClip clip, float volume = 0.5f, float cooldownTime = defaultCooldownTime)
+    /// <summary>
+    /// 播放音效，若同類型音效已存在則暫停並取代。
+    /// </summary>
+    public bool RequestAudioPlay(string groupKey, AudioSource source, AudioClip clip, float volume = 0.5f, float cooldownTime = defaultCooldownTime)
     {
-        // 檢查冷卻時間
+        if (clip == null) return false;
+        if (groupKey == "pickedUp") cooldownTime = 0;
+        // 冷卻判定
         if (cooldowns.TryGetValue(clip, out float lastPlayTime))
         {
             if (Time.time - lastPlayTime < cooldownTime)
@@ -34,40 +42,37 @@ public class GlobalAudioManager : MonoBehaviour
             }
         }
 
-        // 檢查同時播放上限
-        if (activeAudioSources.Count >= maxSimultaneousSounds)
+        // 若該群組已有音效在播，先暫停舊的
+        if (activeGroups.TryGetValue(groupKey, out AudioSource existing))
         {
-            Debug.Log($"音效數量已達上限，無法播放 {clip.name}");
-            return false;
+            if (existing != null && existing.isPlaying)
+            {
+                existing.Pause();
+            }
+            activeGroups.Remove(groupKey);
         }
 
-        // 設定音效並播放
+        // 播放新音效
         source.clip = clip;
         source.volume = volume;
         source.loop = false;
         source.Play();
 
-        // 更新冷卻時間
         cooldowns[clip] = Time.time;
+        activeGroups[groupKey] = source;
 
-        // 添加到活動音效列表並開始移除協程
-        activeAudioSources.Add(source);
-        StartCoroutine(RemoveAudioSourceWhenFinished(source));
+        StartCoroutine(RemoveWhenFinished(groupKey, source));
         return true;
     }
-    private System.Collections.IEnumerator RemoveAudioSourceWhenFinished(AudioSource source)
-    {
-        // 持續檢查 source 是否有效，並且是否仍在播放
-        while (source != null && source.isPlaying)
-        {
-            yield return null; // 等待下一幀
-        }
 
-        // 確保 source 尚未被移除再執行移除邏輯
-        if (source != null)
+    private System.Collections.IEnumerator RemoveWhenFinished(string key, AudioSource source)
+    {
+        while (source != null && source.isPlaying)
+            yield return null;
+
+        if (activeGroups.TryGetValue(key, out AudioSource current) && current == source)
         {
-            activeAudioSources.Remove(source);
+            activeGroups.Remove(key);
         }
     }
-
 }

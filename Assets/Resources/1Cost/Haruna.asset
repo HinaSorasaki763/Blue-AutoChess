@@ -58,7 +58,7 @@ MonoBehaviour:
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
-  - "\u671D\u8457\u7576\u524D\u751F\u547D\u503C\u6700\u4F4E\u7684\u6575\u4EBA\u9032\u884C\u72D9\u64CA\uFF0C\n\u9020\u6210:
+  - "\u7FBD\u7559\u5948\u671D\u8457\u7576\u524D\u751F\u547D\u503C\u6700\u4F4E\u7684\u6575\u4EBA\u9032\u884C\u72D9\u64CA\uFF0C\n\u9020\u6210:
     {data1} + ({data2}% \xD7 {Attack}) +{Pressure}* {data3}% (\u6700\u7D42: {Final})\u3002"
   - "Haruna snipes the enemy with the lowest current HP, dealing {data1} + ({data2}%
     \xD7 {Attack}) + {Pressure} \xD7 {data3}% damage (Final: {Final}).\r\n"
@@ -69,5 +69,6 @@ MonoBehaviour:
     + ({data2}% \xD7 {Attack}) + {Pressure} \xD7 {data3}% damage (Final: {Final}).
     \r\nEvery third cast, the explosion occurs in three separate areas.\r\n"
   isObj: 0
+  CanPutBack: 1
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

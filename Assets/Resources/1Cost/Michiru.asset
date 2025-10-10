@@ -58,8 +58,8 @@ MonoBehaviour:
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
-  - "\u5C0D\u7576\u524D\u76EE\u6A19\u767C\u5C04\u7159\u706B\uFF0C\u9020\u6210: {data1}
-    + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C\n\u4E26\u707C\u71D2\u76EE\u6A19\u53CA\u5176\u5468\u570D1\u683C\u7684\u5730\u677F\uFF0C\u5728
+  - "\u6EFF\u5C0D\u7576\u524D\u76EE\u6A19\u767C\u5C04\u7159\u706B\uFF0C\u9020\u6210:
+    {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C\n\u4E26\u707C\u71D2\u76EE\u6A19\u53CA\u5176\u5468\u570D1\u683C\u7684\u5730\u677F\uFF0C\u5728
     {data5} \u79D2\u5167\u6301\u7E8C\u9020\u6210\u50B7\u5BB3\u3002"
   - "Michiru fires fireworks at her current target, dealing {data1} + ({data2}% \xD7
     {Attack}) damage (Final: {Final}). \r\nShe scorches the ground within 1 hex around
@@ -73,5 +73,6 @@ MonoBehaviour:
     around the target, continuously dealing damage over {data5} seconds. \r\nAllies
     within the area gain {data3}% increased attack speed and recover {data4}% HP.\r\n"
   isObj: 0
+  CanPutBack: 1
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0
