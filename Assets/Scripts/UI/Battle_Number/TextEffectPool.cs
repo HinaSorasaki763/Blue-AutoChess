@@ -55,7 +55,7 @@ public class TextEffectPool : MonoBehaviour
         CustomLogger.Log(this, $"ShowTextEffect called ,{effect},{number},{screenPosition},{empty},{healing}");
         Sprite sprite = GetEffectSprite(effect);
         TextEffect textEffect = GetTextEffect();
-
+        if (number >= 99999) number = 99999;
         // 根據當前所有活躍的特效動態調整 Y 軸，確保不會重疊
         screenPosition = AdjustPositionDynamically(screenPosition);
 

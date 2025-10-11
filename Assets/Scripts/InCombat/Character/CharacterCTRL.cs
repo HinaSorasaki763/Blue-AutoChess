@@ -752,6 +752,11 @@ public class CharacterCTRL : MonoBehaviour
         {
             item.OnEnterBattleField(this);
         }
+        if (characterObserver != null)
+        {
+            characterObserver.OnEnterBattleField(this);
+        }
+
         traitController.TriggerOnEnterBattleField();
         equipmentManager.TriggerOnEnterBattleField();
     }
@@ -1943,7 +1948,7 @@ public class CharacterCTRL : MonoBehaviour
         foreach (var modifier in statsModifiers)
         {
             float valueToApply = isRevert ? -modifier.Value : modifier.Value;
-            AddStat(modifier.Key, valueToApply);
+            AddStat(modifier.Key, valueToApply,false);
 
             if (source != null)
             {
@@ -1951,6 +1956,7 @@ public class CharacterCTRL : MonoBehaviour
                     $"source = {source}, modifying {modifier.Key} to {GetStat(modifier.Key)} by {(isRevert ? "removing" : "adding")} {Math.Abs(modifier.Value)}");
             }
         }
+        CritCorrection();
     }
 
     private bool CheckDeath()
@@ -2164,7 +2170,7 @@ public class CharacterCTRL : MonoBehaviour
     {  8, () => new SerikaObserver() },
     {  9, () => new SerinaObserver() },
     { 10, () => new ShizukoObserver() },
-    { 11, () => new NullObserver() },
+    { 11, () => new SumireObserver() },
     { 12, () => new AkoObserver() },
     { 13, () => new AzusaObserver() },
     { 14, () => new NullObserver() },

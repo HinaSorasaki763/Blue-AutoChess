@@ -60,10 +60,10 @@ MonoBehaviour:
   Tooltips:
   - "\u77E5\u4E16(Chise)\u5C0D\u4E09\u683C\u7BC4\u570D\u5167\u7684\u683C\u5B50\u7051\u6BD2\uFF0C\u5728
     {data5} \u79D2\u5167\u5C0D\u5176\u4E0A\u7684\u6575\u4EBA\u6301\u7E8C\u9020\u6210\u50B7\u5BB3\uFF0C\u6BCF0.5\u79D2\u9020\u6210{data1}
-    + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})(\u50B7\u5BB3\u5728\u6280\u80FD\u65BD\u653E\u7576\u4E0B\u6C7A\u5B9A\uFF0C\u5F8C\u7E8C\u6578\u503C\u589E/\u6E1B\u4E0D\u6703\u5F71\u97FF\u50B7\u5BB3)"
+    + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})(\u50B7\u5BB3\u5728\u6280\u80FD\u65BD\u653E\u7576\u4E0B\u6C7A\u5B9A\uFF0C\u5F8C\u7E8C\u6578\u503C\u589E/\u6E1B\u4E0D\u6703\u5F71\u97FF\u50B7\u5BB3)"
   - "Chise spreads poison over tiles within a 3-hex radius. \r\nFor {data5} seconds,
     enemies standing on affected tiles take continuous damage every 0.5 seconds,
-    \r\ndealing {data1} + ({data2}% \xD7 Attack) damage (Final: {Final}) each time.
+    \r\ndealing {data1} + ({data2}% \xD7 {Attack}) damage (Final: {Final}) each time.
     \r\n(The damage amount is determined at the moment of skill activation and is
     unaffected by later stat changes.)\r"
   EnhancedSkillTooltips:
@@ -78,5 +78,6 @@ MonoBehaviour:
     enemies whenever possible.\n(The damage amount is determined at the moment of
     skill activation and is unaffected by later stat changes.)\r"
   isObj: 0
+  CanPutBack: 1
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

@@ -59,9 +59,9 @@ MonoBehaviour:
   BarrageInitAngle: 45
   Tooltips:
   - "\u671D\u8986\u84CB\u6700\u591A\u6575\u4EBA\u7684\u4F4D\u7F6E\u767C\u5C04\u53EF\u7A7F\u900F\u7684\u5F48\u5E55\uFF0C\n\u6BCF\u767C\u9020\u6210
-    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) + {data3} (\u6700\u7D42: {Final})\u3002"
+    {data1} + ({data2}% \xD7 {Attack}) + {data3} (\u6700\u7D42: {Final})\u3002"
   - "Hina fires a piercing barrage toward the location covering the most enemies.
-    \r\nEach shot deals {data1} + ({data2}% \xD7 Attack) + {data3} \xD7 {Pressure}
+    \r\nEach shot deals {data1} + ({data2}% \xD7 {Attack}) + {data3} \xD7 {Pressure}
     damage (Final: {Final}).\r\n"
   EnhancedSkillTooltips:
   - "\u671D\u8986\u84CB\u6700\u591A\u6575\u4EBA\u7684\u4F4D\u7F6E\u767C\u5C04\u53EF\u7A7F\u900F\u7684\u5F48\u5E55\uFF0C\n\u6BCF\u767C\u9020\u6210
@@ -73,5 +73,6 @@ MonoBehaviour:
     damage based on {Pressure}. \r\nIf a marked enemy dies, a fixed proportion of
     \"Pressure\" is gained based on the number of times the mark was triggered.\r\n"
   isObj: 0
+  CanPutBack: 1
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

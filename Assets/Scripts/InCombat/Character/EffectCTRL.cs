@@ -525,7 +525,9 @@ public static class EffectFactory
             SpecialEffectType.None,
             parent,
             false,
-            ClearEffectCondition.OnSkillCastFinished
+            ClearEffectCondition.OnSkillCastFinished,
+            false,
+            true
         );
 
     }

@@ -164,7 +164,6 @@ public class AriusObserver : CharacterObserverBase
     public override void OnLeaveBattleField(CharacterCTRL c)
     {
         SetGodOfSon(false);
-        base.OnLeaveBattleField(c);
         DeactivateTrait();
         AriusManager.Instance.RemoveArius(c);
     }

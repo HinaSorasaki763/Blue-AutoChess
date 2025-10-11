@@ -58,29 +58,31 @@ MonoBehaviour:
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
-  - "\u5F8C\u52E4\u6548\u679C:\u975C\u5B50(Shizuko)\u70BA\u73FE\u6709\u751F\u547D\u503C\u6700\u4F4E\u7684\u89D2\u8272\u63D0\u4F9B\u6301\u7E8C\u4E94\u79D2\uFF0C\u5927\u5C0F\u70BA{Attack}\u4E4B\u8B77\u76FE\n\u4E3B\u52D5\u6280\u80FD:\u975C\u5B50(Shizuko)\u5728\u89D2\u8272\u6700\u591A\u7684\u7A7A\u683C\u653E\u7F6E\u9910\u8ECA\uFF0C\u9910\u8ECA\u70BA\u5468\u570D
+  - "\u5F8C\u52E4\u6548\u679C:\u975C\u5B50\u70BA\u73FE\u6709\u751F\u547D\u503C\u6700\u4F4E\u7684\u89D2\u8272\u63D0\u4F9B\u6301\u7E8C\u4E94\u79D2\uFF0C\u5927\u5C0F\u70BA{Attack}\u4E4B\u8B77\u76FE\n\u4E3B\u52D5\u6280\u80FD:\u975C\u5B50\u5728\u89D2\u8272\u6700\u591A\u7684\u7A7A\u683C\u653E\u7F6E\u9910\u8ECA\uFF0C\u9910\u8ECA\u70BA\u5468\u570D
     {data3} \u683C\u7684\u53CB\u8ECD\u63D0\u4F9B\u8B77\u76FE {data2} (\u6700\u7D42:
-    {Final})\uFF0C\u4E14\u5728{data3}+1\u683C\u5167\u63D0\u5347\u53CB\u8ECD\u547D\u4E2D\u7387\u3002"
+    {Final})\uFF0C\u4E14\u5728{data3}+1\u683C\u5167\u63D0\u5347\u53CB\u8ECD\u653B\u64CA\u901F\u5EA6{data4}%\u3002"
   - "Logistics Effect: Shizuko grants a shield equal to {Attack} to the ally with
     the lowest current HP, lasting for 5 seconds.\r\nActive Skill: Shizuko deploys
     a food cart on the tile with the most allies. \r\nThe cart provides a shield
-    of {data2} (Final: {Final}) to allies within {data3} hexes, and increases their
-    accuracy within {data3} + 1 hexes. \r\nThe cart's HP is {data1} + {data2} \xD7
-    {Attack}.\r\n"
+    of {data2} (Final: {Final}) to allies within {data3} hexes, and increases their 
+    AttackSpeed by {data4}% within {data3} + 1 hexes. \r\nThe cart's HP is {data1}
+    + {data2} \xD7 {Attack}.\r\n"
   EnhancedSkillTooltips:
-  - "\u5F8C\u52E4\u6548\u679C:\u975C\u5B50(Shizuko)\u70BA\u73FE\u6709\u751F\u547D\u503C\u6700\u4F4E\u7684\u89D2\u8272\u63D0\u4F9B\u6301\u7E8C\u4E94\u79D2\uFF0C\u5927\u5C0F\u70BA{Attack}\u4E4B\u8B77\u76FE\n\u4E3B\u52D5\u6280\u80FD:\u975C\u5B50(Shizuko)\u5728\u89D2\u8272\u6700\u591A\u7684\u7A7A\u683C\u653E\u7F6E\u9910\u8ECA\uFF0C\u9910\u8ECA\u70BA\u5468\u570D
+  - "\u5F8C\u52E4\u6548\u679C:\u975C\u5B50\u70BA\u73FE\u6709\u751F\u547D\u503C\u6700\u4F4E\u7684\u89D2\u8272\u63D0\u4F9B\u6301\u7E8C\u4E94\u79D2\uFF0C\u5927\u5C0F\u70BA{Attack}\u4E4B\u8B77\u76FE\n\u4E3B\u52D5\u6280\u80FD:\u975C\u5B50\u5728\u89D2\u8272\u6700\u591A\u7684\u7A7A\u683C\u653E\u7F6E\u9910\u8ECA\uFF0C\u9910\u8ECA\u70BA\u5468\u570D
     {data3} \u683C\u7684\u53CB\u8ECD\u63D0\u4F9B\u8B77\u76FE {data2} (\u6700\u7D42:
-    {Final})\uFF0C\u4E14\u5728 {data3} +1\u683C\u66F4\u5167\u63D0\u5347\u53CB\u8ECD\u547D\u4E2D\u7387\u3002\n\u9910\u8ECA\u4E0D\u6703\u88AB\u7834\u58DE\uFF0C\u4F46\u5728\u8840\u91CF\u6B78\u96F6\u6642\u6703\u5931\u53BB\u7279\u6548\u3002\u7B2C\u4E8C\u6B21\u53CA\u4EE5\u5F8C\u7684\u6280\u80FD\u65BD\u653E\u6539\u70BA\u6CBB\u7652\u9910\u8ECA\uFF0C\u591A\u51FA\u7684\u5C07\u8B8A\u70BA\u7B49\u91CF\u7684\u589E\u52A0\u6700\u5927\u751F\u547D\u503C\uFF0C\u73FE\u5728\u9910\u8ECA\u9084\u6703\u6BCF\u79D2\u6CBB\u7642\u5468\u570D
-    {data3} \u683C\u5167\u53CB\u8ECD\u81EA\u8EAB\u6700\u5927\u751F\u547D1%"
+    {Final})\uFF0C\u4E14\u5728 {data3} +1\u683C\u5167\u63D0\u5347\u53CB\u8ECD\u653B\u64CA\u901F\u5EA6{data4}%\u3002\n\u9910\u8ECA\u4E0D\u6703\u88AB\u7834\u58DE\uFF0C\u4F46\u5728\u8840\u91CF\u6B78\u96F6\u6642\u6703\u5931\u53BB\u7279\u6548\u3002\u7B2C\u4E8C\u6B21\u53CA\u4EE5\u5F8C\u7684\u6280\u80FD\u65BD\u653E\u6539\u70BA\u6CBB\u7652\u9910\u8ECA\uFF0C\u591A\u51FA\u7684\u5C07\u8B8A\u70BA\u7B49\u91CF\u7684\u589E\u52A0\u6700\u5927\u751F\u547D\u503C\uFF0C\u73FE\u5728\u9910\u8ECA\u9084\u6703\u6BCF\u79D2\u6CBB\u7642\u5468\u570D
+    {data3} \u683C\u5167\u53CB\u8ECD\u6B64\u7269\u4EF6\u76843%\u6700\u5927\u751F\u547D\u3002"
   - "Logistics Effect: Shizuko grants a shield equal to {Attack} to the ally with
     the lowest current HP, lasting for 5 seconds.\r\nActive Skill: Shizuko deploys
     a food cart on the tile with the most allies. \r\nThe cart provides a shield
     of {data2} (Final: {Final}) to allies within {data3} hexes, and increases their
-    accuracy within {data3} + 1 hexes. \r\nThe cart's HP is {data1} + {data2} \xD7
-    {Attack}.\r\nThe cart cannot be destroyed, but it loses its effects when its
-    HP reaches zero. \r\nFrom the second cast onward, the skill instead heals the
-    food cart; any excess healing is converted into increased maximum HP. \r\nAdditionally,
-    the cart heals allies within {data3} hexes for 1% of their maximum HP every second.\r\n"
+    AttackSpeed by{data4}% within {data3} + 1 hexes. \r\nThe cart's HP is {data1}
+    + {data2} \xD7 {Attack}.\r\nThe cart cannot be destroyed, but it loses its effects
+    when its HP reaches zero. \r\nFrom the second cast onward, the skill instead
+    heals the food cart; any excess healing is converted into increased maximum HP.
+    \r\nAdditionally, the cart heals allies within {data3} hexes for 1% of their
+    maximum HP every second.\r\n"
   isObj: 0
+  CanPutBack: 1
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

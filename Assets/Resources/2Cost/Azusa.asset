@@ -59,17 +59,18 @@ MonoBehaviour:
   BarrageInitAngle: 0
   Tooltips:
   - "\u6893\u5C0D\u7576\u524D\u76EE\u6A19\u72D9\u64CA\uFF0C\u9020\u6210: {data1}
-    + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\uFF0C\n\u77ED\u66AB\u5EF6\u9072\u5F8C\u5728\u4E00\u683C\u5167\u7206\u70B8\uFF0C\u9020\u6210\u76F8\u540C\u50B7\u5BB3\u3002"
-  - "Azusa snipes her current target, dealing {data1} + ({data2}% \xD7 Attack) damage
-    (Final: {Final}). \r\nAfter a short delay, an explosion within 1 hex, dealing
-    the same damage.\r\n\r\n"
+    + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C\n\u77ED\u66AB\u5EF6\u9072\u5F8C\u5728\u4E00\u683C\u5167\u7206\u70B8\uFF0C\u9020\u6210\u76F8\u540C\u50B7\u5BB3\u3002"
+  - "Azusa snipes her current target, dealing {data1} + ({data2}% \xD7 {Attack})
+    damage (Final: {Final}). \r\nAfter a short delay, an explosion within 1 hex,
+    dealing the same damage.\r\n\r\n"
   EnhancedSkillTooltips:
   - "\u6893\u5C0D\u7576\u524D\u76EE\u6A19\u72D9\u64CA\uFF0C\u9020\u6210: {data1}
-    + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\uFF0C\n\u77ED\u66AB\u5EF6\u9072\u5F8C\u5728\u4E00\u683C\u5167\u7206\u70B8\uFF0C\u9020\u6210\u76F8\u540C\u50B7\u5BB3\u3002\n\u4E26\u4E14\u82E5\u76EE\u6A19\u56E0\u70BA\u6893(\u4EFB\u610F\u4F86\u6E90)\u6B7B\u4EA1\uFF0C\u6C38\u4E45\u589E\u52A0\u653B\u64CA\u529B\u3002\n\u76EE\u524D\u653B\u64CA\u529B:{AzusaAddedAttack}"
-  - "Azusa snipes her current target, dealing {data1} + ({data2}% \xD7 Attack) damage
-    (Final: {Final}). \r\nAfter a short delay, an explosion within 1 hex, dealing
-    the same damage.\r\nIf the target dies from any source attributed to Azusa, she
-    permanently gains Attack. \r\nCurrent additional Attack: {AzusaAddedAttack}.\r\n"
+    + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C\n\u77ED\u66AB\u5EF6\u9072\u5F8C\u5728\u4E00\u683C\u5167\u7206\u70B8\uFF0C\u9020\u6210\u76F8\u540C\u50B7\u5BB3\u3002\n\u4E26\u4E14\u82E5\u76EE\u6A19\u56E0\u70BA\u6893(\u4EFB\u610F\u4F86\u6E90)\u6B7B\u4EA1\uFF0C\u6C38\u4E45\u589E\u52A0\u653B\u64CA\u529B\u3002\n\u76EE\u524D\u653B\u64CA\u529B:{AzusaAddedAttack}"
+  - "Azusa snipes her current target, dealing {data1} + ({data2}% \xD7 {Attack})
+    damage (Final: {Final}). \r\nAfter a short delay, an explosion within 1 hex,
+    dealing the same damage.\r\nIf the target dies from any source attributed to
+    Azusa, she permanently gains Attack. \r\nCurrent additional Attack: {AzusaAddedAttack}.\r\n"
   isObj: 0
+  CanPutBack: 1
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

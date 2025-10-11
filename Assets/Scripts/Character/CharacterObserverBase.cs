@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 using static Firebase.AI.ModelContent;
 
 public abstract class CharacterObserverBase
@@ -965,6 +966,25 @@ public class SaoriObserver : CharacterObserverBase
 {
 
 }
+public class SumireObserver : CharacterObserverBase
+{
+    public override void OnEnterBattleField(CharacterCTRL character)
+    {
+        if (GameController.Instance.CheckSpecificCharacterEnhanced(character, 11, character.IsAlly))
+        {
+            character.AddPercentageBonus(StatsType.Health, StatsType.Attack, 5, "SumireActiveSkill");
+        }
+        CustomLogger.Log(this, $"{character} OnEnterBattleField.");
+    }
+    public override void OnLeaveBattleField(CharacterCTRL c)
+    {
+        if (GameController.Instance.CheckSpecificCharacterEnhanced(c, 11, c.IsAlly))
+        {
+            c.RemovePercentageBonus("SumireActiveSkill");
+        }
+        CustomLogger.Log(this, $"{c} OnLeaveBattleField.");
+    }
+}
 public class Shiroko_Terror_Observer : CharacterObserverBase
 {
     private float healthThreshold70 = 0.7f; // 70%
@@ -1207,19 +1227,23 @@ public class GlobalBaseObserver : CharacterObserverBase
     }
     public override void OnEnterBattleField(CharacterCTRL character)
     {
-        CustomLogger.Log(this, $"{character} OnEnterBattleField.");
-    }
-    public override void OnLeaveBattleField(CharacterCTRL c)
-    {
-        CustomLogger.Log(this, $"{c} OnLeaveBattleField.");
-    }
-    public override void OncharacterEnabled(CharacterCTRL character)
-    {
         if (GameController.Instance.CheckSpecificCharacterEnhanced(character, 11, character.IsAlly))
         {
             character.AddPercentageBonus(StatsType.Health, StatsType.Attack, 5, "SumireActiveSkill");
         }
-        base.OncharacterEnabled(character);
+        CustomLogger.Log(this, $"{character} OnEnterBattleField.");
+    }
+    public override void OnLeaveBattleField(CharacterCTRL c)
+    {
+        if (GameController.Instance.CheckSpecificCharacterEnhanced(c, 11, c.IsAlly))
+        {
+            c.RemovePercentageBonus("SumireActiveSkill");
+        }
+        CustomLogger.Log(this, $"{c} OnLeaveBattleField.");
+    }
+    public override void OncharacterEnabled(CharacterCTRL character)
+    {
+
     }
     public override void OnCharacterDisabled(CharacterCTRL character)
     {

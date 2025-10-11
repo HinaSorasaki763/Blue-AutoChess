@@ -8,8 +8,7 @@ public class ShizukoActiveSkill : MonoBehaviour
     readonly float fallSpeed = 10.0f;
     private StaticObject ctrl;
     public CharacterCTRL Parent;
-    public float counter = 0;
-    const float updateCounter = 1;
+    private float timer;
     public void Start()
     {
 
@@ -20,25 +19,6 @@ public class ShizukoActiveSkill : MonoBehaviour
     }
     public void Update()
     {
-        if (ctrl!=null)
-        {
-            if (GameController.Instance.CheckCharacterEnhance(10, Parent.IsAlly) && ctrl.isTargetable)
-            {
-                counter++;
-                if (counter >= updateCounter)
-                {
-                    counter = 0;
-                    int range = Parent.ActiveSkill.GetCharacterLevel()[Parent.star].Data1;
-                    foreach (var item in Utility.GetCharacterInrange(ctrl.CurrentHex, range, ctrl, true))
-                    {
-                        int amount = (int)(ctrl.GetStat(StatsType.Health) * 0.01f);
-                        item.Heal(amount, ctrl);
-                    }
-                }
-            }
-        }
-        
-
         if (Reference != null)
         {
             if (Reference.transform.position.y > 0.25f)
@@ -51,6 +31,26 @@ public class ShizukoActiveSkill : MonoBehaviour
                 Reference.transform.position = new Vector3(v.x, 0.25f, v.z);
             }
         }
+        if (ctrl == null) return;
+
+        timer += Time.deltaTime;
+        if (timer < 1f) return;
+        timer = 0f;
+
+        if (GameController.Instance.CheckCharacterEnhance(10, Parent.IsAlly) &&
+            ctrl.isTargetable &&
+            GameStageManager.Instance.CurrGamePhase == GamePhase.Battling)
+        {
+            int range = Parent.ActiveSkill.GetCharacterLevel()[Parent.star].Data1;
+            foreach (var item in Utility.GetCharacterInrange(ctrl.CurrentHex, range, ctrl, true))
+            {
+                int amount = (int)(ctrl.GetStat(StatsType.Health) * 0.03f);
+                item.Heal(amount, ctrl);
+            }
+        }
+
+
+
     }
     public void ReinforceTruck()
     {

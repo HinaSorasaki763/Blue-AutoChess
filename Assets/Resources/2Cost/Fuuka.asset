@@ -58,24 +58,25 @@ MonoBehaviour:
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
-  - "\u5F8C\u63F4\u6548\u679C:\u98A8\u83EF\u5C0B\u627E\u5169\u683C\u5167\u6700\u591A\u53CB\u8ECD\u7684\u683C\u5B50\uFF0C\u4F7F\u5F97\u4ED6\u5011\u6CBB\u7652{Logistic}(\u653B\u64CA\u529B*{data3}%)\n\u4E3B\u52D5\u6548\u679C:\u98A8\u83EF\u5C0B\u627E\u4E09\u683C\u5167\u6700\u591A\u53CB\u8ECD\u4E14\u6C92\u6709\u4EFB\u4F55\u55AE\u4F4D\u7684\u683C\u5B50\u6295\u653E\u6CBB\u7652\u3002\u4F7F\u5F97\u53CB\u8ECD\u76E1\u53EF\u80FD\u5F80\u5167\u5708\u79FB\u52D5\uFF0C\u4E14\u6CBB\u7652\u5169\u683C\u5167\u7684\u53CB\u8ECD:
-    {data1} + ({data2}% \xD7 ({Attack})) (\u6700\u7D42: {Final})\uFF0C"
+  - "\u5F8C\u63F4\u6548\u679C:\u98A8\u83EF\u5C0B\u627E\u534A\u5F91\u5169\u683C\u5167\u6700\u591A\u53CB\u8ECD\u7684\u683C\u5B50\uFF0C\u4F7F\u5F97\u4ED6\u5011\u6CBB\u7652{Logistic}({Attack}*{data3}%)\n\u4E3B\u52D5\u6548\u679C:\u98A8\u83EF\u5C0B\u627E\u4E09\u683C\u5167\u6700\u591A\u53CB\u8ECD\u4E14\u6C92\u6709\u4EFB\u4F55\u55AE\u4F4D\u7684\u683C\u5B50\u6295\u653E\u6CBB\u7652\u3002\u4F7F\u5F97\u53CB\u8ECD\u76E1\u53EF\u80FD\u5F80\u5167\u5708\u79FB\u52D5\uFF0C\u4E14\u6CBB\u7652\u5169\u683C\u5167\u7684\u53CB\u8ECD:
+    {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C"
   - "Logistics Effect: Fuuka searches for the tile within 2 hexes that has the most
-    allies and heals them for {Logistic} (Attack \xD7 {data3}%).\r\nActive Skill:
+    allies and heals them for {Logistic} ({Attack} \xD7 {data3}%).\r\nActive Skill:
     Fuuka searches for an empty tile within 3 hexes that has the most nearby allies
     and deploys healing there. \r\nAllies will try to move toward the inner circle,
     and allies within 2 hexes are healed for {data1} + ({data2}% \xD7 {Attack}) (Final:
     {Final}).\r\n"
   EnhancedSkillTooltips:
-  - "\u5F8C\u63F4\u6548\u679C:\u98A8\u83EF\u5C0B\u627E\u5169\u683C\u5167\u6700\u591A\u53CB\u8ECD\u7684\u683C\u5B50\uFF0C\u4F7F\u5F97\u4ED6\u5011\u6CBB\u7652{Logistic}(\u653B\u64CA\u529B*{data3}%)\n\u4E3B\u52D5\u6548\u679C:\u98A8\u83EF\u5C0B\u627E\u4E09\u683C\u5167\u6700\u591A\u53CB\u8ECD\u4E14\u6C92\u6709\u4EFB\u4F55\u55AE\u4F4D\u7684\u683C\u5B50\u6295\u653E\u6CBB\u7652\u3002\u4E14\u6CBB\u7652\u4E09\u683C\u5167\u7684\u53CB\u8ECD:
-    {data1} + ({data2}% \xD7 \u653B\u64CA\u529B({Attack})) (\u6700\u7D42: {Final})\uFF0C\n\u6BCF{data4}\u6B21\u6210\u529F\u6CBB\u7652\u53CB\u8ECD\uFF0C\u7372\u5F97\u96A8\u6A5F\u734E\u52F5\uFF0C\u5F9E\u91D1\u5E63/\u96A8\u6A5F\u7D44\u4EF6/\u96A8\u6A5F\u88DD\u5099\u4E4B\u4E2D\u96A8\u6A5F\u62BD\u53D6"
+  - "\u5F8C\u63F4\u6548\u679C:\u98A8\u83EF\u5C0B\u627E\u534A\u5F91\u5169\u683C\u5167\u6700\u591A\u53CB\u8ECD\u7684\u683C\u5B50\uFF0C\u4F7F\u5F97\u4ED6\u5011\u6CBB\u7652{Logistic}({Attack}*{data3}%)\n\u4E3B\u52D5\u6548\u679C:\u98A8\u83EF\u5C0B\u627E\u4E09\u683C\u5167\u6700\u591A\u53CB\u8ECD\u4E14\u6C92\u6709\u4EFB\u4F55\u55AE\u4F4D\u7684\u683C\u5B50\u6295\u653E\u6CBB\u7652\u3002\u4E14\u6CBB\u7652\u4E09\u683C\u5167\u7684\u53CB\u8ECD:
+    {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C\n\u6BCF{data4}\u6B21\u6210\u529F\u6CBB\u7652\u53CB\u8ECD\uFF0C\u7372\u5F97\u96A8\u6A5F\u734E\u52F5\uFF0C\u5F9E\u91D1\u5E63/\u96A8\u6A5F\u7D44\u4EF6/\u96A8\u6A5F\u88DD\u5099\u4E4B\u4E2D\u96A8\u6A5F\u62BD\u53D6"
   - "Support Effect: Fuuka searches for the tile within 2 hexes that has the most
-    allies and heals them for {Logistic} (Attack \xD7 {data3}%).\r\nActive Skill:
+    allies and heals them for {Logistic} ({Attack} \xD7 {data3}%).\r\nActive Skill:
     Fuuka searches for an empty tile within 3 hexes that has the most nearby allies
     and deploys healing there. \r\nAllies within 3 hexes are healed for {data1} +
     ({data2}% \xD7 {Attack}) (Final: {Final}). \r\nEvery {data4} successful heals,
     Fuuka gains a random reward, choosing between coins, random components, or random
     equipment.\r\n"
   isObj: 0
+  CanPutBack: 1
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

@@ -226,7 +226,7 @@ public class GameController : MonoBehaviour
         }
         else
         {
-            c.traitController.TriggerOnEnterBattleField();
+            c.OnEnterGrid();
         }
     }
     public void AddGold(int amount)

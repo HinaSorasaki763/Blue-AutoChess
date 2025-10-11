@@ -1088,9 +1088,9 @@ public class ShizukoSkill : CharacterSkillBase//靜子(shizuko)在角色(無論�
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(150,350,3,5)},
-            {2, new StarLevelStats(250,475,3,5)},
-            {3, new StarLevelStats(400,585,4,6)}
+            {1, new StarLevelStats(150,350,3,25)},
+            {2, new StarLevelStats(250,475,3,50)},
+            {3, new StarLevelStats(400,585,4,80)}
         };
         return statsByStarLevel;
     }
@@ -1103,18 +1103,23 @@ public class ShizukoSkill : CharacterSkillBase//靜子(shizuko)在角色(無論�
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        int range1 = GetCharacterLevel()[skillContext.Parent.star].Data3;
-        int range2 = GetCharacterLevel()[skillContext.Parent.star].Data4;
-        HexNode hex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent, range1, false, true, skillContext.Parent.CurrentHex);
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        int range = stats.Data3;
+        int attackAmount = stats.Data4;
+        HexNode hex = SpawnGrid.Instance.FindBestHexNode(skillContext.Parent, range, false, true, skillContext.Parent.CurrentHex);
         skillContext.Parent.GetComponent<ShizukoActiveSkill>().SpawnTruck(hex, skillContext.Parent);
-        foreach (var item in Utility.GetCharacterInrange(hex, range1, skillContext.Parent, true))
+        foreach (var item in Utility.GetCharacterInrange(hex, range, skillContext.Parent, true))
         {
             item.AddShield(100, 5f, skillContext.Parent);
         }
-        foreach (var item in Utility.GetCharacterInrange(hex, range2, skillContext.Parent, true))
+        foreach (var item in Utility.GetCharacterInrange(hex, range + 1, skillContext.Parent, true))
         {
-            Effect effect = EffectFactory.CreateShizukoEffect(30, 10, skillContext.Parent);
-            item.effectCTRL.AddEffect(effect, item);
+            Effect effect = EffectFactory.StatckableStatsEffct(5f, "ShizukoExEffect", attackAmount * 0.01f, StatsType.AttackSpeed, skillContext.Parent, false);
+            effect.SetActions(
+                (character) => character.ModifyStats(StatsType.AttackSpeed, effect.Value, effect.Source),
+                (character) => character.ModifyStats(StatsType.AttackSpeed, -effect.Value, effect.Source)
+            );
+            skillContext.Parent.effectCTRL.AddEffect(effect, skillContext.Parent);
         }
     }
     public override CharacterSkillBase GetHeroicEnhancedSkill()
@@ -1220,9 +1225,9 @@ public class SumireEnhancedSkill : CharacterSkillBase//每施放一次技能就�
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(50,115,5)},
-            {2, new StarLevelStats(80,160,7)},
-            {3, new StarLevelStats(135,195,10)}
+            {1, new StarLevelStats(50,115,5,25)},
+            {2, new StarLevelStats(80,160,7,50)},
+            {3, new StarLevelStats(135,195,10,75)}
         };
         return statsByStarLevel;
     }
@@ -1236,9 +1241,10 @@ public class SumireEnhancedSkill : CharacterSkillBase//每施放一次技能就�
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-
-        skillContext.Parent.AddExtraStat(StatsType.Health, 100, "SumireAddHealth", true);
-        GameController.Instance.SumireAddedHealth += 100;
+        StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
+        skillContext.Parent.AddExtraStat(StatsType.Health, stats.Data4, "SumireAddHealth", true);
+        skillContext.Parent.AddStat(StatsType.currHealth, stats.Data4);
+        GameController.Instance.SumireAddedHealth += stats.Data4;
         var sumireActiveSkill = skillContext.Parent.GetComponent<SumireActiveSkill>();
         if (sumireActiveSkill == null)
         {
@@ -1289,6 +1295,16 @@ public class AkoEnhancedSkill : CharacterSkillBase//若被賦予buff的友軍在
     {
         this.originalSkill = originalSkill;
     }
+    public override Dictionary<int, StarLevelStats> GetCharacterLevel()
+    {
+        Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
+        {
+            {1, new StarLevelStats(60)}, // 星級1的數據
+            {2, new StarLevelStats(80)}, // 星級2的數據
+            {3, new StarLevelStats(120)}  // 星級3的數據
+        };
+        return statsByStarLevel;
+    }
 
     public override void ExecuteSkill(SkillContext skillContext)
     {
@@ -1303,7 +1319,7 @@ public class AzusaSkill : CharacterSkillBase//梓(Azusa)對當前目標狙擊，
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(100,380)}, // 星級1的數據
+            {1, new StarLevelStats(1000000,380)}, // 星級1的數據
             {2, new StarLevelStats(150,450)}, // 星級2的數據
             {3, new StarLevelStats(225,780)}  // 星級3的數據
         };
@@ -1342,7 +1358,7 @@ public class AzusaEnhancedSkill : CharacterSkillBase//若目標因為梓(任意�
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(175,425)}, // 星級1的數據
+            {1, new StarLevelStats(1000000,425)}, // 星級1的數據
             {2, new StarLevelStats(225,525)}, // 星級2的數據
             {3, new StarLevelStats(375,820)}  // 星級3的數據
         };
@@ -2285,7 +2301,6 @@ public class ShirokoSkill : CharacterSkillBase//白子(shiroko)招喚一個無�
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        base.ExecuteSkill(skillContext);
         ShirokoActiveSkill s = skillContext.Parent.GetComponent<ShirokoActiveSkill>();
         Shiroko_Terror_DroneCTRL d = s.droneCTRL;
         if (d == null)
@@ -2655,9 +2670,9 @@ public class HinaSkill : CharacterSkillBase//陽奈(Hina)朝著能夠覆蓋最�
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(5,8,1,0,0.25f)},
-            {2, new StarLevelStats(60,8,1,0,0.25f)},
-            {3, new StarLevelStats(999,219,10,0,0.25f)}
+            {1, new StarLevelStats(5,40,10,0,0.25f)},
+            {2, new StarLevelStats(60,40,10,0,0.25f)},
+            {3, new StarLevelStats(999,2190,100,0,0.25f)}
         };
         return statsByStarLevel;
     }

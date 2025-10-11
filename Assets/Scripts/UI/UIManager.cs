@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
 
 
@@ -121,6 +122,22 @@ public class UIManager : MonoBehaviour
         {
             UpdateCharacterStats();
             UpdateModal();
+            int level = currentCharacter.star;
+            int language = PlayerSettings.SelectedDropdownValue;
+            var replacements = StringPlaceholderReplacer.BuildPlaceholderDictionary(currentCharacter, level, language);
+            bool isEnhance = GameController.Instance.CheckCharacterEnhance(currentCharacter.characterStats.CharacterId, currentCharacter);
+            string rawTooltip;
+            if (isEnhance)
+            {
+                rawTooltip = currentCharacter.characterStats.EnhancedSkillTooltips[language];
+            }
+            else
+            {
+                rawTooltip = currentCharacter.characterStats.Tooltips[language];
+            }
+
+            string finalTooltip = StringPlaceholderReplacer.ReplacePlaceholders(rawTooltip, replacements);
+            skillContext.text = finalTooltip;
         }
     }
     public void ReSetBattleData()
@@ -197,16 +214,16 @@ public class UIManager : MonoBehaviour
     }
     private void UpdateModal()
     {
-        Attack.text = currentCharacter.GetStat(StatsType.Attack).ToString();
-        Accuracy.text = currentCharacter.GetStat(StatsType.Accuracy).ToString();
+        Attack.text = ((int)currentCharacter.GetStat(StatsType.Attack)).ToString();
+        Accuracy.text = ((int)currentCharacter.GetStat(StatsType.Accuracy)).ToString();
         Attackspeed.text = currentCharacter.GetStat(StatsType.AttackSpeed).ToString("F2");
-        CritChance.text = currentCharacter.GetStat(StatsType.CritChance).ToString();
-        CritDamage.text = currentCharacter.GetStat(StatsType.CritRatio).ToString();
-        Def.text = currentCharacter.GetStat(StatsType.Resistence).ToString();
-        Dodge.text = currentCharacter.GetStat(StatsType.DodgeChance).ToString();
-        Lifesteal.text = currentCharacter.GetStat(StatsType.Lifesteal).ToString();
-        PercentageDef.text = currentCharacter.GetStat(StatsType.PercentageResistence).ToString();
-        Range.text = currentCharacter.GetStat(StatsType.Range).ToString();
+        CritChance.text = ((int)currentCharacter.GetStat(StatsType.CritChance)).ToString();
+        CritDamage.text = ((int)currentCharacter.GetStat(StatsType.CritRatio)).ToString();
+        Def.text = ((int)currentCharacter.GetStat(StatsType.Resistence)).ToString();
+        Dodge.text = ((int)currentCharacter.GetStat(StatsType.DodgeChance)).ToString();
+        Lifesteal.text = ((int)currentCharacter.GetStat(StatsType.Lifesteal)).ToString();
+        PercentageDef.text = ((int)currentCharacter.GetStat(StatsType.PercentageResistence)).ToString();
+        Range.text = ((int)currentCharacter.GetStat(StatsType.Range)).ToString();
     }
 }
 public static class StringPlaceholderReplacer
