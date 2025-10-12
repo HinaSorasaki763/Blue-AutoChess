@@ -7,7 +7,7 @@ public class CharacterAudioManager : MonoBehaviour
     private AudioSource audioSource;
     private float lastDodgedPlayTime;
     private const float dodgedCooldownTime = 7f;
-    private const float clipCooldownTime = 1f;
+    private const float clipCooldownTime = 3f;
 
     private void Awake()
     {
@@ -28,7 +28,7 @@ public class CharacterAudioManager : MonoBehaviour
     public float PlayClip(AudioClip clip,string name)
     {
         if (clip == null) return 0;
-        bool approved = GlobalAudioManager.Instance.RequestAudioPlay(name, audioSource, clip, 0.5f, clipCooldownTime);
+        bool approved = GlobalAudioManager.Instance.RequestAudioPlay(gameObject,name, audioSource, clip, 0.3f, clipCooldownTime);
         if (!approved)
         {
             Debug.Log($"播放請求被拒絕：音效 {clip.name} 無法播放（冷卻中或超過同時播放上限）");

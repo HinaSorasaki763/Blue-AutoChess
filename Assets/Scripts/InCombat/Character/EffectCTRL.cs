@@ -194,11 +194,9 @@ public static class EffectFactory
 {
     public static Effect StatckableStatsEffct(float duration, string source, float amount, StatsType statsType, CharacterCTRL parent, bool isPermanent)
     {
-        EffectType effectType = EffectType.Positive;
-        if (amount<0)
-        {
-            effectType = EffectType.Negative;
-        }
+        EffectType effectType = EffectType.Positive; 
+        if (amount < 0) effectType = EffectType.Negative;
+        if (statsType == StatsType.MaxMana) effectType = EffectType.Positive;
         return new Effect(
             effectType,
             ModifierType.None,
@@ -221,11 +219,17 @@ public static class EffectFactory
 
     public static Effect UnStatckableStatsEffct(float duration, string source, float amount, StatsType statsType, CharacterCTRL parent, bool isPermanent, bool isLogistic = false)
     {
+
+        EffectType effectType = EffectType.Positive;
+        if (amount < 0)
+        {
+            effectType = EffectType.Negative;
+        }
         return new Effect(
-            EffectType.Positive,
+            effectType,
             ModifierType.None,
             amount,
-            $"{source}",
+            source,
             isPermanent,
             null,
             null,
@@ -823,18 +827,21 @@ public static class EffectFactory
     }
     public static Effect OverTimeEffect()
     {
-
         return new Effect(
             EffectType.Positive,
             ModifierType.None,
             0,
             "OverTimeEffect",
             true,
-            (character) => character.BattleOverTime(),
-            (character) => character.BattleOverTime(),
+            null,
+            null,
             0,
             SpecialEffectType.None,
-            null
+            null,
+            false,
+            default,
+            default,
+            true
         );
 
     }

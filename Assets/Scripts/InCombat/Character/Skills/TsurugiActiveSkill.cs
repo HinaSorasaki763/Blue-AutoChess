@@ -1,6 +1,4 @@
 using GameEnum;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TsurugiActiveSkill : MonoBehaviour
@@ -12,6 +10,13 @@ public class TsurugiActiveSkill : MonoBehaviour
     public CharacterCTRL Parent;
     public void ChangeToSpecialAttack()
     {
+        var observer = Parent.traitController.GetObserverForTrait(Traits.Barrage) as BarrageObserver;
+        float val = observer.CastTimes * 20;
+        Effect Attackeffect = EffectFactory.StatckableStatsEffct(0, "TsurugiBarrage", val, StatsType.Attack, Parent, true);
+        Attackeffect.SetActions(
+            (character) => character.ModifyStats(StatsType.Attack, Attackeffect.Value, Attackeffect.Source),
+            (character) => character.ModifyStats(StatsType.Attack, -Attackeffect.Value, Attackeffect.Source)
+        );
         Enhancing = true;
         Animator.SetBool(attackType, true);
         Parent.ManaLock = true;

@@ -23,6 +23,7 @@ public class GameStageManager : MonoBehaviour
     private int baseLimit = 2;
     private int netWin = 0;
     public float enteringBattleCounter = 0;
+    public float overtimeCounter = 0;
     private bool overTimeFlag;
     private bool startBattleFlag;
     public GameEvent startBattle;
@@ -287,6 +288,7 @@ public class GameStageManager : MonoBehaviour
         startBattleFlag = false;
         overTimeFlag = false;
         enteringBattleCounter = 0;
+        overtimeCounter = 0;
         baseLimit = 2;
         PressureManager.Instance.ResetPressure();
         PressureManager.Instance.UpdateIndicater();
@@ -372,17 +374,29 @@ public class GameStageManager : MonoBehaviour
         if (startBattleFlag)
         {
             enteringBattleCounter += Time.deltaTime;
-            if (enteringBattleCounter >= OvertimeThreshold && !overTimeFlag)
+            if (enteringBattleCounter >= OvertimeThreshold)
             {
+                overtimeCounter += Time.deltaTime;
                 overTimeFlag = true;
+                
                 foreach (var item in Utility.GetAllBattlingCharacter(ResourcePool.Instance.ally))
                 {
+                    item.BattleOverTime();
                     Effect effect = EffectFactory.OverTimeEffect();
+                    effect.SetActions(
+                        (character) => character.ModifyStats(StatsType.PercentageResistence, -overtimeCounter, effect.Source),
+                        (character) => character.ModifyStats(StatsType.PercentageResistence, overtimeCounter, effect.Source)
+                    );
                     item.effectCTRL.AddEffect(effect, item);
                 }
                 foreach (var item in Utility.GetAllBattlingCharacter(ResourcePool.Instance.enemy))
                 {
+                    item.BattleOverTime();
                     Effect effect = EffectFactory.OverTimeEffect();
+                    effect.SetActions(
+                        (character) => character.ModifyStats(StatsType.PercentageResistence, -overtimeCounter, effect.Source),
+                        (character) => character.ModifyStats(StatsType.PercentageResistence, overtimeCounter, effect.Source)
+                    );
                     item.effectCTRL.AddEffect(effect, item);
                 }
             }

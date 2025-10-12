@@ -15,22 +15,20 @@ public class KarinCostumSkill : MonoBehaviour
     {
 
     }
-    public Dictionary<int, StarLevelStats> GetCharacterLevel()
+    public  Dictionary<int, StarLevelStats> GetCharacterLevel()
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(5,8,1,0,0.25f)},
-            {2, new StarLevelStats(60,8,1,0,0.25f)},
-            {3, new StarLevelStats(999,219,10,0,0.25f)}
+            {1, new StarLevelStats(150,225)},
+            {2, new StarLevelStats(225,300)},
+            {3, new StarLevelStats(400,350)}
         };
         return statsByStarLevel;
     }
     public int GetAttackCoefficient(SkillContext skillContext)
     {
         StarLevelStats stats = GetCharacterLevel()[skillContext.CharacterLevel];
-        int BaseDmg = stats.Data1;
-        int DmgRatio = stats.Data2;
-        return BaseDmg + (int)(DmgRatio * 0.01f * skillContext.Parent.GetAttack());
+        return stats.Data1 + (int)(stats.Data2 * 0.01f * skillContext.Parent.GetAttack());
     }
     public void SkillShot1()
     {

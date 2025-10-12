@@ -58,7 +58,7 @@ MonoBehaviour:
   BarrageIntervalAngle: 5
   BarrageInitAngle: 45
   Tooltips:
-  - "\u671D\u8986\u84CB\u6700\u591A\u6575\u4EBA\u7684\u4F4D\u7F6E\u767C\u5C04\u53EF\u7A7F\u900F\u7684\u5F48\u5E55\uFF0C\n\u6BCF\u767C\u9020\u6210
+  - "\u671D\u8986\u84CB\u6700\u591A\u6575\u4EBA\u7684\u4F4D\u7F6E\u767C\u5C04\u53EF\u7A7F\u900F\u7684\u591A\u6CE2\u5F48\u5E55\uFF0C\u5728({BarrageInitAngle}+\u65BD\u653E\u6B21\u6578*20)\u5EA6\u5167\u6BCF{BarrageIntervalAngle}\u5EA6\u5C04\u51FA\u4E00\u767C\u5B50\u5F48\u3002\n\u6BCF\u767C\u9020\u6210
     {data1} + ({data2}% \xD7 {Attack}) + {data3} (\u6700\u7D42: {Final})\u3002"
   - "Hina fires a piercing barrage toward the location covering the most enemies.
     \r\nEach shot deals {data1} + ({data2}% \xD7 {Attack}) + {data3} \xD7 {Pressure}

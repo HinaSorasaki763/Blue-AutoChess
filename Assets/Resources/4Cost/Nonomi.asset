@@ -58,7 +58,7 @@ MonoBehaviour:
   BarrageIntervalAngle: 6
   BarrageInitAngle: 90
   Tooltips:
-  - "\u4EE5\u7576\u524D\u76EE\u6A19\u70BA\u4E2D\u5FC3\u9032\u884C\u6383\u5C04\uFF0C\u591A\u6B21\u5C04\u64CA\uFF0C\n\u6BCF\u767C\u9020\u6210
+  - "\u4EE5\u7576\u524D\u76EE\u6A19\u70BA\u4E2D\u5FC3\u9032\u884C\u6383\u5C04\uFF0C\u591A\u6B21\u5C04\u64CA\uFF0C\u6BCF\u6B21\u5C04\u64CA\u90FD\u5728({BarrageInitAngle}+\u65BD\u653E\u6B21\u6578*20)\u5EA6\u5167\u6BCF{BarrageIntervalAngle}\u5EA6\u5C04\u51FA\u4E00\u767C\u5B50\u5F48\u3002\n\u6BCF\u767C\u9020\u6210
     {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\u3002(\u7121\u6CD5\u7A7F\u900F\u6575\u8ECD)"
   - "Nonomi performs a sweeping barrage centered on her current target, \r\nfiring
     multiple shots. \r\nEach shot deals {data1} + ({data2}% \xD7 Attack) damage (Final:
@@ -73,5 +73,6 @@ MonoBehaviour:
     \r\nand there is a chance to drop coins upon hitting an enemy, proportional to
     her critical rate.\r\n"
   isObj: 0
+  CanPutBack: 1
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

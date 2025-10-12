@@ -35,7 +35,7 @@ MonoBehaviour:
     - statType: 6
       value: 20
     - statType: 7
-      value: 5
+      value: 999
     - statType: 8
       value: 10
     - statType: 9
@@ -79,5 +79,6 @@ MonoBehaviour:
     on a percentage of Miyu's Attack whenever they are hit. \r\nThe target is also
     forced to become the priority target for allied units.\r\n"
   isObj: 0
+  CanPutBack: 1
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

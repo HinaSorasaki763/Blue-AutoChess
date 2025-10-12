@@ -324,36 +324,44 @@ public class MisakiSkillEffect : HitEffect
         StarLevelStats stats = source.ActiveSkill.GetCharacterLevel()[source.star];
         int amount = stats.Data3;
         bool isally = source.IsAlly;
-        List<HexNode> nodesInRange = Utility.GetHexInRange(target.CurrentHex, 3);
-        List<(HexNode node, int count)> nodeCounts = new List<(HexNode node, int count)>();
-        foreach (var node in nodesInRange)
-        {
-            int count = 0;
-            foreach (var neighbor in node.Neighbors)
-            {
-                if (neighbor.OccupyingCharacter != null && neighbor.OccupyingCharacter.IsAlly != isally)
-                {
-                    count++;
-                }
-            }
-            nodeCounts.Add((node, count));
-        }
-        nodeCounts = nodeCounts
-                        .Where(x => !misakiObserver.FragmentNodes.Values.Contains(x.node))
-                        .Where(x => x.node.OccupyingCharacter == null)
-                        .ToList();
-        nodeCounts.Sort((a, b) => b.count.CompareTo(a.count));
-        var selectedNodes = nodeCounts.Take(amount).ToList();
-        foreach (var selected in selectedNodes)
-        {
-            GameObject fragment = ResourcePool.Instance.SpawnObject(SkillPrefab.MissleFragmentsPrefab, selected.node.transform.position, Quaternion.identity);
-            misakiObserver.Fragments.Add(fragment);
-            misakiObserver.FragmentNodes.Add(fragment, selected.node);
+        CharacterParent characterParent = target.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+        var enemies = characterParent.GetBattleFieldCharacter().Where(c => c.IsAlly != isally && c.isTargetable).ToList();
+        List<(HexNode node, float nearestEnemyDist, int fragmentNearby)> nodeScores = new();
 
-            CustomLogger.Log(this,
-                $"Spawned fragment at node {selected.node.name} with neighborCount={selected.count}");
+        foreach (var node in Utility.GetHexInRange(target.CurrentHex, 3))
+        {
+            if (node.OccupyingCharacter != null || misakiObserver.FragmentNodes.Values.Contains(node))
+                continue;
+
+            // 最近敵人距離
+            float nearestDist = float.MaxValue;
+            foreach (var enemy in enemies)
+            {
+                
+                float dist = Vector3.Distance(node.Position, enemy.CurrentHex.Position);
+                if (dist < nearestDist) nearestDist = dist;
+            }
+
+            // 附近碎片數
+            int fragmentNearby = node.Neighbors.Count(n => misakiObserver.FragmentNodes.Values.Contains(n));
+            nodeScores.Add((node, nearestDist, fragmentNearby));
+        }
+
+        nodeScores.Sort((a, b) =>
+        {
+            int d = a.nearestEnemyDist.CompareTo(b.nearestEnemyDist);
+            return d != 0 ? d : b.fragmentNearby.CompareTo(a.fragmentNearby);
+        });
+
+        foreach (var n in nodeScores.Take(amount))
+        {
+            var frag = ResourcePool.Instance.SpawnObject(SkillPrefab.MissleFragmentsPrefab, n.node.transform.position, Quaternion.identity);
+            misakiObserver.Fragments.Add(frag);
+            misakiObserver.FragmentNodes.Add(frag, n.node);
         }
     }
+
+
 }
 public class MiyuEnhancedSkillEffect : HitEffect
 {

@@ -174,17 +174,6 @@ public class HexNode : MonoBehaviour
                         if (OccupyingCharacter.IsAlly != effect.Source.IsAlly)
                         {
                             (bool, int) tuple = effect.Source.CalculateCrit(effect.DamagePerTick);
-                            if (GameController.Instance.CheckCharacterEnhance(14, effect.Source.IsAlly))
-                            {
-                                if (effect.Source.characterStats.CharacterId == 14)
-                                {
-                                    Effect negEffect = EffectFactory.StatckableStatsEffct(1, $"{effect.Source}", -5, StatsType.AttackSpeed, effect.Source, false);
-                                    negEffect.SetActions(
-                                        (character) => character.ModifyStats(StatsType.PercentageResistence, negEffect.Value, negEffect.Source),
-                                        (character) => character.ModifyStats(StatsType.PercentageResistence, -negEffect.Value, negEffect.Source)
-                                    );
-                                }
-                            }
                             OccupyingCharacter.GetHit(tuple.Item2, effect.Source, $"Burn from {effect.Source.name}", tuple.Item1);
                         }
                     }

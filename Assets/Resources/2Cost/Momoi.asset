@@ -58,7 +58,7 @@ MonoBehaviour:
   BarrageIntervalAngle: 2
   BarrageInitAngle: 90
   Tooltips:
-  - "\u5C0B\u627E\u53EF\u6DB5\u84CB\u6700\u591A\u6575\u4EBA\u7684\u89D2\u5EA6\uFF0C\u9032\u884C\u6383\u5C04\uFF0C\n\u6BCF\u767C\u5B50\u5F48\u9020\u6210
+  - "\u5C0B\u627E\u53EF\u6DB5\u84CB\u6700\u591A\u6575\u4EBA\u7684\u89D2\u5EA6\uFF0C\u9032\u884C\u6383\u5C04\u3002\u5728({BarrageInitAngle}+\u65BD\u653E\u6B21\u6578*20)\u5EA6\u5167\u6BCF{BarrageIntervalAngle}\u5EA6\u5C04\u51FA\u4E00\u767C\u5B50\u5F48\n\u6BCF\u767C\u5B50\u5F48\u9020\u6210
     {data1} + ({data2}% \xD7 \u653B\u64CA\u529B) (\u6700\u7D42: {Final})\u3002"
   - "Finds the angle that hits the most enemies and performs a sweeping shot, \neach
     bullet dealing {data1} + ({data2}% \xD7 ATK) (Final: {Final})."
@@ -66,5 +66,6 @@ MonoBehaviour:
   - "//\u5C1A\u672A\u5B8C\u6210"
   - 
   isObj: 0
+  CanPutBack: 1
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

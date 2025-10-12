@@ -10,6 +10,7 @@ public class GameController : MonoBehaviour
     public TextMeshProUGUI GoldText;
     public StatsContainer TeamExtraStats = new StatsContainer();
     public int SerinaEnhancedSkill_CritCount;
+    public int KazusaEnhancedSkill_KillCount;
     private bool triggerSerinaEnhancedSkill = false;
     readonly float yOffset = 0.23f;
     public int SumireAddedHealth = 0;

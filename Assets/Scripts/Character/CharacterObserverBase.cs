@@ -1,11 +1,10 @@
 ﻿
 using GameEnum;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
-using static Firebase.AI.ModelContent;
 
 public abstract class CharacterObserverBase
 {
@@ -284,6 +283,34 @@ public class Example : CharacterObserverBase
 {
 
 }
+public class AtsukoObserver : CharacterObserverBase
+{
+    public override int OnDamageTaken(CharacterCTRL character, CharacterCTRL source, int amount)
+    {
+        float healthThreshold = 0.25f;
+        float maxHealth = character.GetStat(StatsType.Health);
+        float currHealth = character.GetStat(StatsType.currHealth);
+        float newHealth = currHealth - amount;
+        float newPercentage = newHealth / maxHealth;
+        StarLevelStats stats = character.ActiveSkill.GetCharacterLevel()[character.star];
+        if (newPercentage <= healthThreshold)
+        {
+            Effect effect = EffectFactory.UnStatckableStatsEffct(0,"AtsukoPassive", stats.Data3, StatsType.DodgeChance,character,true);
+            effect.SetActions(
+                (character) => character.ModifyStats(StatsType.DodgeChance, effect.Value, effect.Source),
+                (character) => character.ModifyStats(StatsType.DodgeChance, -effect.Value, effect.Source)
+            );
+            character.effectCTRL.AddEffect(effect, character);
+            return amount;
+        }
+        else
+        {
+            character.effectCTRL.ClearEffectWithSource("AtsukoPassive");
+        }
+        return amount;
+    }
+
+}
 public class ArisObserver : CharacterObserverBase//1
 {
     int critTime;
@@ -467,11 +494,11 @@ public class HiyoriObserver : CharacterObserverBase
 {
     public override void OnLogistic(CharacterCTRL character)
     {
-        CharacterParent characterParent = character.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+        CharacterParent characterParent = character.IsAlly ? ResourcePool.Instance.enemy : ResourcePool.Instance.ally;
         CharacterCTRL target = Utility.GetSpecificCharacters(characterParent.GetBattleFieldCharacter(), StatsType.currHealth, false, 1, true)[0];
         if (target != null)
         {
-            Effect effect = EffectFactory.StatckableStatsEffct(1.5f, "HiyoriEnhancedSkillEffect", -10, StatsType.Resistence, character, false);
+            Effect effect = EffectFactory.StatckableStatsEffct(5f, "HiyoriLogistic", -5, StatsType.Resistence, character, false);
             effect.SetActions(
                 (character) => character.ModifyStats(StatsType.Resistence, effect.Value, effect.Source),
                 (character) => character.ModifyStats(StatsType.Resistence, -effect.Value, effect.Source)
@@ -635,53 +662,58 @@ public class MisakiObserver : CharacterObserverBase
     void Detonate(CharacterCTRL character)
     {
         MisakiObserver misakiObserver = character.characterObserver as MisakiObserver;
-        List<KeyValuePair<GameObject, HexNode>> fragments = new List<KeyValuePair<GameObject, HexNode>>(misakiObserver.FragmentNodes);
+        List<KeyValuePair<GameObject, HexNode>> fragments =
+            new List<KeyValuePair<GameObject, HexNode>>(misakiObserver.FragmentNodes);
 
-        int count = 0;
-        int randkey = 0;
-
-        foreach (var item in fragments)
+        int baseRand = Utility.GetRand(character); // 單次基準亂數
+        for (int i = 0; i < fragments.Count; i++)
         {
-            count++;
-            randkey += Utility.GetRand(character);
-            Explode(item.Key, item.Value, character, randkey);
+            int randKey = baseRand + i * 37; // 確保不同碎片有可重播偏移
+            Explode(fragments[i].Key, fragments[i].Value, character, randKey);
         }
     }
-
 
     void Explode(GameObject fragment, HexNode node, CharacterCTRL character, int randKey)
     {
         MisakiObserver misakiObserver = character.characterObserver as MisakiObserver;
+
         foreach (var item in Utility.GetCharacterInrange(node, 1, character, false))
         {
             int dmg = character.ActiveSkill.GetAttackCoefficient(character.GetSkillContext());
             (bool iscrit, int dmg1) = character.CalculateCrit(dmg);
+
             if (GameController.Instance.CheckCharacterEnhance(34, character.IsAlly))
             {
-                Effect effect = EffectFactory.StatckableStatsEffct(5, "MisakiEnhancedSkill", -20, StatsType.Resistence, character, false);
+                Effect effect = EffectFactory.StatckableStatsEffct(
+                    5, "MisakiEnhancedSkill", -20, StatsType.Resistence, character, false);
+
                 effect.SetActions(
-                    (character) => character.ModifyStats(StatsType.Resistence, effect.Value, effect.Source),
-                    (character) => character.ModifyStats(StatsType.Resistence, -effect.Value, effect.Source)
-                );
+                    (c) => c.ModifyStats(StatsType.Resistence, effect.Value, effect.Source),
+                    (c) => c.ModifyStats(StatsType.Resistence, -effect.Value, effect.Source));
+
                 item.effectCTRL.AddEffect(effect, item);
             }
+
             item.GetHit(dmg1, character, DamageSourceType.Skill.ToString(), iscrit);
         }
-        bool active = false;
-        if (GameController.Instance.CheckCharacterEnhance(34, true))
+
+        // 改為依個別碎片判定是否保留
+        bool active = true;
+        if (GameController.Instance.CheckCharacterEnhance(34, character.IsAlly))
         {
-            if (Utility.GetRand(character) >= 70)
-            {
-                active = true;
-            }
+            System.Random rng = new System.Random(randKey);
+            active = rng.Next(0, 100) >= 70; // 每顆獨立判定
         }
+
         fragment.SetActive(active);
+
         if (!active)
         {
             misakiObserver.FragmentNodes.Remove(fragment);
             misakiObserver.Fragments.Remove(fragment);
         }
     }
+
     public override void OnDying(CharacterCTRL character)
     {
         MisakiObserver misakiObserver = character.characterObserver as MisakiObserver;
@@ -730,7 +762,7 @@ public class MoeObserver : CharacterObserverBase
         if (GameController.Instance.CheckCharacterEnhance(37, character.IsAlly))
         {
             CharacterCTRL target = character.Target.GetComponent<CharacterCTRL>();
-            int dmg = (int)(character.GetAttack()*0.3f);
+            int dmg = (int)(character.GetAttack() * 0.3f);
             target.CurrentHex.ApplyBurningEffect(3, dmg, 0.5f, character);//TODO: 檢查是否可以和ex疊加，數值是否正確
         }
         else
@@ -796,16 +828,18 @@ public class TsubakiObserver : CharacterObserverBase
     {
         if (GameController.Instance.CheckCharacterEnhance(23, character.IsAlly))
         {
+            StarLevelStats stats = character.ActiveSkill.GetCharacterLevel()[character.star];
             getHitCount++;
-            if (getHitCount >= 100)
+            if (getHitCount >= stats.Data2)
             {
-                getHitCount -= 100;
+                getHitCount -= stats.Data2;
                 triggerCount++;
             }
             if (character.GetHealthPercentage() <= 0.6f && triggerCount > 0)
             {
                 triggerCount--;
-                character.Heal((int)(character.GetStat(StatsType.Health) * 0.4f), character);
+                int percent = stats.Data1;
+                character.Heal((int)(character.GetStat(StatsType.Health) * percent * 0.01f), character);
             }
         }
 
@@ -884,7 +918,7 @@ public class TsurugiObserver : CharacterObserverBase
         var observer = character.traitController.GetObserverForTrait(Traits.Barrage) as BarrageObserver;
         List<HexNode> targetHex = GetHexSet(nearest, mirror, observer.CastTimes + 1);
         targetHex.Add(nearest);
-        targetHex.ForEach(n => n.CreateFloatingPiece(Color.yellow,1f));
+        targetHex.ForEach(n => n.CreateFloatingPiece(Color.yellow, 1f));
         foreach (var item in Utility.GetCharacterInSet(targetHex, character, false))
         {
             (bool iscrit, int dmg1) = character.CalculateCrit((int)character.GetStat(StatsType.Attack));

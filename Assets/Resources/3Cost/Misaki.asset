@@ -58,7 +58,7 @@ MonoBehaviour:
   BarrageIntervalAngle: 0
   BarrageInitAngle: 0
   Tooltips:
-  - "\u88AB\u52D5: \u7F8E\u54B2(Misaki)\u666E\u901A\u653B\u64CA\u70BA\u6162\u901F\u5927\u7832\uFF0C\u4E14\u5C07\u4EFB\u4F55\u653B\u901F\u589E\u76CA\u8F49\u70BA\u653B\u64CA\u529B\u3002\u6BCF\u6B21\u653B\u64CA\u6703\u5728\u5730\u4E0A\u7559\u4E0B{data3}\u500B\u788E\u7247\u3002\n\u4E3B\u52D5:
+  - "\u88AB\u52D5: \u7F8E\u54B2\u666E\u901A\u653B\u64CA\u70BA\u6162\u901F\u5927\u7832\uFF0C\u4E14\u5C07\u4EFB\u4F55\u653B\u901F\u589E\u76CA\u8F49\u70BA\u653B\u64CA\u529B\u3002\u6BCF\u6B21\u653B\u64CA\u6703\u5728\u5730\u4E0A\u7559\u4E0B{data3}\u500B\u788E\u7247\u3002\n\u4E3B\u52D5:
     \u7F8E\u54B2(Misaki)\u5C04\u51FA\u4E00\u5927\u6CE2\u5F48\u85E5\u788E\u7247\uFF0C\u5C0D\u4E00\u540D\u6575\u4EBA\u9020\u6210
     {data1} + ({data2}% \xD7 {Attack}) (\u6700\u7D42: {Final})\uFF0C\u5728\u5730\u4E0A\u7559\u4E0B{data4}\u500B\u788E\u7247\uFF0C\u4E26\u5F15\u7206\u6240\u6709\u788E\u7247\u3002"
   - "Passive: Misaki's normal attacks are slow-firing cannon shots, and any Attack
@@ -80,5 +80,6 @@ MonoBehaviour:
     Defense by 20, \r\nand after exploding, each fragment has a 30% chance to remain
     on the field.\r\n"
   isObj: 0
+  CanPutBack: 1
   TestEnhanceSkill: 0
   TestBuildInvinvicble: 0

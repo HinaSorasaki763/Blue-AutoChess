@@ -23,7 +23,7 @@ public class Shiroko_Terror_DroneCTRL : MonoBehaviour
         Animator.speed = parent.GetStat(StatsType.AttackSpeed);
         Vector3 v = target.transform.position;
         transform.LookAt(v);
-        int dmg = (int)parent.ActiveSkill.GetAttackCoefficient(parent.GetSkillContext());
+        int dmg = (int)parent.ActiveSkill.GetAttackCoefficient(parent.GetSkillContext())*stack;
         (bool, int) tuple = parent.CalculateCrit(dmg);
         if (GameController.Instance.CheckCharacterEnhance(22, parent.IsAlly))
         {

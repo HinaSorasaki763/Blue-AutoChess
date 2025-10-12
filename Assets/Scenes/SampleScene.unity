@@ -7469,8 +7469,8 @@ MonoBehaviour:
   selectedUIPrefab: {fileID: 0}
   Parent: {fileID: 1552199875}
   refreshButton: {fileID: 1827669270}
-  DisableAugmentsIndex: ffffffff02000000030000001400000026000000280000006e000000730000001f000000
-  forcedIndex: 12
+  DisableAugmentsIndex: ffffffff02000000030000001400000026000000280000006e000000730000001f0000002c000000
+  forcedIndex: 0
 --- !u!4 &402289526
 Transform:
   m_ObjectHideFlags: 0
@@ -25910,6 +25910,7 @@ MonoBehaviour:
     - statType: 20
       value: 0
   SerinaEnhancedSkill_CritCount: 0
+  KazusaEnhancedSkill_KillCount: 0
   SumireAddedHealth: 0
   AzusaAddAttack: 0
   AkoAddedCrit: 0
@@ -25949,6 +25950,7 @@ MonoBehaviour:
   PlayerHealth: 20
   currentRound: 0
   enteringBattleCounter: 0
+  overtimeCounter: 0
   startBattle: {fileID: 11400000, guid: 43af1bc8378ec824f824994130637b9e, type: 2}
   CurrGamePhase: 0
   Spawner: {fileID: 1342574469}

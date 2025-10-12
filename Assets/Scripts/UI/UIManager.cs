@@ -254,21 +254,24 @@ public static class StringPlaceholderReplacer
         StarLevelStats stats = character.ActiveSkill.GetCharacterLevel()[level];
         bool isChinese = (language == 0);
         return new Dictionary<string, string>()
-    {
-        {"data1", stats.Data1.ToString()},
-        {"data2", stats.Data2.ToString()},
-        {"data3", stats.Data3.ToString()},
-        {"data4", stats.Data4.ToString()},
-        {"data5", stats.Data5.ToString("F1")},
-        {"Attack", isChinese? $"攻擊力 ({character.GetStat(StatsType.Attack)})" : $"Atk({character.GetStat(StatsType.Attack)}) "},
-        {"Health", isChinese? $"生命 ({character.GetStat(StatsType.Health)})" : $"Health({character.GetStat(StatsType.Health)}) "},
-        {"Final", character.ActiveSkill.GetAttackCoefficient(character.GetSkillContext()).ToString()},
-        {"Logistic",character.ActiveSkill.GetLogisticCoefficient(character.GetSkillContext()).ToString() },
-        {"SumireAddedHealth",GameController.Instance.SumireAddedHealth.ToString() },
-        {"AzusaAddedAttack",GameController.Instance.AzusaAddAttack.ToString() },
-        {"AkoAddedCrit",character.AkoAddedCrit.ToString() },
-        {"Pressure",isChinese? $"壓力 ({PressureManager.Instance.GetPressure(character.IsAlly)})" : $"pressure({PressureManager.Instance.GetPressure(character.IsAlly)}) " }
-    };
+        {
+            {"data1", stats.Data1.ToString()},
+            {"data2", stats.Data2.ToString()},
+            {"data3", stats.Data3.ToString()},
+            {"data4", stats.Data4.ToString()},
+            {"data5", stats.Data5.ToString("F1")},
+            {"Attack", isChinese? $"攻擊力 ({character.GetStat(StatsType.Attack)})" : $"Atk({character.GetStat(StatsType.Attack)}) "},
+            {"Health", isChinese? $"生命 ({character.GetStat(StatsType.Health)})" : $"Health({character.GetStat(StatsType.Health)}) "},
+            {"Final", character.ActiveSkill.GetAttackCoefficient(character.GetSkillContext()).ToString()},
+            {"Logistic",character.ActiveSkill.GetLogisticCoefficient(character.GetSkillContext()).ToString() },
+            {"KzusaAddedAttackSpeed", GameController.Instance.KazusaEnhancedSkill_KillCount.ToString()},
+            { "BarrageInitAngle",character.characterStats.BarrageInitAngle.ToString()},
+            { "BarrageIntervalAngle",character.characterStats.BarrageIntervalAngle.ToString()},
+            {"SumireAddedHealth",GameController.Instance.SumireAddedHealth.ToString() },
+            {"AzusaAddedAttack",GameController.Instance.AzusaAddAttack.ToString() },
+            {"AkoAddedCrit",character.AkoAddedCrit.ToString() },
+            {"Pressure",isChinese? $"壓力 ({PressureManager.Instance.GetPressure(character.IsAlly)})" : $"pressure({PressureManager.Instance.GetPressure(character.IsAlly)}) " }
+        };
     }
 
 }

@@ -17,6 +17,12 @@ public class AriusObserver : CharacterObserverBase
     }
     public override void ActivateTrait()
     {
+        if (traitLevel == 0) 
+        {
+            isactive = false;
+            return;
+        }
+        isactive = true;
         if (SelectedAugments.Instance.CheckAugmetExist(107,parent.IsAlly))
         {
             CharacterParent c = ResourcePool.Instance.ally;
@@ -44,7 +50,7 @@ public class AriusObserver : CharacterObserverBase
         {
             item.effectCTRL.AddEffect(effect, item);
         }
-        isactive = true;
+
         if (!(SelectedAugments.Instance.CheckAugmetExist(100, parent.IsAlly) || SelectedAugments.Instance.CheckAugmetExist(125, parent.IsAlly)))
         {
             AriusManager.Instance.GetSelector();

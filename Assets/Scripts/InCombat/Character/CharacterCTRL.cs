@@ -963,9 +963,9 @@ public class CharacterCTRL : MonoBehaviour
     }
     public void DodgeCorrection()
     {
-        if (GetStat(StatsType.DodgeChance) >= 100)
+        if (GetStat(StatsType.DodgeChance) >= 90)
         {
-            SetStat(StatsType.DodgeChance, 100);
+            SetStat(StatsType.DodgeChance, 90);
         }
     }
     public void LifeStealCorrection()
@@ -1636,8 +1636,9 @@ public class CharacterCTRL : MonoBehaviour
     public bool Dodge(CharacterCTRL sourceCharacter)
     {
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
+        int accuracy = (int)sourceCharacter.GetStat(StatsType.Accuracy);
         int rand = UnityEngine.Random.Range(1, 100);
-        if (GetStat(StatsType.DodgeChance) >= rand)
+        if (GetStat(StatsType.DodgeChance) - accuracy >= rand)
         {
             AudioManager.PlayDodgedSound();
             TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Miss, 0, screenPos, false);
@@ -1948,7 +1949,7 @@ public class CharacterCTRL : MonoBehaviour
         foreach (var modifier in statsModifiers)
         {
             float valueToApply = isRevert ? -modifier.Value : modifier.Value;
-            AddStat(modifier.Key, valueToApply,false);
+            AddStat(modifier.Key, valueToApply, false);
 
             if (source != null)
             {
@@ -2067,7 +2068,6 @@ public class CharacterCTRL : MonoBehaviour
     {
         Overtime = true;
         AntiHeal = true;
-        AddStat(StatsType.PercentageResistence, -20);
         AntiHealRatio = 0.8f;
     }
     public void HyakkiyakoDyingEffectStart()
@@ -2174,7 +2174,7 @@ public class CharacterCTRL : MonoBehaviour
     { 12, () => new AkoObserver() },
     { 13, () => new AzusaObserver() },
     { 14, () => new NullObserver() },
-    { 15, () => new FuukaObserver() }, // 重複 Ayane
+    { 15, () => new FuukaObserver() },
     { 16, () => new IzunaObserver() },
     { 17, () => new KayokoObserver() },
     { 18, () => new NullObserver() },

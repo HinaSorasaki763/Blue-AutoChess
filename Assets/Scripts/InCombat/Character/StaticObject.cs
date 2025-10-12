@@ -138,9 +138,11 @@ public class StaticObject : CharacterCTRL
     }
     public override void RecalculateStats()
     {
+
         CustomLogger.Log(this, $"{gameObject.name} RecalculateStats()");
         int currHealth = (int)GetStat(StatsType.currHealth);
         int currMana = (int)GetStat(StatsType.Mana);
+        stats = new StatsContainer();
         stats.SetStat(StatsType.Health, MaxHealth_StaticObj);
         stats.SetStat(StatsType.Resistence, Resistance_StaticObj);
         stats.AddFrom(ExtraPernamentStats);
