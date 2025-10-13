@@ -260,7 +260,7 @@ public static class StringPlaceholderReplacer
             {"data3", stats.Data3.ToString()},
             {"data4", stats.Data4.ToString()},
             {"data5", stats.Data5.ToString("F1")},
-            {"Attack", isChinese? $"攻擊力 ({character.GetStat(StatsType.Attack)})" : $"Atk({character.GetStat(StatsType.Attack)}) "},
+            {"Attack", isChinese? $"攻擊力 ({character.GetStat(StatsType.Attack):F1})" : $"Atk({character.GetStat(StatsType.Attack):F1}) "},
             {"Health", isChinese? $"生命 ({character.GetStat(StatsType.Health)})" : $"Health({character.GetStat(StatsType.Health)}) "},
             {"Final", character.ActiveSkill.GetAttackCoefficient(character.GetSkillContext()).ToString()},
             {"Logistic",character.ActiveSkill.GetLogisticCoefficient(character.GetSkillContext()).ToString() },

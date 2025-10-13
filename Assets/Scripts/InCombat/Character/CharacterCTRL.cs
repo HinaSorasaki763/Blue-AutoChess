@@ -141,6 +141,7 @@ public class CharacterCTRL : MonoBehaviour
     public GameObject Logistic_dummy;
     public bool isShirokoTerror;
     public Shiroko_Terror_DroneCTRL droneCTRL;
+    public int RengeSkillAmount;
     #endregion
 
     #region === Coroutine Handles ===
@@ -1100,6 +1101,8 @@ public class CharacterCTRL : MonoBehaviour
                 }
             }
         }
+
+        stats.AddFrom(GetPercentageBonus());
         CritCorrection();
         LifeStealCorrection();
         DodgeCorrection();
@@ -1154,20 +1157,28 @@ public class CharacterCTRL : MonoBehaviour
             }
         }
 
-        result.AddFrom(GetPercentageBonus());
 
         return result;
     }
 
     public void AddPercentageBonus(StatsType fromStat, StatsType toStat, int percent, string identifier)
     {
+        if (PercentageStatsDict.TryGetValue(identifier, out var val))
+        {
+            if (val.fromStat == fromStat && val.toStat == toStat && val.amount <=percent)
+            {
+                return;
+            }
+        }
         PercentageStatsDict[identifier] = (fromStat, toStat, percent);
+        RecalculateStats();
     }
 
     public void RemovePercentageBonus(string identifier)
     {
         if (PercentageStatsDict.ContainsKey(identifier))
             PercentageStatsDict.Remove(identifier);
+        RecalculateStats();
     }
 
     public StatsContainer GetPercentageBonus()
@@ -1320,6 +1331,7 @@ public class CharacterCTRL : MonoBehaviour
         ManaLock = false;
         customAnimator.AfterCastSkill();
         effectCTRL.OnParentCastSkillFinished();
+        RemovePercentageBonus("HimariActiveSkill");
         IsCastingAbility = false;
         StealManaCount = 0;
     }
@@ -1480,6 +1492,7 @@ public class CharacterCTRL : MonoBehaviour
 
     private IEnumerator MoveAlongPath(List<HexNode> path)
     {
+        if (this is StaticObject @static) yield break;
         isWalking = true;
         customAnimator.ChangeState(CharacterState.Moving);
         var node = path[0];
@@ -1496,14 +1509,7 @@ public class CharacterCTRL : MonoBehaviour
             StopCoroutine(movingCoroutine);
             movingCoroutine = null;
         }
-
     }
-
-
-
-
-
-
     public IEnumerator MoveTowardsPosition(Vector3 targetPos)
     {
         while (Vector3.Distance(transform.position, targetPos) > 0.1f)
@@ -1672,10 +1678,8 @@ public class CharacterCTRL : MonoBehaviour
 
         int finalAmount = ObserverDamageModifier(amount, sourceCharacter, detailedSource, isCrit);
         finalAmount = BeforeDealtDmg(finalAmount, sourceCharacter, detailedSource, isCrit);
-        bool SaoriEnhanced = GameController.Instance.CheckCharacterEnhance(39, sourceCharacter.IsAlly) && sourceCharacter.characterStats.CharacterId == 39;
-
         float r = GetStat(StatsType.Resistence);
-        if (SaoriEnhanced)
+        if (sourceCharacter.characterStats.CharacterId == 39)
         {
             r *= 0.75f;
         }
@@ -1683,9 +1687,10 @@ public class CharacterCTRL : MonoBehaviour
         if (r > 0) { mother = r; }
         float ratio = r / (100 + mother);
         finalAmount = (int)(finalAmount * (1 - ratio));
-        if (!SaoriEnhanced)
+        int PercentageResistence = (int)GetStat(StatsType.PercentageResistence);
+        if (sourceCharacter.characterStats.CharacterId != 39 && PercentageResistence > 0)
         {
-            finalAmount = (int)(finalAmount * (1 - GetStat(StatsType.PercentageResistence) / 100f));
+            finalAmount = (int)(finalAmount * (1 - PercentageResistence / 100f));
         }
         finalAmount = (int)MathF.Max(finalAmount, 1);
         finalAmount = traitController.ModifyDamageTaken(finalAmount, sourceCharacter, detailedSource, isCrit, recursion);

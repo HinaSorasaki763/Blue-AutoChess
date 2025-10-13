@@ -29,7 +29,7 @@ public class StartMenuController : MonoBehaviour
     }
     public void Update()
     {
-        if (PlayerName.gameObject.activeInHierarchy)
+        if (PlayerName.gameObject.activeInHierarchy && PlayerSession.Instance.Data != null)
         {
             PlayerName.text = PlayerSession.Instance.Data.Name;
         }

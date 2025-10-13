@@ -1,7 +1,6 @@
 ﻿
 using GameEnum;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -295,7 +294,7 @@ public class AtsukoObserver : CharacterObserverBase
         StarLevelStats stats = character.ActiveSkill.GetCharacterLevel()[character.star];
         if (newPercentage <= healthThreshold)
         {
-            Effect effect = EffectFactory.UnStatckableStatsEffct(0,"AtsukoPassive", stats.Data3, StatsType.DodgeChance,character,true);
+            Effect effect = EffectFactory.UnStatckableStatsEffct(0, "AtsukoPassive", stats.Data3, StatsType.DodgeChance, character, true);
             effect.SetActions(
                 (character) => character.ModifyStats(StatsType.DodgeChance, effect.Value, effect.Source),
                 (character) => character.ModifyStats(StatsType.DodgeChance, -effect.Value, effect.Source)
@@ -595,7 +594,7 @@ public class KayokoObserver : CharacterObserverBase
             {
                 List<CharacterCTRL> list = new List<CharacterCTRL>();
                 list.Add(target);
-                FearManager.Instance.ApplyFear(source, list, source.ActiveSkill.GetCharacterLevel()[source.star].Data5 + PressureManager.Instance.GetPressure(source.IsAlly) * 0.01f);
+                FearManager.Instance.ApplyFear(source, list, source.ActiveSkill.GetCharacterLevel()[source.star].Data5 + PressureManager.Instance.GetPressure(source.IsAlly) * 0.01f, damage);
             }
         }
     }
@@ -998,7 +997,13 @@ public class YuukaObserver : CharacterObserverBase
 }
 public class SaoriObserver : CharacterObserverBase
 {
-
+    public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
+    {
+        if (target.GetHealthPercentage() <= 0.15f && GameController.Instance.CheckCharacterEnhance(39, source.IsAlly))
+        {
+            target.Executed(source, "SaoriPassive");
+        }
+    }
 }
 public class SumireObserver : CharacterObserverBase
 {
@@ -1264,6 +1269,10 @@ public class GlobalBaseObserver : CharacterObserverBase
         if (GameController.Instance.CheckSpecificCharacterEnhanced(character, 11, character.IsAlly))
         {
             character.AddPercentageBonus(StatsType.Health, StatsType.Attack, 5, "SumireActiveSkill");
+        }
+        if (GameController.Instance.CheckSpecificCharacterEnhanced(character, 26, character.IsAlly))
+        {
+            character.AddPercentageBonus(StatsType.Null, StatsType.Resistence, 25, "HoshinoPAssive");
         }
         CustomLogger.Log(this, $"{character} OnEnterBattleField.");
     }

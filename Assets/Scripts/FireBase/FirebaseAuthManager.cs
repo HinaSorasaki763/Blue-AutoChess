@@ -70,6 +70,7 @@ public class FirebaseAuthManager : MonoBehaviour
     public void Logout()
     {
         auth.SignOut();
+        PlayerSession.Instance.Clear();
         user = null;
         Debug.Log("¤wµn¥X");
     }

@@ -205,6 +205,10 @@ public class NormalBullet : MonoBehaviour
         float distanceTravelled = Vector3.Distance(startPosition, transform.position);
         if (distanceTravelled >= maxDistance)
         {
+            if (parent.characterStats.CharacterId == 45)
+            {
+                parent.RengeSkillAmount += damage;
+            }
             DisableBullet();
         }
     }

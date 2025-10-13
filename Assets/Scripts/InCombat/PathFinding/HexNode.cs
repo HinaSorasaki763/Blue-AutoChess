@@ -1,4 +1,5 @@
 ﻿using GameEnum;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 public class HexNode : MonoBehaviour
@@ -266,16 +267,20 @@ public class HexNode : MonoBehaviour
     }
     public void CreateFloatingPiece(Color color, float duration = 0f)
     {
-        GameObject go = Instantiate(ResourcePool.Instance.ColorHexPrefab, transform.position + new Vector3(0, 0.3f, 0), Quaternion.Euler(-90, 0, 0));
+        GameObject go = ResourcePool.Instance.GetColoredHex(transform.position+ new Vector3(0, 0.3f, 0));
+        go.transform.rotation = Quaternion.Euler(-90, 0, 0);
         Renderer renderer = go.GetComponent<Renderer>();
         if (renderer != null)
-        {
             renderer.material.color = color;
-        }
+
         if (duration > 0f)
-        {
-            Destroy(go, duration);
-        }
+            StartCoroutine(ReturnAfterDelay(go, duration));
+    }
+
+    private IEnumerator ReturnAfterDelay(GameObject go, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        ResourcePool.Instance.DisableColoredHex(go);
     }
 
 

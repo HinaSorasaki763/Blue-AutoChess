@@ -104,12 +104,18 @@ public class CoroutineController : MonoBehaviour
         float elapsedTime = 0f;
         float scatterAngle = observer.GetAngle();
         int numBullets = (int)scatterAngle / angle;
+        int dmg = 0;
+        if (parent.characterStats.CharacterId == 45)
+        {
+            dmg = parent.RengeSkillAmount / numBullets;
+            parent.RengeSkillAmount = 0;
+        }
         while (elapsedTime < duration * 2)
         {
             for (int i = 0; i < numBullets; i++)
             {
                 float bulletAngle = bestAngle - (scatterAngle / 2) + i * angle;
-                observer.ScatterBulletAtAngle(bulletAngle,penetrate);
+                observer.ScatterBulletAtAngle(bulletAngle,penetrate, dmg);
             }
             yield return new WaitForSeconds(interval);
 

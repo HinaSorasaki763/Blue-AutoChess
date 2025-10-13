@@ -1,8 +1,6 @@
 using GameEnum;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 public class BarrageObserver : CharacterObserverBase
 {
@@ -54,7 +52,7 @@ public class BarrageObserver : CharacterObserverBase
             if (skillID == 7)
             {
                 float animationTime = character.customAnimator.GetAnimationClipInfo(15).Item2;
-                coroutineController.SetNextSkill(this, animationTime, 0.1f, bestAngle, GetAngle(),false);
+                coroutineController.SetNextSkill(this, animationTime, 0.1f, bestAngle, GetAngle(), false);
                 return;
             }
         }
@@ -157,25 +155,22 @@ public class BarrageObserver : CharacterObserverBase
         return count;
     }
 
-    public void ScatterBulletAtAngle(float bulletAngle,bool penetrate)
+    public void ScatterBulletAtAngle(float bulletAngle, bool penetrate,int additionDmg = 0)
     {
         Vector3 direction = Quaternion.Euler(0, bulletAngle, 0) * Vector3.forward;
         Vector3 targetPosition = Character.transform.position + direction * maxDistance;
         GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, Character.FirePoint.position, Quaternion.identity);
-        dmg = Character.ActiveSkill.GetAttackCoefficient(Character.GetSkillContext());
+        dmg = Character.ActiveSkill.GetAttackCoefficient(Character.GetSkillContext())+additionDmg;
         List<HitEffect> l = new List<HitEffect>();
-        if (GameController.Instance.CheckCharacterEnhance(21, Character.IsAlly))
+        if (Character.characterStats.CharacterId == 21)
         {
-            float ratio = Mathf.Min(GameController.Instance.GetGoldAmount(),50)*0.01f;
+            float ratio = GameController.Instance.GetGoldAmount() * 0.01f * Character.ActiveSkill.GetCharacterLevel()[Character.star].Data3;
             dmg = (int)(dmg * (1 + ratio));
-            l.Add(new NonomiSkillEffect());
         }
-        if (GameController.Instance.CheckCharacterEnhance(25, Character.IsAlly))
-        {
-            l.Add(new HinaSkillEffect());
-        }
+        if (GameController.Instance.CheckCharacterEnhance(21, Character.IsAlly)) l.Add(new NonomiSkillEffect());
+        if (GameController.Instance.CheckCharacterEnhance(25, Character.IsAlly)) l.Add(new HinaSkillEffect());
         (bool iscrit, int dmg1) = Character.CalculateCrit(dmg);
-        bullet.GetComponent<NormalBullet>().Initialize(dmg1, Character.GetTargetLayer(), Character, 15f, Character.GetTarget(), true, iscrit, l, 20, true, targetPosition,penetrate);
+        bullet.GetComponent<NormalBullet>().Initialize(dmg1, Character.GetTargetLayer(), Character, 15f, Character.GetTarget(), true, iscrit, l, 20, true, targetPosition, penetrate);
 
     }
 

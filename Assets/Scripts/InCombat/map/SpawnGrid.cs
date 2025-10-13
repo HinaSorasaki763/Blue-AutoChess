@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 public class SpawnGrid : MonoBehaviour
 {
     const int gridSize = 8;
@@ -576,12 +575,6 @@ public class SpawnGrid : MonoBehaviour
     {
         string wallKey = GetWallKey(node, neighbor);
         HashSet<string> wallSet = isAlly ? createdAllyWalls : createdEnemyWalls;
-
-        if (wallSet.Contains(wallKey))
-        {
-            return;
-        }
-
         wallSet.Add(wallKey);
         CreateWall(parent, resist, node, neighbor, wallKey, isAlly, normal);
 

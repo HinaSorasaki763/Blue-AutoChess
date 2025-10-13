@@ -11,4 +11,5 @@ public class AugmentConfig : ScriptableObject
     public string descriptionEnglish;
     public int augmentIndex;
     public int CharacterSkillEnhanceIndex = -1;
+    public int cost;
 }

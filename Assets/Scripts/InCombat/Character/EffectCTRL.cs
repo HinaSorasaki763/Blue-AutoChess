@@ -82,6 +82,10 @@ public class EffectCTRL : MonoBehaviour
     {
         CustomLogger.Log(this, $"try removing {gameObject.name}'s {effect.SpecialType} effect");
         activeEffects.Remove(effect);
+        if (true)
+        {
+
+        }
         effect.OnRemove.Invoke(characterCTRL);
 
         UpdateEffectNames();
@@ -480,6 +484,32 @@ public static class EffectFactory
             duration,
             SpecialEffectType.Taunt,
             parent
+        );
+
+    }
+    public static Effect CreateHimariActiveSkillBuff(int amount, float duration, CharacterCTRL parent)
+    {
+        var modifiers = new Dictionary<StatsType, float>
+        {
+            { StatsType.Accuracy,100},
+            { StatsType.CritChance, amount },
+            { StatsType.CritRatio, amount },
+        };
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            amount,
+            "HimariActiveSkillBuff",
+            true,
+            (character) => character.ModifyMultipleStats(modifiers, "HimariActiveSkillBuff"),
+            (character) => character.ModifyMultipleStats(modifiers, "HimariActiveSkillBuff", isRevert: true),
+            duration,
+            SpecialEffectType.None,
+            parent,
+            false,
+            ClearEffectCondition.OnSkillCastFinished,
+            false,
+            true
         );
 
     }

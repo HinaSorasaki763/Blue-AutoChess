@@ -38,10 +38,8 @@ public class FirestoreUploader
 
         try
         {
-            // slots 轉換
             var slotDicts = teamData.slots.Select(FirestoreConverter.ToDict).ToList();
 
-            // stats 轉換
             var statsDict = new Dictionary<string, object>();
             foreach (var stat in teamData.statsContainer.GetAllStats())
             {
@@ -50,9 +48,10 @@ public class FirestoreUploader
 
             var data = new Dictionary<string, object>
         {
-            { "playerName",teamData.Name },
+            { "playerName", teamData.Name },
             { "playerId", teamData.playerId },
             { "round", teamData.round },
+            { "stage", teamData.stage },  // 新增
             { "totalGames", teamData.totalGames },
             { "winGames", teamData.winGames },
             { "slots", slotDicts },
@@ -73,17 +72,28 @@ public class FirestoreUploader
 
 
 
-    public async Task<List<DocumentSnapshot>> GetRandomOpponentsAsync(int totalGames, int winGames, int count = 3)
+
+    public async Task<List<DocumentSnapshot>> GetRandomOpponentsAsync(int round, int stage, int count = 3)
     {
         var snapshot = await db.Collection("teams")
-            .WhereEqualTo("totalGames", totalGames)
-            .WhereEqualTo("winGames", winGames)
+            .WhereEqualTo("round", round)
+            .WhereEqualTo("stage", stage)
             .GetSnapshotAsync();
 
         if (snapshot.Count == 0)
         {
-            Debug.Log("No opponents found with same totalGames/winGames.");
-            return new List<DocumentSnapshot>();
+            PopupManager.Instance.CreatePopup("無對應的隊伍!請回報!\nNo Matched data ,please report", 5);
+            Debug.Log($"No opponents found for round={round}, stage={stage}, switching to dummy data");
+
+            snapshot = await db.Collection("teams")
+                .WhereEqualTo("playerId", "TestBuildDummy")
+                .GetSnapshotAsync();
+
+            if (snapshot.Count == 0)
+            {
+                Debug.LogError("No dummy data found either.");
+                return new List<DocumentSnapshot>();
+            }
         }
 
         var docs = snapshot.Documents.ToList();
@@ -139,6 +149,7 @@ public class TeamData
     public int round;
     public int totalGames;
     public int winGames;
+    public int stage;
     public List<WaveGridSlotData> slots;
     public StatsContainer statsContainer;
     public List<int> selectedAugments;

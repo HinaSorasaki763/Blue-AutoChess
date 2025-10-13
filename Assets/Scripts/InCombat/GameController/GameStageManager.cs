@@ -207,13 +207,23 @@ public class GameStageManager : MonoBehaviour
         }
         StatsContainer statsContainer = BattlingProperties.Instance.GetSRTStats(true);
         int i = currentRound;
+        PlayerData data = PlayerSession.Instance.Data;
+
+        string name = (data != null && !string.IsNullOrEmpty(data.Name))
+            ? data.Name
+            : $"GuestPlayer_{UnityEngine.Random.Range(1000, 9999)}";
+
+        string uid = (data != null && !string.IsNullOrEmpty(data.Uid))
+            ? data.Uid
+            : "GuestUID";
         var teamData = new TeamData
         {
-            Name = PlayerSession.Instance.Data.Name,
-            playerId = PlayerSession.Instance.Data.Uid,
+            Name = name,
+            playerId = uid,
             round = i,
             totalGames = i,
             winGames = i,
+            stage = AugmentManager.instance.stage,
             slots = waveGridSlotDatas,
             statsContainer = statsContainer,
             selectedAugments = SelectedAugments.Instance.GetAugmentIndex()

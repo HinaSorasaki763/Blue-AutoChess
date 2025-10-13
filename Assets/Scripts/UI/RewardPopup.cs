@@ -85,11 +85,11 @@ public class RewardPopup : MonoBehaviour
                 option.Image.sprite = reward.Sprite;
                 if (PlayerSettings.SelectedDropdownValue == 0)
                 {
-                    option.Description = reward.Name;
+                    option.Description = reward.ChineseDescription;
                 }
                 else
                 {
-                    option.Description = reward.EnglishName;
+                    option.Description = reward.EnglishDescription;
                 }
                 option.optionIndex = reward.Index;
             }

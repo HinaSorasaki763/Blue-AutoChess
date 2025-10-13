@@ -2,20 +2,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 public class ResourcePool : MonoBehaviour
 {
 
     public static ResourcePool Instance { get; private set; }
     public GameObject floorPrefab, characterBarPrefab, FloatingTextPrefab, wallPrefab;
-    public Transform floorParent, characterBarParent, FloatingTextParent, wallParent;
+    public Transform floorParent, characterBarParent, FloatingTextParent, wallParent,coloredHexParent;
     private readonly Dictionary<SkillPrefab, List<GameObject>> pooledObjects
         = new Dictionary<SkillPrefab, List<GameObject>>();
-    public const int floorCount = 64,barCount = 20, TextCount = 50, wallCount = 50;
-    public List<GameObject> floorPool = new(), barPool = new(), textPool = new(), wallPool = new();
+    public const int floorCount = 64,barCount = 20, TextCount = 50, wallCount = 50,coloredHexCount = 50;
+    public List<GameObject> floorPool = new(), barPool = new(), textPool = new(), wallPool = new(),coloredHexPool = new();
     public List<Character> OneCostCharacter, TwoCostCharacter, ThreeCostCharacter, FourCostCharacter, FiveCostCharacter, SpecialCharacter ,TestBuildCharacter;
     public List<List<Character>> Lists = new();
     public GameEvent AllResoucesLoaded;
@@ -156,6 +154,7 @@ public class ResourcePool : MonoBehaviour
         yield return StartCoroutine(InitPool(characterBarPrefab, characterBarParent, barPool, barCount));
         yield return StartCoroutine(InitPool(FloatingTextPrefab, FloatingTextParent, textPool, TextCount));
         yield return StartCoroutine(InitPool(wallPrefab, wallParent, wallPool, wallCount));
+        yield return StartCoroutine(InitPool(ColorHexPrefab, coloredHexParent, coloredHexPool, coloredHexCount));
         yield return new WaitForSeconds(0.1f);
         AllResoucesLoaded.Raise();
     }
@@ -181,6 +180,22 @@ public class ResourcePool : MonoBehaviour
     {
         return GetObject(FloatingTextPrefab, FloatingTextParent, textPool, pos);
     }
+    public GameObject GetColoredHex(Vector3 pos)
+    {
+        return GetObject(ColorHexPrefab, coloredHexParent, coloredHexPool, pos);
+    }
+    public void DisableAllColoredHex()
+    {
+        foreach (var item in coloredHexPool)
+        {
+            item.SetActive(false);
+        }
+    }
+    public void DisableColoredHex(GameObject go)
+    {
+        go.SetActive(false);
+    }
+
     public void GetGoldPrefab(Vector3 pos)
     {
         float randx = Random.Range(-0.5f, 0.5f);

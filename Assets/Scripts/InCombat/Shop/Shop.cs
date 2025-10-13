@@ -123,6 +123,7 @@ public class Shop : MonoBehaviour
         }
         for (int i = 0; i < count; i++)
         {
+
             float rand = UnityEngine.Random.Range(0, 100);
             int cost = rand < p.OneCostProbability ? 1 :
                        rand < p.OneCostProbability + p.TwoCostProbability ? 2 :

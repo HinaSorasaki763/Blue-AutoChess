@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.TextCore.Text;
 
 public class AugmentManager : MonoBehaviour
 {
@@ -14,12 +13,17 @@ public class AugmentManager : MonoBehaviour
     public GameObject Parent;
     private List<AugmentConfig> availableAugments; // 可用的強化選項
     private Augment[] currentAugments;             // 當前顯示的強化選項
-
+    public static AugmentManager instance;
     public Button refreshButton; // 新增的刷新按鈕
     public List<int> DisableAugmentsIndex = new List<int>();
     public int forcedIndex;// 預設 -1 表示無內定
     private Queue<int> recentAugments = new Queue<int>();
-
+    private System.Random rng = new System.Random();
+    public int stage = 1;
+    public Button stage1Btn;
+    public Button stage2Btn;
+    public Button stage3Btn;
+    public GameObject stageSelectPanel;
     private Dictionary<int, int> augmentHistoryCount = new Dictionary<int, int>();
     private void OnEnable()
     {
@@ -28,17 +32,27 @@ public class AugmentManager : MonoBehaviour
         list.AddRange(Resources.LoadAll<AugmentConfig>("Augments/AcademyAugments"));
         allAugments = list.ToArray();
     }
-
+    public void Awake()
+    {
+        instance = this;
+    }
     private void Start()
     {
         availableAugments = new List<AugmentConfig>(allAugments); // 初始化
         currentAugments = new Augment[optionButtons.Length];
         SetupOptionButtons();
-
+        stage1Btn.onClick.AddListener(() => OnStageSelected(1));
+        stage2Btn.onClick.AddListener(() => OnStageSelected(2));
+        stage3Btn.onClick.AddListener(() => OnStageSelected(3));
         // 為刷新按鈕添加點擊事件
         refreshButton.onClick.AddListener(GenerateNewOptions);
     }
-
+    private void OnStageSelected(int s)
+    {
+        stage = s;
+        stageSelectPanel.SetActive(false);
+        GenerateNewOptions();
+    }
     private void SetupOptionButtons()
     {
         GenerateNewOptions();
@@ -47,7 +61,31 @@ public class AugmentManager : MonoBehaviour
     // 隨機生成 3 個強化選項
     private void GenerateNewOptions()
     {
-        availableAugments = new List<AugmentConfig>(allAugments);
+        // 篩選符合條件的 Augments
+        List<AugmentConfig> filtered = new List<AugmentConfig>();
+        foreach (var aug in allAugments)
+        {
+            if (aug == null) continue;
+            if (aug.CharacterSkillEnhanceIndex > 100) continue;
+
+            bool include = false;
+            switch (stage)
+            {
+                case 1:
+                    include = (aug.cost == 1 || aug.cost == 2);
+                    break;
+                case 2:
+                    include = (aug.cost == 3 || aug.cost == 4);
+                    break;
+                case 3:
+                    include = (aug.cost == 5);
+                    break;
+            }
+
+            if (include) filtered.Add(aug);
+        }
+
+        availableAugments = new List<AugmentConfig>(filtered);
         availableAugments.RemoveAll(item => DisableAugmentsIndex.Contains(item.augmentIndex));
 
         if (availableAugments.Count < optionButtons.Length)
@@ -64,7 +102,7 @@ public class AugmentManager : MonoBehaviour
 
         List<int> selectedIndices = new List<int>();
 
-        // 強制放入內定 index
+        // 第一個選項：若有強制 index
         if (forcedIndex != -1)
         {
             int forcedAvailableIndex = availableAugments.FindIndex(a => a.augmentIndex == forcedIndex);
@@ -89,6 +127,7 @@ public class AugmentManager : MonoBehaviour
             SetOptionAt(i, GetWeightedRandomIndex(availableAugments, selectedIndices), selectedIndices);
         }
     }
+
     private void SetOptionAt(int optionSlot, int augmentPoolIndex, List<int> selectedIndices)
     {
         selectedIndices.Add(augmentPoolIndex);
@@ -131,8 +170,7 @@ public class AugmentManager : MonoBehaviour
             weights.Add(weight);
             totalWeight += weight;
         }
-
-        float randomValue = Random.Range(0f, totalWeight);
+        float randomValue = (float)(rng.NextDouble() * totalWeight);
         for (int i = 0; i < weights.Count; i++)
         {
             if (randomValue < weights[i])
@@ -143,6 +181,7 @@ public class AugmentManager : MonoBehaviour
     }
     private void SelectAugment(int index)
     {
+
         if (currentAugments[index] == null) return;
         currentAugments[index].Apply();
         Debug.Log($"選擇了強化：{currentAugments[index].Name}");
@@ -156,6 +195,7 @@ public class AugmentManager : MonoBehaviour
         {
             item.OnCharaterEnabled();
         }
+        Shop.Instance.GoldLessRefresh();
         Parent.SetActive(false);
     }
 }

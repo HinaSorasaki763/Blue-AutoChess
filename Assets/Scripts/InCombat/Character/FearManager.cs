@@ -24,12 +24,17 @@ public class FearManager : MonoBehaviour
 
     private Dictionary<CharacterCTRL, FearData> fearedCharacters = new Dictionary<CharacterCTRL, FearData>();
 
-    public void ApplyFear(CharacterCTRL fearSource, List<CharacterCTRL> targets, float duration)
+    public void ApplyFear(CharacterCTRL fearSource, List<CharacterCTRL> targets, float duration,int dmg)
     {
         (float length, float effectiveness) = fearSource.BeforeApplyingNegetiveEffect(duration, 0);
         float endTime = Time.time + length;
         foreach (var t in targets)
         {
+            if (t is StaticObject obj)
+            {
+                obj.GetHit(dmg * 10, fearSource, "fear", false);
+                continue;
+            }
             if (!fearedCharacters.ContainsKey(t) && !t.isCCImmune)
             {
                 fearedCharacters.Add(t, new FearData
