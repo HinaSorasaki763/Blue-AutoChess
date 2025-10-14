@@ -11,7 +11,7 @@ public class PlayerSettings : MonoBehaviour
 
 
     [SerializeField] private TMPro.TMP_Dropdown LanguageDropdown;
-    private List<string> dropdownOptions = new List<string> { "中文", "English" };
+    private List<string> dropdownOptions = new List<string> { "  中文", "  English" };
 
     private void Awake()
     {
@@ -29,6 +29,7 @@ public class PlayerSettings : MonoBehaviour
 
     private void Start()
     {
+        Application.targetFrameRate = 90;
         LanguageDropdown.ClearOptions();
         LanguageDropdown.AddOptions(dropdownOptions);
         int savedValue = PlayerPrefs.GetInt("MyDropdownSelection", 0);

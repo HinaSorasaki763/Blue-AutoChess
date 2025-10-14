@@ -51,7 +51,7 @@ public class FirestoreUploader
             { "playerName", teamData.Name },
             { "playerId", teamData.playerId },
             { "round", teamData.round },
-            { "stage", teamData.stage },  // 新增
+            { "stage", teamData.stage },
             { "totalGames", teamData.totalGames },
             { "winGames", teamData.winGames },
             { "slots", slotDicts },
@@ -82,13 +82,9 @@ public class FirestoreUploader
 
         if (snapshot.Count == 0)
         {
-            PopupManager.Instance.CreatePopup("無對應的隊伍!請回報!\nNo Matched data ,please report", 5);
-            Debug.Log($"No opponents found for round={round}, stage={stage}, switching to dummy data");
-
             snapshot = await db.Collection("teams")
                 .WhereEqualTo("playerId", "TestBuildDummy")
                 .GetSnapshotAsync();
-
             if (snapshot.Count == 0)
             {
                 Debug.LogError("No dummy data found either.");

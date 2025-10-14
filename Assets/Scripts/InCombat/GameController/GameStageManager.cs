@@ -65,9 +65,11 @@ public class GameStageManager : MonoBehaviour
         PressureManager.Instance.UpdateIndicater();
         uploader = new FirestoreUploader();
         await uploader.InitializeAsync();
-        var opponents = await uploader.GetRandomOpponentsAsync(currentRound, currentRound, 3);
-        temp = opponents;
-        
+        await uploader.DeleteTestBuildTeamsAsync();
+        AddFakeData();
+        //var opponents = await uploader.GetRandomOpponentsAsync(currentRound, currentRound, 3);
+        //temp = opponents;
+
     }
     private void SpawnEnemyTeam(int id)
     {

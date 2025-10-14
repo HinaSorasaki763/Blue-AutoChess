@@ -1,5 +1,6 @@
 using GameEnum;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using TMPro;
@@ -251,27 +252,57 @@ public static class StringPlaceholderReplacer
     }
     public static Dictionary<string, string> BuildPlaceholderDictionary(CharacterCTRL character, int level, int language)
     {
-        StarLevelStats stats = character.ActiveSkill.GetCharacterLevel()[level];
+        var statsByLevel = character.ActiveSkill.GetCharacterLevel();
+        StarLevelStats stats = statsByLevel[level];
         bool isChinese = (language == 0);
-        return new Dictionary<string, string>()
+
+        Dictionary<string, string> dict = new Dictionary<string, string>();
+
+        // 動態生成 data1~data5
+        foreach (int i in Enumerable.Range(1, 5))
         {
-            {"data1", stats.Data1.ToString()},
-            {"data2", stats.Data2.ToString()},
-            {"data3", stats.Data3.ToString()},
-            {"data4", stats.Data4.ToString()},
-            {"data5", stats.Data5.ToString("F1")},
-            {"Attack", isChinese? $"攻擊力 ({character.GetStat(StatsType.Attack):F1})" : $"Atk({character.GetStat(StatsType.Attack):F1}) "},
-            {"Health", isChinese? $"生命 ({character.GetStat(StatsType.Health)})" : $"Health({character.GetStat(StatsType.Health)}) "},
-            {"Final", character.ActiveSkill.GetAttackCoefficient(character.GetSkillContext()).ToString()},
-            {"Logistic",character.ActiveSkill.GetLogisticCoefficient(character.GetSkillContext()).ToString() },
-            {"KzusaAddedAttackSpeed", GameController.Instance.KazusaEnhancedSkill_KillCount.ToString()},
-            { "BarrageInitAngle",character.characterStats.BarrageInitAngle.ToString()},
-            { "BarrageIntervalAngle",character.characterStats.BarrageIntervalAngle.ToString()},
-            {"SumireAddedHealth",GameController.Instance.SumireAddedHealth.ToString() },
-            {"AzusaAddedAttack",GameController.Instance.AzusaAddAttack.ToString() },
-            {"AkoAddedCrit",character.AkoAddedCrit.ToString() },
-            {"Pressure",isChinese? $"壓力 ({PressureManager.Instance.GetPressure(character.IsAlly)})" : $"pressure({PressureManager.Instance.GetPressure(character.IsAlly)}) " }
-        };
+            string key = $"data{i}";
+            List<string> values = new List<string>();
+
+            foreach (var kvp in statsByLevel.OrderBy(k => k.Key))
+            {
+                if (kvp.Key == 0) continue;
+                StarLevelStats s = kvp.Value;
+                var field = typeof(StarLevelStats).GetField($"Data{i}");
+                if (field == null) continue;
+
+                object val = field.GetValue(s);
+                string strVal = val switch
+                {
+                    float f => f.ToString("F1"),
+                    double d => d.ToString("F1"),
+                    _ => val.ToString()
+                };
+
+                strVal = kvp.Key == level ? $"{strVal}" : $"<color=#808080>{strVal}</color>";
+                values.Add(strVal);
+            }
+
+            dict[key] = string.Join(" / ", values);
+        }
+
+        // 其他資料維持原樣
+        dict["Attack"] = isChinese ? $"攻擊力 ({character.GetStat(StatsType.Attack):F1})" : $"Atk({character.GetStat(StatsType.Attack):F1}) ";
+        dict["Health"] = isChinese ? $"生命 ({character.GetStat(StatsType.Health)})" : $"Health({character.GetStat(StatsType.Health)}) ";
+        dict["Final"] = character.ActiveSkill.GetAttackCoefficient(character.GetSkillContext()).ToString();
+        dict["Logistic"] = character.ActiveSkill.GetLogisticCoefficient(character.GetSkillContext()).ToString();
+        dict["KzusaAddedAttackSpeed"] = GameController.Instance.KazusaEnhancedSkill_KillCount.ToString();
+        dict["BarrageInitAngle"] = character.characterStats.BarrageInitAngle.ToString();
+        dict["BarrageIntervalAngle"] = character.characterStats.BarrageIntervalAngle.ToString();
+        dict["SumireAddedHealth"] = GameController.Instance.SumireAddedHealth.ToString();
+        dict["AzusaAddedAttack"] = GameController.Instance.AzusaAddAttack.ToString();
+        dict["AkoAddedCrit"] = character.AkoAddedCrit.ToString();
+        dict["Pressure"] = isChinese
+            ? $"壓力 ({PressureManager.Instance.GetPressure(character.IsAlly)})"
+            : $"pressure({PressureManager.Instance.GetPressure(character.IsAlly)}) ";
+
+        return dict;
     }
+
 
 }
