@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI; // 安砞眤ㄏノ Unity  UI ╰参
+using UnityEngine.UI;
 
 public class GameStageManager : MonoBehaviour
 {
@@ -17,7 +17,6 @@ public class GameStageManager : MonoBehaviour
     public GameObject endGamePopup;
     public GameObject SupplyPopup;
     public Button continueButton;
-    public int CurrentStage;
     public int PlayerHealth = 20;
     public int currentRound = 0;
     private int baseLimit = 2;
@@ -39,8 +38,8 @@ public class GameStageManager : MonoBehaviour
     private Dictionary<int, Action> stageRewardMapping;
     public RewardPopup rewardPopup;
     readonly int OvertimeThreshold = 30;
-    private FirestoreUploader uploader;
-    private List<DocumentSnapshot> temp = new();
+    public FirestoreUploader uploader;
+    public List<DocumentSnapshot> temp = new();
     public int WinStreak { get; private set; } = 0; // 硈秤Ω计
     public int LoseStreak { get; private set; } = 0; // 硈毖Ω计
 
@@ -61,14 +60,13 @@ public class GameStageManager : MonoBehaviour
     }
     async void Start()
     {
+        currentRound++;
         CalculateGold();
         PressureManager.Instance.UpdateIndicater();
         uploader = new FirestoreUploader();
         await uploader.InitializeAsync();
-        await uploader.DeleteTestBuildTeamsAsync();
-        AddFakeData();
-        //var opponents = await uploader.GetRandomOpponentsAsync(currentRound, currentRound, 3);
-        //temp = opponents;
+
+
 
     }
     private void SpawnEnemyTeam(int id)
@@ -208,7 +206,7 @@ public class GameStageManager : MonoBehaviour
             }
         }
         StatsContainer statsContainer = BattlingProperties.Instance.GetSRTStats(true);
-        int i = currentRound;
+        int i = currentRound - 1;
         PlayerData data = PlayerSession.Instance.Data;
 
         string name = (data != null && !string.IsNullOrEmpty(data.Name))
@@ -265,7 +263,7 @@ public class GameStageManager : MonoBehaviour
                     selectedAugments = SelectedAugments.Instance.GetAugmentIndex()
                 };
                 SaveTeamInBackground(teamData);
-            }   
+            }
         }
     }
     private void SaveTeamInBackground(TeamData teamData)
@@ -294,7 +292,6 @@ public class GameStageManager : MonoBehaviour
         PlayerHealth = 20;
         currentRound = 0;
         netWin = 0;
-        CurrentStage = 0;
         WinStreak = 0;
         LoseStreak = 0;
         startBattleFlag = false;
@@ -390,7 +387,7 @@ public class GameStageManager : MonoBehaviour
             {
                 overtimeCounter += Time.deltaTime;
                 overTimeFlag = true;
-                
+
                 foreach (var item in Utility.GetAllBattlingCharacter(ResourcePool.Instance.ally))
                 {
                     item.BattleOverTime();
@@ -439,7 +436,7 @@ public class GameStageManager : MonoBehaviour
         EndBattleModal.Instance.currData = DataStackManager.Instance.GetData();
         if (!winningTeam.isally)
         {
-            int damage = CalculateDamageTaken(CurrentStage);
+            int damage = CalculateDamageTaken(currentRound);
             PlayerHealth -= damage;
 
             if (PlayerHealth <= 0)
@@ -492,9 +489,9 @@ public class GameStageManager : MonoBehaviour
     public void AdvanceStage()
     {
 
-        CurrentStage++;
+        currentRound++;
         enemyParent.childCharacters.Clear();
-        OnGameStageChanged?.Invoke(CurrentStage);
+        OnGameStageChanged?.Invoke(currentRound);
         SpawnGrid.Instance.ResetAll();
         SpawnGrid.Instance.RestorePreparationPositions();
         Shop.Instance.GoldLessRefresh();
@@ -505,16 +502,16 @@ public class GameStageManager : MonoBehaviour
         int streakBonus = CalculateStreakBonus() * 2;
         int interest = GetInterest(gold);
         if (SelectedAugments.Instance.CheckAugmetExist(126, true)) interest = 0;
-        int amount = streakBonus + CurrentStage * 2 + 10 + interest;
+        int amount = streakBonus + currentRound * 2 + 10 + interest;
         GameController.Instance.AddGold(amount);
-        CustomLogger.Log(this, $"Gold: {gold}, Streak Bonus: {streakBonus},stagebouns = {CurrentStage + 3}, Total: {amount}");
+        CustomLogger.Log(this, $"Gold: {gold}, Streak Bonus: {streakBonus},stagebouns = {currentRound + 3}, Total: {amount}");
     }
     public int GetInterest(int gold)
     {
         int max = 5;
         if (SelectedAugments.Instance.CheckAugmetExist(116, true))
         {
-            max = 7;
+            max += 2;
         }
         return Mathf.Min(gold / 10, max);
     }

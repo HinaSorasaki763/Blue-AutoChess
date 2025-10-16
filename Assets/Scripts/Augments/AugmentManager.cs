@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-
+using System.Threading.Tasks;
+using System;
 public class AugmentManager : MonoBehaviour
 {
     private AugmentConfig[] allAugments;    // 所有強化選項
@@ -52,6 +53,23 @@ public class AugmentManager : MonoBehaviour
         stage = s;
         stageSelectPanel.SetActive(false);
         GenerateNewOptions();
+        GetTeamInBackground();
+    }
+    private void GetTeamInBackground()
+    {
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                CustomLogger.Log(this, $"Getting currentRound {GameStageManager.Instance.currentRound},stage {stage}");
+                var opponents = await GameStageManager.Instance.uploader.GetRandomOpponentsAsync(GameStageManager.Instance.currentRound, stage, 3);
+                GameStageManager.Instance.temp = opponents;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Background upload failed: {ex}");
+            }
+        });
     }
     private void SetupOptionButtons()
     {

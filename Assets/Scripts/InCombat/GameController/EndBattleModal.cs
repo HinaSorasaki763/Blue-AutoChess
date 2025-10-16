@@ -40,7 +40,7 @@ public class EndBattleModal : MonoBehaviour
         StringBuilder sb = new StringBuilder();
         string text = !isEnemy ? $"Lose. LoseStreak = {GameStageManager.Instance.LoseStreak} " : $"Win! WinStreak = {GameStageManager.Instance.WinStreak} ";
         sb.AppendLine(text);
-        sb.AppendLine($"If Lose next round ,will lose {GameStageManager.Instance.CalculateDamageTaken(GameStageManager.Instance.CurrentStage+1)} health");
+        sb.AppendLine($"If Lose next round ,will lose {GameStageManager.Instance.CalculateDamageTaken(GameStageManager.Instance.currentRound +1)} health");
         Title.text = sb.ToString();
         // 清空舊的圖示
         foreach (var icon in healthIcons)

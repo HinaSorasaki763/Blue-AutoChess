@@ -23,6 +23,7 @@ public class AuthUIController : MonoBehaviour
         if (PlayerSession.Instance.Data != null)
         {
             Debug.Log($"自動登入：{PlayerSession.Instance.Data.Name} ({PlayerSession.Instance.Data.Uid})");
+            messageText.text = $"已登入:{PlayerSession.Instance.Data.Name}";
             Panel.SetActive(false);
         }
         DontDestroyOnLoad(this);

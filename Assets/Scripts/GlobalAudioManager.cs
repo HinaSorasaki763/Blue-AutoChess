@@ -28,7 +28,7 @@ public class GlobalAudioManager : MonoBehaviour
     /// <summary>
     /// 播放音效，若同類型音效已存在則暫停並取代。
     /// </summary>
-    public bool RequestAudioPlay(GameObject owner, string groupKey, AudioSource source, AudioClip clip, float volume = 0.5f, float cooldownTime = defaultCooldownTime)
+    public bool RequestAudioPlay(GameObject owner, string groupKey, AudioSource source, AudioClip clip, float volume = 0.3f, float cooldownTime = defaultCooldownTime)
     {
         if (clip == null) return false;
         if (groupKey == "PickedUp") cooldownTime = 0;
@@ -48,6 +48,8 @@ public class GlobalAudioManager : MonoBehaviour
         source.clip = clip;
         source.volume = volume;
         source.loop = false;
+        source.volume = BGMManager.Instance.VolumeSlider.value * 0.1f;
+
         source.Play();
 
         cooldowns[clip] = Time.time;

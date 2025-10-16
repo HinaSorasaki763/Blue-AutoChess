@@ -93,15 +93,15 @@ public class FirestoreUploader
         }
 
         var docs = snapshot.Documents.ToList();
-        var shuffled = docs.OrderBy(x => UnityEngine.Random.value).ToList();
-        var selected = shuffled.Take(Mathf.Min(count, shuffled.Count)).ToList();
+        var sysRand = new System.Random();
+        var randomList = docs.OrderBy(_ => sysRand.NextDouble()).Take(count).ToList();
 
-        foreach (var doc in selected)
+        foreach (var doc in randomList)
         {
             Debug.Log($"Opponent: DocID={doc.Id}, Data={FirestoreDebugExt.DictToString(doc.ToDictionary())}");
         }
 
-        return selected;
+        return randomList;
     }
 
     public async Task DeleteAllTeamsAsync()
