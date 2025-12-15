@@ -58,11 +58,11 @@ public class PressureManager : MonoBehaviour
     }
     public void UpdateIndicater()
     {
-        if (GameEnum.Utility.GetInBattleCharactersWithTrait(GameEnum.Traits.Gehenna, true).Count > 0)
+        if (GameEnum.Utility.GetInBattleCharactersWithTrait(GameEnum.Traits.Gehenna, true).Count >= 3)
         {
             PressureIndicator.SetActive(true);
             TraitText.gameObject.SetActive(true);
-            TraitText.TextMesh.text = $"Pressure =  {GetPressure(true)}";
+            TraitText.TextMesh.text = GetPressure(true).ToString();
         }
         else
         {

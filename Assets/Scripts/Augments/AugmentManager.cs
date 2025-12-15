@@ -26,6 +26,7 @@ public class AugmentManager : MonoBehaviour
     public Button stage3Btn;
     public GameObject stageSelectPanel;
     private Dictionary<int, int> augmentHistoryCount = new Dictionary<int, int>();
+    public GameObject RewardPanel;
     private void OnEnable()
     {
         var list = new List<AugmentConfig>();
@@ -214,6 +215,7 @@ public class AugmentManager : MonoBehaviour
             item.OnCharaterEnabled();
         }
         Shop.Instance.GoldLessRefresh();
+        RewardPanel.SetActive(false);
         Parent.SetActive(false);
     }
 }

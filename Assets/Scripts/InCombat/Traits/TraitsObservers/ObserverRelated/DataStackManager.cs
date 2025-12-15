@@ -1,9 +1,7 @@
 ﻿// DataLayerManager.cs
 using GameEnum;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using UnityEngine;
 
 public class DataStackManager : MonoBehaviour
@@ -51,12 +49,12 @@ public class DataStackManager : MonoBehaviour
             if (CurrentDataStack >= floorKey && !claimedFloors.Contains(floorKey))
             {
                 floorRewardMapping[floorKey]?.Invoke();
-                if (SelectedAugments.Instance.CheckAugmetExist(121,true))
+                if (SelectedAugments.Instance.CheckAugmetExist(121, true))
                 {
-                    int amount = (int)(SRTManager.instance.SRT_Mill_CostMoney / 10) * (floorKey/100);
+                    int amount = SRTManager.instance.SRT_Mill_CostMoney / 10 * (floorKey / 100);
                     for (int i = 0; i < amount; i++)
                     {
-                        ResourcePool.Instance.GetGoldPrefab(new Vector3(0,0,0));
+                        ResourcePool.Instance.GetGoldPrefab(new Vector3(0, 0, 0));
                         SRTManager.instance.SRT_Mill_CostMoney--;
                     }
 
@@ -183,11 +181,11 @@ public class DataStackManager : MonoBehaviour
 
     public void AddDataStack(int amount)
     {
-        if (SelectedAugments.Instance.CheckAugmetExist(111,true))
+        if (SelectedAugments.Instance.CheckAugmetExist(111, true))
         {
-            if (SelectedAugments.Instance.CheckIfConditionMatch(111,true))
+            if (SelectedAugments.Instance.CheckIfConditionMatch(111, true))
             {
-                PressureManager.Instance.AddPressure(amount,true);
+                PressureManager.Instance.AddPressure(amount, true);
                 DataStackManager.Instance.AddDataStack(amount);
                 return;
             }
@@ -206,11 +204,11 @@ public class DataStackManager : MonoBehaviour
     public void UpdateIndicator()
     {
         int data = Utility.GetInBattleCharactersWithTrait(Traits.Millennium, true).Count;
-        if (data > 0)
+        if (data >= 2)
         {
             MillienumIndicator.SetActive(true);
             TraitText.gameObject.SetActive(true);
-            TraitText.TextMesh.text = $"Data : {GetData()}";
+            TraitText.TextMesh.text = GetData().ToString();
         }
         else
         {

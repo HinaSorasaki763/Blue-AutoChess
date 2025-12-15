@@ -39,6 +39,7 @@ public class SakurakoCustomSkill : MonoBehaviour
             int dmg = character.ActiveSkill.GetAttackCoefficient(character.GetSkillContext());
             (bool iscrit, int dmg1) = character.CalculateCrit(dmg);
             CharacterCTRL enemy = Utility.GetNearestEnemy(character);
+            if (!enemy) yield return null;
             character.transform.LookAt(enemy.transform.position);
             bullet.GetComponent<NormalBullet>().Initialize(
                 dmg1,
