@@ -20,6 +20,7 @@ public class Shop : MonoBehaviour
     public int freeReroll;
     public List<Sprite> SRT_statsImage = new List<Sprite>();
     public int SRT_RandStatIndex;
+    private bool augment1002ReplaceToggle = false;
     public void Awake()
     {
         Instance = this;
@@ -101,8 +102,53 @@ public class Shop : MonoBehaviour
         }
     }
 
+    private int GetMaxAvailableCost(RoundProbability p)
+    {
+        if (p.FiveCostProbability > 0f) return 5;
+        if (p.FourCostProbability > 0f) return 4;
+        if (p.ThreeCostProbability > 0f) return 3;
+        if (p.TwoCostProbability > 0f) return 2;
+        return 1;
+    }
+
+    private List<Character> GetPoolByCost(int cost)
+    {
+        return cost switch
+        {
+            1 => ResourcePool.Instance.OneCostCharacter,
+            2 => ResourcePool.Instance.TwoCostCharacter,
+            3 => ResourcePool.Instance.ThreeCostCharacter,
+            4 => ResourcePool.Instance.FourCostCharacter,
+            _ => ResourcePool.Instance.FiveCostCharacter
+        };
+    }
+
+    private void ReplaceSlotWithHighestCostRandomCharacter(int slotIndex, RoundProbability p)
+    {
+        int maxCost = GetMaxAvailableCost(p);
+        List<Character> pool = GetPoolByCost(maxCost);
+
+        Character character = ResourcePool.Instance.GetCharacterByID(GetRandomCharacterId(pool));
+        if (character == null) return;
+
+        Characters[slotIndex] = character.Model;
+        SetupShopButton(slotIndex, character);
+        ShopButtons[slotIndex].interactable = true;
+
+        var spr = ResourcePool.Instance.Getnumber(maxCost);
+        if (priceSprite.Count > slotIndex) priceSprite[slotIndex] = spr;
+        if (prices.Count > slotIndex) prices[slotIndex] = maxCost;
+
+        pricesImg[slotIndex].sprite = spr;
+        pricesImg[slotIndex].color = new Color(1, 1, 1, 1);
+
+        CustomLogger.Log(this, $"[Augment1002] Replaced slot {slotIndex} with: {character.CharacterName}, Cost: {maxCost}");
+    }
+
     public void GetCharacter()
     {
+        bool hasAug1002 = SelectedAugments.Instance.CheckAugmetExist(1002, true);
+
         if (ResourcePool.Instance.ally.GetSpecificTrait(Traits.SRT) >= 2 && ++SRT_RerollCount >= 4)
         {
             SRT_RerollCount = 0;
@@ -116,14 +162,14 @@ public class Shop : MonoBehaviour
         RoundProbability p = roundProbabilityData.roundProbabilities[currentRound];
 
         int count = 5 - (ResourcePool.Instance.ally.GetSpecificTrait(Traits.SRT) >= 2 ? 1 : 0);
-        if (SelectedAugments.Instance.CheckAugmetExist(126,true))
+        if (SelectedAugments.Instance.CheckAugmetExist(126, true))
         {
             count = 5;
-            SRTManager.instance.AddStat(UnityEngine.Random.Range(0, 4),true);
+            SRTManager.instance.AddStat(UnityEngine.Random.Range(0, 4), true);
         }
+
         for (int i = 0; i < count; i++)
         {
-
             float rand = UnityEngine.Random.Range(0, 100);
             int cost = rand < p.OneCostProbability ? 1 :
                        rand < p.OneCostProbability + p.TwoCostProbability ? 2 :
@@ -133,14 +179,7 @@ public class Shop : MonoBehaviour
             priceSprite.Add(ResourcePool.Instance.Getnumber(cost));
             prices.Add(cost);
 
-            List<Character> pool = cost switch
-            {
-                1 => ResourcePool.Instance.OneCostCharacter,
-                2 => ResourcePool.Instance.TwoCostCharacter,
-                3 => ResourcePool.Instance.ThreeCostCharacter,
-                4 => ResourcePool.Instance.FourCostCharacter,
-                _ => ResourcePool.Instance.FiveCostCharacter
-            };
+            List<Character> pool = GetPoolByCost(cost);
 
             Character character = ResourcePool.Instance.GetCharacterByID(GetRandomCharacterId(pool));
             if (character == null) continue;
@@ -171,7 +210,15 @@ public class Shop : MonoBehaviour
                 shopButton.traitIcon[j].color = new Color(1, 1, 1, 0);
             }
         }
-
+        if (hasAug1002)
+        {
+            augment1002ReplaceToggle = !augment1002ReplaceToggle;
+            if (augment1002ReplaceToggle)
+            {
+                int slotIndex = (ResourcePool.Instance.ally.GetSpecificTrait(Traits.SRT) >= 2) ? 3 : 4;
+                ReplaceSlotWithHighestCostRandomCharacter(slotIndex, p);
+            }
+        }
         UpdateShopUI();
     }
 

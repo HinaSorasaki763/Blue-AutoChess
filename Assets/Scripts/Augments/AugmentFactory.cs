@@ -10,7 +10,7 @@ public static class AugmentFactory
         else if (index < 200)
             return new AcademyAugment(config);
         else
-            return new GeneralAugment(config);
+            return new CommonAugment(config);
     }
 
 }

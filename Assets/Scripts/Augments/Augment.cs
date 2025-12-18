@@ -47,7 +47,7 @@ public class CharacterEnhanceAugment : Augment
         {
             characterIndex = 22;
         }
-        ResourcePool.Instance.GetRandCharacterPrefab(characterIndex);
+        ResourcePool.Instance.GetCharacterPrefab(characterIndex);
         CustomLogger.Log(this, $"CharacterEnhanceAugment applying character {characterIndex}");
         ResourcePool.Instance.ally.AddEnhancedSkill(characterIndex);
     }
@@ -292,8 +292,8 @@ public class Abydos_GehennaAugment : AcademyAugment
     }
     public override void Trigger(bool isally)
     {
-        ResourcePool.Instance.GetRandCharacterPrefab(25);
-        ResourcePool.Instance.GetRandCharacterPrefab(26);
+        ResourcePool.Instance.GetCharacterPrefab(25);
+        ResourcePool.Instance.GetCharacterPrefab(26);
     }
     public override bool OnConditionMatch()
     {
@@ -451,7 +451,7 @@ public class Abydos_AriusAugment : AcademyAugment
     public Abydos_AriusAugment(AugmentConfig config) : base(config) { }
     public override void Apply()
     {
-        ResourcePool.Instance.GetRandCharacterPrefab(26);
+        ResourcePool.Instance.GetCharacterPrefab(26);
         for (int i = 0; i < 2; i++)
         {
             IEquipment equipment = Utility.GetSpecificEquipment(101);

@@ -8313,6 +8313,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5188f8ed3c499540acf65a35e6f2bb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  allAugments: []
   optionButtons:
   - {fileID: 1834382331}
   - {fileID: 947974459}
@@ -8329,13 +8330,14 @@ MonoBehaviour:
   Parent: {fileID: 1552199875}
   refreshButton: {fileID: 1827669270}
   DisableAugmentsIndex: ffffffff02000000030000001400000026000000280000006e000000730000001f0000002c0000002e000000
-  forcedIndex: -1
+  forcedIndex: 1002
   stage: 1
   stage1Btn: {fileID: 270497395}
   stage2Btn: {fileID: 2111331110}
   stage3Btn: {fileID: 123121509}
   stageSelectPanel: {fileID: 2040632860}
   RewardPanel: {fileID: 1957905437}
+  pickCount: 0
 --- !u!4 &402289526
 Transform:
   m_ObjectHideFlags: 0

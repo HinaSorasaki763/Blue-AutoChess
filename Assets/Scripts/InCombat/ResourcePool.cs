@@ -175,7 +175,24 @@ public class ResourcePool : MonoBehaviour
         obj.SetActive(false);
         return obj;
     }
+    public List<Character> GetCharactersByLevel(int level)
+    {
+        List<Character> result = new List<Character>();
 
+        for (int i = 0; i < Lists.Count; i++)
+        {
+            var group = Lists[i];
+            for (int j = 0; j < group.Count; j++)
+            {
+                if (group[j].Level == level)
+                {
+                    result.Add(group[j]);
+                }
+            }
+        }
+
+        return result;
+    }
     public GameObject GetFloatingText(Vector3 pos)
     {
         return GetObject(FloatingTextPrefab, FloatingTextParent, textPool, pos);
@@ -212,7 +229,7 @@ public class ResourcePool : MonoBehaviour
         GameObject obj = Instantiate(DropRewardPrefab, p, Quaternion.identity);
         obj.GetComponent<GoldRotate>().rewardType = CollectionRewardType.RandComponent;
     }
-    public void GetRandCharacterPrefab(int index, Vector3 pos = default)
+    public void GetCharacterPrefab(int index, Vector3 pos = default)
     {
         float randx = Random.Range(-0.5f, 0.5f);
         float randz = Random.Range(-0.5f, 0.5f);
