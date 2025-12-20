@@ -1,3 +1,5 @@
+using System.Linq;
+using GameEnum;
 public class CommonAugment : Augment
 {
     public CommonAugment(AugmentConfig config) : base(config)
@@ -61,6 +63,29 @@ public class CommonAugment : Augment
             case 1050: new Augment1050(config).Apply(); break;
         }
     }
+    public override void Trigger(bool isally)
+    {
+        if (!isally) CustomLogger.LogError(this, $"is not ally,cant trigger");
+        switch (config.augmentIndex)
+        {
+            case 1035: new Augment1035(config).Trigger(isally); break;
+            default:
+                CustomLogger.LogError(this, $"Augment {config.augmentIndex} is triggered but not having an actual method");
+                break;
+        }
+    }
+    public override bool OnConditionMatch()
+    {
+        switch (config.augmentIndex)
+        {
+            default:
+                CustomLogger.LogError(this, $"augment {config.augmentIndex} not added yet");
+                return false;
+            case 1035: return new Augment1035(config).OnConditionMatch();
+
+
+        }
+    }
 }
 
 public class Augment1000 : CommonAugment//give 11 gold
@@ -111,7 +136,7 @@ public class Augment1001 : CommonAugment// give 3 1cost 2 2cost 1 3cost
 
 }
 
-public class Augment1002 : CommonAugment
+public class Augment1002 : CommonAugment//9 blue 1 gold
 {
     public Augment1002(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -410,12 +435,26 @@ public class Augment1034 : CommonAugment
     }
 }
 
-public class Augment1035 : CommonAugment
+public class Augment1035 : CommonAugment//當觸發三個學院時，給予金錢、對應的五費學生，以及總計兩件合適的裝備
 {
     public Augment1035(AugmentConfig config) : base(config) { }
     public override void Apply()
     {
         CustomLogger.Log(this, $"Applying {config.augmentIndex},name {config.name}");
+    }
+    public override void Trigger(bool isally)
+    {
+        CustomLogger.Log(this, $"Trigger {config.augmentIndex},name {config.name}");
+    }
+    public override bool OnConditionMatch()
+    {
+        bool count = ResourcePool.Instance.ally.GetActiveAcademyTraits().Count >= 3;
+        if (count)
+        {
+            SelectedAugments.Instance.TriggerAugment(1035, true);
+            return true;
+        }
+        return false;
     }
 }
 

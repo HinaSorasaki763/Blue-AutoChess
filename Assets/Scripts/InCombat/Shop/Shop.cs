@@ -217,6 +217,7 @@ public class Shop : MonoBehaviour
             {
                 int slotIndex = (ResourcePool.Instance.ally.GetSpecificTrait(Traits.SRT) >= 2) ? 3 : 4;
                 ReplaceSlotWithHighestCostRandomCharacter(slotIndex, p);
+                
             }
         }
         UpdateShopUI();

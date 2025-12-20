@@ -6,6 +6,7 @@ public class SellGrid : MonoBehaviour
 
     public void OnCharacterEnter(CharacterCTRL character)
     {
+        SelectedAugments.Instance.CheckIfConditionMatch(1035, true);
         int refundAmount = CalculateRefund(character);
         GameController.Instance.AddGold(refundAmount);
         RemoveCharacter(character);

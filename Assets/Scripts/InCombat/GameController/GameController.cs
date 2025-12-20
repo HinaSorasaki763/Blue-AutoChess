@@ -68,6 +68,7 @@ public class GameController : MonoBehaviour
     public float GetExtraStat(StatsType statstype) => TeamExtraStats.GetStat(statstype);
     public (bool, bool) TryMoveCharacter(CharacterCTRL character, HexNode targetSlot)
     {
+        SelectedAugments.Instance.CheckIfConditionMatch(1035, true);
         if (!targetSlot)
         {
             Debug.Log($"!targetSlot");

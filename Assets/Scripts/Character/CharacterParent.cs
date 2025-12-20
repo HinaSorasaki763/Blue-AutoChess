@@ -439,7 +439,7 @@ public class CharacterParent : MonoBehaviour
     }
     public void AddTraitEffects()
     {
-        List<CharacterCTRL> battlefieldCharacters = GetAllCharacter();
+        List<CharacterCTRL> battlefieldCharacters = GetBattleFieldCharacter();
         Dictionary<Traits, int> traitCounts = TraitsEffectManager.Instance.CalculateTraitCounts(battlefieldCharacters);
         StringBuilder sb = new StringBuilder();
         int totalActivatedTraits = 0; // 激活的羁绊数量总和
@@ -508,61 +508,89 @@ public class CharacterParent : MonoBehaviour
 
     private void ApplyTraitEffect(Traits trait, int characterCount, List<CharacterCTRL> battlefieldCharacters, bool isEnemy)
     {
-        TraitDescriptionData data = null;
-        foreach (var item in TraitDescriptions.Instance.traitDescriptionDatabase.traitDescriptions)
-        {
-            if (item.trait == trait)
-            {
-                data = item;
-            }
-        }
+        var data = TraitDescriptions.Instance.traitDescriptionDatabase.traitDescriptions
+            .FirstOrDefault(t => t.trait == trait);
 
-        if (data == null)
-            return;
-        var sortedThresholds = data.thresholds.OrderBy(t => t.requiredCount).ToList();
-        TraitThreshold matchedThreshold = null;
-        foreach (var threshold in sortedThresholds)
-        {
-            if (characterCount >= threshold.requiredCount)
-            {
-                matchedThreshold = threshold;
-            }
-            else
-            {
-                break;
-            }
-        }
+        if (data == null) return;
+
+        var matchedThreshold = data.thresholds
+            .OrderBy(t => t.requiredCount)
+            .LastOrDefault(t => characterCount >= t.requiredCount);
 
         if (matchedThreshold == null)
         {
             foreach (var character in battlefieldCharacters)
             {
-                if (character.traitController.HasTrait(trait))
-                {
-                    character.traitController.CreateObserverForTrait(trait, 0);
-                    CharacterObserverBase c = character.traitController.GetObserverForTrait(trait);
-                    c.DeactivateTrait();
-                }
-            }
-            CustomLogger.Log(this, $"Trait {trait} 未達第一門檻，角色數={characterCount}，不啟動任何效果。");
+                if (!character.traitController.HasTrait(trait)) continue;
 
+                character.traitController.CreateObserverForTrait(trait, 0);
+                character.traitController.GetObserverForTrait(trait).DeactivateTrait();
+            }
+
+            CustomLogger.Log(this, $"Trait {trait} 未達第一門檻，角色數={characterCount}，不啟動任何效果。");
             return;
         }
+
         CustomLogger.Log(this,
-            $"Trait {trait} 達到門檻 {matchedThreshold.requiredCount}，" +
-            $"角色數={characterCount}，啟動效果值={matchedThreshold.effectValue}。");
+            $"Trait {trait} 達到門檻 {matchedThreshold.requiredCount}，角色數={characterCount}，啟動效果值={matchedThreshold.effectValue}。");
 
         foreach (var character in battlefieldCharacters)
         {
-            if (character.traitController.HasTrait(trait))
-            {
-                // 這邊視你想怎麼傳遞 effectValue 與 observer
-                character.traitController.CreateObserverForTrait(trait, matchedThreshold.level);
-                CharacterObserverBase c = character.traitController.GetObserverForTrait(trait);
-                c.ActivateTrait();
-            }
+            if (!character.traitController.HasTrait(trait)) continue;
+
+            character.traitController.CreateObserverForTrait(trait, matchedThreshold.level);
+            character.traitController.GetObserverForTrait(trait).ActivateTrait();
         }
     }
+
+    public static int GetTraitLevelByCount(Traits trait, int characterCount)
+    {
+        var data = TraitDescriptions.Instance.traitDescriptionDatabase.traitDescriptions
+            .FirstOrDefault(t => t.trait == trait);
+
+        if (data == null) return 0;
+
+        var matchedThreshold = data.thresholds
+            .OrderBy(t => t.requiredCount)
+            .LastOrDefault(t => characterCount >= t.requiredCount);
+
+        return matchedThreshold?.level ?? 0;
+    }
+
+    public List<Traits> GetActiveAcademyTraits()
+    {
+        List<CharacterCTRL> battlefieldCharacters = GetBattleFieldCharacter();
+        if (battlefieldCharacters == null || battlefieldCharacters.Count == 0)
+            return new List<Traits>();
+
+        var traitCounts = battlefieldCharacters
+            .Where(c => c != null && c.traitController != null)
+            .SelectMany(c => c.traitController.GetCurrentTraits() ?? new List<Traits>())
+            .Where(t => t != Traits.None)
+            .GroupBy(t => t)
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        HashSet<Traits> result = new HashSet<Traits>();
+
+        foreach (var character in battlefieldCharacters)
+        {
+            if (character == null || character.traitController == null) continue;
+
+            var currentTraits = character.traitController.GetCurrentTraits();
+            if (currentTraits == null || currentTraits.Count == 0) continue;
+
+            var academyTrait = Utility.IsAcademy(currentTraits);
+            if (academyTrait == Traits.None) continue;
+
+            if (!traitCounts.TryGetValue(academyTrait, out int count)) continue;
+
+            if (GetTraitLevelByCount(academyTrait, count) >= 1)
+                result.Add(academyTrait);
+        }
+
+        return result.ToList();
+    }
+
 
     public int GetActiveCharacter()
     {
