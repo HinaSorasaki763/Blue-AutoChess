@@ -1196,7 +1196,20 @@ public class GlobalBaseObserver : CharacterObserverBase
         {
             PressureManager.Instance.AddPressure(1, character.IsAlly);
         }
-        base.OnKilledEnemy(character, detailedSource, characterDies);
+        (int augmentId, int chance)[] configs =
+        {
+            (1003, 25),
+            (1018, 35),
+            (1035, 50)
+        };
+        foreach (var (augmentId, chance) in configs)
+        {
+            if (SelectedAugments.Instance.CheckAugmetExist(augmentId, character.IsAlly) &&
+                Utility.GetRand(character) <= chance)
+            {
+                ResourcePool.Instance.GetRandRewardPrefab(characterDies.transform.position);
+            }
+        }
     }
 
     public override void OnDying(CharacterCTRL character)

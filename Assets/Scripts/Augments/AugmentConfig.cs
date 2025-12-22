@@ -4,6 +4,7 @@ using UnityEngine;
 public class AugmentConfig : ScriptableObject
 {
     public string augmentName;
+    public string englishAugmentName;
     public Sprite augmentIcon;
     [TextArea(3,10)]
     public string description;

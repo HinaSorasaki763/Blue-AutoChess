@@ -145,7 +145,7 @@ public class Augment1002 : CommonAugment//9 blue 1 gold
     }
 }
 
-public class Augment1003 : CommonAugment
+public class Augment1003 : CommonAugment//on kill gain rewards 1
 {
     public Augment1003(AugmentConfig config) : base(config) { }
     public override void Apply()
