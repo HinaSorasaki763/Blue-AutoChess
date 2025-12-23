@@ -358,8 +358,9 @@ public class AbydosAugment : AcademyAugment
         if (equipment is SpecialEquipment special)
         {
             special.Traits.Add(Traits.Abydos);
-            special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-            special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+            string traitText = string.Join(" / ", special.Traits);
+            special.equipmentDetail = $"{traitText} exchange certificate";
+            special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
             EquipmentManager.Instance.AddEquipmentItem(special);
         }
     }
@@ -403,8 +404,9 @@ public class SRT_MillenniumAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.SRT);
                 special.Traits.Add(Traits.Millennium);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -438,8 +440,9 @@ public class TrinityAugment : AcademyAugment
             if (equipment is SpecialEquipment special)
             {
                 special.Traits.Add(Traits.Trinity);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -459,8 +462,9 @@ public class Abydos_AriusAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.Abydos);
                 special.Traits.Add(Traits.Arius);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -478,8 +482,9 @@ public class Abydos_HyakkiyakoAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.Abydos);
                 special.Traits.Add(Traits.Hyakkiyako);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -500,8 +505,9 @@ public class Abydos_MillenniumAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.Abydos);
                 special.Traits.Add(Traits.Millennium);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -520,8 +526,9 @@ public class Abydos_TrinityAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.Trinity);
                 special.Traits.Add(Traits.Abydos);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -540,8 +547,9 @@ public class Gehenna_HyakkiyakoAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.Hyakkiyako);
                 special.Traits.Add(Traits.Gehenna);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -560,8 +568,9 @@ public class Gehenna_MillenniumAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.Gehenna);
                 special.Traits.Add(Traits.Millennium);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -612,8 +621,9 @@ public class Gehenna_SRTAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.Gehenna);
                 special.Traits.Add(Traits.SRT);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -632,8 +642,9 @@ public class Gehenna_TrinityAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.Trinity);
                 special.Traits.Add(Traits.Gehenna);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -652,8 +663,9 @@ public class GehennaAugment : AcademyAugment
             if (equipment is SpecialEquipment special)
             {
                 special.Traits.Add(Traits.Gehenna);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -672,8 +684,9 @@ public class Hyakkiyako_AriusAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.Hyakkiyako);
                 special.Traits.Add(Traits.Arius);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -692,8 +705,9 @@ public class Hyakkiyako_MillenniumAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.Hyakkiyako);
                 special.Traits.Add(Traits.Millennium);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -712,8 +726,9 @@ public class Hyakkiyako_SRTAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.Hyakkiyako);
                 special.Traits.Add(Traits.SRT);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -732,8 +747,9 @@ public class Hyakkiyako_TrinityAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.Trinity);
                 special.Traits.Add(Traits.Hyakkiyako);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -751,8 +767,9 @@ public class HyakkiyakoAugment : AcademyAugment
             if (equipment is SpecialEquipment special)
             {
                 special.Traits.Add(Traits.Hyakkiyako);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -771,8 +788,9 @@ public class Millennium_AriusAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.Millennium);
                 special.Traits.Add(Traits.Arius);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -791,8 +809,9 @@ public class Millennium_TrinityAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.Trinity);
                 special.Traits.Add(Traits.Millennium);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -812,8 +831,9 @@ public class Trinity_AriusAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.Trinity);
                 special.Traits.Add(Traits.Arius);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }
@@ -832,8 +852,9 @@ public class Trinity_SRTAugment : AcademyAugment
             {
                 special.Traits.Add(Traits.Trinity);
                 special.Traits.Add(Traits.SRT);
-                special.equipmentDetail = $"{special.Traits[0]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 EquipmentManager.Instance.AddEquipmentItem(special);
             }
         }

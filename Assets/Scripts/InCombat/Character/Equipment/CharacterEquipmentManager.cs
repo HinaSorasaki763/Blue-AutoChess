@@ -1,11 +1,8 @@
 ﻿using GameEnum;
-using System;
 using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
-
+using System.Linq;
+using Unity.VisualScripting;
 public class CharacterEquipmentManager : MonoBehaviour
 {
     private const int MaxEquipmentSlots = 3;
@@ -39,7 +36,6 @@ public class CharacterEquipmentManager : MonoBehaviour
             List<Traits> t = new List<Traits>(specialEquipment.Traits);
             if (specialEquipment.Traits.Contains(trait))
             {
-                
                 t.Remove(trait);
                 specialEquipment.OriginalstudentTrait = trait;
                 Parent.traitController.RemoveTrait(trait);
@@ -93,14 +89,14 @@ public class CharacterEquipmentManager : MonoBehaviour
             item.Observer.OnBattleStart();
         }
     }
-    public void OnParentGethit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit,string detailedSource)
+    public void OnParentGethit(CharacterCTRL character, CharacterCTRL source, float amount, bool isCrit, string detailedSource)
     {
         foreach (var item in equippedItems)
         {
-            item.Observer.GetHit(character, source, amount, isCrit,detailedSource, true);
+            item.Observer.GetHit(character, source, amount, isCrit, detailedSource, true);
         }
     }
-    public void OnParentKilledEnemy(string detailedSource,CharacterCTRL characterDies)
+    public void OnParentKilledEnemy(string detailedSource, CharacterCTRL characterDies)
     {
         foreach (var item in equippedItems)
         {
@@ -118,11 +114,11 @@ public class CharacterEquipmentManager : MonoBehaviour
         }
         return false;
     }
-    public void OnParentDealtDamage(CharacterCTRL source,CharacterCTRL target,int damage,string detailedSource,bool iscrit)
+    public void OnParentDealtDamage(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
         foreach (var item in equippedItems)
         {
-            item.Observer.OnDamageDealt(source,target,damage, detailedSource,iscrit);
+            item.Observer.OnDamageDealt(source, target, damage, detailedSource, iscrit);
         }
     }
     public void OnParentDodged()
@@ -195,7 +191,7 @@ public class CharacterEquipmentManager : MonoBehaviour
             item.Observer.OnHealing(Parent);
         }
     }
-    public int BeforeHealing(CharacterCTRL character,int amount)
+    public int BeforeHealing(CharacterCTRL character, int amount)
     {
         int final = amount;
         foreach (var item in equippedItems)
@@ -218,6 +214,69 @@ public class CharacterEquipmentManager : MonoBehaviour
             item.Observer.ManualUpdate(Parent);
 
         }
+    }
+    public void ReforgeItem()
+    {
+        var itemsToRemove = new List<IEquipment>(equippedItems);
+        foreach (var item in itemsToRemove)
+        {
+            ReforgeEquipment(item);
+        }
+        Parent.UpdateEquipmentUI();
+    }
+    public void ReforgeEquipment(IEquipment equipment)
+    {
+        if (equippedItems.Contains(equipment))
+        {
+            equippedItems.Remove(equipment);
+            RemoveStatsForEquipment(equipment);
+            equipment.OnRemove(Parent);
+        }
+        ResourcePool.Instance.ally.UpdateTraitEffects();
+        if (equipment.Id <= 6)
+        {
+            Utility.GetMultipleRandomEquipRewards(1, 0, 6, equipment.Id).Item1[0].Award();
+        }
+        else if (equipment.Id <= 26)
+        {
+            Utility.GetMultipleRandomEquipRewards(1, 6, 26, equipment.Id).Item1[0].Award();
+        }
+        else if (equipment is SpecialEquipment sp)
+        {
+            List<Traits> tr = sp.Traits;
+
+            List<Traits> remainAcademyTraits = Utility.AllAcademyTraits
+                .Where(t => !tr.Contains(t))
+                .ToList();
+
+            if (remainAcademyTraits.Count == 0)
+                return;
+
+            int pickCount = Mathf.Min(2, remainAcademyTraits.Count);
+
+            List<Traits> picked = new List<Traits>();
+            for (int i = 0; i < pickCount; i++)
+            {
+                int index = UnityEngine.Random.Range(0, remainAcademyTraits.Count);
+                picked.Add(remainAcademyTraits[index]);
+                remainAcademyTraits.RemoveAt(index);
+            }
+
+            IEquipment eq = Utility.GetSpecificEquipment(101);
+            if (eq is SpecialEquipment special)
+            {
+                special.Traits.Clear();
+                special.Traits.AddRange(picked);
+
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
+
+                EquipmentManager.Instance.AddEquipmentItem(special);
+            }
+        }
+
+
     }
     public void RemoveAllItem()
     {
@@ -274,7 +333,7 @@ public class CharacterEquipmentManager : MonoBehaviour
                 {
                     val *= 0.01f;
                 }
-                Parent.AddStat(GetStatType(stat.Key), val,false);
+                Parent.AddStat(GetStatType(stat.Key), val, false);
             }
             CustomLogger.Log(this, $"UpdateEquipmentStats: {item.GetStats()}");
         }

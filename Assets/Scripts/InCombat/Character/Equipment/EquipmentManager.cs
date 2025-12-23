@@ -32,7 +32,7 @@ public class EquipmentManager : MonoBehaviour
             {
                 // 如果是特殊裝備，初始化為 SpecialEquipment
                 SpecialEquipment specialEquipment = new (equipment);
-                CustomLogger.Log(this, $"eq{specialEquipment} stats : {specialEquipment.Attributes[0].ToString()}");
+                CustomLogger.Log(this, $"eq{specialEquipment} stats : {specialEquipment.Attributes[0]}");
                 availableEquipments.Add(specialEquipment);
             }
             else if(equipment.IsConsumable)
@@ -77,6 +77,8 @@ public class EquipmentManager : MonoBehaviour
                 return new Duplicator();
             case ConsumableEffectType.Oasis:
                 return new Oasis();
+            case ConsumableEffectType.Reforger:
+                return new Reforger();
             default:
                 return null;
         }

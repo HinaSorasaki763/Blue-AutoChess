@@ -221,21 +221,24 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             if (consumableItem != null)
             {
                 Oasis oasis = consumableItem.consumableEffect as Oasis;
-                foreach (var item in raycastResults)
+                if (oasis != null)
                 {
-                    if (((1 << item.gameObject.layer) & gridLayer) != 0)
+                    foreach (var item in raycastResults)
                     {
-                        HexNode h = item.gameObject.GetComponent<HexNode>();
-                        if (!h.isDesertified)
+                        if (((1 << item.gameObject.layer) & gridLayer) != 0)
                         {
-                            PopupManager.Instance.CreatePopup("使用在沙漠化的格子上!",2);
-                        }
-                        else
-                        {
-                            oasis.UpdateSlot(h);
-                            equipmentManager.RemoveEquipmentItem(equipmentData, gameObject);
-                        }
+                            HexNode h = item.gameObject.GetComponent<HexNode>();
+                            if (!h.isDesertified)
+                            {
+                                PopupManager.Instance.CreatePopup("使用在沙漠化的格子上!", 2);
+                            }
+                            else
+                            {
+                                oasis.UpdateSlot(h);
+                                equipmentManager.RemoveEquipmentItem(equipmentData, gameObject);
+                            }
 
+                        }
                     }
                 }
             }

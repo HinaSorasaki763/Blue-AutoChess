@@ -581,7 +581,8 @@ namespace GameEnum
         Remover,
         AriusSelector,
         Duplicator,
-        Oasis
+        Oasis,
+        Reforger
     }
     public interface IConsumableEffect
     {
@@ -610,6 +611,20 @@ namespace GameEnum
         {
             target.equipmentManager.RemoveAllItem();
             CustomLogger.Log(this, $"Applied Remover to {target.name}");
+        }
+
+        public void RemoveEffect(CharacterCTRL target)
+        {
+            CustomLogger.Log(this, $"Remove Remover from {target.name}");
+        }
+    }
+    public class Reforger : IConsumableEffect
+    {
+        public bool Permanent => true;
+        public void ApplyEffect(CharacterCTRL target)
+        {
+            target.equipmentManager.ReforgeItem();
+            CustomLogger.Log(this, $"Applied Reforger to {target.name}");
         }
 
         public void RemoveEffect(CharacterCTRL target)
@@ -673,6 +688,7 @@ namespace GameEnum
             
         }
     }
+    
     public class Duplicator : IConsumableEffect
     {
         public bool Permanent => false;
@@ -919,7 +935,16 @@ namespace GameEnum
             }
             return null;
         }
-
+        public static readonly List<Traits> AllAcademyTraits = new List<Traits>
+        {
+            Traits.Abydos,
+            Traits.Gehenna,
+            Traits.Hyakkiyako,
+            Traits.Millennium,
+            Traits.SRT,
+            Traits.Arius,
+            Traits.Trinity
+        };
         public static Traits IsAcademy(List<Traits> traits)
         {
             foreach (var item in traits)
@@ -961,8 +986,9 @@ namespace GameEnum
                 special.Traits.Clear();
                 special.Traits.Add(trait1);
                 special.Traits.Add(trait2);
-                special.equipmentDetail = $"{special.Traits[0]} and {special.Traits[1]} exchange certificate";
-                special.equipmentDescriptionEnglish = $"{special.Traits[0]} and {special.Traits[1]} exchange certificate";
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
                 return special;
             }
             else
@@ -1623,12 +1649,18 @@ namespace GameEnum
             return context;
         }
 
-        public static (List<IReward>, List<IEquipment>) GetMultipleRandomEquipRewards(int count, int minId, int maxId)
+        public static (List<IReward>, List<IEquipment>) GetMultipleRandomEquipRewards(
+            int count,
+            int minId,
+            int maxId,
+            int excludeId = -1
+        )
         {
             List<IReward> result = new List<IReward>();
             List<IEquipment> eqs = new List<IEquipment>();
+
             List<IEquipment> pool = EquipmentManager.Instance.availableEquipments
-                .Where(x => x.Id >= minId && x.Id < maxId)
+                .Where(x => x.Id >= minId && x.Id < maxId && (excludeId == -1 || x.Id != excludeId))
                 .ToList();
 
             for (int i = 0; i < count && pool.Count > 0; i++)
@@ -1640,8 +1672,10 @@ namespace GameEnum
                 eqs.Add(eq);
                 CustomLogger.Log(eq, $"抽到裝備: {eq.EquipmentName}");
             }
+
             return (result, eqs);
         }
+
     }
 
     public class Effect
