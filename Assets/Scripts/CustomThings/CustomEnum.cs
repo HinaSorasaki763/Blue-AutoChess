@@ -977,6 +977,27 @@ namespace GameEnum
             color.a = alpha;
             image.color = color;
         }
+        public static void GetRandCertificate()
+        {
+            List<Traits> remainAcademyTraits = AllAcademyTraits.ToList();
+            List<Traits> picked = new List<Traits>();
+            for (int i = 0; i < 2; i++)
+            {
+                int index = UnityEngine.Random.Range(0, remainAcademyTraits.Count);
+                picked.Add(remainAcademyTraits[index]);
+                remainAcademyTraits.RemoveAt(index);
+            }
+            IEquipment eq = GetSpecificEquipment(101);
+            if (eq is SpecialEquipment special)
+            {
+                special.Traits.Clear();
+                special.Traits.AddRange(picked);
+                string traitText = string.Join(" / ", special.Traits);
+                special.equipmentDetail = $"{traitText} exchange certificate";
+                special.equipmentDescriptionEnglish = $"{traitText} exchange certificate";
+                EquipmentManager.Instance.AddEquipmentItem(special);
+            }
+        }
         public static IEquipment GetExchangeCirtificate(Traits trait1,Traits trait2)
         {
             IEquipment equipment = GetSpecificEquipment(101);

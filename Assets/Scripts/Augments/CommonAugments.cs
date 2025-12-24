@@ -1,5 +1,6 @@
 using System.Linq;
 using GameEnum;
+using UnityEngine;
 public class CommonAugment : Augment
 {
     public CommonAugment(AugmentConfig config) : base(config)
@@ -160,6 +161,9 @@ public class Augment1004 : CommonAugment
     public override void Apply()
     {
         CustomLogger.Log(this, $"Applying {config.augmentIndex},name {config.name}");
+        Utility.GetRandCertificate();
+        IEquipment equipment = Utility.GetSpecificEquipment(31);
+        EquipmentManager.Instance.AddEquipmentItem(equipment);
     }
 }
 
@@ -296,6 +300,12 @@ public class Augment1019 : CommonAugment
     public override void Apply()
     {
         CustomLogger.Log(this, $"Applying {config.augmentIndex},name {config.name}");
+        for (int i = 0; i < 2; i++)
+        {
+            Utility.GetRandCertificate();
+            IEquipment equipment = Utility.GetSpecificEquipment(31);
+            EquipmentManager.Instance.AddEquipmentItem(equipment);
+        }
     }
 }
 
@@ -463,7 +473,13 @@ public class Augment1036 : CommonAugment
     public Augment1036(AugmentConfig config) : base(config) { }
     public override void Apply()
     {
-        CustomLogger.Log(this, $"Applying {config.augmentIndex},name {config.name}");
+        for (int i = 0; i < 3; i++)
+        {
+            Utility.GetRandCertificate();
+            IEquipment equipment = Utility.GetSpecificEquipment(31);
+            EquipmentManager.Instance.AddEquipmentItem(equipment);
+        }
+        ResourcePool.Instance.GetRandRewardPrefab(Vector3.zero);
     }
 }
 
