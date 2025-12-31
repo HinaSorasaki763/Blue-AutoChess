@@ -1142,8 +1142,8 @@ public class GlobalBaseObserver : CharacterObserverBase
             {
                 Effect effect = EffectFactory.Augment1036Effect();
                 effect.SetActions(
-                    (character) => character.ModifyStats(StatsType.DamageIncrease, characterParent.Augment1036AdditionalDmg, effect.Source),
-                    (character) => character.ModifyStats(StatsType.DamageIncrease, -characterParent.Augment1036AdditionalDmg, effect.Source)
+                    (character) => character.ModifyStats(StatsType.DamageIncrease, characterParent.Augment1036AdditionalDmg/5, effect.Source),
+                    (character) => character.ModifyStats(StatsType.DamageIncrease, -characterParent.Augment1036AdditionalDmg/5, effect.Source)
                 );
                 item.effectCTRL.AddEffect(effect, item);
             }
