@@ -22,6 +22,7 @@ public class CharacterParent : MonoBehaviour
     public List<String> BattleingCharacterNames = new List<string>();
     public int YukariManacount;
     public int SakurakoSkillDmg;
+    public int Augment1036AdditionalDmg;
     public void Start()
     {
 
@@ -333,6 +334,7 @@ public class CharacterParent : MonoBehaviour
                 item.GetComponent<CharacterCTRL>().ResetToBeforeBattle();
             }
             YukariManacount = 0;
+            Augment1036AdditionalDmg = 0;
             GameStageManager.Instance.NotifyTeamDefeated(this);//TODO:黑子的邏輯需要再修正
         }
     }

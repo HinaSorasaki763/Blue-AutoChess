@@ -1130,7 +1130,24 @@ public class GlobalBaseObserver : CharacterObserverBase
 
     public override void OnAttacking(CharacterCTRL character)
     {
-        base.OnAttacking(character);
+        if (SelectedAugments.Instance.CheckAugmetExist(1036, character.IsAlly))
+        {
+            CharacterParent characterParent = character.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+
+            if (characterParent.Augment1036AdditionalDmg <= 100)
+            {
+                characterParent.Augment1036AdditionalDmg++;
+            }
+            foreach (var item in Utility.GetAllBattlingCharacter(characterParent))
+            {
+                Effect effect = EffectFactory.Augment1036Effect();
+                effect.SetActions(
+                    (character) => character.ModifyStats(StatsType.DamageIncrease, characterParent.Augment1036AdditionalDmg, effect.Source),
+                    (character) => character.ModifyStats(StatsType.DamageIncrease, -characterParent.Augment1036AdditionalDmg, effect.Source)
+                );
+                item.effectCTRL.AddEffect(effect, item);
+            }
+        }
     }
 
     public override void OnTraitLevelChanged(int level, CharacterCTRL character)
@@ -1163,6 +1180,14 @@ public class GlobalBaseObserver : CharacterObserverBase
 
     public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
+        if (SelectedAugments.Instance.CheckAugmetExist(1036, source.IsAlly) && detailedSource != "Augment1036")
+        {
+            CharacterParent characterParent = source.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+            if (characterParent.Augment1036AdditionalDmg >= 100)
+            {
+                target.GetHitByTrueDamage(damage, source, "Augment1036", false);
+            }
+        }
         if (iscrit)
         {
             source.OnCrit();

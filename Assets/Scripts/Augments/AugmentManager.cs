@@ -115,8 +115,7 @@ public class AugmentManager : MonoBehaviour
         }
         else
         {
-            allAugments = augmentsFolder13;
-            //allAugments = augmentsFolder2;
+            allAugments = augmentsFolder2;
         }
         // 篩選符合條件的 Augments
         List<AugmentConfig> filtered = new List<AugmentConfig>();

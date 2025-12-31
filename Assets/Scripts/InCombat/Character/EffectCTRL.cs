@@ -855,6 +855,26 @@ public static class EffectFactory
         );
 
     }
+    public static Effect Augment1036Effect()
+    {
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            "Augment1036Effect",
+            true,
+            null,
+            null,
+            0,
+            SpecialEffectType.None,
+            null,
+            false,
+            default,
+            default,
+            true
+        );
+
+    }
     public static Effect OverTimeEffect()
     {
         return new Effect(

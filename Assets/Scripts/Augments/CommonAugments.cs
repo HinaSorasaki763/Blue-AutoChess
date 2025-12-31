@@ -468,7 +468,7 @@ public class Augment1035 : CommonAugment//當觸發三個學院時，給予金錢、對應的五費
     }
 }
 
-public class Augment1036 : CommonAugment
+public class Augment1036 : CommonAugment//隊伍每攻擊五次時，全體獲得1%傷害增幅，上限為20。抵達上限時，全隊造成10%額外真實傷害。
 {
     public Augment1036(AugmentConfig config) : base(config) { }
     public override void Apply()

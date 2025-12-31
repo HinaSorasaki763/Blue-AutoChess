@@ -92,7 +92,6 @@ public class CharacterCTRL : MonoBehaviour
     public bool isCCImmune = false;
     public bool AntiHeal = false;
     public float AntiHealRatio = 0;
-    public bool Overtime = false;
     public bool isTargetable = true;
     public bool FaceDirectionLock = false;
     private bool tempDirectionLock = false;
@@ -171,7 +170,6 @@ public class CharacterCTRL : MonoBehaviour
         enterBattle = false;
         FaceDirectionLock = false;
         tempDirectionLock = false;
-        Overtime = false;
         ManaLock = false;
         isAlive = true;
         IsCastingAbility = false;
@@ -776,14 +774,6 @@ public class CharacterCTRL : MonoBehaviour
     public void SetInvincible(bool b)
     {
         Invincible = b;
-    }
-    public void SetAntiHeal(bool b)
-    {
-        AntiHeal = b;
-        if (b && !Overtime)
-        {
-            AntiHealRatio = 0.4f;
-        }
     }
     public void SetTaunt(bool b)
     {
@@ -2071,7 +2061,6 @@ public class CharacterCTRL : MonoBehaviour
     }
     public void BattleOverTime()
     {
-        Overtime = true;
         AntiHeal = true;
         AntiHealRatio = 0.8f;
     }
