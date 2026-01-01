@@ -855,6 +855,26 @@ public static class EffectFactory
         );
 
     }
+    public static Effect Augment1020Effect()
+    {
+        return new Effect(
+            EffectType.Positive,
+            ModifierType.None,
+            0,
+            "Augment1020Effect",
+            true,
+            null,
+            null,
+            0,
+            SpecialEffectType.None,
+            null,
+            false,
+            default,
+            default,
+            true
+        );
+
+    }
     public static Effect Augment1036Effect()
     {
         return new Effect(

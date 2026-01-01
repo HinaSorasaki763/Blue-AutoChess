@@ -1564,28 +1564,39 @@ public class CharacterCTRL : MonoBehaviour
     }
     public virtual void GetHitByTrueDamage(int amount, CharacterCTRL sourceCharacter, string detailedSource, bool isCrit)
     {
-
         if (!CanTakeDamage()) return;
+
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
 
         if (WakamoMark)
         {
             dmgRecivedOnWakamoMarked += (int)(amount * wakamoMarkRatio);
         }
-        CustomLogger.Log(this, $"{name} get hit by {sourceCharacter}'s {detailedSource} with {amount} iscrit:{isCrit} ,trueDmg");
+
+        if (sourceCharacter != null)
+        {
+            CustomLogger.Log(
+                this,
+                $"{name} get hit by {sourceCharacter}'s {detailedSource} with {amount} iscrit:{isCrit} ,trueDmg"
+            );
+        }
+        else
+        {
+            CustomLogger.Log(
+                this,
+                $"{name} get hit by null source with {amount} iscrit:{isCrit} ,trueDmg"
+            );
+        }
+
         while (amount > 0 && shields.Count > 0)
         {
             Shield shield = shields[0];
             if (shield.amount >= amount)
             {
                 if (isCrit)
-                {
                     TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Weak, amount, screenPos, false);
-                }
                 else
-                {
                     TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Resist, amount, screenPos, false);
-                }
 
                 shield.amount -= amount;
                 AddStat(StatsType.Shield, -amount);
@@ -1594,13 +1605,10 @@ public class CharacterCTRL : MonoBehaviour
             else
             {
                 if (isCrit)
-                {
                     TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Weak, amount, screenPos, false);
-                }
                 else
-                {
                     TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.Resist, amount, screenPos, false);
-                }
+
                 amount -= shield.amount;
                 AddStat(StatsType.Shield, -shield.amount);
                 shields.RemoveAt(0);
@@ -1612,19 +1620,27 @@ public class CharacterCTRL : MonoBehaviour
             TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.None, amount, screenPos, true);
             AddStat(StatsType.currHealth, -amount);
         }
+
         foreach (var item in observers)
         {
             item.GetHit(this, sourceCharacter, amount, isCrit, detailedSource, true);
         }
-        traitController.NotifyGetHit(this, sourceCharacter, amount, isCrit, detailedSource);
-        equipmentManager.OnParentGethit(this, sourceCharacter, amount, isCrit, detailedSource);
+
+        if (sourceCharacter != null)
+        {
+            traitController.NotifyGetHit(this, sourceCharacter, amount, isCrit, detailedSource);
+            equipmentManager.OnParentGethit(this, sourceCharacter, amount, isCrit, detailedSource);
+        }
         if (CheckDeath() && !IsDying)
         {
-            sourceCharacter.traitController.NotifyOnKilledEnemy(detailedSource, this);
+            if (sourceCharacter != null)
+            {
+                sourceCharacter.traitController.NotifyOnKilledEnemy(detailedSource, this);
+            }
             Die();
-
         }
     }
+
     public bool Dragable()
     {
         return !(enterBattle || GameStageManager.Instance.CurrGamePhase == GamePhase.Battling || !IsAlly || !IsDragable);

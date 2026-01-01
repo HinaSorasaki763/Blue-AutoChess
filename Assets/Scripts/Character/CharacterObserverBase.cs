@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public abstract class CharacterObserverBase
 {
@@ -1125,7 +1126,17 @@ public class GlobalBaseObserver : CharacterObserverBase
 
     public override void CharacterStart(CharacterCTRL character)
     {
-        base.CharacterStart(character);
+        if (SelectedAugments.Instance.CheckAugmetExist(1020, character.IsAlly))
+        {
+            int amount = (int)character.GetStat(StatsType.Health);
+            character.GetHitByTrueDamage(amount, null, "Augment1020", false);
+            Effect effect = EffectFactory.Augment1020Effect();
+            effect.SetActions(
+                (character) => character.ModifyStats(StatsType.DamageIncrease, 12, effect.Source),
+                (character) => character.ModifyStats(StatsType.DamageIncrease, 12, effect.Source)
+            );
+            character.effectCTRL.AddEffect(effect, character);
+        }
     }
 
     public override void OnAttacking(CharacterCTRL character)
@@ -1142,8 +1153,8 @@ public class GlobalBaseObserver : CharacterObserverBase
             {
                 Effect effect = EffectFactory.Augment1036Effect();
                 effect.SetActions(
-                    (character) => character.ModifyStats(StatsType.DamageIncrease, characterParent.Augment1036AdditionalDmg/5, effect.Source),
-                    (character) => character.ModifyStats(StatsType.DamageIncrease, -characterParent.Augment1036AdditionalDmg/5, effect.Source)
+                    (character) => character.ModifyStats(StatsType.DamageIncrease, characterParent.Augment1036AdditionalDmg / 5, effect.Source),
+                    (character) => character.ModifyStats(StatsType.DamageIncrease, -characterParent.Augment1036AdditionalDmg / 5, effect.Source)
                 );
                 item.effectCTRL.AddEffect(effect, item);
             }

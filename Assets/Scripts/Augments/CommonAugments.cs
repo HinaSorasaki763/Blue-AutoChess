@@ -285,7 +285,7 @@ public class Augment1017 : CommonAugment//give 21 gold
     }
 }
 
-public class Augment1018 : CommonAugment
+public class Augment1018 : CommonAugment//擊倒敵方單位時，35%機率獲得隨階段提升價值的戰利品
 {
     public Augment1018(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -294,7 +294,7 @@ public class Augment1018 : CommonAugment
     }
 }
 
-public class Augment1019 : CommonAugment
+public class Augment1019 : CommonAugment//獲得兩個文章、以及兩個重鑄器
 {
     public Augment1019(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -309,8 +309,8 @@ public class Augment1019 : CommonAugment
     }
 }
 
-public class Augment1020 : CommonAugment
-{
+public class Augment1020 : CommonAugment//戰鬥開始時，受到12%最大生命值的傷害，並且獲得12%傷害增幅。勝利時兩項數值各+1，反之-1
+{//TODO: 後面功能尚未完成
     public Augment1020(AugmentConfig config) : base(config) { }
     public override void Apply()
     {
