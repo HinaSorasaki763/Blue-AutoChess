@@ -582,7 +582,8 @@ namespace GameEnum
         AriusSelector,
         Duplicator,
         Oasis,
-        Reforger
+        Reforger,
+        LesserDuplicator
     }
     public interface IConsumableEffect
     {
@@ -696,14 +697,37 @@ namespace GameEnum
         {
             if (!ResourcePool.Instance.BenchManager.IsBenchFull())
             {
-                ResourcePool.Instance.BenchManager.AddToBench(target.characterStats.Model);
+                ResourcePool.Instance.BenchManager.AddToBench(Utility.GetSpecificCharacterToSpawn(target.characterStats.CharacterId));
 
             }
             else
             {
-                CustomLogger.Log(this, "备战席已满，无法添加新角色。");
+                IEquipment equipment = Utility.GetSpecificEquipment(28);
+                EquipmentManager.Instance.AddEquipmentItem(equipment);
             }
             CustomLogger.Log(this, $"Applied Duplicator to {target.name}");
+        }
+
+        public void RemoveEffect(CharacterCTRL target)
+        {
+            CustomLogger.Log(this, $"Remove Duplicator from {target.name}");
+        }
+    }
+    public class LesserDuplicator : IConsumableEffect
+    {
+        public bool Permanent => false;
+        public void ApplyEffect(CharacterCTRL target)
+        {
+            if (!ResourcePool.Instance.BenchManager.IsBenchFull())
+            {
+                ResourcePool.Instance.BenchManager.AddToBench(Utility.GetSpecificCharacterToSpawn(target.characterStats.CharacterId));
+            }
+            else
+            {
+                PopupManager.Instance.CreatePopup("only 3 cost or less!",2);
+                IEquipment equipment = Utility.GetSpecificEquipment(32);
+                EquipmentManager.Instance.AddEquipmentItem(equipment);
+            }
         }
 
         public void RemoveEffect(CharacterCTRL target)
