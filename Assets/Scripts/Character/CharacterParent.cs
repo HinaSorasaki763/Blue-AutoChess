@@ -23,6 +23,7 @@ public class CharacterParent : MonoBehaviour
     public int YukariManacount;
     public int SakurakoSkillDmg;
     public int Augment1036AdditionalDmg;
+    public int Augment1020DamagePercentage;
     public void Start()
     {
 
@@ -107,6 +108,8 @@ public class CharacterParent : MonoBehaviour
             }
         }
 
+        int combineCount = 0;
+
         bool hasCombined;
         do
         {
@@ -122,6 +125,7 @@ public class CharacterParent : MonoBehaviour
                         bool result = CombineCharacters(starGroup.Value);
                         if (result)
                         {
+                            combineCount++;
                             hasCombined = true;
 
                             // 移除舊分組資料
@@ -143,8 +147,27 @@ public class CharacterParent : MonoBehaviour
         }
         while (hasCombined);
 
+        TriggerByCombineCount(combineCount); // 依合成次數觸發（佔位符）
+
         UpdateStrongestMarks(characterGroups);
         UpdateTraitEffects();
+    }
+
+    private void TriggerByCombineCount(int combineCount)
+    {
+        if (combineCount <= 0) return;
+        for (int i = 0; i < combineCount; i++)
+        {
+            if (SelectedAugments.Instance.CheckAugmetExist(1021,true))
+            {
+                IEquipment equipment = Utility.GetSpecificEquipment(32);
+                EquipmentManager.Instance.AddEquipmentItem(equipment);
+            }
+            if (SelectedAugments.Instance.CheckAugmetExist(1005, true))
+            {
+                GameController.Instance.AddGold(1);
+            }
+        }
     }
 
     public void TriggerManualUpdate()

@@ -1127,13 +1127,14 @@ public class GlobalBaseObserver : CharacterObserverBase
     public override void CharacterStart(CharacterCTRL character)
     {
         if (SelectedAugments.Instance.CheckAugmetExist(1020, character.IsAlly))
-        {
+        {//TODO: 應改為根據isally屬性獲取對應parent
             int amount = (int)character.GetStat(StatsType.Health);
             character.GetHitByTrueDamage(amount, null, "Augment1020", false);
+            int percentage = 12 + ResourcePool.Instance.ally.Augment1020DamagePercentage;
             Effect effect = EffectFactory.Augment1020Effect();
             effect.SetActions(
-                (character) => character.ModifyStats(StatsType.DamageIncrease, 12, effect.Source),
-                (character) => character.ModifyStats(StatsType.DamageIncrease, 12, effect.Source)
+                (character) => character.ModifyStats(StatsType.DamageIncrease, percentage, effect.Source),
+                (character) => character.ModifyStats(StatsType.DamageIncrease, percentage, effect.Source)
             );
             character.effectCTRL.AddEffect(effect, character);
         }

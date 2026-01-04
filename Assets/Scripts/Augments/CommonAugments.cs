@@ -168,7 +168,7 @@ public class Augment1004 : CommonAugment//ÀH¾÷¤å³¹&­«Å±¾¹*1
 }
 
 public class Augment1005 : CommonAugment//¤p«¬­^¶¯½Æ»s¾¹&¨C¤É¯Å¾Ç¥Íªº¬P¯Å´NÀò±o1ª÷¿ú
-{//TODO:«á­±ªº®ÄªG¥¼§¹¦¨
+{
     public Augment1005(AugmentConfig config) : base(config) { }
     public override void Apply()
     {
@@ -320,13 +320,17 @@ public class Augment1020 : CommonAugment//¾Ô°«¶}©l®É¡A¨ü¨ì12%³Ì¤j¥Í©R­Èªº¶Ë®`¡A¨
 }
 
 public class Augment1021 : CommonAugment//Àò±o¤@­Ó¤p«¬­^¶¯½Æ»s¾¹¡A¨Ã¥B¨C±N¤@­Ó­^¶¯¤É¦Ü¤T¬P¡A´N¦AÀò±o¤@­Ó¤p«¬­^¶¯½Æ»s¾¹
-{//TODO:²Ä¤G­Ó®ÄªG©|¥¼§¹¦¨
+{
     public Augment1021(AugmentConfig config) : base(config) { }
     public override void Apply()
     {
         CustomLogger.Log(this, $"Applying {config.augmentIndex},name {config.name}");
         IEquipment equipment = Utility.GetSpecificEquipment(32);
         EquipmentManager.Instance.AddEquipmentItem(equipment);
+    }
+    public override void Trigger(bool isally)
+    {
+        
     }
 }
 

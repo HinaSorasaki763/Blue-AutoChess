@@ -321,6 +321,7 @@ public class GameStageManager : MonoBehaviour
         {
             netWin++;
             WinStreak++;
+            ResourcePool.Instance.ally.Augment1020DamagePercentage++;
             if (SelectedAugments.Instance.CheckAugmetExist(102, true))
             {
                 foreach (var item in ResourcePool.Instance.ally.GetBattleFieldCharacter())
@@ -344,6 +345,7 @@ public class GameStageManager : MonoBehaviour
         {
             netWin--;
             LoseStreak++;
+            ResourcePool.Instance.ally.Augment1020DamagePercentage--;
             WinStreak = 0; // ­«¸m³s³Ó
             OnVictory(enemyParent, defeatedTeam);
         }
