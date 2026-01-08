@@ -616,7 +616,6 @@ public class CharacterParent : MonoBehaviour
         return result.ToList();
     }
 
-
     public int GetActiveCharacter()
     {
         int i = 0;

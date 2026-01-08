@@ -1,10 +1,10 @@
 ﻿
 using GameEnum;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public abstract class CharacterObserverBase
 {
@@ -1119,6 +1119,7 @@ public class NullObserver : CharacterObserverBase
 }
 public class GlobalBaseObserver : CharacterObserverBase
 {
+    public bool Augment1023Triggered;
     public override void CharacterUpdate()
     {
         base.CharacterUpdate();
@@ -1126,6 +1127,7 @@ public class GlobalBaseObserver : CharacterObserverBase
 
     public override void CharacterStart(CharacterCTRL character)
     {
+        Augment1023Triggered = false;
         if (SelectedAugments.Instance.CheckAugmetExist(1020, character.IsAlly))
         {//TODO: 應改為根據isally屬性獲取對應parent
             int amount = (int)character.GetStat(StatsType.Health);
@@ -1187,6 +1189,19 @@ public class GlobalBaseObserver : CharacterObserverBase
 
     public override int OnDamageTaken(CharacterCTRL character, CharacterCTRL source, int amount)
     {
+        if (SelectedAugments.Instance.CheckAugmetExist(1023, character.IsAlly))
+        {
+            float maxHealth = character.GetStat(StatsType.Health);
+            float currHealth = character.GetStat(StatsType.currHealth);
+            float newHealth = currHealth - amount;
+            float newPercentage = newHealth / maxHealth;
+            if (!Augment1023Triggered && newPercentage <= 0.5f)
+            {
+                Augment1023Triggered = true;
+                character.AddShield((int)(maxHealth * 0.3f),20,character);
+            }
+        }
+
         return base.OnDamageTaken(character, source, amount);
     }
 
@@ -1275,7 +1290,6 @@ public class GlobalBaseObserver : CharacterObserverBase
                 noaSkill.AddMark(noa.GetSkillContext());
             }
         }
-        base.OnDying(character);
     }
 
     public override void OnCastedSkill(CharacterCTRL character)

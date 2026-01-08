@@ -311,7 +311,7 @@ public class Augment1019 : CommonAugment//獲得兩個文章、以及兩個重鑄器
 }
 
 public class Augment1020 : CommonAugment//戰鬥開始時，受到12%最大生命值的傷害，並且獲得12%傷害增幅。勝利時兩項數值各+1，反之-1
-{//TODO: 後面功能尚未完成
+{
     public Augment1020(AugmentConfig config) : base(config) { }
     public override void Apply()
     {
@@ -334,7 +334,7 @@ public class Augment1021 : CommonAugment//獲得一個小型英雄複製器，並且每將一個英
     }
 }
 
-public class Augment1022 : CommonAugment
+public class Augment1022 : CommonAugment//獲勝時，根據場上剩餘的己方單位獲得戰利品。
 {
     public Augment1022(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -343,7 +343,7 @@ public class Augment1022 : CommonAugment
     }
 }
 
-public class Augment1023 : CommonAugment
+public class Augment1023 : CommonAugment//當即將受到的傷害會使得生命值低於40%時，獲得一個最大生命值30%的護盾。每單位每回合一次。
 {
     public Augment1023(AugmentConfig config) : base(config) { }
     public override void Apply()

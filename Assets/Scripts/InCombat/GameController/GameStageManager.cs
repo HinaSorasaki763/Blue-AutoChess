@@ -322,6 +322,18 @@ public class GameStageManager : MonoBehaviour
             netWin++;
             WinStreak++;
             ResourcePool.Instance.ally.Augment1020DamagePercentage++;
+            if (SelectedAugments.Instance.CheckAugmetExist(1022, true))
+            {
+                int amount = ResourcePool.Instance.ally.GetActiveCharacter() + 2;
+                if (amount >= 5)
+                {
+                    ResourcePool.Instance.GetRandRewardPrefab(Vector3.zero);
+                }
+                else
+                {
+                    GameController.Instance.AddGold(amount);
+                }
+            }
             if (SelectedAugments.Instance.CheckAugmetExist(102, true))
             {
                 foreach (var item in ResourcePool.Instance.ally.GetBattleFieldCharacter())
@@ -338,7 +350,7 @@ public class GameStageManager : MonoBehaviour
             {
                 DataStackManager.Instance.floorRewardMapping[LoseStreak * 100].Invoke();
             }
-            LoseStreak = 0; // 重置連敗
+            LoseStreak = 0;
             OnVictory(allyParent, defeatedTeam);
         }
         else
@@ -346,7 +358,7 @@ public class GameStageManager : MonoBehaviour
             netWin--;
             LoseStreak++;
             ResourcePool.Instance.ally.Augment1020DamagePercentage--;
-            WinStreak = 0; // 重置連勝
+            WinStreak = 0;
             OnVictory(enemyParent, defeatedTeam);
         }
 
