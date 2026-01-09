@@ -3149,9 +3149,9 @@ public class WakamoSkill : CharacterSkillBase//若藻(wakamo)對當前目標狙�
     {
         Dictionary<int, StarLevelStats> statsByStarLevel = new Dictionary<int, StarLevelStats>()
         {
-            {1, new StarLevelStats(100,315,0,0,5.0f)},
-            {2, new StarLevelStats(150,475,0,0,5.0f)},
-            {3, new StarLevelStats(500,9999,0,0,5.0f)}
+            {1, new StarLevelStats(100,315,100,0,5.0f)},
+            {2, new StarLevelStats(150,475,125,0,5.0f)},
+            {3, new StarLevelStats(500,9999,999,0,5.0f)}
         };
         return statsByStarLevel;
     }
@@ -3164,19 +3164,39 @@ public class WakamoSkill : CharacterSkillBase//若藻(wakamo)對當前目標狙�
     }
     public override void ExecuteSkill(SkillContext skillContext)
     {
-        CharacterCTRL c = Utility.GetSpecificCharacters(skillContext.Parent.GetEnemies(), StatsType.currHealth, false, 1, true)[0];
-        if (c != null)
-        {
-            Effect effect = EffectFactory.CreateWakamoEffect(0, 5, skillContext.Parent);
-            c.effectCTRL.AddEffect(effect, c);
-            List<HitEffect> hitEffect = new List<HitEffect> { new WakamoEnhancedSkillEffect() };
-            GameObject bullet = ResourcePool.Instance.SpawnObject(SkillPrefab.NormalTrailedBullet, skillContext.Parent.FirePoint.position, Quaternion.identity);
-            int dmg = (int)skillContext.Parent.GetStat(StatsType.Attack);
-            (bool iscrit, int dmg1) = skillContext.Parent.CalculateCrit(dmg);
-            bullet.GetComponent<NormalBullet>().Initialize(dmg1, skillContext.Parent.GetTargetLayer(), skillContext.Parent, 15f, c.gameObject, true, iscrit, hitEffect);
-
-        }
+        var enemies = skillContext.Parent.GetEnemies();
+        var targets = Utility.GetSpecificCharacters(enemies, StatsType.currHealth, false, 1, true);
+        if (targets == null || targets.Count == 0) return;
+        var c = targets[0];
+        if (c == null) return;
+        var parent = skillContext.Parent;
+        var levelData = parent.ActiveSkill.GetCharacterLevel()[skillContext.CharacterLevel];
+        var effect = EffectFactory.CreateWakamoEffect(
+            0,
+            5,
+            parent,
+            levelData.Data3
+        );
+        c.effectCTRL.AddEffect(effect, c);
+        var bullet = ResourcePool.Instance.SpawnObject(
+            SkillPrefab.NormalTrailedBullet,
+            parent.FirePoint.position,
+            Quaternion.identity
+        );
+        int baseDmg = (int)parent.GetStat(StatsType.Attack);
+        var (isCrit, finalDmg) = parent.CalculateCrit(baseDmg);
+        bullet.GetComponent<NormalBullet>().Initialize(
+            finalDmg,
+            parent.GetTargetLayer(),
+            parent,
+            15f,
+            c.gameObject,
+            true,
+            isCrit,
+            new List<HitEffect> { new WakamoSkillEffect() }
+        );
     }
+
     public override CharacterSkillBase GetHeroicEnhancedSkill()
     {
         return new WakamoEnhancedSkill(this);

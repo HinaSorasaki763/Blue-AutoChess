@@ -453,7 +453,7 @@ public static class EffectFactory
         );
     }
 
-    public static Effect CreateWakamoEffect(int amount, float duration, CharacterCTRL parent)
+    public static Effect CreateWakamoEffect(int amount, float duration, CharacterCTRL parent,int ratio)
     {
         return new Effect(
             EffectType.Negative,
@@ -461,7 +461,7 @@ public static class EffectFactory
             amount,
             "WakamoEffect",
             false,
-            (character) => character.SetWakamoMark(50, parent), // TODO: 用真實數據代替
+            (character) => character.SetWakamoMark(ratio, parent), // TODO: 用真實數據代替
             (character) => character.OnWakamoMarkCountedDown(),
             duration,
             SpecialEffectType.None,

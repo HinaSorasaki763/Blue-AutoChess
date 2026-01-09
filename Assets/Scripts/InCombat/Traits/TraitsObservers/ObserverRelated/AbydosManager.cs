@@ -47,7 +47,7 @@ public class AbydosManager : MonoBehaviour
             SRTManager.instance.AddStat(rand,true);
         }
     }
-    public void Check102Stack(CharacterCTRL c )//TODO: add this
+    public void Check102Stack()
     {
         while (Augment102_LivedCount >= 5 && Augment102_EarnedCount < 5)
         {
@@ -57,7 +57,7 @@ public class AbydosManager : MonoBehaviour
         if (!Aug102Triggered && Augment102_EarnedCount >=5)
         {
             Aug102Triggered = true;
-            //TODO: Add prize
+            GameController.Instance.AddGold(35);
         }
 
     }

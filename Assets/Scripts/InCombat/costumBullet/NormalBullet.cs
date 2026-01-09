@@ -437,7 +437,7 @@ public class WakamoSkillEffect : HitEffect
 {
     public override void ApplyEffect(CharacterCTRL target, CharacterCTRL source)
     {
-        Effect effect = EffectFactory.CreateWakamoEffect(30, 5, source);
+        Effect effect = EffectFactory.CreateWakamoEffect(30, 5, source, source.ActiveSkill.GetCharacterLevel()[source.star].Data3);
         target.effectCTRL.AddEffect(effect, target);
     }
 }

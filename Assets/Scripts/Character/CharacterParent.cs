@@ -358,6 +358,7 @@ public class CharacterParent : MonoBehaviour
             }
             YukariManacount = 0;
             Augment1036AdditionalDmg = 0;
+            AbydosManager.Instance.Check102Stack();
             GameStageManager.Instance.NotifyTeamDefeated(this);//TODO:黑子的邏輯需要再修正
         }
     }
