@@ -56,6 +56,19 @@ public class CharacterParent : MonoBehaviour
         BugReportLogger.Instance.StartBattle();
         GameStageManager.Instance.ChangeGamePhase(GamePhase.Battling);
     }
+    public int GetAlliesEquipmentCount()
+    {
+        int count = 0;
+        foreach (var item in childCharacters)
+        {
+            CharacterCTRL character = item.GetComponent<CharacterCTRL>();
+            if (character.enterBattle)
+            {
+                count += character.equipmentManager.equippedItems.Count();
+            }
+        }
+        return count;
+    }
     public int CheckAlliesOnBoard()
     {
         HashSet<int> uniqueCharacterIds = new HashSet<int>();

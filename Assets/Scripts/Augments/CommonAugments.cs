@@ -490,11 +490,16 @@ public class Augment1036 : CommonAugment//隊伍每攻擊五次時，全體獲得1%傷害增幅，
     }
 }
 
-public class Augment1037 : CommonAugment
+public class Augment1037 : CommonAugment//隊伍內每裝備一件裝備，我方隊伍就獲得15生命以及2%攻速，獲得三個隨機組件
 {
     public Augment1037(AugmentConfig config) : base(config) { }
     public override void Apply()
     {
+        for (int i = 0; i < 3; i++)
+        {
+            ResourcePool.Instance.GetRandRewardPrefab(Vector3.zero);
+        }
+
         CustomLogger.Log(this, $"Applying {config.augmentIndex},name {config.name}");
     }
 }

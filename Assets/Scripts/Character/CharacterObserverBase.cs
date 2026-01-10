@@ -1,7 +1,6 @@
 ﻿
 using GameEnum;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -1122,12 +1121,29 @@ public class GlobalBaseObserver : CharacterObserverBase
     public bool Augment1023Triggered;
     public override void CharacterUpdate()
     {
-        base.CharacterUpdate();
+
     }
 
     public override void CharacterStart(CharacterCTRL character)
     {
         Augment1023Triggered = false;
+        if (SelectedAugments.Instance.CheckAugmetExist(1037, character.IsAlly))
+        {
+            CharacterParent characterParent = character.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+            int amount = characterParent.GetAlliesEquipmentCount();
+            Effect effect = EffectFactory.UnStatckableStatsEffct(0, "Augment1037Health", amount * 15, StatsType.Health, character, true);
+            effect.SetActions(
+                (character) => character.ModifyStats(StatsType.Health, effect.Value, effect.Source),
+                (character) => character.ModifyStats(StatsType.Health, -effect.Value, effect.Source)
+            );
+            character.effectCTRL.AddEffect(effect, character);
+            Effect effect2 = EffectFactory.UnStatckableStatsEffct(0, "Augment1037AttackSpeed", amount * 2, StatsType.AttackSpeed, character, true);
+            effect.SetActions(
+                (character) => character.ModifyStats(StatsType.AttackSpeed, effect2.Value, effect2.Source),
+                (character) => character.ModifyStats(StatsType.AttackSpeed, -effect2.Value, effect2.Source)
+            );
+            character.effectCTRL.AddEffect(effect2, character);
+        }
         if (SelectedAugments.Instance.CheckAugmetExist(1020, character.IsAlly))
         {
             int amount = (int)character.GetStat(StatsType.Health);
@@ -1198,7 +1214,7 @@ public class GlobalBaseObserver : CharacterObserverBase
             if (!Augment1023Triggered && newPercentage <= 0.5f)
             {
                 Augment1023Triggered = true;
-                character.AddShield((int)(maxHealth * 0.3f),20,character);
+                character.AddShield((int)(maxHealth * 0.3f), 20, character);
             }
         }
 
