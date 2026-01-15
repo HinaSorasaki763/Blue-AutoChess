@@ -6,7 +6,7 @@ using GameEnum;
 using TMPro;
 using UnityEngine.TextCore.Text;
 
-public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
+public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler,IPointerUpHandler
 {
     public Image icon;
     public IEquipment equipmentData;
@@ -84,6 +84,10 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         transform.SetParent(canvas.transform);
     }
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        SpawnGrid.Instance.WallParent.SetActive(false);
+    }
     public void Update()
     {
         if (isDragging&&pointerEventData!=null)
@@ -118,7 +122,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     }
     public void OnDrag(PointerEventData eventData)
     {
-
+        SpawnGrid.Instance.WallParent.SetActive(true);
         ghostItem.transform.position = Input.mousePosition;
         Utility.ChangeImageAlpha(gameObject.GetComponentInChildren<Image>(), 1);
         List<RaycastResult> raycastResults = new List<RaycastResult>();
@@ -154,6 +158,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         List<RaycastResult> raycastResults = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, raycastResults);
         CheckOasis(raycastResults);
+        CheckAugment1006(raycastResults);
         bool successfulEquip = false;
         foreach (var result in raycastResults)
         {
@@ -213,8 +218,44 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         pointerEventData = null;
         isDragging = false;
     }
+    public void CheckConsumableHexEffect<T>(
+    List<RaycastResult> raycastResults,
+    string invalidPopupText
+) where T : class
+    {
+        if (!IsConsumableItem) return;
+
+        if (equipmentData is not ConsumableItem consumableItem) return;
+        if (consumableItem.consumableEffect is not T effect) return;
+
+        foreach (var item in raycastResults)
+        {
+            if (((1 << item.gameObject.layer) & gridLayer) == 0) continue;
+
+            HexNode h = item.gameObject.GetComponent<HexNode>();
+            if (!h.isDesertified)
+            {
+                PopupManager.Instance.CreatePopup(invalidPopupText, 2);
+            }
+            else
+            {
+                if (effect is Oasis oasis)
+                {
+                    oasis.UpdateSlot(h);
+                }
+                else if (effect is SpecialHexSelector selector)
+                {
+                    selector.UpdateSlot(h);
+                }
+
+                equipmentManager.RemoveEquipmentItem(equipmentData, gameObject);
+            }
+        }
+    }
+
     public void CheckOasis(List<RaycastResult> raycastResults)
     {
+
         if (IsConsumableItem)
         {
             ConsumableItem consumableItem = equipmentData as ConsumableItem;
@@ -235,6 +276,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                             else
                             {
                                 oasis.UpdateSlot(h);
+                                PopupManager.Instance.CreatePopup($"oasis.UpdateSlot{h}", 2);
                                 equipmentManager.RemoveEquipmentItem(equipmentData, gameObject);
                             }
 
@@ -244,6 +286,39 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             }
         }
         
+    }
+    public void CheckAugment1006(List<RaycastResult> raycastResults)
+    {
+        if (IsConsumableItem)
+        {
+            ConsumableItem consumableItem = equipmentData as ConsumableItem;
+            if (consumableItem != null)
+            {
+                SpecialHexSelector specialHexSelector = consumableItem.consumableEffect as SpecialHexSelector;
+                if (specialHexSelector != null)
+                {
+                    foreach (var item in raycastResults)
+                    {
+                        if (((1 << item.gameObject.layer) & gridLayer) != 0)
+                        {
+                            HexNode h = item.gameObject.GetComponent<HexNode>();
+                            if (!h.isAllyHex||!h.IsBattlefield)
+                            {
+                                PopupManager.Instance.CreatePopup("使用友方格子上!", 2);
+                            }
+                            else
+                            {
+                                specialHexSelector.UpdateSlot(h);
+                                PopupManager.Instance.CreatePopup($"specialHexSelector.UpdateSlot{h}", 2);
+                                equipmentManager.RemoveEquipmentItem(equipmentData, gameObject);
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+
     }
     public void OnPointerClick(PointerEventData eventData)
     {

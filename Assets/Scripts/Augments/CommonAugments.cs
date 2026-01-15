@@ -155,7 +155,7 @@ public class Augment1003 : CommonAugment//on kill gain rewards 1
     }
 }
 
-public class Augment1004 : CommonAugment//隨機文章&重鑄器*1
+public class Augment1004 : CommonAugment//隨機紋章&重鑄器*1
 {
     public Augment1004(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -177,11 +177,13 @@ public class Augment1005 : CommonAugment//小型英雄複製器&每升級學生的星級就獲得1
     }
 }
 
-public class Augment1006 : CommonAugment
+public class Augment1006 : CommonAugment//獲得一個地磚選擇器，對著我方棋格使用時，可以將其轉換為強化棋格，使得在上面開始戰鬥的單位獲得10%傷害減免、10%傷害增幅以及10%攻擊速度
 {
     public Augment1006(AugmentConfig config) : base(config) { }
     public override void Apply()
     {
+        IEquipment equipment = Utility.GetSpecificEquipment(33);
+        EquipmentManager.Instance.AddEquipmentItem(equipment);
         CustomLogger.Log(this, $"Applying {config.augmentIndex},name {config.name}");
     }
 }

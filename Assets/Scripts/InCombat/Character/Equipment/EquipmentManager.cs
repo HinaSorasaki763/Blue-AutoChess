@@ -79,6 +79,10 @@ public class EquipmentManager : MonoBehaviour
                 return new Oasis();
             case ConsumableEffectType.Reforger:
                 return new Reforger();
+            case ConsumableEffectType.LesserDuplicator:
+                return new LesserDuplicator();
+            case ConsumableEffectType.SpecialHexSelector:
+                return new SpecialHexSelector();
             default:
                 return null;
         }

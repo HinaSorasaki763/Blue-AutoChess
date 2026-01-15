@@ -1127,6 +1127,33 @@ public class GlobalBaseObserver : CharacterObserverBase
     public override void CharacterStart(CharacterCTRL character)
     {
         Augment1023Triggered = false;
+        if (character.CurrentHex.Augment1006HexSelected)
+        {
+            Effect effect = EffectFactory.UnStatckableStatsEffct(0, "Augment1006-1", 10, StatsType.PercentageResistence, character, true);
+            effect.SetActions(
+                (character) => character.ModifyStats(StatsType.PercentageResistence, effect.Value, effect.Source),
+                (character) => character.ModifyStats(StatsType.PercentageResistence, -effect.Value, effect.Source)
+            );
+            Effect effect1 = EffectFactory.UnStatckableStatsEffct(0, "Augment1006-2", 10, StatsType.DamageIncrease, character, true);
+            effect1.SetActions(
+                (character) => character.ModifyStats(StatsType.DamageIncrease, effect1.Value, effect1.Source),
+                (character) => character.ModifyStats(StatsType.DamageIncrease, -effect1.Value, effect1.Source)
+            );
+            Effect effect2 = EffectFactory.UnStatckableStatsEffct(0, "Augment1006-3", 10, StatsType.AttackSpeed, character, true);
+            effect2.SetActions(
+                (character) => character.ModifyStats(StatsType.AttackSpeed, effect2.Value, effect2.Source),
+                (character) => character.ModifyStats(StatsType.AttackSpeed, -effect2.Value, effect2.Source)
+            );
+            character.effectCTRL.AddEffect(effect, character);
+            character.effectCTRL.AddEffect(effect1, character);
+            character.effectCTRL.AddEffect(effect2, character);
+        }
+        else
+        {
+            character.effectCTRL.ClearEffectWithSource("Augment1006-1");
+            character.effectCTRL.ClearEffectWithSource("Augment1006-2");
+            character.effectCTRL.ClearEffectWithSource("Augment1006-3");
+        }
         if (SelectedAugments.Instance.CheckAugmetExist(1037, character.IsAlly))
         {
             CharacterParent characterParent = character.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 namespace GameEnum
@@ -583,7 +584,8 @@ namespace GameEnum
         Duplicator,
         Oasis,
         Reforger,
-        LesserDuplicator
+        LesserDuplicator,
+        SpecialHexSelector
     }
     public interface IConsumableEffect
     {
@@ -671,7 +673,7 @@ namespace GameEnum
     }
     public class Oasis : IConsumableEffect
     {
-        public bool Permanent => false;
+        public bool Permanent => true;
         public void UpdateSlot(HexNode h)
         {
             foreach (var item in h.Neighbors)
@@ -728,6 +730,23 @@ namespace GameEnum
                 IEquipment equipment = Utility.GetSpecificEquipment(32);
                 EquipmentManager.Instance.AddEquipmentItem(equipment);
             }
+        }
+
+        public void RemoveEffect(CharacterCTRL target)
+        {
+            CustomLogger.Log(this, $"Remove Duplicator from {target.name}");
+        }
+    }
+    public class SpecialHexSelector : IConsumableEffect
+    {
+        public bool Permanent => true;
+        public void UpdateSlot(HexNode h)
+        {
+            h.Augment1006HexSelected = true;
+        }
+        public void ApplyEffect(CharacterCTRL _)
+        {
+            
         }
 
         public void RemoveEffect(CharacterCTRL target)

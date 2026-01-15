@@ -1,6 +1,7 @@
 ﻿using GameEnum;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 public class HexNode : MonoBehaviour
 {
@@ -41,7 +42,7 @@ public class HexNode : MonoBehaviour
     public bool KasumiEnhancedSkill_steamed = false;
     public bool oasis = false;
     public bool isAllyHex;
-
+    public bool Augment1006HexSelected = false;
     // Burning effect fields
     public bool isBurning = false;
     public ColorState currentColorState = ColorState.Default;
