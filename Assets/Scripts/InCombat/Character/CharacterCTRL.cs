@@ -100,6 +100,7 @@ public class CharacterCTRL : MonoBehaviour
     public bool CanAttack = true;
     public bool InStasis = false;
     public bool isAugment125Reinforced = false;
+    public int Augment1024Count = 0;
     #endregion
 
     #region === Status Effects / Special Conditions ===

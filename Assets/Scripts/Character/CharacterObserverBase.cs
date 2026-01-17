@@ -1126,27 +1126,41 @@ public class GlobalBaseObserver : CharacterObserverBase
 
     public override void CharacterStart(CharacterCTRL character)
     {
+        if (SelectedAugments.Instance.CheckAugmetExist(1025, true))
+        {
+            int amount = character.equipmentManager.equippedItems.Count * 5;
+            Effect e1 = EffectFactory.CreateUnStackableStatEffect(
+                0, "Augment1025-1", amount, StatsType.AttackSpeed, character, true);
+            Effect e2 = EffectFactory.CreateUnStackableStatEffect(
+                0, "Augment1025-2", amount, StatsType.Attack, character, true
+            );
+            character.effectCTRL.AddEffect(e1, character);
+            character.effectCTRL.AddEffect(e2, character);
+        }
+        if (SelectedAugments.Instance.CheckAugmetExist(1024, true))
+        {
+            character.Augment1024Count++;
+            int count = character.Augment1024Count;
+            character.AddPercentageBonus(StatsType.Null, StatsType.Health, count, "Augment1024Health");
+            character.AddPercentageBonus(StatsType.Null, StatsType.Attack, count, "Augment1024Attack");
+            character.AddPercentageBonus(StatsType.Null, StatsType.DamageIncrease, count, "Augment1024DamageIncrease");
+            character.AddPercentageBonus(StatsType.Null, StatsType.PercentageResistence, count, "Augment1024Resistence");
+        }
         Augment1023Triggered = false;
         if (character.CurrentHex.Augment1006HexSelected)
         {
-            Effect effect = EffectFactory.UnStatckableStatsEffct(0, "Augment1006-1", 10, StatsType.PercentageResistence, character, true);
-            effect.SetActions(
-                (character) => character.ModifyStats(StatsType.PercentageResistence, effect.Value, effect.Source),
-                (character) => character.ModifyStats(StatsType.PercentageResistence, -effect.Value, effect.Source)
+            Effect e1 = EffectFactory.CreateUnStackableStatEffect(
+                0, "Augment1006-1", 10, StatsType.PercentageResistence, character, true
             );
-            Effect effect1 = EffectFactory.UnStatckableStatsEffct(0, "Augment1006-2", 10, StatsType.DamageIncrease, character, true);
-            effect1.SetActions(
-                (character) => character.ModifyStats(StatsType.DamageIncrease, effect1.Value, effect1.Source),
-                (character) => character.ModifyStats(StatsType.DamageIncrease, -effect1.Value, effect1.Source)
+            Effect e2 = EffectFactory.CreateUnStackableStatEffect(
+                0, "Augment1006-2", 10, StatsType.DamageIncrease, character, true
             );
-            Effect effect2 = EffectFactory.UnStatckableStatsEffct(0, "Augment1006-3", 10, StatsType.AttackSpeed, character, true);
-            effect2.SetActions(
-                (character) => character.ModifyStats(StatsType.AttackSpeed, effect2.Value, effect2.Source),
-                (character) => character.ModifyStats(StatsType.AttackSpeed, -effect2.Value, effect2.Source)
+            Effect e3 = EffectFactory.CreateUnStackableStatEffect(
+                0, "Augment1006-3", 10, StatsType.AttackSpeed, character, true
             );
-            character.effectCTRL.AddEffect(effect, character);
-            character.effectCTRL.AddEffect(effect1, character);
-            character.effectCTRL.AddEffect(effect2, character);
+            character.effectCTRL.AddEffect(e1, character);
+            character.effectCTRL.AddEffect(e2, character);
+            character.effectCTRL.AddEffect(e3, character);
         }
         else
         {
@@ -1154,23 +1168,37 @@ public class GlobalBaseObserver : CharacterObserverBase
             character.effectCTRL.ClearEffectWithSource("Augment1006-2");
             character.effectCTRL.ClearEffectWithSource("Augment1006-3");
         }
+
         if (SelectedAugments.Instance.CheckAugmetExist(1037, character.IsAlly))
         {
-            CharacterParent characterParent = character.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+            CharacterParent characterParent = character.IsAlly
+                ? ResourcePool.Instance.ally
+                : ResourcePool.Instance.enemy;
+
             int amount = characterParent.GetAlliesEquipmentCount();
-            Effect effect = EffectFactory.UnStatckableStatsEffct(0, "Augment1037Health", amount * 15, StatsType.Health, character, true);
-            effect.SetActions(
-                (character) => character.ModifyStats(StatsType.Health, effect.Value, effect.Source),
-                (character) => character.ModifyStats(StatsType.Health, -effect.Value, effect.Source)
+
+            Effect healthEffect = EffectFactory.CreateUnStackableStatEffect(
+                0,
+                "Augment1037Health",
+                amount * 15,
+                StatsType.Health,
+                character,
+                true
             );
-            character.effectCTRL.AddEffect(effect, character);
-            Effect effect2 = EffectFactory.UnStatckableStatsEffct(0, "Augment1037AttackSpeed", amount * 2, StatsType.AttackSpeed, character, true);
-            effect.SetActions(
-                (character) => character.ModifyStats(StatsType.AttackSpeed, effect2.Value, effect2.Source),
-                (character) => character.ModifyStats(StatsType.AttackSpeed, -effect2.Value, effect2.Source)
+
+            Effect atkSpeedEffect = EffectFactory.CreateUnStackableStatEffect(
+                0,
+                "Augment1037AttackSpeed",
+                amount * 2,
+                StatsType.AttackSpeed,
+                character,
+                true
             );
-            character.effectCTRL.AddEffect(effect2, character);
+
+            character.effectCTRL.AddEffect(healthEffect, character);
+            character.effectCTRL.AddEffect(atkSpeedEffect, character);
         }
+
         if (SelectedAugments.Instance.CheckAugmetExist(1020, character.IsAlly))
         {
             int amount = (int)character.GetStat(StatsType.Health);
@@ -1287,6 +1315,14 @@ public class GlobalBaseObserver : CharacterObserverBase
 
     public override void OnKilledEnemy(CharacterCTRL character, string detailedSource, CharacterCTRL characterDies)
     {
+        if (SelectedAugments.Instance.CheckAugmetExist(1025, true))
+        {
+            int amount = character.equipmentManager.equippedItems.Count * 5;
+            if (Utility.GetRand(character) <= amount) 
+            {
+                ResourcePool.Instance.GetGoldPrefab(character.transform.position);
+            }
+        }
         if (character.traitController.GetAcademy() == Traits.Gehenna)
         {
             PressureManager.Instance.AddPressure(1, character.IsAlly);

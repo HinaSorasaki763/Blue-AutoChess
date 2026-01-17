@@ -220,6 +220,33 @@ public static class EffectFactory
     }
 
 
+    public static Effect CreateUnStackableStatEffect(
+    float duration,
+    string source,
+    float amount,
+    StatsType statsType,
+    CharacterCTRL parent,
+    bool isPermanent,
+    bool isLogistic = false
+)
+    {
+        Effect effect = UnStatckableStatsEffct(
+            duration,
+            source,
+            amount,
+            statsType,
+            parent,
+            isPermanent,
+            isLogistic
+        );
+
+        effect.SetActions(
+            (character) => character.ModifyStats(statsType, effect.Value, effect.Source),
+            (character) => character.ModifyStats(statsType, -effect.Value, effect.Source)
+        );
+
+        return effect;
+    }
 
     public static Effect UnStatckableStatsEffct(float duration, string source, float amount, StatsType statsType, CharacterCTRL parent, bool isPermanent, bool isLogistic = false)
     {
