@@ -268,7 +268,7 @@ public class HexNode : MonoBehaviour
     }
     public void CreateFloatingPiece(Color color, float duration = 0f)
     {
-        GameObject go = ResourcePool.Instance.GetColoredHex(transform.position+ new Vector3(0, 0.3f, 0));
+        GameObject go = ResourcePool.Instance.GetColoredHex(transform.position+ new Vector3(0, 0.5f, 0));
         go.transform.rotation = Quaternion.Euler(-90, 0, 0);
         Renderer renderer = go.GetComponent<Renderer>();
         if (renderer != null)

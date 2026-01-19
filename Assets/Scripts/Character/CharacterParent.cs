@@ -330,6 +330,7 @@ public class CharacterParent : MonoBehaviour
             if (!Shiroko_Terror_Postponed)
             {
                 ResourcePool.Instance.DisableAllColoredHex();
+
                 GameStageManager.Instance.CurrGamePhase = GamePhase.Preparing;
                 foreach (var item in GetBattleFieldCharacter())
                 {

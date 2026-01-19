@@ -1,12 +1,11 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
+﻿using GameEnum;
 using System.Collections.Generic;
-using GameEnum;
 using TMPro;
-using UnityEngine.TextCore.Text;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler,IPointerUpHandler
+public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IPointerUpHandler
 {
     public Image icon;
     public IEquipment equipmentData;
@@ -16,7 +15,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     public TextMeshProUGUI ItemName;
     public TextMeshProUGUI ItemDescription;
     public GameObject Detail;
-    
+
     public Button Btn;
     public LayerMask characterLayerMask;
     public LayerMask gridLayer;
@@ -43,7 +42,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             IsConsumableItem = true;
         }
         equipmentData = equipment;
-        if (equipmentData.Observer!=null)
+        if (equipmentData.Observer != null)
         {
             CustomLogger.Log(this, $"equipmentData {equipmentData.Observer.GetType()}");
         }
@@ -73,7 +72,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
 
         // 記錄當前物品的原始索引
         originalIndex = transform.GetSiblingIndex();
-        Utility.ChangeImageAlpha(gameObject.GetComponentInChildren<Image>(),0.5f);
+        Utility.ChangeImageAlpha(gameObject.GetComponentInChildren<Image>(), 0.5f);
         ghostItem = new GameObject("GhostItem", typeof(RectTransform), typeof(CanvasGroup));
         ghostItem.transform.SetParent(canvas.transform);
         Image ghostImage = ghostItem.AddComponent<Image>();
@@ -90,7 +89,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     }
     public void Update()
     {
-        if (isDragging&&pointerEventData!=null)
+        if (isDragging && pointerEventData != null)
         {
             List<RaycastResult> raycastResults = new List<RaycastResult>();
             EventSystem.current.RaycastAll(pointerEventData, raycastResults);
@@ -100,6 +99,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                 if (consumableItem != null)
                 {
                     Oasis oasis = consumableItem.consumableEffect as Oasis;
+                    SpecialHexSelector specialHexSelector = consumableItem.consumableEffect as SpecialHexSelector;
                     if (oasis != null)
                     {
                         foreach (var result in raycastResults)
@@ -107,9 +107,24 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                             if (((1 << result.gameObject.layer) & gridLayer) != 0)
                             {
                                 HexNode hexNode = result.gameObject.GetComponent<HexNode>();
-                                if (hexNode.IsDesertified())
+                                if (hexNode.IsDesertified() && hexNode.IsBattlefield)
                                 {
-                                    hexNode.CreateFloatingPiece(Color.yellow, 1f);
+                                    hexNode.CreateFloatingPiece(Color.yellow, 0.1f);
+                                }
+
+                            }
+                        }
+                    }
+                    if (specialHexSelector != null)
+                    {
+                        foreach (var result in raycastResults)
+                        {
+                            if (((1 << result.gameObject.layer) & gridLayer) != 0)
+                            {
+                                HexNode hexNode = result.gameObject.GetComponent<HexNode>();
+                                if (hexNode.isAllyHex && hexNode.IsBattlefield)
+                                {
+                                    hexNode.CreateFloatingPiece(Color.yellow, 0.1f);
                                 }
 
                             }
@@ -118,7 +133,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                 }
             }
         }
-        
+
     }
     public void OnDrag(PointerEventData eventData)
     {
@@ -128,7 +143,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         List<RaycastResult> raycastResults = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, raycastResults);
         bool canCompose = false;
-        
+
         foreach (var result in raycastResults)
         {
             if (((1 << result.gameObject.layer) & characterLayerMask) != 0)
@@ -138,7 +153,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                 {
                     if (CharacterEquipmentManager.CanCombine(item, equipmentData, out IEquipment resultEq))
                     {
-                        CustomLogger.Log(this,$"can combine {item} and {equipmentData} to {resultEq}");
+                        CustomLogger.Log(this, $"can combine {item} and {equipmentData} to {resultEq}");
                         canCompose = true;
                         UIManager.Instance.ShowEquipmentPreComposing(item, equipmentData, resultEq);
                     }
@@ -167,6 +182,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                 CharacterCTRL character = result.gameObject.GetComponent<CharacterCTRL>();
                 if (IsConsumableItem)
                 {
+
                     ConsumableItem consumableItem = equipmentData as ConsumableItem;
                     if (consumableItem != null)
                     {
@@ -285,7 +301,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                 }
             }
         }
-        
+
     }
     public void CheckAugment1006(List<RaycastResult> raycastResults)
     {
@@ -302,7 +318,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
                         if (((1 << item.gameObject.layer) & gridLayer) != 0)
                         {
                             HexNode h = item.gameObject.GetComponent<HexNode>();
-                            if (!h.isAllyHex||!h.IsBattlefield)
+                            if (!h.isAllyHex || !h.IsBattlefield)
                             {
                                 PopupManager.Instance.CreatePopup("使用友方格子上!", 2);
                             }
@@ -326,7 +342,7 @@ public class EquipmentItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         {
             {
                 EquipmentUIManager.Instance.ToggleUI(Detail);
-            
+
             }
         }
 

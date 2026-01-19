@@ -60,7 +60,13 @@ public class Shop : MonoBehaviour
             freeReroll--;
         else
             GameController.Instance.AddGold(-2);
-
+        if (SelectedAugments.Instance.CheckAugmetExist(1039, true))
+        {
+            if (Utility.GetRandfloat() > 0.5f)
+            {
+                freeReroll++;
+            }
+        }
         GetCharacter();
     }
 
@@ -71,7 +77,7 @@ public class Shop : MonoBehaviour
         if (ResourcePool.Instance.ally.GetSpecificTrait(Traits.SRT) >= 2 && SRT_RandStatIndex != -1)
         {
             GameController.Instance.AddGold(-2);
-            SRTManager.instance.AddStat(SRT_RandStatIndex,true);
+            SRTManager.instance.AddStat(SRT_RandStatIndex, true);
             SRT_RandStatIndex = -1;
             ShopButtons[index].interactable = false;
             images[index].color = new Color(1, 1, 1, 0);
@@ -217,7 +223,7 @@ public class Shop : MonoBehaviour
             {
                 int slotIndex = (ResourcePool.Instance.ally.GetSpecificTrait(Traits.SRT) >= 2) ? 3 : 4;
                 ReplaceSlotWithHighestCostRandomCharacter(slotIndex, p);
-                
+
             }
         }
         UpdateShopUI();

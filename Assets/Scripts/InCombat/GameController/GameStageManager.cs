@@ -319,6 +319,10 @@ public class GameStageManager : MonoBehaviour
         currentRound++;
         if (!defeatedTeam.isally)
         {
+            if (SelectedAugments.Instance.CheckAugmetExist(1026, true))
+            {
+                ResourcePool.Instance.GetRandRewardPrefab(Vector3.zero);
+            }
             netWin++;
             WinStreak++;
             ResourcePool.Instance.ally.Augment1020DamagePercentage++;
@@ -355,6 +359,10 @@ public class GameStageManager : MonoBehaviour
         }
         else
         {
+            if (SelectedAugments.Instance.CheckAugmetExist(1026, true))
+            {
+                ResourcePool.Instance.GetGoldPrefab(Vector3.zero);
+            }
             netWin--;
             LoseStreak++;
             ResourcePool.Instance.ally.Augment1020DamagePercentage--;
@@ -552,7 +560,10 @@ public class GameStageManager : MonoBehaviour
                 additionalLimit++;
             }
         }
-
+        if (SelectedAugments.Instance.CheckAugmetExist(1038,true))
+        {
+            additionalLimit++;
+        }
         return baseLimit + additionalLimit;
     }
     private void InitializeFloorRewardMapping()

@@ -372,8 +372,8 @@ public class Augment1025 : CommonAugment//角色每裝備一件裝備(成裝或是組件皆可)，
     }
 }
 
-public class Augment1026 : CommonAugment
-{
+public class Augment1026 : CommonAugment//匹配到的對手勝場數將會比己方多1，現在獲勝時，獲得一個隨機組件。失敗時，獲得1招募點數。
+{//TODO:匹配條件尚未完成
     public Augment1026(AugmentConfig config) : base(config) { }
     public override void Apply()
     {
@@ -501,21 +501,21 @@ public class Augment1037 : CommonAugment//隊伍內每裝備一件裝備，我方隊伍就獲得15
         {
             ResourcePool.Instance.GetRandRewardPrefab(Vector3.zero);
         }
-
         CustomLogger.Log(this, $"Applying {config.augmentIndex},name {config.name}");
     }
 }
 
-public class Augment1038 : CommonAugment
+public class Augment1038 : CommonAugment//隊伍可部署的人數上限+1，獲得一個組件
 {
     public Augment1038(AugmentConfig config) : base(config) { }
     public override void Apply()
     {
+        ResourcePool.Instance.GetRandRewardPrefab(Vector3.zero);
         CustomLogger.Log(this, $"Applying {config.augmentIndex},name {config.name}");
     }
 }
 
-public class Augment1039 : CommonAugment
+public class Augment1039 : CommonAugment//每一次刷新商店時，50%機率獲得一個免費刷新。
 {
     public Augment1039(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -524,7 +524,7 @@ public class Augment1039 : CommonAugment
     }
 }
 
-public class Augment1040 : CommonAugment
+public class Augment1040 : CommonAugment//
 {
     public Augment1040(AugmentConfig config) : base(config) { }
     public override void Apply()
