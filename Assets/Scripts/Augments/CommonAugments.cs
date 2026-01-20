@@ -188,7 +188,7 @@ public class Augment1006 : CommonAugment//Àò±o¤@­Ó¦a¿j¿ï¾Ü¾¹¡A¹ïµÛ§Ú¤è´Ñ®æ¨Ï¥Î®É
     }
 }
 
-public class Augment1007 : CommonAugment
+public class Augment1007 : CommonAugment//¶}©l¾Ô°«®É¡A¦pªG©P³ò¨S¦³¤Í­x¡A«hÀò±o¬Û·í©ó8%ªº³Ì¤j¥Í©RÅ@¬Þ
 {
     public Augment1007(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -381,7 +381,7 @@ public class Augment1026 : CommonAugment//¤Ç°t¨ìªº¹ï¤â³Ó³õ¼Æ±N·|¤ñ¤v¤è¦h1¡A²{¦bÀ
     }
 }
 
-public class Augment1027 : CommonAugment
+public class Augment1027 : CommonAugment//¶}©l¾Ô°«®É¡A¦pªG©P³ò¨S¦³¤Í­x¡A«hÀò±o¬Û·í©ó12%ªº³Ì¤j¥Í©RÅ@¬Þ¡A¥H¤Î5%¶Ë®`¼W´T
 {
     public Augment1027(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -524,7 +524,7 @@ public class Augment1039 : CommonAugment//¨C¤@¦¸¨ê·s°Ó©±®É¡A50%¾÷²vÀò±o¤@­Ó§K¶O¨
     }
 }
 
-public class Augment1040 : CommonAugment//
+public class Augment1040 : CommonAugment//¶}©l¾Ô°«®É¡A¦pªG©P³ò¨S¦³¤Í­x¡A«hÀò±o¬Û·í©ó15%ªº³Ì¤j¥Í©RÅ@¬Þ¡A¥H¤Î8%¶Ë®`¼W´T¡A¥H¤Î8%¶Ë®`´î§K
 {
     public Augment1040(AugmentConfig config) : base(config) { }
     public override void Apply()

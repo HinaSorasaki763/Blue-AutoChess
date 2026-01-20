@@ -1126,7 +1126,76 @@ public class GlobalBaseObserver : CharacterObserverBase
 
     public override void CharacterStart(CharacterCTRL character)
     {
-        if (SelectedAugments.Instance.CheckAugmetExist(1025, true))
+        bool hasAlly = false;
+        foreach (var item in character.CurrentHex.Neighbors)
+        {
+            if (item.OccupyingCharacter != null)
+            {
+                hasAlly = true;
+                break;
+            }
+        }
+
+        if (SelectedAugments.Instance.CheckAugmetExist(1007, character.IsAlly))
+        {
+            if (!hasAlly)
+            {
+                character.AddShield(
+                    (int)(character.GetStat(StatsType.Health) * 0.08f),
+                    10f,
+                    character
+                );
+            }
+        }
+
+        if (SelectedAugments.Instance.CheckAugmetExist(1027, character.IsAlly))
+        {
+            if (!hasAlly)
+            {
+                character.AddShield(
+                    (int)(character.GetStat(StatsType.Health) * 0.12f),
+                    10f,
+                    character
+                );
+
+                Effect e1 = EffectFactory.CreateUnStackableStatEffect(
+                    0, "Augment1027", 5, StatsType.DamageIncrease, character, true
+                );
+                character.effectCTRL.AddEffect(e1, character);
+            }
+            else
+            {
+                character.effectCTRL.ClearEffectWithSource("Augment1027");
+            }
+        }
+
+        if (SelectedAugments.Instance.CheckAugmetExist(1040, character.IsAlly))
+        {
+            if (!hasAlly)
+            {
+                character.AddShield(
+                    (int)(character.GetStat(StatsType.Health) * 0.15f),
+                    10f,
+                    character
+                );
+
+                Effect e1 = EffectFactory.CreateUnStackableStatEffect(
+                    0, "Augment1040-1", 8, StatsType.DamageIncrease, character, true
+                );
+                Effect e2 = EffectFactory.CreateUnStackableStatEffect(
+                    0, "Augment1040-2", 8, StatsType.PercentageResistence, character, true
+                );
+
+                character.effectCTRL.AddEffect(e1, character);
+                character.effectCTRL.AddEffect(e2, character);
+            }
+            else
+            {
+                character.effectCTRL.ClearEffectWithSource("Augment1040-1");
+                character.effectCTRL.ClearEffectWithSource("Augment1040-2");
+            }
+        }
+        if (SelectedAugments.Instance.CheckAugmetExist(1025, character.IsAlly))
         {
             int amount = character.equipmentManager.equippedItems.Count * 5;
             Effect e1 = EffectFactory.CreateUnStackableStatEffect(
@@ -1137,7 +1206,7 @@ public class GlobalBaseObserver : CharacterObserverBase
             character.effectCTRL.AddEffect(e1, character);
             character.effectCTRL.AddEffect(e2, character);
         }
-        if (SelectedAugments.Instance.CheckAugmetExist(1024, true))
+        if (SelectedAugments.Instance.CheckAugmetExist(1024, character.IsAlly))
         {
             character.Augment1024Count++;
             int count = character.Augment1024Count;
@@ -1318,7 +1387,7 @@ public class GlobalBaseObserver : CharacterObserverBase
         if (SelectedAugments.Instance.CheckAugmetExist(1025, true))
         {
             int amount = character.equipmentManager.equippedItems.Count * 5;
-            if (Utility.GetRand(character) <= amount) 
+            if (Utility.GetRand(character) <= amount)
             {
                 ResourcePool.Instance.GetGoldPrefab(character.transform.position);
             }
