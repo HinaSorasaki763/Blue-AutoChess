@@ -91,6 +91,7 @@ public class CharacterCTRL : MonoBehaviour
     public bool Invincible = false;
     public bool isCCImmune = false;
     public bool AntiHeal = false;
+    public bool Battleovertime;
     public float AntiHealRatio = 0;
     public bool isTargetable = true;
     public bool FaceDirectionLock = false;
@@ -101,6 +102,7 @@ public class CharacterCTRL : MonoBehaviour
     public bool InStasis = false;
     public bool isAugment125Reinforced = false;
     public int Augment1024Count = 0;
+    public int OverHealConvertDmg = 0;
     #endregion
 
     #region === Status Effects / Special Conditions ===
@@ -669,20 +671,11 @@ public class CharacterCTRL : MonoBehaviour
         }
         final = traitController.BeforeHealing(source, final);
         final = equipmentManager.BeforeHealing(source, final);
+        if (Battleovertime)
+        {
+            final -= (int)(amount * 0.7f);
+        }
         return final;
-    }
-    public int GetHealAmount(int amount, CharacterCTRL source)
-    {
-        amount = BeforeHealing(amount, source);
-        if (AntiHeal)
-        {
-            amount = (int)(amount * (1 - AntiHealRatio));
-        }
-        if (amount <= 1)
-        {
-            return 0;
-        }
-        return amount;
     }
     public void HealToFull(CharacterCTRL source)
     {
@@ -704,48 +697,50 @@ public class CharacterCTRL : MonoBehaviour
         AudioManager.PlayHpRestoredSound();
         AddStat(StatsType.currHealth, amount);
     }
-    public virtual void Heal(int amount, CharacterCTRL source)
+    public virtual int Heal(int amount, CharacterCTRL source)
     {
         amount = (int)(amount * (1 + HealerManager.instance.amount * 0.01f));
         amount = BeforeHealing(amount, source);
-        if (AntiHeal)
-        {
-            amount = (int)(amount * (1 - AntiHealRatio));
-        }
-        if (amount <= 1)
-        {
-            return;
-        }
+        if (amount <= 0)
+            return 0;
+
         CustomLogger.Log(this, $"{source} heal {name} of {amount}");
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
         TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.None, amount, screenPos, false, true);
+
         foreach (var item in source.observers)
-        {
             item.OnHealing(source);
-        }
-        if (traitController != null)
+
+        source.traitController?.OnHealing();
+        source.equipmentManager?.OnHealing();
+
+        int currHp = (int)GetStat(StatsType.currHealth);
+        int maxHp = (int)GetStat(StatsType.Health);
+        int overflow = Math.Max(0, currHp + amount - maxHp);
+
+        if (overflow > 0)
         {
-            source.traitController.OnHealing();
-        }
-        if (equipmentManager != null)
-        {
-            source.equipmentManager.OnHealing();
-        }
-        if (GetStat(StatsType.currHealth) + amount >= GetStat(StatsType.Health))
-        {
-            SetStat(StatsType.currHealth, GetStat(StatsType.Health));
-            if (equipmentManager.HaveSpecificEquipment(11))
+            SetStat(StatsType.currHealth, maxHp);
+            OverHealConvertDmg += overflow;
+            if (equipmentManager != null && equipmentManager.HaveSpecificEquipment(11))
             {
-                int manashouldRestore = (int)(GetStat(StatsType.currHealth) + amount - GetStat(StatsType.Health)) / 20;
-                int manaRestoreAmount = Math.Min((int)GetStat(StatsType.MaxMana) / 5 - Amulet_WatchObserverManaRestoreAmount, manashouldRestore);
+                int manaShouldRestore = overflow / 20;
+                int manaRestoreAmount = Math.Min(
+                    (int)GetStat(StatsType.MaxMana) / 5 - Amulet_WatchObserverManaRestoreAmount,
+                    manaShouldRestore
+                );
                 Amulet_WatchObserverManaRestoreAmount += manaRestoreAmount;
                 Addmana(manaRestoreAmount);
             }
-            return;
         }
-        AudioManager.PlayHpRestoredSound();
-        AddStat(StatsType.currHealth, amount);
+        else
+        {
+            AudioManager.PlayHpRestoredSound();
+            AddStat(StatsType.currHealth, amount);
+        }
+        return overflow;
     }
+
     public void OnEnterGrid()
     {
         foreach (var item in observers)
@@ -1156,7 +1151,7 @@ public class CharacterCTRL : MonoBehaviour
     {
         if (PercentageStatsDict.TryGetValue(identifier, out var val))
         {
-            if (val.fromStat == fromStat && val.toStat == toStat && val.amount <=percent)
+            if (val.fromStat == fromStat && val.toStat == toStat && val.amount <= percent)
             {
                 return;
             }
@@ -2079,7 +2074,6 @@ public class CharacterCTRL : MonoBehaviour
     public void BattleOverTime()
     {
         AntiHeal = true;
-        AntiHealRatio = 0.8f;
     }
     public void HyakkiyakoDyingEffectStart()
     {

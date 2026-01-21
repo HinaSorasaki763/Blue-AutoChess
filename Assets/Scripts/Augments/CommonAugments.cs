@@ -197,7 +197,7 @@ public class Augment1007 : CommonAugment//開始戰鬥時，如果周圍沒有友軍，則獲得相
     }
 }
 
-public class Augment1008 : CommonAugment
+public class Augment1008 : CommonAugment//單位額外造成1%真實傷害，並且使得敵方"重創"，獲得治癒量減少，且無法疊加。
 {
     public Augment1008(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -390,7 +390,7 @@ public class Augment1027 : CommonAugment//開始戰鬥時，如果周圍沒有友軍，則獲得相
     }
 }
 
-public class Augment1028 : CommonAugment
+public class Augment1028 : CommonAugment//獲得15%全能吸血。並且在下一次造成傷害時，造成超過的治癒量25%的真實傷害
 {
     public Augment1028(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -533,7 +533,7 @@ public class Augment1040 : CommonAugment//開始戰鬥時，如果周圍沒有友軍，則獲得相
     }
 }
 
-public class Augment1041 : CommonAugment
+public class Augment1041 : CommonAugment//獲得25%全能吸血，並且在下一次造成傷害時，造成超過的治癒量30%的真實傷害
 {
     public Augment1041(AugmentConfig config) : base(config) { }
     public override void Apply()

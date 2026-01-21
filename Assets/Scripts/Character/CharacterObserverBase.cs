@@ -213,6 +213,7 @@ public abstract class CharacterObserverBase
     }
     public virtual int BeforeHealing(CharacterCTRL characterCTRL, int amount)
     {
+
         return amount;
     }
     /// </summary>
@@ -1136,6 +1137,7 @@ public class GlobalBaseObserver : CharacterObserverBase
             }
         }
 
+
         if (SelectedAugments.Instance.CheckAugmetExist(1007, character.IsAlly))
         {
             if (!hasAlly)
@@ -1168,7 +1170,20 @@ public class GlobalBaseObserver : CharacterObserverBase
                 character.effectCTRL.ClearEffectWithSource("Augment1027");
             }
         }
-
+        if (SelectedAugments.Instance.CheckAugmetExist(1028, character.IsAlly))
+        {
+            Effect e1 = EffectFactory.CreateUnStackableStatEffect(
+                0, "Augment1028", 15, StatsType.Lifesteal, character, true
+            );
+            character.effectCTRL.AddEffect(e1, character);
+        }
+        if (SelectedAugments.Instance.CheckAugmetExist(1041, character.IsAlly))
+        {
+            Effect e1 = EffectFactory.CreateUnStackableStatEffect(
+                0, "Augment1041", 25, StatsType.Lifesteal, character, true
+            );
+            character.effectCTRL.AddEffect(e1, character);
+        }
         if (SelectedAugments.Instance.CheckAugmetExist(1040, character.IsAlly))
         {
             if (!hasAlly)
@@ -1347,6 +1362,23 @@ public class GlobalBaseObserver : CharacterObserverBase
 
     public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
+        if (SelectedAugments.Instance.CheckAugmetExist(1008, source.IsAlly))
+        {
+            target.GetHitByTrueDamage((int)(damage * 0.01f), source, "Augment1008", false);
+            target.AntiHeal = true;
+        }
+        if (SelectedAugments.Instance.CheckAugmetExist(1028, source.IsAlly))
+        {
+            int dmg = (int)(source.OverHealConvertDmg * 0.25);
+            target.GetHitByTrueDamage(dmg, source, "Augment1028", false);
+            source.OverHealConvertDmg = 0;
+        }
+        if (SelectedAugments.Instance.CheckAugmetExist(1041, source.IsAlly))
+        {
+            int dmg = (int)(source.OverHealConvertDmg * 0.3);
+            target.GetHitByTrueDamage(dmg, source, "Augment1041", false);
+            source.OverHealConvertDmg = 0;
+        }
         if (SelectedAugments.Instance.CheckAugmetExist(1036, source.IsAlly) && detailedSource != "Augment1036")
         {
             CharacterParent characterParent = source.IsAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
@@ -1525,5 +1557,12 @@ public class GlobalBaseObserver : CharacterObserverBase
         }
         return base.DamageModifier(source, target, damage, detailedSource, iscrit);
     }
-
+    public override int BeforeHealing(CharacterCTRL characterCTRL, int amount)
+    {
+        if (characterCTRL.AntiHeal)
+        {
+            amount /= 2;
+        }
+        return amount;
+    }
 }
