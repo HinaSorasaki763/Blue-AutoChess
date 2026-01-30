@@ -451,6 +451,15 @@ public class GameStageManager : MonoBehaviour
             }
             c.isAugment125Reinforced = true;
         }
+        if (SelectedAugments.Instance.CheckAugmetExist(1030, true))
+        {
+            CharacterCTRL dmg = DamageStatisticsManager.Instance.GetTopDamageDealer(true);
+            dmg.AddExtraStat(StatsType.Attack, 2, "Augment1030Attack", true);
+            dmg.AddExtraStat(StatsType.DamageIncrease, 2, "Augment1030DamageIncrease", true);
+            CharacterCTRL tank = DamageStatisticsManager.Instance.GetTopDamageTaken(true);
+            tank.AddExtraStat(StatsType.Health, 2, "Augment1030Health", true);
+            tank.AddExtraStat(StatsType.PercentageResistence, 2, "Augment1030PercentageResistence", true);
+        }
         DamageStatisticsManager.Instance.ClearAll();
         BugReportLogger.Instance.EndBattle();
         enteringBattleCounter = 0;
@@ -560,7 +569,7 @@ public class GameStageManager : MonoBehaviour
                 additionalLimit++;
             }
         }
-        if (SelectedAugments.Instance.CheckAugmetExist(1038,true))
+        if (SelectedAugments.Instance.CheckAugmetExist(1038, true))
         {
             additionalLimit++;
         }

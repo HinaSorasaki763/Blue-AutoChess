@@ -209,7 +209,7 @@ public class TraitController : MonoBehaviour
             item.OnCrit(character);
         }
     }
-    private void Lifesteal(int dmg)
+    public void Lifesteal(int dmg)
     {
         float lifesteal = character.GetStat(StatsType.Lifesteal);
         character.Heal((int)(dmg * lifesteal / 100), character);

@@ -1100,6 +1100,20 @@ namespace GameEnum
                 return null;
             }
         }
+        public static int GetNeighborOccupiedCount(CharacterCTRL character)
+        {
+            if (character == null || character.CurrentHex == null || character.CurrentHex.Neighbors == null)
+                return 0;
+
+            int count = 0;
+            foreach (var hex in character.CurrentHex.Neighbors)
+            {
+                if (hex != null && hex.OccupyingCharacter != null)
+                    count++;
+            }
+            return count;
+        }
+
         public static HexNode FindFarthestNode(CharacterCTRL c, int minDistance)
         {
             bool isAlly = c.IsAlly;

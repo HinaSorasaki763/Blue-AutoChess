@@ -1136,8 +1136,49 @@ public class GlobalBaseObserver : CharacterObserverBase
                 break;
             }
         }
-
-
+        if (SelectedAugments.Instance.CheckAugmetExist(1010, character.IsAlly))
+        {
+            if (character.star <= 1 || character.characterStats.Level <= 2)
+            {
+                Effect e1 = EffectFactory.CreateUnStackableStatEffect(
+                    0, "Augment1010", 0.15f, StatsType.AttackSpeed, character, true
+                );
+                character.effectCTRL.AddEffect(e1, character);
+            }
+        }
+        if (SelectedAugments.Instance.CheckAugmetExist(1011, character.IsAlly))
+        {
+            if (Utility.GetNeighborOccupiedCount(character) == 1)
+            {
+                Effect e1 = EffectFactory.CreateUnStackableStatEffect(
+                    0, "Augment1011_AttackSpeed", 0.10f, StatsType.AttackSpeed, character, true
+                );
+                character.effectCTRL.AddEffect(e1, character);
+                Effect e2 = EffectFactory.CreateUnStackableStatEffect(
+                    0, "Augment1011_Resistence", 0.10f, StatsType.Resistence, character, true
+                );
+                character.effectCTRL.AddEffect(e1, character);
+            }
+            else
+            {
+                character.effectCTRL.ClearEffectWithSource("Augment1011_Resistence");
+                character.effectCTRL.ClearEffectWithSource("Augment1011_AttackSpeed");
+            }
+        }
+        if (SelectedAugments.Instance.CheckAugmetExist(1029, character.IsAlly))
+        {
+            if (character.GetStat(StatsType.Range) >= 4)
+            {
+                Effect e1 = EffectFactory.CreateUnStackableStatEffect(
+                    0, "Augment1029", 15, StatsType.DamageIncrease, character, true
+                );
+                character.effectCTRL.AddEffect(e1, character);
+            }
+            else
+            {
+                character.effectCTRL.ClearEffectWithSource("Augment1029");
+            }
+        }
         if (SelectedAugments.Instance.CheckAugmetExist(1007, character.IsAlly))
         {
             if (!hasAlly)
@@ -1170,12 +1211,24 @@ public class GlobalBaseObserver : CharacterObserverBase
                 character.effectCTRL.ClearEffectWithSource("Augment1027");
             }
         }
+        if (SelectedAugments.Instance.CheckAugmetExist(1009, character.IsAlly))
+        {
+            Effect e1 = EffectFactory.CreateUnStackableStatEffect(
+                0, "Augment1009", 8, StatsType.Lifesteal, character, true
+            );
+            character.effectCTRL.AddEffect(e1, character);
+        }
         if (SelectedAugments.Instance.CheckAugmetExist(1028, character.IsAlly))
         {
             Effect e1 = EffectFactory.CreateUnStackableStatEffect(
                 0, "Augment1028", 15, StatsType.Lifesteal, character, true
             );
             character.effectCTRL.AddEffect(e1, character);
+        }
+        if (SelectedAugments.Instance.CheckAugmetExist(1032, character.IsAlly))
+        {
+            character.AddPercentageBonus(StatsType.Null, StatsType.Health, 10, "Augment1032_Health");
+            character.AddPercentageBonus(StatsType.Health, StatsType.Attack, 2, "Augment1032_HralthConvertAtk");
         }
         if (SelectedAugments.Instance.CheckAugmetExist(1041, character.IsAlly))
         {
@@ -1344,6 +1397,13 @@ public class GlobalBaseObserver : CharacterObserverBase
 
     public override int OnDamageTaken(CharacterCTRL character, CharacterCTRL source, int amount)
     {
+        if (SelectedAugments.Instance.CheckAugmetExist(1029, character.IsAlly))
+        {
+            if (Vector3.Distance(source.CurrentHex.Position, character.CurrentHex.Position) >= character.GetStat(StatsType.Range))
+            {
+                amount = (int)(amount * 1.15f);
+            }
+        }
         if (SelectedAugments.Instance.CheckAugmetExist(1023, character.IsAlly))
         {
             float maxHealth = character.GetStat(StatsType.Health);
@@ -1362,10 +1422,23 @@ public class GlobalBaseObserver : CharacterObserverBase
 
     public override void OnDamageDealt(CharacterCTRL source, CharacterCTRL target, int damage, string detailedSource, bool iscrit)
     {
+        if (SelectedAugments.Instance.CheckAugmetExist(1029, source.IsAlly))
+        {
+            if (Vector3.Distance(target.CurrentHex.Position, source.CurrentHex.Position) <= source.GetStat(StatsType.Range))
+            {
+                damage = (int)(damage * 1.15f);
+            }
+        }
         if (SelectedAugments.Instance.CheckAugmetExist(1008, source.IsAlly))
         {
             target.GetHitByTrueDamage((int)(damage * 0.01f), source, "Augment1008", false);
             target.AntiHeal = true;
+        }
+        if (SelectedAugments.Instance.CheckAugmetExist(1009, source.IsAlly))
+        {
+            int dmg = (int)(source.OverHealConvertDmg * 0.10);
+            target.GetHitByTrueDamage(dmg, source, "Augment1009", false);
+            source.OverHealConvertDmg = 0;
         }
         if (SelectedAugments.Instance.CheckAugmetExist(1028, source.IsAlly))
         {

@@ -1,4 +1,3 @@
-using System.Linq;
 using GameEnum;
 using UnityEngine;
 public class CommonAugment : Augment
@@ -206,7 +205,7 @@ public class Augment1008 : CommonAugment//³æ¦ìÃB¥~³y¦¨1%¯u¹ê¶Ë®`¡A¨Ã¥B¨Ï±o¼Ä¤è"­
     }
 }
 
-public class Augment1009 : CommonAugment
+public class Augment1009 : CommonAugment//Àò±o8%¥þ¯à§l¦å¡C¨Ã¥B¦b¤U¤@¦¸³y¦¨¶Ë®`®É¡A³y¦¨¶W¹LªºªvÂ¡¶q10%ªº¯u¹ê¶Ë®`
 {
     public Augment1009(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -215,7 +214,7 @@ public class Augment1009 : CommonAugment
     }
 }
 
-public class Augment1010 : CommonAugment
+public class Augment1010 : CommonAugment//¬P¯Å1©Î¬O»ù®æ1¡B2ªº³æ¦ìÀò±o15%§ðÀ»³t«×
 {
     public Augment1010(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -224,7 +223,7 @@ public class Augment1010 : CommonAugment
     }
 }
 
-public class Augment1011 : CommonAugment
+public class Augment1011 : CommonAugment//¾Ô°«¶}©l®É¡A­Y¾F®æ«ê¦n¥u¦³¤@­Ó¤Í­x¡A¦Û¤vÀò±o10%§ðÀ»³t«×¡B10¨¾¿m
 {
     public Augment1011(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -332,7 +331,7 @@ public class Augment1021 : CommonAugment//Àò±o¤@­Ó¤p«¬­^¶¯½Æ»s¾¹¡A¨Ã¥B¨C±N¤@­Ó­^
     }
     public override void Trigger(bool isally)
     {
-        
+
     }
 }
 
@@ -399,7 +398,7 @@ public class Augment1028 : CommonAugment//Àò±o15%¥þ¯à§l¦å¡C¨Ã¥B¦b¤U¤@¦¸³y¦¨¶Ë®`®
     }
 }
 
-public class Augment1029 : CommonAugment
+public class Augment1029 : CommonAugment//³æ¦ì¹ï©ó¥|®æ¥~ªº¼Ä­x³y¦¨ÃB¥~15%¶Ë®`¡A¥B¦pªG¨ü¨ì¶Ë®`¨Ó¦Û©ó¦Û¨­§ðÀ»½d³ò¤º¡A«h¨ü¨ì¶Ë®`¤W¤É15%¡A¨Ã¥B§ðÀ»¶ZÂ÷4¥H¤Wªº³æ¦ìÀò±o15%¶Ë®`¼W´T¡C
 {
     public Augment1029(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -408,7 +407,7 @@ public class Augment1029 : CommonAugment
     }
 }
 
-public class Augment1030 : CommonAugment
+public class Augment1030 : CommonAugment//¤W¤@³õ¾Ô°«³y¦¨¶Ë®`³Ì°ªªº³æ¦ì±N·|¥Ã¤[ÃB¥~³y¦¨2%¶Ë®`¥H¤Î2%§ðÀ»¤O¡A©Ó¨ü³Ì¦h¶Ë®`ªº³æ¦ì±N·|ÃB¥~Àò±o2%¥Í©R¥H¤Î2%¶Ë®`´î§K
 {
     public Augment1030(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -417,7 +416,7 @@ public class Augment1030 : CommonAugment
     }
 }
 
-public class Augment1031 : CommonAugment
+public class Augment1031 : CommonAugment//­Y¸Ë³Æ¤@¥ó©Î¥H¤Wªº¸Ë³Æ¡AÀò±o300¥Í©R­È¡C­Y¸Ë³Æ¤T¥ó¸Ë³Æ¡A§ï¬°Àò±o450¥Í©R­È¡C
 {
     public Augment1031(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -426,7 +425,7 @@ public class Augment1031 : CommonAugment
     }
 }
 
-public class Augment1032 : CommonAugment
+public class Augment1032 : CommonAugment//§Ú¤è³æ¦ìÀò±o10%¥Í©R­È¡B¥H¤Î2%¥Í©R­Èªº§ðÀ»¤O
 {
     public Augment1032(AugmentConfig config) : base(config) { }
     public override void Apply()
@@ -542,7 +541,7 @@ public class Augment1041 : CommonAugment//Àò±o25%¥þ¯à§l¦å¡A¨Ã¥B¦b¤U¤@¦¸³y¦¨¶Ë®`®
     }
 }
 
-public class Augment1042 : CommonAugment
+public class Augment1042 : CommonAugment//­Y¸Ë³Æ¤@¥ó©Î¥H¤Wªº¸Ë³Æ¡AÀò±o500¥Í©R­È¡C­Y¸Ë³Æ¤T¥ó¸Ë³Æ¡A§ï¬°Àò±o750¥Í©R­È¡C
 {
     public Augment1042(AugmentConfig config) : base(config) { }
     public override void Apply()

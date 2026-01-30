@@ -1,8 +1,7 @@
 ﻿using GameEnum;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
-using Unity.VisualScripting;
+using UnityEngine;
 public class CharacterEquipmentManager : MonoBehaviour
 {
     private const int MaxEquipmentSlots = 3;
@@ -336,6 +335,48 @@ public class CharacterEquipmentManager : MonoBehaviour
                 Parent.AddStat(GetStatType(stat.Key), val, false);
             }
             CustomLogger.Log(this, $"UpdateEquipmentStats: {item.GetStats()}");
+        }
+        if (equippedItems.Count >= 1)
+        {
+            if (equippedItems.Count < 3)
+            {
+                if (SelectedAugments.Instance.CheckAugmetExist(1031, Parent.IsAlly))
+                {
+                    Effect e1 = EffectFactory.CreateUnStackableStatEffect(
+                        0, "Augment1031", 300, StatsType.Health, Parent, true
+                    );
+                    Parent.effectCTRL.AddEffect(e1, Parent);
+                }
+                if (SelectedAugments.Instance.CheckAugmetExist(1042, Parent.IsAlly))
+                {
+                    Effect e1 = EffectFactory.CreateUnStackableStatEffect(
+                        0, "Augment1042", 500, StatsType.Health, Parent, true
+                    );
+                    Parent.effectCTRL.AddEffect(e1, Parent);
+                }
+            }
+            else
+            {
+                if (SelectedAugments.Instance.CheckAugmetExist(1031, Parent.IsAlly))
+                {
+                    Effect e1 = EffectFactory.CreateUnStackableStatEffect(
+                        0, "Augment1031", 450, StatsType.Health, Parent, true
+                    );
+                    Parent.effectCTRL.AddEffect(e1, Parent);
+                }
+                if (SelectedAugments.Instance.CheckAugmetExist(1042, Parent.IsAlly))
+                {
+                    Effect e1 = EffectFactory.CreateUnStackableStatEffect(
+                        0, "Augment1042", 750, StatsType.Health, Parent, true
+                    );
+                    Parent.effectCTRL.AddEffect(e1, Parent);
+                }
+            }
+        }
+        else
+        {
+            Parent.effectCTRL.ClearEffectWithSource("Augment1031");
+            Parent.effectCTRL.ClearEffectWithSource("Augment1042");
         }
     }
     private void UpdateStatsForEquipment(IEquipment equipment)

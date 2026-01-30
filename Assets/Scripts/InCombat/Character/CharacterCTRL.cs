@@ -1596,6 +1596,8 @@ public class CharacterCTRL : MonoBehaviour
 
                 shield.amount -= amount;
                 AddStat(StatsType.Shield, -amount);
+                float lifesteal = sourceCharacter.GetStat(StatsType.Lifesteal);
+                sourceCharacter.Heal((int)(amount * lifesteal / 100), sourceCharacter);
                 amount = 0;
             }
             else
@@ -1607,6 +1609,8 @@ public class CharacterCTRL : MonoBehaviour
 
                 amount -= shield.amount;
                 AddStat(StatsType.Shield, -shield.amount);
+                float lifesteal = sourceCharacter.GetStat(StatsType.Lifesteal);
+                sourceCharacter.Heal((int)(amount * lifesteal / 100), sourceCharacter);
                 shields.RemoveAt(0);
             }
         }
@@ -1615,6 +1619,8 @@ public class CharacterCTRL : MonoBehaviour
         {
             TextEffectPool.Instance.ShowTextEffect(BattleDisplayEffect.None, amount, screenPos, true);
             AddStat(StatsType.currHealth, -amount);
+            float lifesteal = sourceCharacter.GetStat(StatsType.Lifesteal);
+            sourceCharacter.Heal((int)(amount * lifesteal / 100), sourceCharacter);
         }
 
         foreach (var item in observers)
