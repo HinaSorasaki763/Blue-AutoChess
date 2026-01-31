@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public abstract class CharacterObserverBase
 {
@@ -1190,7 +1191,13 @@ public class GlobalBaseObserver : CharacterObserverBase
                 );
             }
         }
-
+        if (SelectedAugments.Instance.CheckAugmetExist(1043, character.IsAlly))
+        {
+            Effect e1 = EffectFactory.CreateUnStackableStatEffect(
+                0, "Augment1043_FirstPhase", 60, StatsType.DamageIncrease, character, true
+            );
+            character.effectCTRL.AddEffect(e1, character);
+        }
         if (SelectedAugments.Instance.CheckAugmetExist(1027, character.IsAlly))
         {
             if (!hasAlly)

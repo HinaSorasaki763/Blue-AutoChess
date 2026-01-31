@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 using UnityEngine.UI;
 
 public class GameStageManager : MonoBehaviour
@@ -38,6 +39,9 @@ public class GameStageManager : MonoBehaviour
     private Dictionary<int, Action> stageRewardMapping;
     public RewardPopup rewardPopup;
     readonly int OvertimeThreshold = 30;
+    readonly int Augment1012Threshold = 10;
+    private bool aug1012flag;
+    private bool acensionflag;
     public FirestoreUploader uploader;
     public List<DocumentSnapshot> temp = new();
     public int WinStreak { get; private set; } = 0; // ³s³Ó¦¸¼Æ
@@ -295,6 +299,8 @@ public class GameStageManager : MonoBehaviour
         WinStreak = 0;
         LoseStreak = 0;
         startBattleFlag = false;
+        aug1012flag = false;
+        acensionflag = false;
         overTimeFlag = false;
         enteringBattleCounter = 0;
         overtimeCounter = 0;
@@ -405,6 +411,53 @@ public class GameStageManager : MonoBehaviour
         if (startBattleFlag)
         {
             enteringBattleCounter += Time.deltaTime;
+            if (enteringBattleCounter >= Augment1012Threshold && !aug1012flag)
+            {
+                aug1012flag = true;
+
+                void HealMissing40(bool isAlly)
+                {
+                    if (!SelectedAugments.Instance.CheckAugmetExist(1012, isAlly)) return;
+
+                    var pool = isAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+                    foreach (var item in Utility.GetAllBattlingCharacter(pool))
+                    {
+                        int missingHealth = (int)((item.GetStat(StatsType.Health) - item.GetStat(StatsType.currHealth)) * 0.4f);
+                        item.Heal(missingHealth, item);
+                    }
+                }
+
+                HealMissing40(true);
+                HealMissing40(false);
+            }
+
+            if (enteringBattleCounter >= 15 && !acensionflag)
+            {
+                acensionflag = true;
+
+                void AddDamageIncrease(bool isAlly, int augmentId, string effectId, int value)
+                {
+                    if (!SelectedAugments.Instance.CheckAugmetExist(augmentId, isAlly)) return;
+
+                    var pool = isAlly ? ResourcePool.Instance.ally : ResourcePool.Instance.enemy;
+                    foreach (var item in Utility.GetAllBattlingCharacter(pool))
+                    {
+                        Effect e1 = EffectFactory.CreateUnStackableStatEffect(
+                            0, effectId, value, StatsType.DamageIncrease, item, true
+                        );
+                        item.effectCTRL.AddEffect(e1, item);
+                    }
+                }
+
+                AddDamageIncrease(true, 1013, "Augment1013", 15);
+                AddDamageIncrease(false, 1013, "Augment1013", 15);
+
+                AddDamageIncrease(true, 1033, "Augment1033", 60);
+                AddDamageIncrease(false, 1033, "Augment1033", 60);
+
+                AddDamageIncrease(true, 1043, "Augment1043_SecondPhase", 60);
+                AddDamageIncrease(false, 1043, "Augment1043_SecondPhase", 60);
+            }
             if (enteringBattleCounter >= OvertimeThreshold)
             {
                 overtimeCounter += Time.deltaTime;
@@ -441,6 +494,8 @@ public class GameStageManager : MonoBehaviour
     private void OnVictory(CharacterParent winningTeam, CharacterParent defeatedTeam)
     {
         startBattleFlag = false;
+        aug1012flag = false;
+        acensionflag = false;
         DamageStatisticsManager.Instance.Reset125();
         if (SelectedAugments.Instance.CheckAugmetExist(125, true))
         {
